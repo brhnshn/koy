@@ -81,17 +81,17 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 
 ---
 
-## M3 — Takvim, Pomodoro, Raf, Ayarlar, Dil
-- [ ] `Core/Calendar/MonthGrid.cs`: ay görünümü için gün ızgarası (Pazartesi başlangıçlı, kültüre göre). Testli.
-- [ ] `Core/Timers/Pomodoro.cs`: durum makinesi (çalışma / kısa mola / uzun mola), süreler ayardan. Testli; zaman `TimeProvider` ile verilir ki test edilebilsin.
-- [ ] `App/Features/Calendar/CalendarPanel.xaml`: gün / hafta / ay, zamanlayıcı, kronometre, Pomodoro. Yalnız yerel; Google/Outlook sonraki sürüm.
-- [ ] Bildirim: zamanlayıcı bitince notch kısa süre Peek durumuna geçer ve titrer (yay animasyonu).
-- [ ] `App/Features/Shelf/ShelfPanel.xaml`: notch'a dosya / metin sürükle-bırak (`AllowDrop`), listeden dışarı sürükleme (`DragDrop.DoDragDrop`). Dosyalar kopyalanmaz, yol tutulur; liste `%AppData%\Koy\shelf.json`.
-- [ ] `App/Features/Settings/SettingsWindow.xaml`: genel (dil, başlangıçta çalış), notch (görünürlük modu, hangi paneller), dock (M4), görünüm (vurgu rengi, katı / cam), hakkında (sürüm, tanılama kopyala). Yalnız açılınca oluşturulur.
-- [ ] Başlangıçta çalış: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
-- [ ] Cam görünüm: `DwmSetWindowAttribute(DWMWA_SYSTEMBACKDROP_TYPE)` yalnız Ayarlar penceresinde; notch katı renk kalır (yazılımla çizimde DWM arka planı saydam pencerede çalışmaz, deneyip ölç).
-- [ ] Dil: `Resources/Strings.resx` (en) + `Strings.tr.resx`; XAML'de `{x:Static res:Strings.Key}`. Bütün sabit Türkçe metinler buraya taşınır.
-- [ ] Tepsi simgesi yerine: notch sağ tık menüsü (Ayarlar, Çıkış). Ayrı `NotifyIcon` eklenmez (WinForms gerektirir).
+## M3 — Takvim, Pomodoro, Raf, Ayarlar, Dil ✅ (2026-11-04)
+- [x] `Core/Calendar/MonthGrid.cs`: ay görünümü için gün ızgarası (Pazartesi başlangıçlı, kültüre göre). Testli.
+- [x] `Core/Timers/Pomodoro.cs`: durum makinesi (çalışma / kısa mola / uzun mola), süreler ayardan. Testli; zaman `TimeProvider` ile verilir ki test edilebilsin.
+- [x] `App/Features/Calendar/CalendarPanel.xaml`: gün / hafta / ay, zamanlayıcı, kronometre, Pomodoro. Yalnız yerel; Google/Outlook sonraki sürüm.
+- [x] Bildirim: zamanlayıcı bitince notch kısa süre Peek durumuna geçer ve titrer (yay animasyonu).
+- [x] `App/Features/Shelf/ShelfPanel.xaml`: notch'a dosya / metin sürükle-bırak (`AllowDrop`), listeden dışarı sürükleme (`DragDrop.DoDragDrop`). Dosyalar kopyalanmaz, yol tutulur; liste `%AppData%\Koy\shelf.json`.
+- [x] `App/Features/Settings/SettingsWindow.xaml`: genel (dil, başlangıçta çalış), notch (görünürlük modu, hangi paneller), dock (M4), görünüm (vurgu rengi, katı / cam), hakkında (sürüm, tanılama kopyala). Yalnız açılınca oluşturulur.
+- [x] Başlangıçta çalış: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
+- [x] Cam görünüm: `DwmSetWindowAttribute(DWMWA_SYSTEMBACKDROP_TYPE)` yalnız Ayarlar penceresinde; notch katı renk kalır (yazılımla çizimde DWM arka planı saydam pencerede çalışmaz, deneyip ölç).
+- [x] Dil: `Resources/Strings.resx` (en) + `Strings.tr.resx`; XAML'de `{x:Static res:Strings.Key}`. Bütün sabit Türkçe metinler buraya taşınır.
+- [x] Tepsi simgesi yerine: notch sağ tık menüsü (Ayarlar, Çıkış). Ayrı `NotifyIcon` eklenmez (WinForms gerektirir).
 
 ---
 

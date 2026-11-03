@@ -7,6 +7,8 @@
         xmlns:music="clr-namespace:Koy.App.Features.Music"
         xmlns:cc="clr-namespace:Koy.App.Features.ControlCenter"
         xmlns:status="clr-namespace:Koy.App.Features.Status"
+        xmlns:cal="clr-namespace:Koy.App.Features.Calendar"
+        xmlns:shelf="clr-namespace:Koy.App.Features.Shelf"
         xmlns:core="clr-namespace:Koy.Core.Notch;assembly=Koy.Core"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:NotchViewModel}"
@@ -35,6 +37,8 @@
       </local:NotchShape.RenderTransform>
       <local:NotchShape.ContextMenu>
         <ContextMenu>
+          <MenuItem Header="Ayarlar" Command="{Binding OpenSettingsCommand}" />
+          <Separator />
           <MenuItem Header="Çıkış" Command="{Binding QuitCommand}" />
         </ContextMenu>
       </local:NotchShape.ContextMenu>
@@ -197,6 +201,12 @@
               </DataTemplate>
               <DataTemplate DataType="{x:Type status:StatusViewModel}">
                 <status:StatusPanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type cal:CalendarViewModel}">
+                <cal:CalendarPanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type shelf:ShelfViewModel}">
+                <shelf:ShelfPanel />
               </DataTemplate>
             </ContentControl.Resources>
           </ContentControl>

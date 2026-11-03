@@ -1,0 +1,95 @@
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Windows.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Koy.Core.Shelf;
+
+namespace Koy.App.Features.Shelf;
+
+public sealed partial class ShelfViewModel : ObservableObject, IDisposable
+{
+    private readonly IShelfService _shelfService;
+    private readonly Dispatcher _dispatcher;
+    private bool _disposed;
+
+    public ObservableCollection<ShelfItem> Items { get; } = [];
+
+    [ObservableProperty]
+    private bool _isEmpty = true;
+
+    public ShelfViewModel(IShelfService shelfService, Dispatcher? dispatcher = null)
+    {
+        _shelfService = shelfService;
+        _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
+
+        UpdateItems();
+        _shelfService.ItemsChanged += OnItemsChanged;
+    }
+
+    private void OnItemsChanged(object? sender, EventArgs e)
+    {
+        _dispatcher.InvokeAsync(UpdateItems);
+    }
+
+    private void UpdateItems()
+    {
+        Items.Clear();
+        foreach (var item in _shelfService.Items)
+        {
+            Items.Add(item);
+        }
+        IsEmpty = Items.Count == 0;
+    }
+
+    [RelayCommand]
+    private void RemoveItem(string id)
+    {
+        _shelfService.Remove(id);
+    }
+
+    [RelayCommand]
+    private void ClearAll()
+    {
+        _shelfService.Clear();
+    }
+
+    [RelayCommand]
+    private void OpenItem(ShelfItem item)
+    {
+        if (item.Kind is ShelfItemKind.File or ShelfItemKind.Directory)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(item.PathOrContent) { UseShellExecute = true });
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    public void HandleDrop(string[]? filePaths, string? text)
+    {
+        if (filePaths is not null && filePaths.Length > 0)
+        {
+            foreach (var file in filePaths)
+            {
+                _shelfService.AddFile(file);
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(text))
+        {
+            _shelfService.AddText(text);
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        _shelfService.ItemsChanged -= OnItemsChanged;
+    }
+}

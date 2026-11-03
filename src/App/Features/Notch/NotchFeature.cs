@@ -1,7 +1,9 @@
 using System.Windows;
 using System.Windows.Interop;
+using Koy.App.Features.Calendar;
 using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
+using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
 using Koy.Core.Notch;
 using Koy.Core.Settings;
@@ -12,6 +14,7 @@ using Koy.Platform.Display;
 using Koy.Platform.Media;
 using Koy.Platform.Power;
 using Koy.Platform.Radio;
+using Koy.Platform.Shelf;
 using Koy.Platform.Shell;
 using Koy.Platform.Weather;
 
@@ -27,6 +30,7 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
     private PowerService? _powerService;
     private WeatherService? _weatherService;
     private FocusAssistService? _focusAssistService;
+    private ShelfService? _shelfService;
     private WindowTracker? _windowTracker;
     private FullscreenDetector? _fullscreenDetector;
     private VisibilityController? _visibilityController;
@@ -52,6 +56,7 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         _powerService = new PowerService();
         _weatherService = new WeatherService();
         _focusAssistService = new FocusAssistService();
+        _shelfService = new ShelfService();
 
         _windowTracker = new WindowTracker();
         _fullscreenDetector = new FullscreenDetector();
@@ -59,7 +64,13 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         // Denetleyici ve etkin paneller
         var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter, NotchPanel.Status]);
+        controller.SetEnabledPanels([
+            NotchPanel.Music,
+            NotchPanel.ControlCenter,
+            NotchPanel.Status,
+            NotchPanel.Calendar,
+            NotchPanel.Shelf
+        ]);
 
         // Panel ViewModel'leri
         var musicVm = new MusicViewModel(_mediaService);
@@ -70,6 +81,8 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             _focusAssistService,
             settings);
         var statusVm = new StatusViewModel(_powerService, _weatherService, settings);
+        var calendarVm = new CalendarViewModel(settings);
+        var shelfVm = new ShelfViewModel(_shelfService);
 
         _viewModel = new NotchViewModel(
             settings,
@@ -77,6 +90,8 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             musicVm,
             controlCenterVm,
             statusVm,
+            calendarVm,
+            shelfVm,
             _visibilityController);
 
         _window = new NotchWindow { DataContext = _viewModel };
@@ -231,5 +246,8 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         _focusAssistService?.Dispose();
         _focusAssistService = null;
+
+        _shelfService?.Dispose();
+        _shelfService = null;
     }
 }

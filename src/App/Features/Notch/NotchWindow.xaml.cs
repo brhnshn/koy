@@ -50,6 +50,7 @@ public partial class NotchWindow : Window
             oldVm.TargetSizeChanged -= AnimateTo;
             oldVm.TargetVisibilityChanged -= AnimateVisibility;
             oldVm.PanelTransitionTriggered -= AnimatePanelTransition;
+            oldVm.ShakeRequested -= OnShakeRequested;
         }
 
         if (e.NewValue is NotchViewModel newVm)
@@ -57,6 +58,7 @@ public partial class NotchWindow : Window
             newVm.TargetSizeChanged += AnimateTo;
             newVm.TargetVisibilityChanged += AnimateVisibility;
             newVm.PanelTransitionTriggered += AnimatePanelTransition;
+            newVm.ShakeRequested += OnShakeRequested;
             AnimateTo(newVm.TargetWidth, newVm.TargetHeight);
             if (!newVm.IsNotchVisible)
             {
@@ -125,6 +127,19 @@ public partial class NotchWindow : Window
         _panelTranslateX.Target = 0;
         _panelOpacity.SnapTo(0.25);
         _panelOpacity.Target = 1.0;
+        WakeAnimation();
+    }
+
+    private void OnShakeRequested()
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.InvokeAsync(OnShakeRequested);
+            return;
+        }
+
+        _translateY.SnapTo(8);
+        _translateY.Target = 0;
         WakeAnimation();
     }
 

@@ -1,8 +1,11 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.App.Features.Calendar;
 using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
+using Koy.App.Features.Settings;
+using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
 using Koy.Core.Notch;
 using Koy.Core.Settings;
@@ -16,6 +19,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private readonly MusicViewModel _music;
     private readonly ControlCenterViewModel _controlCenter;
     private readonly StatusViewModel _status;
+    private readonly CalendarViewModel _calendar;
+    private readonly ShelfViewModel _shelf;
     private readonly VisibilityController _visibility;
     private bool _disposed;
 
@@ -24,6 +29,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public MusicViewModel Music => _music;
     public ControlCenterViewModel ControlCenter => _controlCenter;
     public StatusViewModel Status => _status;
+    public CalendarViewModel Calendar => _calendar;
+    public ShelfViewModel Shelf => _shelf;
     public VisibilityController Visibility => _visibility;
 
     public ObservableObject CurrentPanelContent => CurrentPanel switch
@@ -31,6 +38,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         NotchPanel.Music => Music,
         NotchPanel.ControlCenter => ControlCenter,
         NotchPanel.Status => Status,
+        NotchPanel.Calendar => Calendar,
+        NotchPanel.Shelf => Shelf,
         _ => Music
     };
 
@@ -55,6 +64,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public event Action<double, double>? TargetSizeChanged;
     public event Action<bool>? TargetVisibilityChanged;
     public event Action<int>? PanelTransitionTriggered;
+    public event Action? ShakeRequested;
 
     public NotchViewModel(
         AppSettings settings,
@@ -62,6 +72,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         MusicViewModel music,
         ControlCenterViewModel controlCenter,
         StatusViewModel status,
+        CalendarViewModel calendar,
+        ShelfViewModel shelf,
         VisibilityController? visibility = null)
     {
         Settings = settings;
@@ -69,6 +81,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _music = music;
         _controlCenter = controlCenter;
         _status = status;
+        _calendar = calendar;
+        _shelf = shelf;
         _visibility = visibility ?? new VisibilityController(settings.NotchVisibility);
 
         _isNotchVisible = _visibility.IsVisible;
@@ -79,8 +93,15 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _visibility.Changed += OnVisibilityChanged;
         _music.TrackChanged += OnTrackChanged;
         _music.PropertyChanged += OnMusicPropertyChanged;
+        _calendar.TimerFinished += OnCalendarTimerFinished;
 
         UpdateTargetSize();
+    }
+
+    private void OnCalendarTimerFinished()
+    {
+        _controller.OnTrackChanged(); // Kısa süre Peek moduna geçirir
+        ShakeRequested?.Invoke();
     }
 
     private void OnPanelTransitionTriggered(int direction)
@@ -152,6 +173,16 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private void PreviousPanel() => _controller.PreviousPanel();
 
     [RelayCommand]
+    private void OpenSettings()
+    {
+        var win = new SettingsWindow
+        {
+            DataContext = new SettingsViewModel()
+        };
+        win.ShowDialog();
+    }
+
+    [RelayCommand]
     private static void Quit() => System.Windows.Application.Current.Shutdown();
 
     public void Dispose()
@@ -166,10 +197,13 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _visibility.Changed -= OnVisibilityChanged;
         _music.TrackChanged -= OnTrackChanged;
         _music.PropertyChanged -= OnMusicPropertyChanged;
+        _calendar.TimerFinished -= OnCalendarTimerFinished;
         _controller.Dispose();
         _visibility.Dispose();
         _music.Dispose();
         _controlCenter.Dispose();
         _status.Dispose();
+        _calendar.Dispose();
+        _shelf.Dispose();
     }
 }

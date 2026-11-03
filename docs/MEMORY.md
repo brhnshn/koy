@@ -13,6 +13,7 @@ Makine: Windows 11 Home 26200, RTX 4050 Laptop + Intel UHD.
 | 2026-11-04 | M1, NotchShape + Müzik paneli | 47.7 MB | 127.0 MB | Bütçe (< 60 MB) korundu |
 | 2026-11-04 | M1 Tam (Müzik + Görünürlük Modları) | 45.1 MB | 125.5 MB | Bütçe (< 60 MB) korundu |
 | 2026-11-04 | M2, Kontrol Merkezi + Durum Panelleri | 40.9 MB | 258.9 MB | Bütçe (< 60 MB) korundu |
+| 2026-11-04 | M3, Takvim, Pomodoro, Raf, Ayarlar | 39.2 MB | 256.6 MB | Bütçe (< 60 MB) korundu |
 
 ## Öğrenilenler
 - **GPU ile çizim pahalı.** WPF donanım hızlandırması açıkken ekran kartı sürücüsü sürece ~135 MB private bellek ekliyor. Notch ve dock küçük yüzeyler; yazılımla çizim (`RenderMode.SoftwareOnly`) yeterli. Animasyon akıcılığı M1'de ölçülecek; takılırsa önce çizilen alanı küçült, GPU'ya dönmeden önce ölç.

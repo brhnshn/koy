@@ -35,4 +35,7 @@ PHYSICAL_MONITOR
 GetMonitorBrightness
 SetMonitorBrightness
 SetVCPFeature
+DwmSetWindowAttribute
+DWMWINDOWATTRIBUTE
+DWM_SYSTEMBACKDROP_TYPE
 

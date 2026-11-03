@@ -1,0 +1,204 @@
+<UserControl x:Class="Koy.App.Features.Calendar.CalendarPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Koy.App.Features.Calendar"
+             xmlns:cal="clr-namespace:Koy.Core.Calendar;assembly=Koy.Core"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance local:CalendarViewModel}"
+             Foreground="{StaticResource NotchForeground}"
+             FontSize="11">
+
+  <UserControl.Resources>
+    <Style x:Key="MiniIconBtn" TargetType="Button">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Padding" Value="4" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bdr" Background="{TemplateBinding Background}" CornerRadius="12">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bdr" Property="Background" Value="#25FFFFFF" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </UserControl.Resources>
+
+  <Grid Margin="14,6,14,8">
+    <Grid.ColumnDefinitions>
+      <!-- Sol: Takvim Ay Görünümü -->
+      <ColumnDefinition Width="1.4*" />
+      <!-- Dikey Çizgi -->
+      <ColumnDefinition Width="Auto" />
+      <!-- Sağ: Pomodoro Zamanlayıcısı -->
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <!-- 1. Sol: Mini Takvim -->
+    <Grid Grid.Column="0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <!-- Ay Başlığı ve İleri/Geri Düğmeleri -->
+      <Grid Grid.Row="0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Column="0" Style="{StaticResource MiniIconBtn}" Width="20" Height="20" Command="{Binding PreviousMonthCommand}">
+          <Path Width="6" Height="8" Stretch="Uniform" Fill="#BBFFFFFF" Data="M 6,0 L 0,4 L 6,8 Z" />
+        </Button>
+
+        <TextBlock Grid.Column="1" Text="{Binding MonthTitle}"
+                   FontWeight="SemiBold" FontSize="11.5"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Foreground="{StaticResource NotchForeground}" />
+
+        <Button Grid.Column="2" Style="{StaticResource MiniIconBtn}" Width="20" Height="20" Command="{Binding NextMonthCommand}">
+          <Path Width="6" Height="8" Stretch="Uniform" Fill="#BBFFFFFF" Data="M 0,0 L 6,4 L 0,8 Z" />
+        </Button>
+      </Grid>
+
+      <!-- Gün Başlıkları (Pt Sa Ça Pe Cu Ct Pz) -->
+      <UniformGrid Grid.Row="1" Columns="7" Margin="0,2,0,2">
+        <TextBlock Text="Pt" FontSize="8.5" Foreground="#66FFFFFF" HorizontalAlignment="Center" />
+        <TextBlock Text="Sa" FontSize="8.5" Foreground="#66FFFFFF" HorizontalAlignment="Center" />
+        <TextBlock Text="Ça" FontSize="8.5" Foreground="#66FFFFFF" HorizontalAlignment="Center" />
+        <TextBlock Text="Pe" FontSize="8.5" Foreground="#66FFFFFF" HorizontalAlignment="Center" />
+        <TextBlock Text="Cu" FontSize="8.5" Foreground="#66FFFFFF" HorizontalAlignment="Center" />
+        <TextBlock Text="Ct" FontSize="8.5" Foreground="#66FFFFFF" HorizontalAlignment="Center" />
+        <TextBlock Text="Pz" FontSize="8.5" Foreground="#66FFFFFF" HorizontalAlignment="Center" />
+      </UniformGrid>
+
+      <!-- 42 Gün Izgarası -->
+      <ItemsControl Grid.Row="2" ItemsSource="{Binding Days}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="7" Rows="6" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="{x:Type cal:CalendarDay}">
+            <Border CornerRadius="4" Margin="0.5" Width="16" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Border.Style>
+                <Style TargetType="Border">
+                  <Setter Property="Background" Value="Transparent" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsToday}" Value="True">
+                      <Setter Property="Background" Value="#3B82F6" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Border.Style>
+              <TextBlock Text="{Binding Date.Day}"
+                         FontSize="9"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="#FFFFFFFF" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsCurrentMonth}" Value="False">
+                        <Setter Property="Foreground" Value="#33FFFFFF" />
+                      </DataTrigger>
+                      <DataTrigger Binding="{Binding IsToday}" Value="True">
+                        <Setter Property="Foreground" Value="#FFFFFFFF" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Grid>
+
+    <!-- Dikey Ayırıcı -->
+    <Rectangle Grid.Column="1" Width="1" Fill="#20FFFFFF" Margin="12,2" VerticalAlignment="Stretch" />
+
+    <!-- 2. Sağ: Pomodoro -->
+    <Grid Grid.Column="2" VerticalAlignment="Center">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- Mod Etiketi -->
+      <Border Grid.Row="0" HorizontalAlignment="Center" Background="#1FFFFFFF" CornerRadius="8" Padding="6,2">
+        <TextBlock Text="{Binding PomodoroModeText}" FontSize="9.5" FontWeight="Medium" Foreground="#60A5FA" />
+      </Border>
+
+      <!-- Kalan Süre -->
+      <TextBlock Grid.Row="1" Text="{Binding PomodoroTimeText}"
+                 FontSize="24" FontWeight="Light"
+                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Foreground="{StaticResource NotchForeground}"
+                 Margin="0,4" />
+
+      <!-- Kontrol Butonları: Sıfırla, Başlat/Duraklat, İlerle -->
+      <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+        <!-- Sıfırla -->
+        <Button Style="{StaticResource MiniIconBtn}" Width="26" Height="26" Command="{Binding ResetPomodoroCommand}" ToolTip="Sıfırla">
+          <Path Width="10" Height="10" Stretch="Uniform" Fill="#99FFFFFF"
+                Data="M 12,4 A 8,8 0 0 0 4,12 L 1,9 L 1,15 L 7,15 L 4.5,12.5 A 6,6 0 1 1 6,17.2 L 4.5,18.7 A 8,8 0 1 0 12,4 Z" />
+        </Button>
+
+        <!-- Başlat / Duraklat -->
+        <Button Style="{StaticResource MiniIconBtn}" Width="30" Height="30" Margin="4,0" Command="{Binding TogglePomodoroCommand}" ToolTip="Başlat / Duraklat">
+          <Grid>
+            <!-- Başlat simgesi -->
+            <Path Width="11" Height="11" Stretch="Uniform" Fill="#FFFFFFFF" Data="M 2,1 L 11,6 L 2,11 Z">
+              <Path.Style>
+                <Style TargetType="Path">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsPomodoroRunning}" Value="False">
+                      <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Path.Style>
+            </Path>
+            <!-- Duraklat simgesi -->
+            <Path Width="11" Height="11" Stretch="Uniform" Fill="#FFFFFFFF" Data="M 2,1 L 4.5,1 L 4.5,11 L 2,11 Z M 7.5,1 L 10,1 L 10,11 L 7.5,11 Z">
+              <Path.Style>
+                <Style TargetType="Path">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsPomodoroRunning}" Value="True">
+                      <Setter Property="Visibility" Value="Visible" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </Path.Style>
+            </Path>
+          </Grid>
+        </Button>
+
+        <!-- İlerle (Skip) -->
+        <Button Style="{StaticResource MiniIconBtn}" Width="26" Height="26" Command="{Binding SkipPomodoroCommand}" ToolTip="Sonraki Aşama">
+          <Path Width="10" Height="10" Stretch="Uniform" Fill="#99FFFFFF"
+                Data="M 2,2 L 8,6 L 2,10 Z M 9,2 L 11,2 L 11,10 L 9,10 Z" />
+        </Button>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

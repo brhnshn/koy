@@ -1,0 +1,174 @@
+<Window x:Class="Koy.App.Features.Settings.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Koy.App.Features.Settings"
+        xmlns:vis="clr-namespace:Koy.Core.Visibility;assembly=Koy.Core"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance local:SettingsViewModel}"
+        Title="Koy Ayarları"
+        Width="520" Height="420"
+        WindowStartupLocation="CenterScreen"
+        Background="#18181B"
+        Foreground="#EEEEEE"
+        FontSize="12"
+        ResizeMode="NoResize">
+
+  <Window.Resources>
+    <Style x:Key="SectionTitle" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+
+    <Style x:Key="OptionRow" TargetType="Grid">
+      <Setter Property="Margin" Value="0,0,0,14" />
+    </Style>
+
+    <Style x:Key="ActionButton" TargetType="Button">
+      <Setter Property="Background" Value="#27272A" />
+      <Setter Property="Foreground" Value="#EEEEEE" />
+      <Setter Property="BorderBrush" Value="#3F3F46" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Padding" Value="12,6" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+      <Setter Property="Background" Value="#3B82F6" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+  </Window.Resources>
+
+  <Grid Margin="20">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TabControl Background="Transparent" BorderThickness="0">
+      <!-- 1. Genel Sekmesi -->
+      <TabItem Header="Genel" Foreground="#EEEEEE">
+        <StackPanel Margin="0,16,0,0">
+          <TextBlock Text="Genel Ayarlar" Style="{StaticResource SectionTitle}" />
+
+          <!-- Dil Seçimi -->
+          <Grid Style="{StaticResource OptionRow}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="Uygulama Dili" FontWeight="Medium" />
+              <TextBlock Text="Arayüz metinlerinin dili" FontSize="11" Foreground="#888888" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" Width="120" SelectedValuePath="Tag" SelectedValue="{Binding Language}">
+              <ComboBoxItem Content="Türkçe" Tag="tr" />
+              <ComboBoxItem Content="English" Tag="en" />
+            </ComboBox>
+          </Grid>
+
+          <!-- Başlangıçta Çalış -->
+          <Grid Style="{StaticResource OptionRow}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="Windows Açılışında Çalıştır" FontWeight="Medium" />
+              <TextBlock Text="Bilgisayar açıldığında Koy otomatik başlasın" FontSize="11" Foreground="#888888" />
+            </StackPanel>
+            <CheckBox Grid.Column="1" IsChecked="{Binding RunAtStartup}" VerticalAlignment="Center" />
+          </Grid>
+        </StackPanel>
+      </TabItem>
+
+      <!-- 2. Çentik Sekmesi -->
+      <TabItem Header="Çentik" Foreground="#EEEEEE">
+        <StackPanel Margin="0,16,0,0">
+          <TextBlock Text="Çentik Davranışı" Style="{StaticResource SectionTitle}" />
+
+          <!-- Görünürlük Modu -->
+          <Grid Style="{StaticResource OptionRow}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="Görünürlük Modu" FontWeight="Medium" />
+              <TextBlock Text="Sabit (daima ekranda), Akıllı (pencere gelince gizlen) veya Kenar Gözetleme" FontSize="11" Foreground="#888888" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" Width="140" SelectedValuePath="Tag" SelectedValue="{Binding NotchVisibility}">
+              <ComboBoxItem Content="Sabit (Fixed)" Tag="{x:Static vis:VisibilityMode.Fixed}" />
+              <ComboBoxItem Content="Akıllı (Smart)" Tag="{x:Static vis:VisibilityMode.Smart}" />
+              <ComboBoxItem Content="Gözetleme (Peek)" Tag="{x:Static vis:VisibilityMode.Peek}" />
+            </ComboBox>
+          </Grid>
+
+          <!-- Paneller -->
+          <TextBlock Text="Etkin Paneller" FontWeight="Medium" Margin="0,8,0,8" />
+          <WrapPanel Margin="0,0,0,12">
+            <CheckBox Content="Müzik" IsChecked="{Binding EnableMusic}" Margin="0,0,16,8" />
+            <CheckBox Content="Kontrol Merkezi" IsChecked="{Binding EnableControlCenter}" Margin="0,0,16,8" />
+            <CheckBox Content="Durum" IsChecked="{Binding EnableStatus}" Margin="0,0,16,8" />
+            <CheckBox Content="Takvim" IsChecked="{Binding EnableCalendar}" Margin="0,0,16,8" />
+            <CheckBox Content="Raf" IsChecked="{Binding EnableShelf}" Margin="0,0,16,8" />
+          </WrapPanel>
+        </StackPanel>
+      </TabItem>
+
+      <!-- 3. Görünüm Sekmesi -->
+      <TabItem Header="Görünüm" Foreground="#EEEEEE">
+        <StackPanel Margin="0,16,0,0">
+          <TextBlock Text="Görünüm ve Vurgu" Style="{StaticResource SectionTitle}" />
+
+          <!-- Vurgu Rengi -->
+          <Grid Style="{StaticResource OptionRow}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="Vurgu Rengi" FontWeight="Medium" />
+              <TextBlock Text="Döşeme ve göstergelerde kullanılan renk" FontSize="11" Foreground="#888888" />
+            </StackPanel>
+            <TextBox Grid.Column="1" Width="100" Text="{Binding AccentColor}" VerticalAlignment="Center" Padding="4,2" />
+          </Grid>
+        </StackPanel>
+      </TabItem>
+
+      <!-- 4. Hakkında Sekmesi -->
+      <TabItem Header="Hakkında" Foreground="#EEEEEE">
+        <StackPanel Margin="0,16,0,0">
+          <TextBlock Text="Koy Hakkında" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="Windows 11 için hafif, yay animasyonlu çentik (notch) ve dock." Foreground="#AAAAAA" Margin="0,0,0,12" />
+          <TextBlock Text="{Binding AppVersion, StringFormat='Sürüm: {0}'}" FontWeight="Medium" Margin="0,0,0,4" />
+          <TextBlock Text="Lisans: GPLv3" Foreground="#888888" Margin="0,0,0,16" />
+
+          <Button Style="{StaticResource ActionButton}" Command="{Binding CopyDiagnosticsCommand}" HorizontalAlignment="Left">
+            <TextBlock Text="Tanılama Bilgilerini Kopyala" />
+          </Button>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+
+    <!-- Alt Çubuk: Kapat ve Kaydet Düğmeleri -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+      <Button Style="{StaticResource ActionButton}" Content="İptal" Click="Cancel_Click" Margin="0,0,8,0" Width="70" />
+      <Button Style="{StaticResource PrimaryButton}" Content="Kaydet" Command="{Binding SaveCommand}" Click="Save_Click" Width="80" />
+    </StackPanel>
+  </Grid>
+</Window>
