@@ -1,0 +1,231 @@
+using Koy.Core.Shell;
+
+namespace Koy.Core.Dock;
+
+/// <summary>
+/// Sabitlenmiş uygulamalar ve açık pencereleri birleştirip Dock öğelerini yöneten saf mantık denetleyicisi.
+/// Hiçbir Windows veya WPF tipi içermez; birim testlerle tamamen sınanabilir.
+/// </summary>
+public sealed class DockController : IDisposable
+{
+    private readonly IPinnedAppsService _pinnedAppsService;
+    private readonly IWindowTracker _windowTracker;
+    private readonly IShellActionService _shellActionService;
+    private readonly IFullscreenDetector? _fullscreenDetector;
+
+    private List<DockItem> _items = [];
+    private bool _isHiddenByFullscreen;
+    private bool _disposed;
+
+    public event EventHandler? ItemsChanged;
+    public event EventHandler<bool>? FullscreenStateChanged;
+
+    public IReadOnlyList<DockItem> Items => _items;
+
+    public bool IsHiddenByFullscreen => _isHiddenByFullscreen;
+
+    public DockController(
+        IPinnedAppsService pinnedAppsService,
+        IWindowTracker windowTracker,
+        IShellActionService shellActionService,
+        IFullscreenDetector? fullscreenDetector = null)
+    {
+        _pinnedAppsService = pinnedAppsService;
+        _windowTracker = windowTracker;
+        _shellActionService = shellActionService;
+        _fullscreenDetector = fullscreenDetector;
+
+        _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
+        _windowTracker.WindowsChanged += OnWindowsChanged;
+    }
+
+    public void Start()
+    {
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        if (_disposed) return;
+
+        CheckFullscreen();
+
+        var pinnedApps = _pinnedAppsService.GetPinnedApps();
+        var openWindows = _windowTracker.GetOpenWindows();
+        var currentForeground = _windowTracker.CurrentForeground;
+
+        var remainingWindows = new List<OpenWindowInfo>(openWindows);
+        var newItems = new List<DockItem>();
+
+        // 1. Sabitli uygulamaları işle ve eşleşen pencereleri bul
+        foreach (var pin in pinnedApps)
+        {
+            var matchingWindows = remainingWindows.FindAll(w => IsMatch(pin, w));
+            var isRunning = matchingWindows.Count > 0;
+            var isActive = matchingWindows.Any(w => currentForeground is not null && w.Handle == currentForeground.Handle);
+            var handles = matchingWindows.ConvertAll(w => w.Handle);
+            var processId = matchingWindows.Count > 0 ? matchingWindows[0].ProcessId : 0;
+
+            foreach (var m in matchingWindows)
+                remainingWindows.Remove(m);
+
+            newItems.Add(new DockItem(
+                Id: pin.ShortcutPath,
+                Title: pin.Title,
+                FilePath: pin.ShortcutPath,
+                TargetPath: pin.TargetPath,
+                IconData: pin.IconData,
+                IsPinned: true,
+                IsRunning: isRunning,
+                IsActive: isActive,
+                WindowHandles: handles,
+                ProcessId: processId));
+        }
+
+        // 2. Sabitlenmemiş açık pencereleri grupla
+        var unpinnedGroups = remainingWindows
+            .GroupBy(w => !string.IsNullOrEmpty(w.ProcessPath) ? w.ProcessPath : w.ProcessId.ToString())
+            .ToList();
+
+        foreach (var group in unpinnedGroups)
+        {
+            var list = group.ToList();
+            var first = list[0];
+            var isActive = list.Any(w => currentForeground is not null && w.Handle == currentForeground.Handle);
+            var handles = list.ConvertAll(w => w.Handle);
+
+            var title = !string.IsNullOrWhiteSpace(first.Title)
+                ? first.Title
+                : Path.GetFileNameWithoutExtension(first.ProcessPath) ?? "App";
+
+            newItems.Add(new DockItem(
+                Id: group.Key,
+                Title: title,
+                FilePath: first.ProcessPath,
+                TargetPath: first.ProcessPath,
+                IconData: null,
+                IsPinned: false,
+                IsRunning: true,
+                IsActive: isActive,
+                WindowHandles: handles,
+                ProcessId: first.ProcessId));
+        }
+
+        _items = newItems;
+        ItemsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void HandleItemClick(DockItem item)
+    {
+        if (!item.IsRunning)
+        {
+            var target = !string.IsNullOrEmpty(item.TargetPath)
+                ? item.TargetPath
+                : item.FilePath ?? item.Id;
+
+            _shellActionService.Launch(target);
+            return;
+        }
+
+        if (item.WindowHandles.Count == 0)
+            return;
+
+        // Halihazırda aktifse küçült, değilse öne getir
+        if (item.IsActive)
+        {
+            _windowTracker.MinimizeWindow(item.WindowHandles[0]);
+        }
+        else
+        {
+            _windowTracker.ActivateWindow(item.WindowHandles[0]);
+        }
+    }
+
+    public void HandleItemMiddleClick(DockItem item)
+    {
+        var target = !string.IsNullOrEmpty(item.TargetPath)
+            ? item.TargetPath
+            : item.FilePath ?? item.Id;
+
+        _shellActionService.Launch(target);
+    }
+
+    public void HandleItemClose(DockItem item)
+    {
+        foreach (var handle in item.WindowHandles)
+        {
+            _windowTracker.CloseWindow(handle);
+        }
+    }
+
+    public void HandleItemTerminate(DockItem item)
+    {
+        if (item.ProcessId > 0)
+        {
+            _windowTracker.TerminateProcess(item.ProcessId);
+        }
+    }
+
+    public void CheckFullscreen()
+    {
+        if (_fullscreenDetector is null)
+            return;
+
+        var isFullscreen = _fullscreenDetector.IsFullscreen();
+        if (_isHiddenByFullscreen != isFullscreen)
+        {
+            _isHiddenByFullscreen = isFullscreen;
+            FullscreenStateChanged?.Invoke(this, isFullscreen);
+        }
+    }
+
+    private static bool IsMatch(PinnedApp pin, OpenWindowInfo win)
+    {
+        // 1. Hedef yürütülebilir dosya yolu eşleşmesi
+        if (!string.IsNullOrEmpty(pin.TargetPath) && !string.IsNullOrEmpty(win.ProcessPath))
+        {
+            if (string.Equals(pin.TargetPath, win.ProcessPath, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            var pinExe = Path.GetFileName(pin.TargetPath);
+            var winExe = Path.GetFileName(win.ProcessPath);
+            if (!string.IsNullOrEmpty(pinExe) && string.Equals(pinExe, winExe, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        // 2. Başlık / kısayol adı eşleşmesi
+        var shortcutName = Path.GetFileNameWithoutExtension(pin.ShortcutPath);
+        if (!string.IsNullOrEmpty(shortcutName) && !string.IsNullOrEmpty(win.Title))
+        {
+            if (win.Title.Contains(shortcutName, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        if (!string.IsNullOrEmpty(pin.Title) && !string.IsNullOrEmpty(win.Title))
+        {
+            if (win.Title.Contains(pin.Title, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private void OnForegroundWindowChanged(object? sender, WindowInfo e)
+    {
+        Refresh();
+    }
+
+    private void OnWindowsChanged(object? sender, EventArgs e)
+    {
+        Refresh();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+
+        _windowTracker.ForegroundWindowChanged -= OnForegroundWindowChanged;
+        _windowTracker.WindowsChanged -= OnWindowsChanged;
+    }
+}

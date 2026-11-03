@@ -17,6 +17,8 @@ public sealed record AppSettings
 
     public VisibilityMode NotchVisibility { get; init; } = VisibilityMode.Fixed;
     public VisibilityMode DockVisibility { get; init; } = VisibilityMode.Smart;
+    public bool DockHoverMagnify { get; init; } = true;
+    public string MonitorTarget { get; init; } = "Primary";
     public string? AccentColor { get; init; }
 
     public List<string> ControlCenterLayout { get; init; } = ["wifi", "bluetooth", "donotdisturb"];
@@ -35,6 +37,8 @@ public sealed record AppSettings
                DockEnabled == other.DockEnabled &&
                NotchVisibility == other.NotchVisibility &&
                DockVisibility == other.DockVisibility &&
+               DockHoverMagnify == other.DockHoverMagnify &&
+               MonitorTarget == other.MonitorTarget &&
                AccentColor == other.AccentColor &&
                WeatherLatitude.Equals(other.WeatherLatitude) &&
                WeatherLongitude.Equals(other.WeatherLongitude) &&
@@ -52,6 +56,8 @@ public sealed record AppSettings
         hash.Add(DockEnabled);
         hash.Add(NotchVisibility);
         hash.Add(DockVisibility);
+        hash.Add(DockHoverMagnify);
+        hash.Add(MonitorTarget);
         hash.Add(AccentColor);
         hash.Add(WeatherLatitude);
         hash.Add(WeatherLongitude);

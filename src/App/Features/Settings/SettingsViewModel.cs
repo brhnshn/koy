@@ -21,6 +21,15 @@ public sealed partial class SettingsViewModel : ObservableObject
     private VisibilityMode _notchVisibility;
 
     [ObservableProperty]
+    private bool _dockEnabled;
+
+    [ObservableProperty]
+    private VisibilityMode _dockVisibility;
+
+    [ObservableProperty]
+    private bool _dockHoverMagnify = true;
+
+    [ObservableProperty]
     private bool _enableMusic = true;
 
     [ObservableProperty]
@@ -51,6 +60,9 @@ public sealed partial class SettingsViewModel : ObservableObject
         _language = settings.Language;
         _runAtStartup = StartupService.IsEnabled;
         _notchVisibility = settings.NotchVisibility;
+        _dockEnabled = settings.DockEnabled;
+        _dockVisibility = settings.DockVisibility;
+        _dockHoverMagnify = settings.DockHoverMagnify;
         _accentColor = settings.AccentColor ?? "#3B82F6";
 
         var panels = settings.EnabledPanels ?? ["music", "controlcenter", "status", "calendar", "shelf"];
@@ -81,6 +93,9 @@ public sealed partial class SettingsViewModel : ObservableObject
         {
             Language = Language,
             NotchVisibility = NotchVisibility,
+            DockEnabled = DockEnabled,
+            DockVisibility = DockVisibility,
+            DockHoverMagnify = DockHoverMagnify,
             AccentColor = AccentColor,
             EnabledPanels = enabledPanels
         };

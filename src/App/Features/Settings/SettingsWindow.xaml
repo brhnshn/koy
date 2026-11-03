@@ -131,7 +131,57 @@
         </StackPanel>
       </TabItem>
 
-      <!-- 3. Görünüm Sekmesi -->
+      <!-- 3. Dock Sekmesi -->
+      <TabItem Header="{x:Static res:Strings.Dock}" Foreground="#EEEEEE">
+        <StackPanel Margin="0,16,0,0">
+          <TextBlock Text="{x:Static res:Strings.Dock}" Style="{StaticResource SectionTitle}" />
+
+          <!-- Dock Açık/Kapalı -->
+          <Grid Style="{StaticResource OptionRow}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="{x:Static res:Strings.DockEnabled}" FontWeight="Medium" />
+              <TextBlock Text="{x:Static res:Strings.DockEnabledDesc}" FontSize="11" Foreground="#888888" />
+            </StackPanel>
+            <CheckBox Grid.Column="1" IsChecked="{Binding DockEnabled}" VerticalAlignment="Center" />
+          </Grid>
+
+          <!-- Dock Görünürlük Modu -->
+          <Grid Style="{StaticResource OptionRow}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="{x:Static res:Strings.NotchVisibility}" FontWeight="Medium" />
+              <TextBlock Text="{x:Static res:Strings.NotchVisibilityDesc}" FontSize="11" Foreground="#888888" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" Width="140" SelectedValuePath="Tag" SelectedValue="{Binding DockVisibility}">
+              <ComboBoxItem Content="Fixed" Tag="{x:Static vis:VisibilityMode.Fixed}" />
+              <ComboBoxItem Content="Smart" Tag="{x:Static vis:VisibilityMode.Smart}" />
+              <ComboBoxItem Content="Peek" Tag="{x:Static vis:VisibilityMode.Peek}" />
+            </ComboBox>
+          </Grid>
+
+          <!-- Büyütme Efekti -->
+          <Grid Style="{StaticResource OptionRow}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="{x:Static res:Strings.DockHoverMagnify}" FontWeight="Medium" />
+              <TextBlock Text="{x:Static res:Strings.DockHoverMagnifyDesc}" FontSize="11" Foreground="#888888" />
+            </StackPanel>
+            <CheckBox Grid.Column="1" IsChecked="{Binding DockHoverMagnify}" VerticalAlignment="Center" />
+          </Grid>
+        </StackPanel>
+      </TabItem>
+
+      <!-- 4. Görünüm Sekmesi -->
       <TabItem Header="{x:Static res:Strings.Appearance}" Foreground="#EEEEEE">
         <StackPanel Margin="0,16,0,0">
           <TextBlock Text="{x:Static res:Strings.Appearance}" Style="{StaticResource SectionTitle}" />

@@ -64,6 +64,28 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void Round_trips_with_dock_and_monitor_settings()
+    {
+        var store = NewStore();
+        var settings = new AppSettings
+        {
+            DockEnabled = true,
+            DockVisibility = VisibilityMode.Fixed,
+            DockHoverMagnify = false,
+            MonitorTarget = "All"
+        };
+
+        store.Save(settings);
+        var loaded = store.Load();
+
+        Assert.Equal(settings, loaded);
+        Assert.True(loaded.DockEnabled);
+        Assert.Equal(VisibilityMode.Fixed, loaded.DockVisibility);
+        Assert.False(loaded.DockHoverMagnify);
+        Assert.Equal("All", loaded.MonitorTarget);
+    }
+
+    [Fact]
     public void Equals_HandlesNullListsGracefully()
     {
         var s1 = new AppSettings { ControlCenterLayout = null!, EnabledPanels = null! };

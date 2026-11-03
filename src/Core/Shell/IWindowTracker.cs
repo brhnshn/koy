@@ -6,14 +6,36 @@ namespace Koy.Core.Shell;
 public sealed record WindowInfo(nint Handle, WindowRect Bounds);
 
 /// <summary>
-/// Ön plan penceresi ve konum değişikliklerini izleyen sözleşme.
+/// Açık olan bir üst düzey uygulama penceresinin bilgisi.
+/// </summary>
+public sealed record OpenWindowInfo(
+    nint Handle,
+    string Title,
+    string? ProcessPath,
+    int ProcessId,
+    WindowRect Bounds);
+
+/// <summary>
+/// Ön plan penceresi, konum değişiklikleri ve açık pencereleri izleyen sözleşme.
 /// Win32 tipleri içermez, pencere tanıtıcıları nint ile temsil edilir.
 /// </summary>
 public interface IWindowTracker : IDisposable
 {
     event EventHandler<WindowInfo>? ForegroundWindowChanged;
 
+    event EventHandler? WindowsChanged;
+
     WindowInfo? CurrentForeground { get; }
+
+    IReadOnlyList<OpenWindowInfo> GetOpenWindows();
+
+    void ActivateWindow(nint handle);
+
+    void MinimizeWindow(nint handle);
+
+    void CloseWindow(nint handle);
+
+    void TerminateProcess(int processId);
 
     void Start();
 

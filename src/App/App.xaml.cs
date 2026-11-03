@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Koy.App.Features;
+using Koy.App.Features.Dock;
 using Koy.App.Features.Notch;
 using Koy.Core.Settings;
 using Koy.Platform.Shell;
@@ -34,9 +35,12 @@ public partial class App : Application
         Thread.CurrentThread.CurrentUICulture = culture;
         Thread.CurrentThread.CurrentCulture = culture;
 
-        // Yalnız açık özellikler başlatılır. M4: settings.DockEnabled ise DockFeature eklenir.
+        // Yalnız açık özellikler başlatılır. Dock kapalıyken görev çubuğuna hiç dokunulmaz.
         if (settings.NotchEnabled)
             _features.Add(new NotchFeature(settings));
+
+        if (settings.DockEnabled)
+            _features.Add(new DockFeature(settings));
 
         foreach (var feature in _features)
             feature.Start();

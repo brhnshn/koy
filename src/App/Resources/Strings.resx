@@ -162,4 +162,34 @@
   <data name="NextPhase" xml:space="preserve">
     <value>Next Phase</value>
   </data>
+  <data name="Dock" xml:space="preserve">
+    <value>Dock</value>
+  </data>
+  <data name="DockEnabled" xml:space="preserve">
+    <value>Enable Dock</value>
+  </data>
+  <data name="DockEnabledDesc" xml:space="preserve">
+    <value>Hides Windows taskbar and displays Koy dock</value>
+  </data>
+  <data name="DockHoverMagnify" xml:space="preserve">
+    <value>Magnification Effect</value>
+  </data>
+  <data name="DockHoverMagnifyDesc" xml:space="preserve">
+    <value>Smooth spring magnification on mouse hover</value>
+  </data>
+  <data name="LaunchNewInstance" xml:space="preserve">
+    <value>Open New Window</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="EndTask" xml:space="preserve">
+    <value>End Task</value>
+  </data>
+  <data name="StartMenu" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="SystemTray" xml:space="preserve">
+    <value>System Tray</value>
+  </data>
 </root>

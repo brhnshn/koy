@@ -54,4 +54,14 @@ public static class Strings
     public static string Start => Get(nameof(Start));
     public static string Pause => Get(nameof(Pause));
     public static string NextPhase => Get(nameof(NextPhase));
+    public static string Dock => Get(nameof(Dock));
+    public static string DockEnabled => Get(nameof(DockEnabled));
+    public static string DockEnabledDesc => Get(nameof(DockEnabledDesc));
+    public static string DockHoverMagnify => Get(nameof(DockHoverMagnify));
+    public static string DockHoverMagnifyDesc => Get(nameof(DockHoverMagnifyDesc));
+    public static string LaunchNewInstance => Get(nameof(LaunchNewInstance));
+    public static string Close => Get(nameof(Close));
+    public static string EndTask => Get(nameof(EndTask));
+    public static string StartMenu => Get(nameof(StartMenu));
+    public static string SystemTray => Get(nameof(SystemTray));
 }
