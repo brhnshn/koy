@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Koy.App.Features.Notch"
         xmlns:music="clr-namespace:Koy.App.Features.Music"
+        xmlns:cc="clr-namespace:Koy.App.Features.ControlCenter"
+        xmlns:status="clr-namespace:Koy.App.Features.Status"
         xmlns:core="clr-namespace:Koy.Core.Notch;assembly=Koy.Core"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:NotchViewModel}"
@@ -181,8 +183,23 @@
             </Style>
           </Grid.Style>
 
-          <!-- Panel Seçici / İçerik (Şu anda MusicPanel) -->
-          <music:MusicPanel DataContext="{Binding Music}" />
+          <!-- Panel Seçici / İçerik: Music, ControlCenter, Status -->
+          <ContentControl Content="{Binding CurrentPanelContent}">
+            <ContentControl.RenderTransform>
+              <TranslateTransform x:Name="PanelTranslate" X="0" />
+            </ContentControl.RenderTransform>
+            <ContentControl.Resources>
+              <DataTemplate DataType="{x:Type music:MusicViewModel}">
+                <music:MusicPanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type cc:ControlCenterViewModel}">
+                <cc:ControlCenterPanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type status:StatusViewModel}">
+                <status:StatusPanel />
+              </DataTemplate>
+            </ContentControl.Resources>
+          </ContentControl>
         </Grid>
       </Grid>
     </local:NotchShape>

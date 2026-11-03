@@ -20,4 +20,19 @@ GetClassName
 EVENT_SYSTEM_FOREGROUND
 EVENT_OBJECT_LOCATIONCHANGE
 WINEVENT_OUTOFCONTEXT
+MMDeviceEnumerator
+IMMDeviceEnumerator
+IMMDevice
+IAudioEndpointVolume
+IAudioEndpointVolumeCallback
+AUDIO_VOLUME_NOTIFICATION_DATA
+EDataFlow
+ERole
+GetNumberOfPhysicalMonitorsFromHMONITOR
+GetPhysicalMonitorsFromHMONITOR
+DestroyPhysicalMonitors
+PHYSICAL_MONITOR
+GetMonitorBrightness
+SetMonitorBrightness
+SetVCPFeature
 

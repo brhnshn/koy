@@ -1,7 +1,9 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
+using Koy.App.Features.Status;
 using Koy.Core.Notch;
 using Koy.Core.Settings;
 using Koy.Core.Visibility;
@@ -12,13 +14,25 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
 {
     private readonly NotchController _controller;
     private readonly MusicViewModel _music;
+    private readonly ControlCenterViewModel _controlCenter;
+    private readonly StatusViewModel _status;
     private readonly VisibilityController _visibility;
     private bool _disposed;
 
     public AppSettings Settings { get; }
     public NotchController Controller => _controller;
     public MusicViewModel Music => _music;
+    public ControlCenterViewModel ControlCenter => _controlCenter;
+    public StatusViewModel Status => _status;
     public VisibilityController Visibility => _visibility;
+
+    public ObservableObject CurrentPanelContent => CurrentPanel switch
+    {
+        NotchPanel.Music => Music,
+        NotchPanel.ControlCenter => ControlCenter,
+        NotchPanel.Status => Status,
+        _ => Music
+    };
 
     [ObservableProperty]
     private NotchState _state = NotchState.Collapsed;
@@ -40,27 +54,38 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
 
     public event Action<double, double>? TargetSizeChanged;
     public event Action<bool>? TargetVisibilityChanged;
+    public event Action<int>? PanelTransitionTriggered;
 
     public NotchViewModel(
         AppSettings settings,
         NotchController controller,
         MusicViewModel music,
+        ControlCenterViewModel controlCenter,
+        StatusViewModel status,
         VisibilityController? visibility = null)
     {
         Settings = settings;
         _controller = controller;
         _music = music;
+        _controlCenter = controlCenter;
+        _status = status;
         _visibility = visibility ?? new VisibilityController(settings.NotchVisibility);
 
         _isNotchVisible = _visibility.IsVisible;
 
         _controller.StateChanged += OnStateChanged;
         _controller.PanelChanged += OnPanelChanged;
+        _controller.PanelTransitionTriggered += OnPanelTransitionTriggered;
         _visibility.Changed += OnVisibilityChanged;
         _music.TrackChanged += OnTrackChanged;
         _music.PropertyChanged += OnMusicPropertyChanged;
 
         UpdateTargetSize();
+    }
+
+    private void OnPanelTransitionTriggered(int direction)
+    {
+        PanelTransitionTriggered?.Invoke(direction);
     }
 
     private void OnMusicPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -82,15 +107,23 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     {
         State = newState;
         UpdateTargetSize();
-        _music.SetActive(State == NotchState.Expanded && CurrentPanel == NotchPanel.Music);
+        UpdateActivePanels();
         _visibility.SetExpanded(State == NotchState.Expanded);
     }
 
     private void OnPanelChanged(object? sender, NotchPanel newPanel)
     {
         CurrentPanel = newPanel;
+        OnPropertyChanged(nameof(CurrentPanelContent));
         UpdateTargetSize();
-        _music.SetActive(State == NotchState.Expanded && CurrentPanel == NotchPanel.Music);
+        UpdateActivePanels();
+    }
+
+    private void UpdateActivePanels()
+    {
+        var isExpanded = State == NotchState.Expanded;
+        _music.SetActive(isExpanded && CurrentPanel == NotchPanel.Music);
+        _status.SetActive(isExpanded && CurrentPanel == NotchPanel.Status);
     }
 
     private void OnVisibilityChanged(object? sender, VisibilityResult result)
@@ -129,11 +162,14 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _disposed = true;
         _controller.StateChanged -= OnStateChanged;
         _controller.PanelChanged -= OnPanelChanged;
+        _controller.PanelTransitionTriggered -= OnPanelTransitionTriggered;
         _visibility.Changed -= OnVisibilityChanged;
         _music.TrackChanged -= OnTrackChanged;
         _music.PropertyChanged -= OnMusicPropertyChanged;
         _controller.Dispose();
         _visibility.Dispose();
         _music.Dispose();
+        _controlCenter.Dispose();
+        _status.Dispose();
     }
 }

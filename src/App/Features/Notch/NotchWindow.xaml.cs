@@ -13,6 +13,8 @@ public partial class NotchWindow : Window
     private readonly Spring _width = new(200);
     private readonly Spring _height = new(34);
     private readonly Spring _translateY = new(0);
+    private readonly Spring _panelTranslateX = new(0);
+    private readonly Spring _panelOpacity = new(1);
     private TimeSpan _lastFrame;
     private bool _animating;
     private bool _isNotchVisible = true;
@@ -47,12 +49,14 @@ public partial class NotchWindow : Window
         {
             oldVm.TargetSizeChanged -= AnimateTo;
             oldVm.TargetVisibilityChanged -= AnimateVisibility;
+            oldVm.PanelTransitionTriggered -= AnimatePanelTransition;
         }
 
         if (e.NewValue is NotchViewModel newVm)
         {
             newVm.TargetSizeChanged += AnimateTo;
             newVm.TargetVisibilityChanged += AnimateVisibility;
+            newVm.PanelTransitionTriggered += AnimatePanelTransition;
             AnimateTo(newVm.TargetWidth, newVm.TargetHeight);
             if (!newVm.IsNotchVisible)
             {
@@ -90,7 +94,8 @@ public partial class NotchWindow : Window
         {
             var button = FindParent<Button>(dep);
             var progress = FindParent<ProgressBar>(dep);
-            if (button is not null || progress is not null)
+            var slider = FindParent<Slider>(dep);
+            if (button is not null || progress is not null || slider is not null)
                 return;
         }
 
@@ -106,6 +111,21 @@ public partial class NotchWindow : Window
             ViewModel.NextPanelCommand.Execute(null);
         else if (e.Delta > 0)
             ViewModel.PreviousPanelCommand.Execute(null);
+    }
+
+    private void AnimatePanelTransition(int direction)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.InvokeAsync(() => AnimatePanelTransition(direction));
+            return;
+        }
+
+        _panelTranslateX.SnapTo(direction > 0 ? 35 : -35);
+        _panelTranslateX.Target = 0;
+        _panelOpacity.SnapTo(0.25);
+        _panelOpacity.Target = 1.0;
+        WakeAnimation();
     }
 
     private void AnimateVisibility(bool isVisible)
@@ -168,10 +188,12 @@ public partial class NotchWindow : Window
         if (dt <= 0)
             return;
 
-        var moving = _width.Step(dt) | _height.Step(dt) | _translateY.Step(dt);
+        var moving = _width.Step(dt) | _height.Step(dt) | _translateY.Step(dt) | _panelTranslateX.Step(dt) | _panelOpacity.Step(dt);
         Notch.Width = _width.Value;
         Notch.Height = _height.Value;
         NotchTranslate.Y = _translateY.Value;
+        PanelTranslate.X = _panelTranslateX.Value;
+        ExpandedView.Opacity = _panelOpacity.Value;
 
         if (moving)
             return;

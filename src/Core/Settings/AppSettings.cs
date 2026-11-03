@@ -18,4 +18,44 @@ public sealed record AppSettings
     public VisibilityMode NotchVisibility { get; init; } = VisibilityMode.Fixed;
     public VisibilityMode DockVisibility { get; init; } = VisibilityMode.Smart;
     public string? AccentColor { get; init; }
+
+    public List<string> ControlCenterLayout { get; init; } = ["wifi", "bluetooth", "donotdisturb"];
+    public double WeatherLatitude { get; init; } = 41.01;
+    public double WeatherLongitude { get; init; } = 28.97;
+    public string WeatherCity { get; init; } = "İstanbul";
+
+    public bool Equals(AppSettings? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Version == other.Version &&
+               Language == other.Language &&
+               NotchEnabled == other.NotchEnabled &&
+               DockEnabled == other.DockEnabled &&
+               NotchVisibility == other.NotchVisibility &&
+               DockVisibility == other.DockVisibility &&
+               AccentColor == other.AccentColor &&
+               WeatherLatitude.Equals(other.WeatherLatitude) &&
+               WeatherLongitude.Equals(other.WeatherLongitude) &&
+               WeatherCity == other.WeatherCity &&
+               ControlCenterLayout.SequenceEqual(other.ControlCenterLayout);
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(Version);
+        hash.Add(Language);
+        hash.Add(NotchEnabled);
+        hash.Add(DockEnabled);
+        hash.Add(NotchVisibility);
+        hash.Add(DockVisibility);
+        hash.Add(AccentColor);
+        hash.Add(WeatherLatitude);
+        hash.Add(WeatherLongitude);
+        hash.Add(WeatherCity);
+        foreach (var item in ControlCenterLayout)
+            hash.Add(item);
+        return hash.ToHashCode();
+    }
 }

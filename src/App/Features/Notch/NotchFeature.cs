@@ -1,12 +1,19 @@
 using System.Windows;
 using System.Windows.Interop;
+using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
+using Koy.App.Features.Status;
 using Koy.Core.Notch;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
 using Koy.Core.Visibility;
+using Koy.Platform.Audio;
+using Koy.Platform.Display;
 using Koy.Platform.Media;
+using Koy.Platform.Power;
+using Koy.Platform.Radio;
 using Koy.Platform.Shell;
+using Koy.Platform.Weather;
 
 namespace Koy.App.Features.Notch;
 
@@ -14,6 +21,12 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 {
     private NotchWindow? _window;
     private MediaService? _mediaService;
+    private AudioService? _audioService;
+    private RadioService? _radioService;
+    private BrightnessService? _brightnessService;
+    private PowerService? _powerService;
+    private WeatherService? _weatherService;
+    private FocusAssistService? _focusAssistService;
     private WindowTracker? _windowTracker;
     private FullscreenDetector? _fullscreenDetector;
     private VisibilityController? _visibilityController;
@@ -26,16 +39,45 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         if (_window is not null)
             return;
 
+        // Platform servisleri başlatılır
         _mediaService = new MediaService();
         _ = _mediaService.StartAsync();
+
+        _audioService = new AudioService();
+
+        _radioService = new RadioService();
+        _ = _radioService.StartAsync();
+
+        _brightnessService = new BrightnessService();
+        _powerService = new PowerService();
+        _weatherService = new WeatherService();
+        _focusAssistService = new FocusAssistService();
 
         _windowTracker = new WindowTracker();
         _fullscreenDetector = new FullscreenDetector();
         _visibilityController = new VisibilityController(settings.NotchVisibility);
 
+        // Denetleyici ve etkin paneller
         var controller = new NotchController();
+        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter, NotchPanel.Status]);
+
+        // Panel ViewModel'leri
         var musicVm = new MusicViewModel(_mediaService);
-        _viewModel = new NotchViewModel(settings, controller, musicVm, _visibilityController);
+        var controlCenterVm = new ControlCenterViewModel(
+            _audioService,
+            _radioService,
+            _brightnessService,
+            _focusAssistService,
+            settings);
+        var statusVm = new StatusViewModel(_powerService, _weatherService, settings);
+
+        _viewModel = new NotchViewModel(
+            settings,
+            controller,
+            musicVm,
+            controlCenterVm,
+            statusVm,
+            _visibilityController);
 
         _window = new NotchWindow { DataContext = _viewModel };
         _window.SourceInitialized += OnWindowSourceInitialized;
@@ -102,7 +144,6 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         if (_visibilityController is null || _edgePeekTimer is null)
             return;
 
-        // Görünür değilken (veya kenar gözetleme farenin ayrılmasını beklerken) ve tam ekran değilken 100 ms aralıkla kontrol (AGENTS.md #5)
         var shouldRun = (!_visibilityController.IsVisible || _visibilityController.IsMouseAtEdge) &&
                         !_visibilityController.IsFullscreen &&
                         _visibilityController.Mode != VisibilityMode.Fixed;
@@ -128,7 +169,6 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         if (_windowTracker.GetCursorPosition(out var x, out var y))
         {
             var bounds = _visibilityController.NotchBounds;
-            // Çentik yatay sınırları (30 px tolerans payı ile)
             var minX = bounds.Left - 30;
             var maxX = bounds.Right + 30;
             var isAtEdge = y >= 0 && y <= 2 && (bounds.IsEmpty || (x >= minX && x <= maxX));
@@ -173,5 +213,23 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         _mediaService?.Dispose();
         _mediaService = null;
+
+        _audioService?.Dispose();
+        _audioService = null;
+
+        _radioService?.Dispose();
+        _radioService = null;
+
+        _brightnessService?.Dispose();
+        _brightnessService = null;
+
+        _powerService?.Dispose();
+        _powerService = null;
+
+        _weatherService?.Dispose();
+        _weatherService = null;
+
+        _focusAssistService?.Dispose();
+        _focusAssistService = null;
     }
 }
