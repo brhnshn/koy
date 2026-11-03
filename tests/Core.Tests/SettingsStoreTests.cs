@@ -45,6 +45,35 @@ public sealed class SettingsStoreTests : IDisposable
         Assert.Contains("\"Smart\"", File.ReadAllText(store.Path));
     }
 
+    [Fact]
+    public void Round_trips_with_custom_panels()
+    {
+        var store = NewStore();
+        var settings = new AppSettings
+        {
+            Language = "en",
+            EnabledPanels = ["music", "calendar"],
+            ControlCenterLayout = ["bluetooth", "wifi"]
+        };
+
+        store.Save(settings);
+        var loaded = store.Load();
+
+        Assert.Equal(settings, loaded);
+        Assert.Equal(["music", "calendar"], loaded.EnabledPanels);
+    }
+
+    [Fact]
+    public void Equals_HandlesNullListsGracefully()
+    {
+        var s1 = new AppSettings { ControlCenterLayout = null!, EnabledPanels = null! };
+        var s2 = new AppSettings();
+
+        Assert.False(s1.Equals(s2));
+        Assert.False(s2.Equals(s1));
+        Assert.True(s1.Equals(s1));
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_dir))

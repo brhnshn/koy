@@ -115,6 +115,64 @@ public partial class NotchWindow : Window
             ViewModel.PreviousPanelCommand.Execute(null);
     }
 
+    private void Notch_DragEnter(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetDataPresent(DataFormats.Text))
+        {
+            e.Effects = DragDropEffects.Copy;
+            if (ViewModel is not null)
+            {
+                if (ViewModel.Controller.State == Core.Notch.NotchState.Collapsed)
+                {
+                    ViewModel.Controller.OnMouseEnter();
+                    ViewModel.Controller.OnClick();
+                }
+                ViewModel.Controller.SelectPanel(Core.Notch.NotchPanel.Shelf);
+            }
+        }
+        else
+        {
+            e.Effects = DragDropEffects.None;
+        }
+        e.Handled = true;
+    }
+
+    private void Notch_DragOver(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetDataPresent(DataFormats.Text))
+        {
+            e.Effects = DragDropEffects.Copy;
+        }
+        else
+        {
+            e.Effects = DragDropEffects.None;
+        }
+        e.Handled = true;
+    }
+
+    private void Notch_Drop(object sender, DragEventArgs e)
+    {
+        if (ViewModel is null)
+            return;
+
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
+            {
+                ViewModel.Shelf.HandleDrop(files, null);
+            }
+        }
+        else if (e.Data.GetDataPresent(DataFormats.Text))
+        {
+            if (e.Data.GetData(DataFormats.Text) is string text)
+            {
+                ViewModel.Shelf.HandleDrop(null, text);
+            }
+        }
+
+        e.Handled = true;
+    }
+
     private void AnimatePanelTransition(int direction)
     {
         if (!Dispatcher.CheckAccess())

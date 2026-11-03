@@ -73,4 +73,50 @@ public sealed class ModelContractTests
 
         Assert.Equal([1, 1, 1, -1], transitions);
     }
+
+    [Fact]
+    public void NotchController_CyclesThroughAllFivePanels()
+    {
+        using var controller = new NotchController();
+        controller.SetEnabledPanels([
+            NotchPanel.Music,
+            NotchPanel.ControlCenter,
+            NotchPanel.Status,
+            NotchPanel.Calendar,
+            NotchPanel.Shelf
+        ]);
+
+        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.Status, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.Calendar, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+
+        controller.PreviousPanel();
+        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+    }
+
+    [Fact]
+    public void ShelfItem_InitializesProperly()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var item = new Koy.Core.Shelf.ShelfItem("id1", "file.txt", "C:\\file.txt", Koy.Core.Shelf.ShelfItemKind.File, now);
+
+        Assert.Equal("id1", item.Id);
+        Assert.Equal("file.txt", item.DisplayName);
+        Assert.Equal("C:\\file.txt", item.PathOrContent);
+        Assert.Equal(Koy.Core.Shelf.ShelfItemKind.File, item.Kind);
+        Assert.Equal(now, item.AddedAt);
+    }
 }

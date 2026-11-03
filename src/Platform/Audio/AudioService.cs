@@ -34,26 +34,40 @@ public sealed class AudioService : IAudioService
             if (enumeratorType is null)
                 return;
 
-            var enumerator = (IMMDeviceEnumerator?)Activator.CreateInstance(enumeratorType);
-            if (enumerator is null)
+            var enumeratorObj = Activator.CreateInstance(enumeratorType);
+            if (enumeratorObj is not IMMDeviceEnumerator enumerator)
                 return;
 
-            enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out var device);
-            if (device is null)
-                return;
-
-            var iid = IidIAudioEndpointVolume;
-            unsafe
+            try
             {
-                device.Activate(&iid, CLSCTX.CLSCTX_ALL, null, out var obj);
-                _endpointVolume = obj as IAudioEndpointVolume;
+                enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out var device);
+                if (device is null)
+                    return;
+
+                try
+                {
+                    var iid = IidIAudioEndpointVolume;
+                    unsafe
+                    {
+                        device.Activate(&iid, CLSCTX.CLSCTX_ALL, null, out var obj);
+                        _endpointVolume = obj as IAudioEndpointVolume;
+                    }
+
+                    if (_endpointVolume is not null)
+                    {
+                        _callback = new VolumeCallback(this);
+                        _endpointVolume.RegisterControlChangeNotify(_callback);
+                        RefreshState();
+                    }
+                }
+                finally
+                {
+                    Marshal.ReleaseComObject(device);
+                }
             }
-
-            if (_endpointVolume is not null)
+            finally
             {
-                _callback = new VolumeCallback(this);
-                _endpointVolume.RegisterControlChangeNotify(_callback);
-                RefreshState();
+                Marshal.ReleaseComObject(enumerator);
             }
         }
         catch

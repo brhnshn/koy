@@ -73,9 +73,9 @@ public sealed partial class CalendarViewModel : ObservableObject, IDisposable
         PomodoroTimeText = $"{(int)_pomodoro.Remaining.TotalMinutes:D2}:{_pomodoro.Remaining.Seconds:D2}";
         PomodoroModeText = _pomodoro.Mode switch
         {
-            PomodoroMode.Work => "Çalışma",
-            PomodoroMode.ShortBreak => "Kısa Mola",
-            PomodoroMode.LongBreak => "Uzun Mola",
+            PomodoroMode.Work => Resources.Strings.Work,
+            PomodoroMode.ShortBreak => Resources.Strings.ShortBreak,
+            PomodoroMode.LongBreak => Resources.Strings.LongBreak,
             _ => "Pomodoro"
         };
         IsPomodoroRunning = _pomodoro.State == PomodoroState.Running;

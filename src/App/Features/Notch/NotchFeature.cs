@@ -64,13 +64,7 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         // Denetleyici ve etkin paneller
         var controller = new NotchController();
-        controller.SetEnabledPanels([
-            NotchPanel.Music,
-            NotchPanel.ControlCenter,
-            NotchPanel.Status,
-            NotchPanel.Calendar,
-            NotchPanel.Shelf
-        ]);
+        controller.SetEnabledPanels(ParseEnabledPanels(settings.EnabledPanels));
 
         // Panel ViewModel'leri
         var musicVm = new MusicViewModel(_mediaService);
@@ -249,5 +243,24 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         _shelfService?.Dispose();
         _shelfService = null;
+    }
+
+    public static List<NotchPanel> ParseEnabledPanels(IEnumerable<string>? names)
+    {
+        var list = new List<NotchPanel>();
+        if (names is not null)
+        {
+            foreach (var name in names)
+            {
+                if (string.Equals(name, "music", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.Music);
+                else if (string.Equals(name, "controlcenter", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.ControlCenter);
+                else if (string.Equals(name, "status", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.Status);
+                else if (string.Equals(name, "calendar", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.Calendar);
+                else if (string.Equals(name, "shelf", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.Shelf);
+            }
+        }
+        if (list.Count == 0)
+            list.Add(NotchPanel.Music);
+        return list;
     }
 }

@@ -87,4 +87,79 @@
   <data name="Save" xml:space="preserve">
     <value>Save</value>
   </data>
+  <data name="General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>App Language</value>
+  </data>
+  <data name="LanguageDesc" xml:space="preserve">
+    <value>Interface language</value>
+  </data>
+  <data name="RunAtStartup" xml:space="preserve">
+    <value>Run on Windows Startup</value>
+  </data>
+  <data name="RunAtStartupDesc" xml:space="preserve">
+    <value>Start Koy automatically when computer boots</value>
+  </data>
+  <data name="NotchVisibility" xml:space="preserve">
+    <value>Visibility Mode</value>
+  </data>
+  <data name="NotchVisibilityDesc" xml:space="preserve">
+    <value>Fixed (always visible), Smart (auto-hide on overlap), or Peek</value>
+  </data>
+  <data name="EnabledPanels" xml:space="preserve">
+    <value>Enabled Panels</value>
+  </data>
+  <data name="AccentColor" xml:space="preserve">
+    <value>Accent Color</value>
+  </data>
+  <data name="AccentColorDesc" xml:space="preserve">
+    <value>Color used in tiles and indicators</value>
+  </data>
+  <data name="AboutDesc" xml:space="preserve">
+    <value>Lightweight spring-animated notch and dock for Windows 11.</value>
+  </data>
+  <data name="CopyDiagnostics" xml:space="preserve">
+    <value>Copy Diagnostics</value>
+  </data>
+  <data name="WiFi" xml:space="preserve">
+    <value>Wi-Fi</value>
+  </data>
+  <data name="Bluetooth" xml:space="preserve">
+    <value>Bluetooth</value>
+  </data>
+  <data name="DoNotDisturb" xml:space="preserve">
+    <value>Do Not Disturb</value>
+  </data>
+  <data name="On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Charging" xml:space="preserve">
+    <value>Charging</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Pause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="NextPhase" xml:space="preserve">
+    <value>Next Phase</value>
+  </data>
 </root>

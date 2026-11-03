@@ -123,7 +123,7 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
             HasBattery = e.HasBattery;
             BatteryPercent = e.RemainingPercent;
             IsCharging = e.IsCharging;
-            BatteryText = IsCharging ? $"%{BatteryPercent} (Şarjda)" : $"%{BatteryPercent}";
+            BatteryText = IsCharging ? $"%{BatteryPercent} ({Resources.Strings.Charging})" : $"%{BatteryPercent}";
         });
     }
 
@@ -132,7 +132,7 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
         HasBattery = _powerService.HasBattery;
         BatteryPercent = _powerService.RemainingPercent;
         IsCharging = _powerService.IsCharging;
-        BatteryText = IsCharging ? $"%{BatteryPercent} (Şarjda)" : $"%{BatteryPercent}";
+        BatteryText = IsCharging ? $"%{BatteryPercent} ({Resources.Strings.Charging})" : $"%{BatteryPercent}";
     }
 
     private void OnWeatherChanged(object? sender, WeatherInfo? weather)
@@ -146,7 +146,7 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
         {
             HasWeather = false;
             TemperatureText = "--°C";
-            WeatherDescription = "Yükleniyor...";
+            WeatherDescription = Resources.Strings.Loading;
             WeatherIconKind = "Cloud";
             return;
         }

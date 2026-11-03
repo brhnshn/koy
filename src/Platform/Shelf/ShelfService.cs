@@ -31,7 +31,7 @@ public sealed class ShelfService : IShelfService
             if (File.Exists(_filePath))
             {
                 var json = File.ReadAllText(_filePath);
-                var loaded = JsonSerializer.Deserialize<List<ShelfItem>>(json);
+                var loaded = JsonSerializer.Deserialize(json, ShelfJsonContext.Default.ListShelfItem);
                 if (loaded is not null)
                 {
                     _items.Clear();
@@ -55,7 +55,7 @@ public sealed class ShelfService : IShelfService
                 Directory.CreateDirectory(dir);
             }
 
-            var json = JsonSerializer.Serialize(_items, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(_items, ShelfJsonContext.Default.ListShelfItem);
             File.WriteAllText(_filePath, json);
         }
         catch

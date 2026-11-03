@@ -9,13 +9,18 @@
         xmlns:status="clr-namespace:Koy.App.Features.Status"
         xmlns:cal="clr-namespace:Koy.App.Features.Calendar"
         xmlns:shelf="clr-namespace:Koy.App.Features.Shelf"
+        xmlns:res="clr-namespace:Koy.App.Resources"
         xmlns:core="clr-namespace:Koy.Core.Notch;assembly=Koy.Core"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:NotchViewModel}"
         Title="Koy"
         Width="500" Height="260"
         WindowStyle="None" AllowsTransparency="True" Background="{x:Null}"
-        ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False" ShowActivated="False">
+        ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False" ShowActivated="False"
+        AllowDrop="True"
+        DragEnter="Notch_DragEnter"
+        DragOver="Notch_DragOver"
+        Drop="Notch_Drop">
 
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -31,15 +36,19 @@
                       MouseLeave="Notch_MouseLeave"
                       MouseLeftButtonDown="Notch_MouseLeftButtonDown"
                       MouseWheel="Notch_MouseWheel"
+                      AllowDrop="True"
+                      DragEnter="Notch_DragEnter"
+                      DragOver="Notch_DragOver"
+                      Drop="Notch_Drop"
                       Cursor="Hand">
       <local:NotchShape.RenderTransform>
         <TranslateTransform x:Name="NotchTranslate" Y="0" />
       </local:NotchShape.RenderTransform>
       <local:NotchShape.ContextMenu>
         <ContextMenu>
-          <MenuItem Header="Ayarlar" Command="{Binding OpenSettingsCommand}" />
+          <MenuItem Header="{x:Static res:Strings.Settings}" Command="{Binding OpenSettingsCommand}" />
           <Separator />
-          <MenuItem Header="Çıkış" Command="{Binding QuitCommand}" />
+          <MenuItem Header="{x:Static res:Strings.Exit}" Command="{Binding QuitCommand}" />
         </ContextMenu>
       </local:NotchShape.ContextMenu>
 

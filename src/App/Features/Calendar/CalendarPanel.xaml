@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:Koy.App.Features.Calendar"
              xmlns:cal="clr-namespace:Koy.Core.Calendar;assembly=Koy.Core"
+             xmlns:res="clr-namespace:Koy.App.Resources"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:CalendarViewModel}"
              Foreground="{StaticResource NotchForeground}"
@@ -156,13 +157,13 @@
       <!-- Kontrol Butonları: Sıfırla, Başlat/Duraklat, İlerle -->
       <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
         <!-- Sıfırla -->
-        <Button Style="{StaticResource MiniIconBtn}" Width="26" Height="26" Command="{Binding ResetPomodoroCommand}" ToolTip="Sıfırla">
+        <Button Style="{StaticResource MiniIconBtn}" Width="26" Height="26" Command="{Binding ResetPomodoroCommand}" ToolTip="{x:Static res:Strings.Reset}">
           <Path Width="10" Height="10" Stretch="Uniform" Fill="#99FFFFFF"
                 Data="M 12,4 A 8,8 0 0 0 4,12 L 1,9 L 1,15 L 7,15 L 4.5,12.5 A 6,6 0 1 1 6,17.2 L 4.5,18.7 A 8,8 0 1 0 12,4 Z" />
         </Button>
 
         <!-- Başlat / Duraklat -->
-        <Button Style="{StaticResource MiniIconBtn}" Width="30" Height="30" Margin="4,0" Command="{Binding TogglePomodoroCommand}" ToolTip="Başlat / Duraklat">
+        <Button Style="{StaticResource MiniIconBtn}" Width="30" Height="30" Margin="4,0" Command="{Binding TogglePomodoroCommand}" ToolTip="{x:Static res:Strings.Start}">
           <Grid>
             <!-- Başlat simgesi -->
             <Path Width="11" Height="11" Stretch="Uniform" Fill="#FFFFFFFF" Data="M 2,1 L 11,6 L 2,11 Z">
@@ -194,7 +195,7 @@
         </Button>
 
         <!-- İlerle (Skip) -->
-        <Button Style="{StaticResource MiniIconBtn}" Width="26" Height="26" Command="{Binding SkipPomodoroCommand}" ToolTip="Sonraki Aşama">
+        <Button Style="{StaticResource MiniIconBtn}" Width="26" Height="26" Command="{Binding SkipPomodoroCommand}" ToolTip="{x:Static res:Strings.NextPhase}">
           <Path Width="10" Height="10" Stretch="Uniform" Fill="#99FFFFFF"
                 Data="M 2,2 L 8,6 L 2,10 Z M 9,2 L 11,2 L 11,10 L 9,10 Z" />
         </Button>

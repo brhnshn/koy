@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:Koy.App.Features.ControlCenter"
+             xmlns:res="clr-namespace:Koy.App.Resources"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:ControlCenterViewModel}"
              Foreground="{StaticResource NotchForeground}"
@@ -132,14 +133,14 @@
           </Border>
 
           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
-            <TextBlock Text="Wi-Fi" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" />
+            <TextBlock Text="{x:Static res:Strings.WiFi}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" />
             <TextBlock Text="{Binding IsWiFiOn, Converter={StaticResource BoolToVis}}" FontSize="9" Foreground="#99FFFFFF">
               <TextBlock.Style>
                 <Style TargetType="TextBlock">
-                  <Setter Property="Text" Value="Kapalı" />
+                  <Setter Property="Text" Value="{x:Static res:Strings.Off}" />
                   <Style.Triggers>
                     <DataTrigger Binding="{Binding IsWiFiOn}" Value="True">
-                      <Setter Property="Text" Value="Açık" />
+                      <Setter Property="Text" Value="{x:Static res:Strings.On}" />
                       <Setter Property="Foreground" Value="#60A5FA" />
                     </DataTrigger>
                   </Style.Triggers>
@@ -176,14 +177,14 @@
           </Border>
 
           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
-            <TextBlock Text="Bluetooth" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{x:Static res:Strings.Bluetooth}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
             <TextBlock FontSize="9" Foreground="#99FFFFFF">
               <TextBlock.Style>
                 <Style TargetType="TextBlock">
-                  <Setter Property="Text" Value="Kapalı" />
+                  <Setter Property="Text" Value="{x:Static res:Strings.Off}" />
                   <Style.Triggers>
                     <DataTrigger Binding="{Binding IsBluetoothOn}" Value="True">
-                      <Setter Property="Text" Value="Açık" />
+                      <Setter Property="Text" Value="{x:Static res:Strings.On}" />
                       <Setter Property="Foreground" Value="#60A5FA" />
                     </DataTrigger>
                   </Style.Triggers>
@@ -219,14 +220,14 @@
           </Border>
 
           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
-            <TextBlock Text="Rahatsız Etme" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{x:Static res:Strings.DoNotDisturb}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
             <TextBlock FontSize="9" Foreground="#99FFFFFF">
               <TextBlock.Style>
                 <Style TargetType="TextBlock">
-                  <Setter Property="Text" Value="Kapalı" />
+                  <Setter Property="Text" Value="{x:Static res:Strings.Off}" />
                   <Style.Triggers>
                     <DataTrigger Binding="{Binding IsDoNotDisturbOn}" Value="True">
-                      <Setter Property="Text" Value="Açık" />
+                      <Setter Property="Text" Value="{x:Static res:Strings.On}" />
                       <Setter Property="Foreground" Value="#C4B5FD" />
                     </DataTrigger>
                   </Style.Triggers>

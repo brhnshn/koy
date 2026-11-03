@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Koy.App.Features.Settings"
         xmlns:vis="clr-namespace:Koy.Core.Visibility;assembly=Koy.Core"
+        xmlns:res="clr-namespace:Koy.App.Resources"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:SettingsViewModel}"
-        Title="Koy Ayarları"
+        Title="{x:Static res:Strings.Settings}"
         Width="520" Height="420"
         WindowStartupLocation="CenterScreen"
         Background="#18181B"
@@ -61,9 +62,9 @@
 
     <TabControl Background="Transparent" BorderThickness="0">
       <!-- 1. Genel Sekmesi -->
-      <TabItem Header="Genel" Foreground="#EEEEEE">
+      <TabItem Header="{x:Static res:Strings.General}" Foreground="#EEEEEE">
         <StackPanel Margin="0,16,0,0">
-          <TextBlock Text="Genel Ayarlar" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{x:Static res:Strings.General}" Style="{StaticResource SectionTitle}" />
 
           <!-- Dil Seçimi -->
           <Grid Style="{StaticResource OptionRow}">
@@ -72,8 +73,8 @@
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-              <TextBlock Text="Uygulama Dili" FontWeight="Medium" />
-              <TextBlock Text="Arayüz metinlerinin dili" FontSize="11" Foreground="#888888" />
+              <TextBlock Text="{x:Static res:Strings.Language}" FontWeight="Medium" />
+              <TextBlock Text="{x:Static res:Strings.LanguageDesc}" FontSize="11" Foreground="#888888" />
             </StackPanel>
             <ComboBox Grid.Column="1" Width="120" SelectedValuePath="Tag" SelectedValue="{Binding Language}">
               <ComboBoxItem Content="Türkçe" Tag="tr" />
@@ -88,8 +89,8 @@
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-              <TextBlock Text="Windows Açılışında Çalıştır" FontWeight="Medium" />
-              <TextBlock Text="Bilgisayar açıldığında Koy otomatik başlasın" FontSize="11" Foreground="#888888" />
+              <TextBlock Text="{x:Static res:Strings.RunAtStartup}" FontWeight="Medium" />
+              <TextBlock Text="{x:Static res:Strings.RunAtStartupDesc}" FontSize="11" Foreground="#888888" />
             </StackPanel>
             <CheckBox Grid.Column="1" IsChecked="{Binding RunAtStartup}" VerticalAlignment="Center" />
           </Grid>
@@ -97,9 +98,9 @@
       </TabItem>
 
       <!-- 2. Çentik Sekmesi -->
-      <TabItem Header="Çentik" Foreground="#EEEEEE">
+      <TabItem Header="Notch" Foreground="#EEEEEE">
         <StackPanel Margin="0,16,0,0">
-          <TextBlock Text="Çentik Davranışı" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{x:Static res:Strings.NotchVisibility}" Style="{StaticResource SectionTitle}" />
 
           <!-- Görünürlük Modu -->
           <Grid Style="{StaticResource OptionRow}">
@@ -108,32 +109,32 @@
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-              <TextBlock Text="Görünürlük Modu" FontWeight="Medium" />
-              <TextBlock Text="Sabit (daima ekranda), Akıllı (pencere gelince gizlen) veya Kenar Gözetleme" FontSize="11" Foreground="#888888" />
+              <TextBlock Text="{x:Static res:Strings.NotchVisibility}" FontWeight="Medium" />
+              <TextBlock Text="{x:Static res:Strings.NotchVisibilityDesc}" FontSize="11" Foreground="#888888" />
             </StackPanel>
             <ComboBox Grid.Column="1" Width="140" SelectedValuePath="Tag" SelectedValue="{Binding NotchVisibility}">
-              <ComboBoxItem Content="Sabit (Fixed)" Tag="{x:Static vis:VisibilityMode.Fixed}" />
-              <ComboBoxItem Content="Akıllı (Smart)" Tag="{x:Static vis:VisibilityMode.Smart}" />
-              <ComboBoxItem Content="Gözetleme (Peek)" Tag="{x:Static vis:VisibilityMode.Peek}" />
+              <ComboBoxItem Content="Fixed" Tag="{x:Static vis:VisibilityMode.Fixed}" />
+              <ComboBoxItem Content="Smart" Tag="{x:Static vis:VisibilityMode.Smart}" />
+              <ComboBoxItem Content="Peek" Tag="{x:Static vis:VisibilityMode.Peek}" />
             </ComboBox>
           </Grid>
 
           <!-- Paneller -->
-          <TextBlock Text="Etkin Paneller" FontWeight="Medium" Margin="0,8,0,8" />
+          <TextBlock Text="{x:Static res:Strings.EnabledPanels}" FontWeight="Medium" Margin="0,8,0,8" />
           <WrapPanel Margin="0,0,0,12">
-            <CheckBox Content="Müzik" IsChecked="{Binding EnableMusic}" Margin="0,0,16,8" />
-            <CheckBox Content="Kontrol Merkezi" IsChecked="{Binding EnableControlCenter}" Margin="0,0,16,8" />
-            <CheckBox Content="Durum" IsChecked="{Binding EnableStatus}" Margin="0,0,16,8" />
-            <CheckBox Content="Takvim" IsChecked="{Binding EnableCalendar}" Margin="0,0,16,8" />
-            <CheckBox Content="Raf" IsChecked="{Binding EnableShelf}" Margin="0,0,16,8" />
+            <CheckBox Content="{x:Static res:Strings.Music}" IsChecked="{Binding EnableMusic}" Margin="0,0,16,8" />
+            <CheckBox Content="{x:Static res:Strings.ControlCenter}" IsChecked="{Binding EnableControlCenter}" Margin="0,0,16,8" />
+            <CheckBox Content="{x:Static res:Strings.Status}" IsChecked="{Binding EnableStatus}" Margin="0,0,16,8" />
+            <CheckBox Content="{x:Static res:Strings.Calendar}" IsChecked="{Binding EnableCalendar}" Margin="0,0,16,8" />
+            <CheckBox Content="{x:Static res:Strings.Shelf}" IsChecked="{Binding EnableShelf}" Margin="0,0,16,8" />
           </WrapPanel>
         </StackPanel>
       </TabItem>
 
       <!-- 3. Görünüm Sekmesi -->
-      <TabItem Header="Görünüm" Foreground="#EEEEEE">
+      <TabItem Header="{x:Static res:Strings.Appearance}" Foreground="#EEEEEE">
         <StackPanel Margin="0,16,0,0">
-          <TextBlock Text="Görünüm ve Vurgu" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{x:Static res:Strings.Appearance}" Style="{StaticResource SectionTitle}" />
 
           <!-- Vurgu Rengi -->
           <Grid Style="{StaticResource OptionRow}">
@@ -142,8 +143,8 @@
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-              <TextBlock Text="Vurgu Rengi" FontWeight="Medium" />
-              <TextBlock Text="Döşeme ve göstergelerde kullanılan renk" FontSize="11" Foreground="#888888" />
+              <TextBlock Text="{x:Static res:Strings.AccentColor}" FontWeight="Medium" />
+              <TextBlock Text="{x:Static res:Strings.AccentColorDesc}" FontSize="11" Foreground="#888888" />
             </StackPanel>
             <TextBox Grid.Column="1" Width="100" Text="{Binding AccentColor}" VerticalAlignment="Center" Padding="4,2" />
           </Grid>
@@ -151,15 +152,15 @@
       </TabItem>
 
       <!-- 4. Hakkında Sekmesi -->
-      <TabItem Header="Hakkında" Foreground="#EEEEEE">
+      <TabItem Header="{x:Static res:Strings.About}" Foreground="#EEEEEE">
         <StackPanel Margin="0,16,0,0">
-          <TextBlock Text="Koy Hakkında" Style="{StaticResource SectionTitle}" />
-          <TextBlock Text="Windows 11 için hafif, yay animasyonlu çentik (notch) ve dock." Foreground="#AAAAAA" Margin="0,0,0,12" />
-          <TextBlock Text="{Binding AppVersion, StringFormat='Sürüm: {0}'}" FontWeight="Medium" Margin="0,0,0,4" />
+          <TextBlock Text="{x:Static res:Strings.About}" Style="{StaticResource SectionTitle}" />
+          <TextBlock Text="{x:Static res:Strings.AboutDesc}" Foreground="#AAAAAA" Margin="0,0,0,12" />
+          <TextBlock Text="{Binding AppVersion, StringFormat='v{0}'}" FontWeight="Medium" Margin="0,0,0,4" />
           <TextBlock Text="Lisans: GPLv3" Foreground="#888888" Margin="0,0,0,16" />
 
           <Button Style="{StaticResource ActionButton}" Command="{Binding CopyDiagnosticsCommand}" HorizontalAlignment="Left">
-            <TextBlock Text="Tanılama Bilgilerini Kopyala" />
+            <TextBlock Text="{x:Static res:Strings.CopyDiagnostics}" />
           </Button>
         </StackPanel>
       </TabItem>
@@ -167,8 +168,8 @@
 
     <!-- Alt Çubuk: Kapat ve Kaydet Düğmeleri -->
     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-      <Button Style="{StaticResource ActionButton}" Content="İptal" Click="Cancel_Click" Margin="0,0,8,0" Width="70" />
-      <Button Style="{StaticResource PrimaryButton}" Content="Kaydet" Command="{Binding SaveCommand}" Click="Save_Click" Width="80" />
+      <Button Style="{StaticResource ActionButton}" Content="{x:Static res:Strings.Cancel}" Click="Cancel_Click" Margin="0,0,8,0" Width="70" />
+      <Button Style="{StaticResource PrimaryButton}" Content="{x:Static res:Strings.Save}" Command="{Binding SaveCommand}" Click="Save_Click" Width="80" />
     </StackPanel>
   </Grid>
 </Window>

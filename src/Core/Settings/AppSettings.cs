@@ -20,6 +20,7 @@ public sealed record AppSettings
     public string? AccentColor { get; init; }
 
     public List<string> ControlCenterLayout { get; init; } = ["wifi", "bluetooth", "donotdisturb"];
+    public List<string> EnabledPanels { get; init; } = ["music", "controlcenter", "status", "calendar", "shelf"];
     public double WeatherLatitude { get; init; } = 41.01;
     public double WeatherLongitude { get; init; } = 28.97;
     public string WeatherCity { get; init; } = "İstanbul";
@@ -38,7 +39,8 @@ public sealed record AppSettings
                WeatherLatitude.Equals(other.WeatherLatitude) &&
                WeatherLongitude.Equals(other.WeatherLongitude) &&
                WeatherCity == other.WeatherCity &&
-               ControlCenterLayout.SequenceEqual(other.ControlCenterLayout);
+               (ControlCenterLayout == other.ControlCenterLayout || (ControlCenterLayout is not null && other.ControlCenterLayout is not null && ControlCenterLayout.SequenceEqual(other.ControlCenterLayout))) &&
+               (EnabledPanels == other.EnabledPanels || (EnabledPanels is not null && other.EnabledPanels is not null && EnabledPanels.SequenceEqual(other.EnabledPanels)));
     }
 
     public override int GetHashCode()
@@ -54,8 +56,16 @@ public sealed record AppSettings
         hash.Add(WeatherLatitude);
         hash.Add(WeatherLongitude);
         hash.Add(WeatherCity);
-        foreach (var item in ControlCenterLayout)
-            hash.Add(item);
+        if (ControlCenterLayout is not null)
+        {
+            foreach (var item in ControlCenterLayout)
+                hash.Add(item);
+        }
+        if (EnabledPanels is not null)
+        {
+            foreach (var item in EnabledPanels)
+                hash.Add(item);
+        }
         return hash.ToHashCode();
     }
 }

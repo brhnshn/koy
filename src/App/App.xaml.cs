@@ -28,6 +28,12 @@ public partial class App : Application
 
         var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
 
+        var culture = new System.Globalization.CultureInfo(settings.Language == "en" ? "en-US" : "tr-TR");
+        System.Globalization.CultureInfo.CurrentUICulture = culture;
+        System.Globalization.CultureInfo.CurrentCulture = culture;
+        Thread.CurrentThread.CurrentUICulture = culture;
+        Thread.CurrentThread.CurrentCulture = culture;
+
         // Yalnız açık özellikler başlatılır. M4: settings.DockEnabled ise DockFeature eklenir.
         if (settings.NotchEnabled)
             _features.Add(new NotchFeature(settings));

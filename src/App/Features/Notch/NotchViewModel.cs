@@ -175,11 +175,17 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenSettings()
     {
+        var store = new SettingsStore(SettingsStore.DefaultPath);
         var win = new SettingsWindow
         {
-            DataContext = new SettingsViewModel()
+            DataContext = new SettingsViewModel(store)
         };
-        win.ShowDialog();
+        if (win.ShowDialog() == true)
+        {
+            var updated = store.Load();
+            _visibility.Mode = updated.NotchVisibility;
+            _controller.SetEnabledPanels(NotchFeature.ParseEnabledPanels(updated.EnabledPanels));
+        }
     }
 
     [RelayCommand]

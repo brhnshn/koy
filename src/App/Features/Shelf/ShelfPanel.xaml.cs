@@ -55,7 +55,7 @@ public partial class ShelfPanel : UserControl
     {
         if (e.LeftButton == MouseButtonState.Pressed && sender is FrameworkElement element && element.DataContext is ShelfItem item)
         {
-            if (item.Kind is ShelfItemKind.File or ShelfItemKind.Directory && File.Exists(item.PathOrContent) || Directory.Exists(item.PathOrContent))
+            if ((item.Kind is ShelfItemKind.File or ShelfItemKind.Directory) && (File.Exists(item.PathOrContent) || Directory.Exists(item.PathOrContent)))
             {
                 var data = new DataObject(DataFormats.FileDrop, new string[] { item.PathOrContent });
                 DragDrop.DoDragDrop(element, data, DragDropEffects.Copy);
@@ -65,6 +65,15 @@ public partial class ShelfPanel : UserControl
                 var data = new DataObject(DataFormats.Text, item.PathOrContent);
                 DragDrop.DoDragDrop(element, data, DragDropEffects.Copy);
             }
+        }
+    }
+
+    private void Item_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2 && sender is FrameworkElement element && element.DataContext is ShelfItem item)
+        {
+            ViewModel?.OpenItemCommand.Execute(item);
+            e.Handled = true;
         }
     }
 }

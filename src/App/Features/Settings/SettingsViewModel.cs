@@ -52,6 +52,13 @@ public sealed partial class SettingsViewModel : ObservableObject
         _runAtStartup = StartupService.IsEnabled;
         _notchVisibility = settings.NotchVisibility;
         _accentColor = settings.AccentColor ?? "#3B82F6";
+
+        var panels = settings.EnabledPanels ?? ["music", "controlcenter", "status", "calendar", "shelf"];
+        _enableMusic = panels.Contains("music", StringComparer.OrdinalIgnoreCase);
+        _enableControlCenter = panels.Contains("controlcenter", StringComparer.OrdinalIgnoreCase);
+        _enableStatus = panels.Contains("status", StringComparer.OrdinalIgnoreCase);
+        _enableCalendar = panels.Contains("calendar", StringComparer.OrdinalIgnoreCase);
+        _enableShelf = panels.Contains("shelf", StringComparer.OrdinalIgnoreCase);
     }
 
     [RelayCommand]
@@ -59,12 +66,23 @@ public sealed partial class SettingsViewModel : ObservableObject
     {
         StartupService.SetEnabled(RunAtStartup);
 
+        var enabledPanels = new List<string>();
+        if (EnableMusic) enabledPanels.Add("music");
+        if (EnableControlCenter) enabledPanels.Add("controlcenter");
+        if (EnableStatus) enabledPanels.Add("status");
+        if (EnableCalendar) enabledPanels.Add("calendar");
+        if (EnableShelf) enabledPanels.Add("shelf");
+
+        if (enabledPanels.Count == 0)
+            enabledPanels.Add("music");
+
         var current = _store.Load();
         var updated = current with
         {
             Language = Language,
             NotchVisibility = NotchVisibility,
-            AccentColor = AccentColor
+            AccentColor = AccentColor,
+            EnabledPanels = enabledPanels
         };
 
         _store.Save(updated);
