@@ -20,6 +20,8 @@ public partial class DockWindow : Window
         SizeChanged += OnSizeChanged;
     }
 
+    private const int WmDisplayChange = 0x007E;
+
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
@@ -27,7 +29,19 @@ public partial class DockWindow : Window
         var hwnd = new WindowInteropHelper(this).Handle;
         WindowStyles.ApplyToolWindowAndNoActivate(hwnd);
 
+        var source = HwndSource.FromHwnd(hwnd);
+        source?.AddHook(WndProc);
+
         Reposition();
+    }
+
+    private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    {
+        if (msg == WmDisplayChange)
+        {
+            Reposition();
+        }
+        return 0;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)

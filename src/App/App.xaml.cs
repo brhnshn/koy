@@ -6,6 +6,7 @@ using Koy.App.Features.Dock;
 using Koy.App.Features.Notch;
 using Koy.Core.Settings;
 using Koy.Platform.Shell;
+using Velopack;
 
 namespace Koy.App;
 
@@ -15,6 +16,12 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        // Velopack kurulum ve güncelleme kancaları (kaldırma anında görev çubuğunu mutlaka geri getir)
+        VelopackApp.Build()
+            .OnBeforeUninstallFastCallback(_ => TaskbarService.Restore())
+            .OnAfterUpdateFastCallback(_ => TaskbarService.Restore())
+            .Run();
+
         base.OnStartup(e);
 
         // Bellek: GPU ile çizimde sürücü sürece ~135 MB ekliyor (ölçüm: 169 MB → 34 MB private, RTX 4050).

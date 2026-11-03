@@ -110,13 +110,13 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 
 ---
 
-## M5 — Çoklu monitör, kurulum, ilk sürüm
-- [ ] `Platform/Display/MonitorService.cs`: `EnumDisplayMonitors`, `GetMonitorInfo`, `GetDpiForMonitor`; ekran değişince (`WM_DISPLAYCHANGE`) pencereleri yeniden yerleştir. Pencere konumları fiziksel pikselden DIP'e çevrilir.
-- [ ] Ayar: notch / dock için `Primary`, `All`, `Specific(monitorId)`.
-- [ ] Velopack: `vpk pack` ile kurulum + `UpdateManager` ile GitHub Releases'tan güncelleme. Kaldırma kancasında `TaskbarService.Restore()`.
-- [ ] `.github/workflows/release.yml`: etiket (`v*`) itilince derle, `vpk pack`, `SHA256SUMS.txt`, GitHub Release'e yükle.
-- [ ] README'ye ekran görüntüleri, kurulum, SHA256 doğrulama.
-- [ ] v0.1.0.
+## M5 — Çoklu monitör, kurulum, ilk sürüm ✅ (2026-11-04)
+- [x] `Platform/Display/MonitorService.cs`: `EnumDisplayMonitors`, `GetMonitorInfo`, `GetDpiForMonitor`; ekran değişince (`WM_DISPLAYCHANGE`) pencereleri yeniden yerleştir. Pencere konumları fiziksel pikselden DIP'e çevrilir.
+- [x] Ayar: notch / dock için `Primary`, `All`, `Specific(monitorId)`.
+- [x] Velopack: `vpk pack` ile kurulum + `UpdateManager` ile GitHub Releases'tan güncelleme. Kaldırma kancasında `TaskbarService.Restore()`.
+- [x] `.github/workflows/release.yml`: etiket (`v*`) itilince derle, `vpk pack`, `SHA256SUMS.txt`, GitHub Release'e yükle.
+- [x] README'ye ekran görüntüleri, kurulum, SHA256 doğrulama.
+- [x] v0.1.0.
 
 ---
 

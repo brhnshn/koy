@@ -1,0 +1,52 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore and Test
+        run: |
+          dotnet restore
+          dotnet build -c Release
+          dotnet test -c Release --no-build
+
+      - name: Publish App
+        run: dotnet publish src/App/Koy.App.csproj -c Release -r win-x64 --self-contained false -o publish/win-x64
+
+      - name: Install Velopack CLI
+        run: dotnet tool install -g vpk
+
+      - name: Build Velopack Release Package
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          vpk pack --packId Koy --packVersion $ver --packDir publish/win-x64 --mainExe Koy.exe --packTitle "Koy" --packAuthors "Koy" --outputDir dist
+
+      - name: Generate SHA256 Checksums
+        run: |
+          Get-ChildItem -Path dist -File | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)" | Out-File -FilePath dist/SHA256SUMS.txt -Append -Encoding utf8
+          }
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

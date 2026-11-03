@@ -67,6 +67,7 @@ DestroyIcon
 SHGetFileInfo
 EnumDisplayMonitors
 GetDpiForMonitor
+MONITOR_DPI_TYPE
 MONITORINFOEXW
 GetSystemMetrics
 GetIconInfo

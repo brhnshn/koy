@@ -29,17 +29,33 @@ public partial class NotchWindow : Window
         DataContextChanged += OnDataContextChanged;
     }
 
+    private const int WmDisplayChange = 0x007E;
+
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
         _hwnd = new WindowInteropHelper(this).Handle;
         WindowStyles.ApplyToolWindowAndNoActivate(_hwnd);
+
+        var source = HwndSource.FromHwnd(_hwnd);
+        source?.AddHook(WndProc);
+
+        PlaceAtTopCenter();
     }
 
-    private void PlaceAtTopCenter()
+    private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
-        // M5: çoklu monitör ve DPI için Platform tarafındaki monitör servisine taşınacak.
-        Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+        if (msg == WmDisplayChange)
+        {
+            PlaceAtTopCenter();
+        }
+        return 0;
+    }
+
+    public void PlaceAtTopCenter()
+    {
+        var screenWidth = SystemParameters.PrimaryScreenWidth;
+        Left = (screenWidth - Width) / 2;
         Top = 0;
     }
 
