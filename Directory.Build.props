@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Company>Koy</Company>
+    <Product>Koy</Product>
+    <Version>0.0.1</Version>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Application x:Class="Koy.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+  <Application.Resources>
+    <ResourceDictionary>
+      <!-- Paylaşılan renkler ve stiller burada; pencere başına kopyalanmaz. -->
+      <SolidColorBrush x:Key="NotchBackground" Color="#F0000000" />
+      <SolidColorBrush x:Key="NotchForeground" Color="#FFFFFFFF" />
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>
