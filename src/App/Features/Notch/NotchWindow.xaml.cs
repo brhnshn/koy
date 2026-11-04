@@ -40,11 +40,17 @@ public partial class NotchWindow : Window
         base.OnSourceInitialized(e);
         _hwnd = new WindowInteropHelper(this).Handle;
         WindowStyles.ApplyToolWindowAndNoActivate(_hwnd);
+        WindowStyles.ReassertTopmost(_hwnd);
 
         var source = HwndSource.FromHwnd(_hwnd);
         source?.AddHook(WndProc);
 
         PlaceAtTopCenter(_targetMonitor);
+
+        if (ViewModel is not null)
+        {
+            AnimateVisibility(ViewModel.IsNotchVisible);
+        }
     }
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
