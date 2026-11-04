@@ -55,7 +55,7 @@ public sealed partial class SettingsViewModel : ObservableObject
     private string _accentColor;
 
     [ObservableProperty]
-    private string _appVersion = "0.1.0-alpha";
+    private string _appVersion = "0.1.0";
 
     public event Action? SettingsSaved;
 

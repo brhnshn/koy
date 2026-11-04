@@ -7,6 +7,8 @@
     <RootNamespace>Koy.App</RootNamespace>
     <AssemblyName>Koy</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\app.ico</ApplicationIcon>
+    <StartupObject>Koy.App.Program</StartupObject>
 
     <!-- Bellek: masaüstü uygulaması için en hafif GC ayarları. Değiştirmeden önce ölç (AGENTS.md). -->
     <ServerGarbageCollection>false</ServerGarbageCollection>

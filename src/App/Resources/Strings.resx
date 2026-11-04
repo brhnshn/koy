@@ -198,4 +198,502 @@
   <data name="TargetMonitorDesc" xml:space="preserve">
     <value>Display monitor where Notch and Dock appear</value>
   </data>
+  <data name="QuickSettings" xml:space="preserve">
+    <value>Quick settings</value>
+  </data>
+  <data name="NotificationCenter" xml:space="preserve">
+    <value>Notifications and calendar</value>
+  </data>
+  <data name="VolumeLevel" xml:space="preserve">
+    <value>Volume: {0}%</value>
+  </data>
+  <data name="VolumeMuted" xml:space="preserve">
+    <value>Volume: muted</value>
+  </data>
+  <data name="BatteryLevel" xml:space="preserve">
+    <value>Battery: {0}%</value>
+  </data>
+  <data name="BatteryCharging" xml:space="preserve">
+    <value>Battery: {0}% (charging)</value>
+  </data>
+  <data name="NetworkWiFi" xml:space="preserve">
+    <value>Wi-Fi: connected</value>
+  </data>
+  <data name="NetworkEthernet" xml:space="preserve">
+    <value>Ethernet: connected</value>
+  </data>
+  <data name="NetworkCellular" xml:space="preserve">
+    <value>Cellular: connected</value>
+  </data>
+  <data name="NetworkNoInternet" xml:space="preserve">
+    <value>No internet access</value>
+  </data>
+  <data name="NetworkDisconnected" xml:space="preserve">
+    <value>Not connected</value>
+  </data>
+  <data name="NavGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="NavNotch" xml:space="preserve">
+    <value>Notch</value>
+  </data>
+  <data name="NavDock" xml:space="preserve">
+    <value>Dock</value>
+  </data>
+  <data name="NavDisplays" xml:space="preserve">
+    <value>Displays</value>
+  </data>
+  <data name="NavAppearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="NavShortcuts" xml:space="preserve">
+    <value>Shortcuts</value>
+  </data>
+  <data name="NavPerformance" xml:space="preserve">
+    <value>Performance</value>
+  </data>
+  <data name="NavAbout" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="ExitKoy" xml:space="preserve">
+    <value>Exit Koy</value>
+  </data>
+  <data name="GeneralSubtitle" xml:space="preserve">
+    <value>Startup, language and updates</value>
+  </data>
+  <data name="NotchSubtitle" xml:space="preserve">
+    <value>Visibility, open panels and notch behavior</value>
+  </data>
+  <data name="DockSubtitle" xml:space="preserve">
+    <value>Layout, sizes and window management</value>
+  </data>
+  <data name="DisplaysSubtitle" xml:space="preserve">
+    <value>Each display's notch and dock are configured separately</value>
+  </data>
+  <data name="AppearanceSubtitle" xml:space="preserve">
+    <value>Theme, accent color and animations</value>
+  </data>
+  <data name="ShortcutsSubtitle" xml:space="preserve">
+    <value>Mouse and scroll wheel actions</value>
+  </data>
+  <data name="PerformanceSubtitle" xml:space="preserve">
+    <value>Memory usage and power saving</value>
+  </data>
+  <data name="AboutSubtitle" xml:space="preserve">
+    <value>Version and license details</value>
+  </data>
+  <data name="StartupHeader" xml:space="preserve">
+    <value>STARTUP</value>
+  </data>
+  <data name="RunAtStartupTitle" xml:space="preserve">
+    <value>Launch Koy on Windows startup</value>
+  </data>
+  <data name="HideWindowsTaskbarTitle" xml:space="preserve">
+    <value>Hide Windows taskbar</value>
+  </data>
+  <data name="HideWindowsTaskbarDesc" xml:space="preserve">
+    <value>Single dock bar on screen when Dock is active</value>
+  </data>
+  <data name="LanguageHeader" xml:space="preserve">
+    <value>LANGUAGE</value>
+  </data>
+  <data name="InterfaceLanguageTitle" xml:space="preserve">
+    <value>Interface language</value>
+  </data>
+  <data name="UpdatesHeader" xml:space="preserve">
+    <value>UPDATES</value>
+  </data>
+  <data name="AutoCheckUpdatesTitle" xml:space="preserve">
+    <value>Automatically check for updates</value>
+  </data>
+  <data name="ChannelTitle" xml:space="preserve">
+    <value>Update Channel</value>
+  </data>
+  <data name="CheckNow" xml:space="preserve">
+    <value>Check now</value>
+  </data>
+  <data name="WindowCloseNotice" xml:space="preserve">
+    <value>Closing this window hides settings. Koy keeps running. To exit completely, use Exit Koy.</value>
+  </data>
+  <data name="NotchHeader" xml:space="preserve">
+    <value>GENERAL</value>
+  </data>
+  <data name="NotchEnabledTitle" xml:space="preserve">
+    <value>Enable Notch</value>
+  </data>
+  <data name="VisibilityTitle" xml:space="preserve">
+    <value>Visibility mode</value>
+  </data>
+  <data name="VisFixed" xml:space="preserve">
+    <value>Fixed</value>
+  </data>
+  <data name="VisSmart" xml:space="preserve">
+    <value>Smart</value>
+  </data>
+  <data name="VisPeek" xml:space="preserve">
+    <value>Peek</value>
+  </data>
+  <data name="HideInFullscreenTitle" xml:space="preserve">
+    <value>Hide in fullscreen apps</value>
+  </data>
+  <data name="IdleDisplayTitle" xml:space="preserve">
+    <value>Idle display</value>
+  </data>
+  <data name="IdleClockBattery" xml:space="preserve">
+    <value>Clock &amp; battery</value>
+  </data>
+  <data name="IdleClockOnly" xml:space="preserve">
+    <value>Clock only</value>
+  </data>
+  <data name="IdleNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="OpenBehaviorTitle" xml:space="preserve">
+    <value>Open behavior</value>
+  </data>
+  <data name="OpenOnHover" xml:space="preserve">
+    <value>On hover</value>
+  </data>
+  <data name="OpenOnClick" xml:space="preserve">
+    <value>On click</value>
+  </data>
+  <data name="PanelsHeader" xml:space="preserve">
+    <value>ACTIVE PANELS</value>
+  </data>
+  <data name="PanelMusicTitle" xml:space="preserve">
+    <value>Music</value>
+  </data>
+  <data name="PanelCalendarTitle" xml:space="preserve">
+    <value>Calendar &amp; Pomodoro</value>
+  </data>
+  <data name="PanelShelfTitle" xml:space="preserve">
+    <value>Shelf (Drag &amp; drop)</value>
+  </data>
+  <data name="PanelControlCenterTitle" xml:space="preserve">
+    <value>Control Center</value>
+  </data>
+  <data name="PanelStatusTitle" xml:space="preserve">
+    <value>Status (Battery, weather)</value>
+  </data>
+  <data name="DockGeneralHeader" xml:space="preserve">
+    <value>GENERAL</value>
+  </data>
+  <data name="DockEnabledTitle" xml:space="preserve">
+    <value>Enable Dock</value>
+  </data>
+  <data name="DockLayoutHeader" xml:space="preserve">
+    <value>LAYOUT AND BEHAVIOR</value>
+  </data>
+  <data name="DockStyleTitle" xml:space="preserve">
+    <value>Dock style</value>
+  </data>
+  <data name="StyleCapsule" xml:space="preserve">
+    <value>Floating capsule</value>
+  </data>
+  <data name="StyleFullWidth" xml:space="preserve">
+    <value>Full-width glass</value>
+  </data>
+  <data name="DockProximityTitle" xml:space="preserve">
+    <value>When window approaches</value>
+  </data>
+  <data name="ProxDockDown" xml:space="preserve">
+    <value>Dock down</value>
+  </data>
+  <data name="ProxReserve" xml:space="preserve">
+    <value>Reserve space</value>
+  </data>
+  <data name="ProxDodge" xml:space="preserve">
+    <value>Dodge</value>
+  </data>
+  <data name="ProxAlwaysHidden" xml:space="preserve">
+    <value>Always hidden</value>
+  </data>
+  <data name="DockSizeHeader" xml:space="preserve">
+    <value>DIMENSIONS</value>
+  </data>
+  <data name="DockIconSizeTitle" xml:space="preserve">
+    <value>Icon size</value>
+  </data>
+  <data name="SizeSmall" xml:space="preserve">
+    <value>Small (24 px)</value>
+  </data>
+  <data name="SizeMedium" xml:space="preserve">
+    <value>Medium (28 px)</value>
+  </data>
+  <data name="SizeLarge" xml:space="preserve">
+    <value>Large (34 px)</value>
+  </data>
+  <data name="HoverMagnifyTitle" xml:space="preserve">
+    <value>Magnify icons on hover</value>
+  </data>
+  <data name="IndicatorStyleTitle" xml:space="preserve">
+    <value>Indicator style</value>
+  </data>
+  <data name="IndicatorDot" xml:space="preserve">
+    <value>Dot</value>
+  </data>
+  <data name="IndicatorLine" xml:space="preserve">
+    <value>Line</value>
+  </data>
+  <data name="StartButtonTitle" xml:space="preserve">
+    <value>Windows Start button</value>
+  </data>
+  <data name="FoldersSectionTitle" xml:space="preserve">
+    <value>Folders section (Downloads)</value>
+  </data>
+  <data name="TaskbarRecoveryHeader" xml:space="preserve">
+    <value>TASKBAR RECOVERY</value>
+  </data>
+  <data name="RestoreTaskbarTitle" xml:space="preserve">
+    <value>Restore Windows taskbar</value>
+  </data>
+  <data name="RestoreTaskbarDesc" xml:space="preserve">
+    <value>Makes Windows taskbar visible immediately if hidden</value>
+  </data>
+  <data name="ChannelStable" xml:space="preserve">
+    <value>Stable</value>
+  </data>
+  <data name="ChannelPreview" xml:space="preserve">
+    <value>Preview</value>
+  </data>
+  <data name="MusicWaveformTitle" xml:space="preserve">
+    <value>Show album art and waveform when playing</value>
+  </data>
+  <data name="IndicatorsHeader" xml:space="preserve">
+    <value>INDICATORS</value>
+  </data>
+  <data name="VolumeOsdTitle" xml:space="preserve">
+    <value>Volume indicator</value>
+  </data>
+  <data name="VolumeOsdDesc" xml:space="preserve">
+    <value>Brief overlay when volume changes</value>
+  </data>
+  <data name="BrightnessOsdTitle" xml:space="preserve">
+    <value>Brightness indicator</value>
+  </data>
+  <data name="HideWindowsOsdTitle" xml:space="preserve">
+    <value>Hide Windows default indicator</value>
+  </data>
+  <data name="ExperimentalDesc" xml:space="preserve">
+    <value>Experimental</value>
+  </data>
+  <data name="SectionsHeader" xml:space="preserve">
+    <value>SECTIONS</value>
+  </data>
+  <data name="PrimaryScreenHeader" xml:space="preserve">
+    <value>DISPLAY 1 · PRIMARY · 1920×1080</value>
+  </data>
+  <data name="ScreenNotchTitle" xml:space="preserve">
+    <value>Notch</value>
+  </data>
+  <data name="ScreenDockTitle" xml:space="preserve">
+    <value>Dock</value>
+  </data>
+  <data name="ScreenDockWindowsOnlyTitle" xml:space="preserve">
+    <value>Show only windows from this display in dock</value>
+  </data>
+  <data name="NewDisplaysHeader" xml:space="preserve">
+    <value>NEW DISPLAYS</value>
+  </data>
+  <data name="NewDisplayActionTitle" xml:space="preserve">
+    <value>On newly connected display</value>
+  </data>
+  <data name="NewDisplayBoth" xml:space="preserve">
+    <value>Notch and dock</value>
+  </data>
+  <data name="NewDisplayNotchOnly" xml:space="preserve">
+    <value>Notch only</value>
+  </data>
+  <data name="NewDisplayNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="MultiMonitorNotice" xml:space="preserve">
+    <value>When an app goes fullscreen on one display, Koy is hidden only on that display. Other displays remain unaffected.</value>
+  </data>
+  <data name="ThemeHeader" xml:space="preserve">
+    <value>THEME</value>
+  </data>
+  <data name="ThemeTitle" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="AccentColorTitle" xml:space="preserve">
+    <value>Accent color</value>
+  </data>
+  <data name="UseWindowsAccentTitle" xml:space="preserve">
+    <value>Use Windows accent color</value>
+  </data>
+  <data name="MaterialTitle" xml:space="preserve">
+    <value>Material</value>
+  </data>
+  <data name="MaterialDesc" xml:space="preserve">
+    <value>Translucent uses slightly more resources</value>
+  </data>
+  <data name="MaterialSolid" xml:space="preserve">
+    <value>Solid</value>
+  </data>
+  <data name="MaterialTranslucent" xml:space="preserve">
+    <value>Translucent</value>
+  </data>
+  <data name="CornerRadiusTitle" xml:space="preserve">
+    <value>Corner radius</value>
+  </data>
+  <data name="MotionHeader" xml:space="preserve">
+    <value>MOTION</value>
+  </data>
+  <data name="AnimationTitle" xml:space="preserve">
+    <value>Animation speed</value>
+  </data>
+  <data name="AnimGentle" xml:space="preserve">
+    <value>Gentle</value>
+  </data>
+  <data name="AnimNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="AnimFast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="AnimOff" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ReduceMotionTitle" xml:space="preserve">
+    <value>Respect Windows "reduce motion" setting</value>
+  </data>
+  <data name="KeyboardHeader" xml:space="preserve">
+    <value>KEYBOARD</value>
+  </data>
+  <data name="ShortcutToggleNotch" xml:space="preserve">
+    <value>Toggle Notch</value>
+  </data>
+  <data name="ShortcutOpenShelf" xml:space="preserve">
+    <value>Open Shelf</value>
+  </data>
+  <data name="ShortcutToggleDock" xml:space="preserve">
+    <value>Toggle Dock</value>
+  </data>
+  <data name="ShortcutOpenMenu" xml:space="preserve">
+    <value>Koy menu</value>
+  </data>
+  <data name="ShortcutPlayPause" xml:space="preserve">
+    <value>Music: play / pause</value>
+  </data>
+  <data name="KeySpace" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="ShortcutsNotice" xml:space="preserve">
+    <value>Shortcuts are examples. Conflicting shortcuts with Windows or other apps are highlighted in red.</value>
+  </data>
+  <data name="MouseHeader" xml:space="preserve">
+    <value>MOUSE</value>
+  </data>
+  <data name="WheelActionTitle" xml:space="preserve">
+    <value>Mouse wheel on Notch</value>
+  </data>
+  <data name="WheelSwitchPanel" xml:space="preserve">
+    <value>Switch panel</value>
+  </data>
+  <data name="WheelVolume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="MiddleClickTitle" xml:space="preserve">
+    <value>Middle-click on Dock</value>
+  </data>
+  <data name="MidClickNewWindow" xml:space="preserve">
+    <value>New window</value>
+  </data>
+  <data name="MidClickClose" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="MemoryUsageTitle" xml:space="preserve">
+    <value>Memory usage</value>
+  </data>
+  <data name="BudgetDesc" xml:space="preserve">
+    <value>Budget 60 MB</value>
+  </data>
+  <data name="BatteryHeader" xml:space="preserve">
+    <value>BATTERY</value>
+  </data>
+  <data name="BatteryReduceMotion" xml:space="preserve">
+    <value>Reduce animations on battery saver</value>
+  </data>
+  <data name="BatteryStopWaveform" xml:space="preserve">
+    <value>Stop music waveform on battery saver</value>
+  </data>
+  <data name="DataHeader" xml:space="preserve">
+    <value>DATA</value>
+  </data>
+  <data name="WeatherRefreshTitle" xml:space="preserve">
+    <value>Weather refresh rate</value>
+  </data>
+  <data name="Interval30m" xml:space="preserve">
+    <value>Every 30 minutes</value>
+  </data>
+  <data name="Interval1h" xml:space="preserve">
+    <value>Every 1 hour</value>
+  </data>
+  <data name="IntervalStartupOnly" xml:space="preserve">
+    <value>On startup only</value>
+  </data>
+  <data name="AudioVisualizerTitle" xml:space="preserve">
+    <value>Audio visualizer</value>
+  </data>
+  <data name="AudioVisualizerDesc" xml:space="preserve">
+    <value>Experimental, consumes extra memory</value>
+  </data>
+  <data name="IdleNotice" xml:space="preserve">
+    <value>Koy uses 0% CPU when idle. Timers only run when their respective panel is open.</value>
+  </data>
+  <data name="UpdatesTitle" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="DiagnosticInfoTitle" xml:space="preserve">
+    <value>Information for bug reporting</value>
+  </data>
+  <data name="CopyDiagnosticsAction" xml:space="preserve">
+    <value>Copy diagnostics</value>
+  </data>
+  <data name="TroubleshootingHeader" xml:space="preserve">
+    <value>TROUBLESHOOTING</value>
+  </data>
+  <data name="RestoreTaskbarDesc2" xml:space="preserve">
+    <value>If taskbar went missing</value>
+  </data>
+  <data name="RestoreButton" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="ResetSettingsTitle" xml:space="preserve">
+    <value>Reset all settings to default</value>
+  </data>
+  <data name="ResetButton" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="LinksHeader" xml:space="preserve">
+    <value>LINKS</value>
+  </data>
+  <data name="SourceCodeTitle" xml:space="preserve">
+    <value>Source code</value>
+  </data>
+  <data name="OpenGitHubAction" xml:space="preserve">
+    <value>Open on GitHub</value>
+  </data>
+  <data name="OpenKoyWindowAction" xml:space="preserve">
+    <value>Open Koy window</value>
+  </data>
+  <data name="PauseOneHourAction" xml:space="preserve">
+    <value>Pause for 1 hour</value>
+  </data>
+  <data name="ResumePauseAction" xml:space="preserve">
+    <value>Resume</value>
+  </data>
+  <data name="ExitKoyAction" xml:space="preserve">
+    <value>Exit Koy</value>
+  </data>
 </root>

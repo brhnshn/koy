@@ -1,0 +1,106 @@
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Koy.Core.Settings;
+using Koy.Platform.Display;
+using Koy.Platform.Shell;
+
+namespace Koy.App.Features.Menu;
+
+public sealed partial class SagAltMenuViewModel : ObservableObject
+{
+    private readonly SettingsStore _store;
+
+    [ObservableProperty]
+    private int _monitorCount = 1;
+
+    [ObservableProperty]
+    private string _monitorSummary = "1 ekranda çalışıyor";
+
+    [ObservableProperty]
+    private bool _notchEnabled = true;
+
+    [ObservableProperty]
+    private bool _dockEnabled = true;
+
+    [ObservableProperty]
+    private bool _isPaused;
+
+    [ObservableProperty]
+    private string _pauseText = "1 saat duraklat";
+
+    public event Action? RequestClose;
+    public event Action? RequestOpenKoyWindow;
+    public event Action<bool>? NotchToggled;
+    public event Action<bool>? DockToggled;
+    public event Action<bool>? PauseToggled;
+
+    public SagAltMenuViewModel(SettingsStore? store = null)
+    {
+        _store = store ?? new SettingsStore(SettingsStore.DefaultPath);
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        var settings = _store.Load();
+        NotchEnabled = settings.NotchEnabled;
+        DockEnabled = settings.DockEnabled;
+
+        try
+        {
+            using var monitorService = new MonitorService();
+            var monitors = monitorService.GetMonitors();
+            MonitorCount = monitors.Count > 0 ? monitors.Count : 1;
+        }
+        catch
+        {
+            MonitorCount = 1;
+        }
+
+        var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "en";
+        MonitorSummary = isEn ? $"Running on {MonitorCount} displays" : $"{MonitorCount} ekranda çalışıyor";
+        PauseText = IsPaused ? Koy.App.Resources.Loc.Instance["ResumePauseAction"] : Koy.App.Resources.Loc.Instance["PauseOneHourAction"];
+    }
+
+    [RelayCommand]
+    private void ToggleNotch()
+    {
+        NotchEnabled = !NotchEnabled;
+        var settings = _store.Load();
+        _store.Save(settings with { NotchEnabled = NotchEnabled });
+        NotchToggled?.Invoke(NotchEnabled);
+    }
+
+    [RelayCommand]
+    private void ToggleDock()
+    {
+        DockEnabled = !DockEnabled;
+        var settings = _store.Load();
+        _store.Save(settings with { DockEnabled = DockEnabled });
+        DockToggled?.Invoke(DockEnabled);
+    }
+
+    [RelayCommand]
+    private void OpenKoyWindow()
+    {
+        RequestClose?.Invoke();
+        RequestOpenKoyWindow?.Invoke();
+    }
+
+    [RelayCommand]
+    private void PauseOneHour()
+    {
+        IsPaused = !IsPaused;
+        PauseText = IsPaused ? Koy.App.Resources.Loc.Instance["ResumePauseAction"] : Koy.App.Resources.Loc.Instance["PauseOneHourAction"];
+        PauseToggled?.Invoke(IsPaused);
+        RequestClose?.Invoke();
+    }
+
+    [RelayCommand]
+    private void Exit()
+    {
+        TaskbarService.Restore();
+        Application.Current?.Shutdown();
+    }
+}

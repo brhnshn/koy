@@ -91,7 +91,8 @@ public sealed class MonitorService : IMonitorService
                         WorkArea: workArea,
                         IsPrimary: isPrimary,
                         DpiScaleX: dpiScaleX,
-                        DpiScaleY: dpiScaleY));
+                        DpiScaleY: dpiScaleY,
+                        Handle: hMonitor.Value));
                 }
 
                 return true;

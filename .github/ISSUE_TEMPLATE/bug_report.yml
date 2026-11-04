@@ -1,0 +1,58 @@
+name: "Hata Bildirimi / Bug Report"
+description: "Koy'da karşılaştığınız bir çökme, görsel hata veya beklenmeyen davranışı bildirin."
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bildiriminiz için teşekkürler! Lütfen **Koy Penceresi -> Hakkında -> Tanılama bilgisini kopyala** düğmesine basarak sistem bilgilerinizi aşağıdaki alana yapıştırın.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Hatanın Özeti (Description)"
+      description: "Ne oldu ve ne olmasını bekliyordunuz?"
+      placeholder: "Örn: İkinci ekranda tam ekran video açıldığında..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Adım Adım Yeniden Üretme (Steps to Reproduce)"
+      description: "Hatayı nasıl tekrar oluşturabiliriz?"
+      value: |
+        1. '...' ayarına git
+        2. '...' üzerine tıkla
+        3. Hatayı gözlemle
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: "İlgili Bileşen (Component)"
+      options:
+        - "Notch (Çentik / Paneller / OSD)"
+        - "Dock (Yüzen Kapsül / Tam Genişlik / Önizleme)"
+        - "Çoklu Ekran (Multi-Monitor / DPI / Tam Ekran)"
+        - "Koy Penceresi (Ayarlar / Sihirbaz / Sistem Tepsisi)"
+        - "Performans & Bellek (Memory / CPU)"
+        - "Kurulum & Güncelleme (Velopack)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: "Tanılama Bilgisi (Diagnostics)"
+      description: "Hakkında sayfasındaki 'Tanılama bilgisini kopyala' çıktısını buraya yapıştırın."
+      placeholder: |
+        Koy v0.1.0
+        OS: Microsoft Windows NT 10.0.26200.0
+        .NET: 10.0.x
+        Private Memory: 45.1 MB
+      render: text
+    validations:
+      required: true

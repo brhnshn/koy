@@ -34,10 +34,34 @@ public sealed partial class DockItemViewModel : ObservableObject
     private bool _isFlashing;
 
     [ObservableProperty]
+    private bool _isAttention;
+
+    [ObservableProperty]
+    private int _badgeCount;
+
+    [ObservableProperty]
+    private bool _hasBadge;
+
+    [ObservableProperty]
+    private bool _isMultiWindow;
+
+    [ObservableProperty]
+    private IReadOnlyList<DockWindowEntry> _windows = [];
+
+    [ObservableProperty]
     private ImageSource? _icon;
 
     [ObservableProperty]
     private double _scale = 1.0;
+
+    [ObservableProperty]
+    private double _iconSize = 28.0;
+
+    [ObservableProperty]
+    private double _itemSize = 38.0;
+
+    public bool HasOpenWindows => Windows.Count > 0;
+    public DockWindowEntry? SingleWindow => Windows.Count == 1 ? Windows[0] : null;
 
     public DockItemViewModel(DockItem model, DockController controller)
     {
@@ -49,6 +73,11 @@ public sealed partial class DockItemViewModel : ObservableObject
         _isRunning = model.IsRunning;
         _isActive = model.IsActive;
         _isFlashing = model.IsFlashing;
+        _isAttention = model.IsFlashing;
+        _badgeCount = model.BadgeCount;
+        _hasBadge = model.BadgeCount > 0;
+        _windows = model.Windows ?? [];
+        _isMultiWindow = _windows.Count > 1;
 
         if (model.IconData is { Length: > 0 })
         {
@@ -64,6 +93,17 @@ public sealed partial class DockItemViewModel : ObservableObject
         IsRunning = model.IsRunning;
         IsActive = model.IsActive;
         IsFlashing = model.IsFlashing;
+        IsAttention = model.IsFlashing;
+        BadgeCount = model.BadgeCount;
+        HasBadge = model.BadgeCount > 0;
+        var newWindows = model.Windows ?? [];
+        if (!Windows.SequenceEqual(newWindows))
+        {
+            Windows = newWindows;
+            IsMultiWindow = Windows.Count > 1;
+            OnPropertyChanged(nameof(HasOpenWindows));
+            OnPropertyChanged(nameof(SingleWindow));
+        }
 
         if (Icon is null && model.IconData is { Length: > 0 })
         {
@@ -111,6 +151,18 @@ public sealed partial class DockItemViewModel : ObservableObject
     private void Terminate()
     {
         _controller.HandleItemTerminate(Model);
+    }
+
+    [RelayCommand]
+    private void ActivateSpecificWindow(nint handle)
+    {
+        _controller.ActivateWindow(handle);
+    }
+
+    [RelayCommand]
+    private void CloseSpecificWindow(nint handle)
+    {
+        _controller.CloseWindow(handle);
     }
 
     private static BitmapImage? LoadImage(byte[] data)

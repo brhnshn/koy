@@ -61,6 +61,8 @@ public class DockTests
         public void Launch(string path, string? arguments = null) => Launched.Add(path);
         public void SendWinKey() => WinKeyCount++;
         public void ToggleSystemTray() => TrayToggleCount++;
+        public void OpenQuickSettings() { }
+        public void OpenNotificationCenter() { }
     }
 
     private sealed class FakeFullscreenDetector : IFullscreenDetector
@@ -436,5 +438,37 @@ public class DockTests
         controller.Refresh();
 
         Assert.False(controller.Items[0].IsFlashing);
+    }
+
+    [Fact]
+    public void AltTab_PreservesUnpinnedAppsOrder()
+    {
+        var pinnedService = new FakePinnedAppsService();
+        var winA = new OpenWindowInfo(1001, "AppA", @"C:\AppA.exe", 10, new WindowRect(0, 0, 400, 400));
+        var winB = new OpenWindowInfo(1002, "AppB", @"C:\AppB.exe", 20, new WindowRect(0, 0, 400, 400));
+        var windowTracker = new FakeWindowTracker
+        {
+            Windows = [winA, winB],
+            CurrentForeground = new WindowInfo(1001, new WindowRect(0, 0, 400, 400))
+        };
+        var shell = new FakeShellActionService();
+
+        using var controller = new DockController(pinnedService, windowTracker, shell);
+        controller.Refresh();
+
+        Assert.Equal(2, controller.Items.Count);
+        Assert.Equal(@"C:\AppA.exe", controller.Items[0].Id);
+        Assert.Equal(@"C:\AppB.exe", controller.Items[1].Id);
+
+        // Alt+Tab: winB comes to top of Z-order in EnumWindows
+        windowTracker.Windows = [winB, winA];
+        windowTracker.TriggerForegroundChange(new WindowInfo(1002, new WindowRect(0, 0, 400, 400)));
+
+        Assert.Equal(2, controller.Items.Count);
+        // Order MUST stay stable: AppA first, AppB second!
+        Assert.Equal(@"C:\AppA.exe", controller.Items[0].Id);
+        Assert.Equal(@"C:\AppB.exe", controller.Items[1].Id);
+        Assert.False(controller.Items[0].IsActive);
+        Assert.True(controller.Items[1].IsActive);
     }
 }

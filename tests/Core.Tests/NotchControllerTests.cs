@@ -179,6 +179,64 @@ public class NotchControllerTests
     }
 
     [Fact]
+    public void Expand_DirectlyTransitionsToExpanded()
+    {
+        using var controller = new NotchController();
+        Assert.Equal(NotchState.Collapsed, controller.State);
+
+        controller.Expand();
+        Assert.Equal(NotchState.Expanded, controller.State);
+    }
+
+    [Fact]
+    public void Expand_WithPanel_SelectsSpecifiedPanel()
+    {
+        using var controller = new NotchController();
+        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.Shelf]);
+
+        controller.Expand(NotchPanel.Shelf);
+        Assert.Equal(NotchState.Expanded, controller.State);
+        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+    }
+
+    [Fact]
+    public void Expand_FromPeek_TransitionsToExpanded()
+    {
+        using var controller = new NotchController();
+        controller.OnMouseEnter();
+        Assert.Equal(NotchState.Peek, controller.State);
+
+        controller.Expand(NotchPanel.Shelf);
+        Assert.Equal(NotchState.Expanded, controller.State);
+        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+    }
+
+    [Fact]
+    public void Expand_WhenAlreadyExpanded_StaysExpandedAndDoesNotToggle()
+    {
+        using var controller = new NotchController();
+        controller.Expand(NotchPanel.Music);
+        Assert.Equal(NotchState.Expanded, controller.State);
+
+        // Subsequent drag or expand call must keep it Expanded (must NOT toggle like OnClick)
+        controller.Expand(NotchPanel.Shelf);
+        Assert.Equal(NotchState.Expanded, controller.State);
+        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+    }
+
+    [Fact]
+    public void Expand_WithUnenabledPanel_AddsToEnabledAndSelects()
+    {
+        using var controller = new NotchController();
+        controller.SetEnabledPanels([NotchPanel.Music]); // Shelf is not enabled
+
+        controller.Expand(NotchPanel.Shelf);
+        Assert.Equal(NotchState.Expanded, controller.State);
+        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+        Assert.Contains(NotchPanel.Shelf, controller.EnabledPanels);
+    }
+
+    [Fact]
     public void Dispose_MultipleCalls_DoesNotThrow()
     {
         var controller = new NotchController();

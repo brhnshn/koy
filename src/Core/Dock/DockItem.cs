@@ -1,4 +1,15 @@
+using Koy.Core.Shell;
+
 namespace Koy.Core.Dock;
+
+/// <summary>
+/// Dock öğesine ait açık bir pencerenin başlık ve tanıtıcı bilgisi (DWM önizlemesi ve küçültülmüş pencereler için).
+/// </summary>
+public sealed record DockWindowEntry(
+    nint Handle,
+    string Title,
+    WindowRect Bounds,
+    bool IsMinimized = false);
 
 /// <summary>
 /// Dock üzerinde gösterilen bir uygulamanın (sabitli, çalışan veya her ikisi) durum modeli.
@@ -15,4 +26,6 @@ public sealed record DockItem(
     bool IsActive,
     IReadOnlyList<nint> WindowHandles,
     int ProcessId = 0,
-    bool IsFlashing = false);
+    bool IsFlashing = false,
+    int BadgeCount = 0,
+    IReadOnlyList<DockWindowEntry>? Windows = null);

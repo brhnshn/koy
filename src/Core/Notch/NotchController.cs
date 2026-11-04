@@ -67,6 +67,25 @@ public sealed class NotchController : IDisposable
         PanelChanged?.Invoke(this, CurrentPanel);
     }
 
+    /// <summary>
+    /// Çentiği doğrudan Expanded durumuna geçirir ve isteğe bağlı olarak belirtilen paneli seçer.
+    /// Sürükle-bırak veya doğrudan kullanıcı etkileşimi için kullanılır.
+    /// </summary>
+    public void Expand(NotchPanel? panel = null)
+    {
+        _autoPeekTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        _mouseLeaveTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        SetState(NotchState.Expanded);
+        if (panel.HasValue)
+        {
+            if (!_enabledPanels.Contains(panel.Value))
+            {
+                _enabledPanels.Add(panel.Value);
+            }
+            SelectPanel(panel.Value);
+        }
+    }
+
     public void OnMouseEnter()
     {
         IsMouseOver = true;

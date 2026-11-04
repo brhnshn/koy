@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Koy.App.Features.Notch"
+        xmlns:osd="clr-namespace:Koy.App.Features.Notch.OSD"
         xmlns:music="clr-namespace:Koy.App.Features.Music"
         xmlns:cc="clr-namespace:Koy.App.Features.ControlCenter"
         xmlns:status="clr-namespace:Koy.App.Features.Status"
@@ -29,9 +30,9 @@
   <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
     <!-- Sabit tuval üzerinde yay animasyonlu özel çentik şekli -->
     <local:NotchShape x:Name="Notch"
-                      Width="200" Height="34"
-                      CornerRadius="24" EarRadius="12"
-                      Background="{StaticResource NotchBackground}"
+                      Width="236" Height="34"
+                      CornerRadius="18" EarRadius="12"
+                      Background="#0A0A0B"
                       MouseEnter="Notch_MouseEnter"
                       MouseLeave="Notch_MouseLeave"
                       MouseLeftButtonDown="Notch_MouseLeftButtonDown"
@@ -52,46 +53,66 @@
         </ContextMenu>
       </local:NotchShape.ContextMenu>
 
-      <Grid Margin="12,0,12,0">
-        <!-- 1. Collapsed Durumu -->
+      <Grid>
+        <!-- 1. Collapsed Durumu (236x34 px, köşe yuvarlaklığı 0 0 18 18, arka plan #0A0A0B) -->
         <Grid x:Name="CollapsedView">
           <Grid.Style>
             <Style TargetType="Grid">
               <Setter Property="Visibility" Value="Collapsed" />
               <Style.Triggers>
-                <DataTrigger Binding="{Binding State}" Value="{x:Static core:NotchState.Collapsed}">
+                <MultiDataTrigger>
+                  <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding State}" Value="{x:Static core:NotchState.Collapsed}" />
+                    <Condition Binding="{Binding Osd.IsActive}" Value="False" />
+                  </MultiDataTrigger.Conditions>
                   <Setter Property="Visibility" Value="Visible" />
-                </DataTrigger>
+                </MultiDataTrigger>
               </Style.Triggers>
             </Style>
           </Grid.Style>
 
-          <!-- Normal boş durum (müzik yokken) -->
-          <TextBlock Text="{Binding Title}"
-                     Foreground="{StaticResource NotchForeground}"
-                     FontSize="12"
-                     FontWeight="Medium"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center">
-            <TextBlock.Style>
-              <Style TargetType="TextBlock">
+          <!-- 1a. Boşta: Saat ve Pil (Solda 13px saat, sağda 22x11 pil göstergesi) -->
+          <Grid x:Name="IdleStateView" VerticalAlignment="Center" Margin="22,0,22,0">
+            <Grid.Style>
+              <Style TargetType="Grid">
                 <Setter Property="Visibility" Value="Visible" />
                 <Style.Triggers>
-                  <DataTrigger Binding="{Binding Music.HasTrack}" Value="True">
+                  <DataTrigger Binding="{Binding IsMusicPlaying}" Value="True">
                     <Setter Property="Visibility" Value="Collapsed" />
                   </DataTrigger>
                 </Style.Triggers>
               </Style>
-            </TextBlock.Style>
-          </TextBlock>
+            </Grid.Style>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-          <!-- Müzik çalarken Collapsed çentik (kapak + isim + statik ses dalgası) -->
-          <Grid VerticalAlignment="Center">
+            <!-- Sol: Saat (HH:mm, 13px, font-weight 600, foreground #F4F4F5) -->
+            <TextBlock Grid.Column="0"
+                       Text="{Binding ClockTime}"
+                       Foreground="#F4F4F5"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center" />
+
+            <!-- Sağ: Pil Göstergesi (22x11 px dış gövde #F4F4F5, seviye #4ADE80, terminal uç 2x5) -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+              <Border Width="22" Height="11" BorderThickness="1.5" BorderBrush="#F4F4F5" CornerRadius="3" Padding="1" Background="Transparent">
+                <Border HorizontalAlignment="Left" Width="{Binding BatteryFillWidth}" Height="6" Background="#4ADE80" CornerRadius="1" />
+              </Border>
+              <Border Width="2" Height="5" Background="#F4F4F5" CornerRadius="1" Margin="2,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+          </Grid>
+
+          <!-- 1b. Müzik Çalarken: Kapak ve 4 çubuklu dalga (30px yan marjinler kavisli kulaklardan ve alt köşelerden tam korur) -->
+          <Grid x:Name="MusicStateView" VerticalAlignment="Center" Margin="30,0,30,0">
             <Grid.Style>
               <Style TargetType="Grid">
                 <Setter Property="Visibility" Value="Collapsed" />
                 <Style.Triggers>
-                  <DataTrigger Binding="{Binding Music.HasTrack}" Value="True">
+                  <DataTrigger Binding="{Binding IsMusicPlaying}" Value="True">
                     <Setter Property="Visibility" Value="Visible" />
                   </DataTrigger>
                 </Style.Triggers>
@@ -103,45 +124,65 @@
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- Sol: Küçük kapak resmi (18x18) veya nota ikonu -->
-            <Border Grid.Column="0" Width="18" Height="18" CornerRadius="4" Background="#20FFFFFF" ClipToBounds="True">
+            <!-- Sol: 22x22 albüm kapağı (5px köşe yuvarlama) -->
+            <Border Grid.Column="0" Width="22" Height="22" CornerRadius="5" Background="#22C55E" ClipToBounds="True">
               <Grid>
-                <Path Width="10" Height="10" Stretch="Uniform" Fill="#60FFFFFF"
+                <Path Width="11" Height="11" Stretch="Uniform" Fill="#60FFFFFF"
                       Data="M 12,3 L 6,5 L 6,11 A 2.5,2.5 0 1 1 3.5,8.5 L 5,8.5 L 5,4 L 12,2 Z" />
                 <Image Source="{Binding Music.Thumbnail}" Stretch="UniformToFill" />
               </Grid>
             </Border>
 
-            <!-- Orta: Şarkı adı veya Koy -->
+            <!-- Orta: Şarkı adı -->
             <TextBlock Grid.Column="1"
                        Text="{Binding Music.Title}"
-                       Foreground="{StaticResource NotchForeground}"
+                       Foreground="#F4F4F5"
                        FontSize="11"
+                       FontWeight="Medium"
                        Margin="8,0"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                        TextTrimming="CharacterEllipsis"
                        TextWrapping="NoWrap" />
 
-            <!-- Sağ: Hareketsiz (statik) ses dalgası vektör ikonu (%0 CPU) -->
-            <Canvas Grid.Column="2" Width="14" Height="12" VerticalAlignment="Center" Opacity="0.8">
-              <Line X1="2" Y1="4" X2="2" Y2="10" Stroke="{StaticResource NotchForeground}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-              <Line X1="5" Y1="2" X2="5" Y2="12" Stroke="{StaticResource NotchForeground}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-              <Line X1="8" Y1="5" X2="8" Y2="9" Stroke="{StaticResource NotchForeground}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-              <Line X1="11" Y1="3" X2="11" Y2="11" Stroke="{StaticResource NotchForeground}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-            </Canvas>
+            <!-- Sağ: 4 çubuklu hareketsiz dalga (yükseklik 14px, çubuklar: 8, 14, 10, 5 px, genişlik 3px, boşluk 2px, dolgu #4ADE80, %0 CPU) -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Height="14">
+              <Border Width="3" Height="8" Background="#4ADE80" CornerRadius="1" VerticalAlignment="Bottom" />
+              <Border Width="3" Height="14" Background="#4ADE80" CornerRadius="1" Margin="2,0,0,0" VerticalAlignment="Bottom" />
+              <Border Width="3" Height="10" Background="#4ADE80" CornerRadius="1" Margin="2,0,0,0" VerticalAlignment="Bottom" />
+              <Border Width="3" Height="5" Background="#4ADE80" CornerRadius="1" Margin="2,0,0,0" VerticalAlignment="Bottom" />
+            </StackPanel>
           </Grid>
         </Grid>
 
-        <!-- 2. Peek Durumu -->
-        <Grid x:Name="PeekView" VerticalAlignment="Center">
+        <!-- OSD Göstergesi (Ses & Parlaklık — 260x40 px, köşe yuvarlaklığı 20, 1.5 sn auto-dismiss) -->
+        <Grid x:Name="OsdContainerView" VerticalAlignment="Center">
           <Grid.Style>
             <Style TargetType="Grid">
               <Setter Property="Visibility" Value="Collapsed" />
               <Style.Triggers>
-                <DataTrigger Binding="{Binding State}" Value="{x:Static core:NotchState.Peek}">
+                <DataTrigger Binding="{Binding Osd.IsActive}" Value="True">
                   <Setter Property="Visibility" Value="Visible" />
                 </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Grid.Style>
+          <osd:OsdView DataContext="{Binding Osd}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+
+        <!-- 2. Peek Durumu -->
+        <Grid x:Name="PeekView" VerticalAlignment="Center" Margin="12,0,12,0">
+          <Grid.Style>
+            <Style TargetType="Grid">
+              <Setter Property="Visibility" Value="Collapsed" />
+              <Style.Triggers>
+                <MultiDataTrigger>
+                  <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding State}" Value="{x:Static core:NotchState.Peek}" />
+                    <Condition Binding="{Binding Osd.IsActive}" Value="False" />
+                  </MultiDataTrigger.Conditions>
+                  <Setter Property="Visibility" Value="Visible" />
+                </MultiDataTrigger>
               </Style.Triggers>
             </Style>
           </Grid.Style>
@@ -184,19 +225,23 @@
         </Grid>
 
         <!-- 3. Expanded Durumu -->
-        <Grid x:Name="ExpandedView">
+        <Grid x:Name="ExpandedView" Margin="12,0,12,0">
           <Grid.Style>
             <Style TargetType="Grid">
               <Setter Property="Visibility" Value="Collapsed" />
               <Style.Triggers>
-                <DataTrigger Binding="{Binding State}" Value="{x:Static core:NotchState.Expanded}">
+                <MultiDataTrigger>
+                  <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding State}" Value="{x:Static core:NotchState.Expanded}" />
+                    <Condition Binding="{Binding Osd.IsActive}" Value="False" />
+                  </MultiDataTrigger.Conditions>
                   <Setter Property="Visibility" Value="Visible" />
-                </DataTrigger>
+                </MultiDataTrigger>
               </Style.Triggers>
             </Style>
           </Grid.Style>
 
-          <!-- Panel Seçici / İçerik: Music, ControlCenter, Status -->
+          <!-- Panel Seçici / İçerik: Music, ControlCenter, Status, Calendar, Shelf -->
           <ContentControl Content="{Binding CurrentPanelContent}">
             <ContentControl.RenderTransform>
               <TranslateTransform x:Name="PanelTranslate" X="0" />

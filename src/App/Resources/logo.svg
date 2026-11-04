@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-flat">
+  <title id="title-flat">Koy Marka Logosu (Düz Renk Master)</title>
+  <!-- Dış Squircle Karo: Kobalt Mavi -->
+  <rect x="32" y="32" width="192" height="192" rx="48" fill="#2563EB"/>
+
+  <!-- Üst Çentik Oyuğu: Gökyüzü Mavisi -->
+  <path fill="#93C5FD" d="
+    M 88 32
+    C 94 44 104 54 116 54
+    H 140
+    C 152 54 162 44 168 32
+    H 88
+    Z
+  "/>
+
+  <!-- Merkez K Monogramı: Saf Beyaz -->
+  <rect x="76" y="82" width="30" height="108" rx="15" fill="#FFFFFF"/>
+  <path fill="#FFFFFF" d="
+    M 106 136
+    L 148 88
+    C 154 82 164 81 170 87
+    C 176 93 176 102 170 107
+    L 134 143
+    L 170 179
+    C 176 184 176 193 170 199
+    C 164 205 154 204 148 198
+    L 106 148
+    Z
+  "/>
+</svg>

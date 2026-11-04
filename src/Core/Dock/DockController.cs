@@ -14,6 +14,8 @@ public sealed class DockController : IDisposable
     private readonly IFullscreenDetector? _fullscreenDetector;
 
     private readonly HashSet<nint> _flashingHandles = [];
+    private readonly List<string> _stableUnpinnedOrder = [];
+    private nint _lastForegroundHandle;
     private List<DockItem> _items = [];
     private bool _isHiddenByFullscreen;
     private bool _disposed;
@@ -79,6 +81,8 @@ public sealed class DockController : IDisposable
             foreach (var m in matchingWindows)
                 remainingWindows.Remove(m);
 
+            var windowEntries = matchingWindows.ConvertAll(w => new DockWindowEntry(w.Handle, w.Title, w.Bounds));
+
             newItems.Add(new DockItem(
                 Id: pin.ShortcutPath,
                 Title: pin.Title,
@@ -90,13 +94,33 @@ public sealed class DockController : IDisposable
                 IsActive: isActive,
                 WindowHandles: handles,
                 ProcessId: processId,
-                IsFlashing: isFlashing));
+                IsFlashing: isFlashing,
+                BadgeCount: 0,
+                Windows: windowEntries));
         }
 
-        // 2. Sabitlenmemiş açık pencereleri grupla
+        // 2. Sabitlenmemiş açık pencereleri grupla ve ilk görülme sırasını koru (Alt+Tab zıplamasını engelle)
         var unpinnedGroups = remainingWindows
             .GroupBy(w => !string.IsNullOrEmpty(w.ProcessPath) ? w.ProcessPath : w.ProcessId.ToString())
             .ToList();
+
+        var activeKeys = new HashSet<string>(unpinnedGroups.Select(g => g.Key), StringComparer.OrdinalIgnoreCase);
+        _stableUnpinnedOrder.RemoveAll(k => !activeKeys.Contains(k));
+
+        foreach (var group in unpinnedGroups)
+        {
+            if (!_stableUnpinnedOrder.Contains(group.Key, StringComparer.OrdinalIgnoreCase))
+            {
+                _stableUnpinnedOrder.Add(group.Key);
+            }
+        }
+
+        unpinnedGroups.Sort((a, b) =>
+        {
+            var idxA = _stableUnpinnedOrder.FindIndex(k => string.Equals(k, a.Key, StringComparison.OrdinalIgnoreCase));
+            var idxB = _stableUnpinnedOrder.FindIndex(k => string.Equals(k, b.Key, StringComparison.OrdinalIgnoreCase));
+            return idxA.CompareTo(idxB);
+        });
 
         foreach (var group in unpinnedGroups)
         {
@@ -117,6 +141,8 @@ public sealed class DockController : IDisposable
                 ? first.Title
                 : Path.GetFileNameWithoutExtension(first.ProcessPath) ?? "App";
 
+            var windowEntries = list.ConvertAll(w => new DockWindowEntry(w.Handle, w.Title, w.Bounds));
+
             newItems.Add(new DockItem(
                 Id: group.Key,
                 Title: title,
@@ -128,7 +154,9 @@ public sealed class DockController : IDisposable
                 IsActive: isActive,
                 WindowHandles: handles,
                 ProcessId: first.ProcessId,
-                IsFlashing: isFlashing));
+                IsFlashing: isFlashing,
+                BadgeCount: 0,
+                Windows: windowEntries));
         }
 
         _items = newItems;
@@ -161,6 +189,24 @@ public sealed class DockController : IDisposable
         else
         {
             _windowTracker.ActivateWindow(item.WindowHandles[0]);
+        }
+    }
+
+    public void ActivateWindow(nint handle)
+    {
+        if (handle != 0)
+        {
+            _flashingHandles.Remove(handle);
+            _windowTracker.ActivateWindow(handle);
+        }
+    }
+
+    public void CloseWindow(nint handle)
+    {
+        if (handle != 0)
+        {
+            _flashingHandles.Remove(handle);
+            _windowTracker.CloseWindow(handle);
         }
     }
 
@@ -241,7 +287,11 @@ public sealed class DockController : IDisposable
 
     private void OnForegroundWindowChanged(object? sender, WindowInfo e)
     {
-        Refresh();
+        if (e.Handle != _lastForegroundHandle)
+        {
+            _lastForegroundHandle = e.Handle;
+            Refresh();
+        }
     }
 
     private void OnWindowsChanged(object? sender, EventArgs e)

@@ -14,18 +14,39 @@ public sealed class SettingsStore(string path)
     /// <summary>Dosya yoksa ya da bozuksa varsayılan ayarları döner; uygulama ayar yüzünden açılmamazlık etmez.</summary>
     public AppSettings Load()
     {
+        AppSettings? settings = null;
         try
         {
             if (!File.Exists(Path))
                 return new AppSettings();
 
-            using var stream = File.OpenRead(Path);
-            return JsonSerializer.Deserialize(stream, SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
+            using (var stream = File.OpenRead(Path))
+            {
+                settings = JsonSerializer.Deserialize(stream, SettingsJsonContext.Default.AppSettings);
+            }
         }
         catch (JsonException)
         {
             return new AppSettings();
         }
+
+        settings ??= new AppSettings();
+
+        // Eski "DockDown" zıplama modunu "Dodge" (Akıllı Gizlenme) moduna otomatik geçir
+        if (settings.DockProximity == Dock.DockProximityMode.DockDown)
+        {
+            settings.DockProximity = Dock.DockProximityMode.Dodge;
+            try
+            {
+                Save(settings);
+            }
+            catch
+            {
+                // Salt okunur ortamda sessizce devam et
+            }
+        }
+
+        return settings;
     }
 
     /// <summary>Önce geçici dosyaya yazar, sonra yerine taşır; yazma yarıda kesilirse eski dosya bozulmaz.</summary>

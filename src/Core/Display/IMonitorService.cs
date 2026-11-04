@@ -12,7 +12,8 @@ public sealed record DisplayMonitor(
     WindowRect WorkArea,
     bool IsPrimary,
     double DpiScaleX = 1.0,
-    double DpiScaleY = 1.0)
+    double DpiScaleY = 1.0,
+    nint Handle = 0)
 {
     /// <summary>DIP cinsinden genişlik.</summary>
     public double WidthDip => (Bounds.Right - Bounds.Left) / DpiScaleX;
@@ -25,6 +26,16 @@ public sealed record DisplayMonitor(
 
     /// <summary>DIP cinsinden üst koordinat.</summary>
     public double TopDip => Bounds.Top / DpiScaleY;
+}
+
+/// <summary>
+/// Çentik veya Dock'un hedef monitör seçim modu.
+/// </summary>
+public enum MonitorTargetMode
+{
+    Primary,
+    All,
+    Specific
 }
 
 /// <summary>
@@ -43,4 +54,6 @@ public interface IMonitorService : IDisposable
     void Start();
 
     void Stop();
+
+    void NotifyDisplayChanged() { }
 }

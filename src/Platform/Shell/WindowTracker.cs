@@ -285,6 +285,16 @@ public sealed class WindowTracker : IWindowTracker
         uint idEventThread,
         uint dwmsEventTime)
     {
+        if (hwnd.IsNull)
+            return;
+
+        // Koy'un kendi pencerelerinin (dock, açılır pencereler, önizleme kutucuğu, thumbnail host, menüler)
+        // olayları yoksayılır; aksi halde popup açılışında döngüsel tetiklenme (flicker) ve kilitlenme oluşur.
+        uint pid = 0;
+        unsafe { PInvoke.GetWindowThreadProcessId(hwnd, &pid); }
+        if (pid == (uint)Environment.ProcessId)
+            return;
+
         // Yaşam döngüsü olayları (pencere açılma / kapanma)
         if (@event is PInvoke.EVENT_OBJECT_CREATE or PInvoke.EVENT_OBJECT_DESTROY
                    or PInvoke.EVENT_OBJECT_SHOW or PInvoke.EVENT_OBJECT_HIDE)

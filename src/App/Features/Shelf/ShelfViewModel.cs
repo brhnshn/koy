@@ -69,14 +69,22 @@ public sealed partial class ShelfViewModel : ObservableObject, IDisposable
         }
     }
 
+    public void AddFiles(string[] filePaths) => AddFiles((IEnumerable<string>)filePaths);
+
+    public void AddFiles(IEnumerable<string> filePaths)
+    {
+        foreach (var file in filePaths)
+        {
+            if (!string.IsNullOrWhiteSpace(file))
+                _shelfService.AddFile(file);
+        }
+    }
+
     public void HandleDrop(string[]? filePaths, string? text)
     {
         if (filePaths is not null && filePaths.Length > 0)
         {
-            foreach (var file in filePaths)
-            {
-                _shelfService.AddFile(file);
-            }
+            AddFiles(filePaths);
         }
         else if (!string.IsNullOrWhiteSpace(text))
         {

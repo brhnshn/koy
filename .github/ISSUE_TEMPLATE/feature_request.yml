@@ -1,0 +1,38 @@
+name: "Özellik İsteği / Feature Request"
+description: "Koy için yeni bir panel, etkileşim veya iyileştirme önerin."
+title: "[Feat]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > **Not:** Koy'un en temel tasarım ilkesi **hafifliktir** (tek süreç, sıfır tarayıcı/WebView2, boşta %0 CPU, düşük bellek). Lütfen önerinizin bu mimariyle uyumunu göz önünde bulundurun.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Çözülen Sorun veya İhtiyaç (Problem / Motivation)"
+      description: "Bu özellik hangi kullanım senaryosunu kolaylaştıracak?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Önerilen Çözüm (Proposed Solution)"
+      description: "Nasıl görünmeli ve nasıl çalışmalı?"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Etki Alanı (Area)"
+      options:
+        - "Notch (Çentik & Paneller)"
+        - "Dock & Pencere Yönetimi"
+        - "Çoklu Ekran"
+        - "Ayarlar & Özelleştirme"
+        - "Performans & Bellek"
+    validations:
+      required: true

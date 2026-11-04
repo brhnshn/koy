@@ -52,7 +52,7 @@ public sealed class SettingsStoreTests : IDisposable
     public void Enums_are_written_as_text()
     {
         var store = NewStore();
-        store.Save(new AppSettings());
+        store.Save(new AppSettings { DockVisibility = VisibilityMode.Smart });
 
         Assert.Contains("\"Smart\"", File.ReadAllText(store.Path));
     }
@@ -84,6 +84,7 @@ public sealed class SettingsStoreTests : IDisposable
             DockEnabled = true,
             DockVisibility = VisibilityMode.Fixed,
             DockHoverMagnify = false,
+            DockHideInFullscreen = false,
             MonitorTarget = "All"
         };
 
@@ -94,6 +95,7 @@ public sealed class SettingsStoreTests : IDisposable
         Assert.True(loaded.DockEnabled);
         Assert.Equal(VisibilityMode.Fixed, loaded.DockVisibility);
         Assert.False(loaded.DockHoverMagnify);
+        Assert.False(loaded.DockHideInFullscreen);
         Assert.Equal("All", loaded.MonitorTarget);
     }
 
@@ -106,6 +108,68 @@ public sealed class SettingsStoreTests : IDisposable
         Assert.False(s1.Equals(s2));
         Assert.False(s2.Equals(s1));
         Assert.True(s1.Equals(s1));
+    }
+
+    [Fact]
+    public void Round_trips_with_first_run_completed_and_theme()
+    {
+        var store = NewStore();
+        var settings = new AppSettings
+        {
+            FirstRunCompleted = true,
+            Theme = "Light",
+            CornerRadius = 14.0,
+            AnimationSpeed = "Fast"
+        };
+
+        store.Save(settings);
+        var loaded = store.Load();
+
+        Assert.Equal(settings, loaded);
+        Assert.True(loaded.FirstRunCompleted);
+        Assert.Equal("Light", loaded.Theme);
+        Assert.Equal(14.0, loaded.CornerRadius);
+    }
+
+    [Fact]
+    public void Round_trips_with_new_ui_settings()
+    {
+        var store = NewStore();
+        var settings = new AppSettings
+        {
+            DockIconSize = 24.0,
+            IdleDisplayMode = 1,
+            NotchOpenBehavior = 0,
+            Material = "Translucent",
+            WheelAction = 1,
+            MiddleClickAction = 1,
+            DockIndicatorStyle = 1
+        };
+
+        store.Save(settings);
+        var loaded = store.Load();
+
+        Assert.Equal(settings, loaded);
+        Assert.Equal(24.0, loaded.DockIconSize);
+        Assert.Equal(1, loaded.IdleDisplayMode);
+        Assert.Equal(0, loaded.NotchOpenBehavior);
+        Assert.Equal("Translucent", loaded.Material);
+        Assert.Equal(1, loaded.WheelAction);
+        Assert.Equal(1, loaded.MiddleClickAction);
+        Assert.Equal(1, loaded.DockIndicatorStyle);
+    }
+
+    [Fact]
+    public void DockDown_migrates_to_Dodge()
+    {
+        var store = NewStore();
+        Directory.CreateDirectory(_dir);
+        File.WriteAllText(store.Path, """{ "DockProximity": "DockDown" }""");
+
+        var loaded = store.Load();
+
+        Assert.Equal(Koy.Core.Dock.DockProximityMode.Dodge, loaded.DockProximity);
+        Assert.Contains("\"Dodge\"", File.ReadAllText(store.Path));
     }
 
     public void Dispose()

@@ -11,8 +11,9 @@ namespace Koy.App.Features.Notch;
 
 public partial class NotchWindow : Window
 {
-    private readonly Spring _width = new(200);
+    private readonly Spring _width = new(236);
     private readonly Spring _height = new(34);
+    private readonly Spring _cornerRadius = new(18);
     private readonly Spring _translateY = new(0);
     private readonly Spring _panelTranslateX = new(0);
     private readonly Spring _panelOpacity = new(1);
@@ -25,6 +26,9 @@ public partial class NotchWindow : Window
 
     private DisplayMonitor? _targetMonitor;
     public Action? DisplayChangeHandler { get; set; }
+
+    public DisplayMonitor? TargetMonitor => _targetMonitor;
+    public nint Handle => _hwnd != 0 ? _hwnd : (_hwnd = new WindowInteropHelper(this).Handle);
 
     public NotchWindow()
     {
@@ -163,15 +167,7 @@ public partial class NotchWindow : Window
         if (e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetDataPresent(DataFormats.Text))
         {
             e.Effects = DragDropEffects.Copy;
-            if (ViewModel is not null)
-            {
-                if (ViewModel.Controller.State == Core.Notch.NotchState.Collapsed)
-                {
-                    ViewModel.Controller.OnMouseEnter();
-                    ViewModel.Controller.OnClick();
-                }
-                ViewModel.Controller.SelectPanel(Core.Notch.NotchPanel.Shelf);
-            }
+            ViewModel?.ExpandToShelf();
         }
         else
         {
@@ -185,6 +181,10 @@ public partial class NotchWindow : Window
         if (e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetDataPresent(DataFormats.Text))
         {
             e.Effects = DragDropEffects.Copy;
+            if (ViewModel is not null && (ViewModel.State != Core.Notch.NotchState.Expanded || ViewModel.CurrentPanel != Core.Notch.NotchPanel.Shelf))
+            {
+                ViewModel.ExpandToShelf();
+            }
         }
         else
         {
@@ -202,7 +202,7 @@ public partial class NotchWindow : Window
         {
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
             {
-                ViewModel.Shelf.HandleDrop(files, null);
+                ViewModel.Shelf.AddFiles(files);
             }
         }
         else if (e.Data.GetDataPresent(DataFormats.Text))
@@ -282,6 +282,10 @@ public partial class NotchWindow : Window
 
         _width.Target = width;
         _height.Target = height;
+        if (ViewModel is not null)
+        {
+            _cornerRadius.Target = ViewModel.TargetCornerRadius;
+        }
         WakeAnimation();
     }
 
@@ -304,9 +308,10 @@ public partial class NotchWindow : Window
         if (dt <= 0)
             return;
 
-        var moving = _width.Step(dt) | _height.Step(dt) | _translateY.Step(dt) | _panelTranslateX.Step(dt) | _panelOpacity.Step(dt);
+        var moving = _width.Step(dt) | _height.Step(dt) | _cornerRadius.Step(dt) | _translateY.Step(dt) | _panelTranslateX.Step(dt) | _panelOpacity.Step(dt);
         Notch.Width = _width.Value;
         Notch.Height = _height.Value;
+        Notch.CornerRadius = _cornerRadius.Value;
         NotchTranslate.Y = _translateY.Value;
         PanelTranslate.X = _panelTranslateX.Value;
         ExpandedView.Opacity = _panelOpacity.Value;

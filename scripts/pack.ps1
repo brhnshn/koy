@@ -15,7 +15,8 @@ $publishDir = Join-Path $root 'publish\win-x64'
 $distDir = Join-Path $root 'dist'
 
 if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
-if (-not (Test-Path $distDir)) { New-Item -ItemType Directory -Path $distDir -Force | Out-Null }
+if (Test-Path $distDir) { Remove-Item $distDir -Recurse -Force }
+New-Item -ItemType Directory -Path $distDir -Force | Out-Null
 
 dotnet publish src/App/Koy.App.csproj -c Release -r win-x64 --self-contained false -o $publishDir
 
@@ -32,8 +33,13 @@ vpk pack --packId Koy `
          --packDir $publishDir `
          --mainExe Koy.exe `
          --packTitle "Koy" `
-         --packAuthors "Koy" `
+         --packAuthors "Burhan Şahin" `
+         --icon (Join-Path $root "src\App\Resources\app.ico") `
+         --runtime win-x64 `
          --outputDir $distDir
+
+Write-Host "==> Portable zip paketi olusturuluyor..." -ForegroundColor Cyan
+Compress-Archive -Path "$publishDir\*" -DestinationPath (Join-Path $distDir "Koy-win-Portable.zip") -Force
 
 Write-Host "==> SHA256 karmalari hesaplaniyor..." -ForegroundColor Cyan
 $sumsFile = Join-Path $distDir "SHA256SUMS.txt"

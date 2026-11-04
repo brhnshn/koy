@@ -95,3 +95,13 @@ IPropertyStore
 PropVariantToStringAlloc
 CoTaskMemFree
 PropVariantClear
+
+DwmRegisterThumbnail
+DwmUnregisterThumbnail
+DwmUpdateThumbnailProperties
+DWM_THUMBNAIL_PROPERTIES
+CreateWindowEx
+DestroyWindow
+
+Shell_NotifyIcon
+NOTIFYICONDATAW

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-c">
+  <title id="title-c">Koy Logo - Konsept C: Koy Rozeti</title>
+  <!-- Windows 11 Fluent Squircle: Üst kenarından oyulmuş çentik ve merkezde K negatif alanı -->
+  <path fill="#000000" fill-rule="evenodd" d="
+    M 80 36
+    H 176
+    C 200 36 220 56 220 80
+    V 176
+    C 220 200 200 220 176 220
+    H 80
+    C 56 220 36 200 36 176
+    V 80
+    C 36 56 56 36 80 36
+    Z
+    M 92 36
+    C 96 48 104 56 116 56
+    H 140
+    C 152 56 160 48 164 36
+    H 92
+    Z
+    M 84 88
+    C 84 82 88 78 94 78
+    C 100 78 104 82 104 88
+    V 168
+    C 104 174 100 178 94 178
+    C 88 178 84 174 84 168
+    Z
+    M 124 128
+    L 156 86
+    C 160 81 167 80 172 84
+    C 177 88 178 95 174 100
+    L 142 136
+    L 176 172
+    C 180 177 179 184 174 188
+    C 169 192 162 191 158 186
+    L 124 144
+    Z
+  "/>
+</svg>

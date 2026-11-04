@@ -1,18 +1,48 @@
-name: ci
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'feat/**', 'fix/**']
   pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-test:
+    name: Build & Test (Windows 11 / .NET 10)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-      - run: dotnet restore
-      - run: dotnet build --no-restore -c Release
-      - run: dotnet test --no-build -c Release
+
+      - name: Restore dependencies
+        run: dotnet restore Koy.slnx
+
+      - name: Check vulnerable packages
+        run: dotnet list Koy.slnx package --vulnerable --include-transitive
+
+      - name: Build (Release, zero warnings)
+        run: dotnet build Koy.slnx --no-restore -c Release -warnaserror
+
+      - name: Run xUnit tests
+        run: dotnet test Koy.slnx --no-build -c Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/TestResults/*.trx"
+          retention-days: 14

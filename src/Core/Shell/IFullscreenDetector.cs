@@ -9,4 +9,9 @@ public interface IFullscreenDetector
     /// Sistemde tam ekran bir uygulama olup olmadığını denetler.
     /// </summary>
     bool IsFullscreen();
+
+    /// <summary>
+    /// Belirtilen monitörde tam ekran bir uygulama olup olmadığını denetler.
+    /// </summary>
+    bool IsFullscreen(nint targetMonitorHandle) => IsFullscreen();
 }

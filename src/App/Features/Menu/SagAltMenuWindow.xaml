@@ -1,0 +1,209 @@
+<Window x:Class="Koy.App.Features.Menu.SagAltMenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Koy.App.Features.Menu"
+        xmlns:res="clr-namespace:Koy.App.Resources"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance local:SagAltMenuViewModel}"
+        Title="Koy Menüsü"
+        Width="320"
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI Variable Text, Segoe UI, sans-serif"
+        Deactivated="Window_Deactivated">
+
+    <Window.Resources>
+        <Style x:Key="MenuActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="#F4F4F5" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#27272A" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#3F3F46" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DangerActionButtonStyle" TargetType="Button" BasedOn="{StaticResource MenuActionButtonStyle}">
+            <Setter Property="Foreground" Value="#FCA5A5" />
+        </Style>
+    </Window.Resources>
+
+    <!-- Ana Açılır Menü Kabuğu: 320 px, 16 px köşe yuvarlaklığı, koyu yarı saydam yüzey -->
+    <Border Margin="16"
+            Background="#F718181B"
+            BorderBrush="#1AFFFFFF"
+            BorderThickness="1"
+            CornerRadius="16"
+            Padding="14">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.45" BlurRadius="28" ShadowDepth="10" Direction="270" />
+        </Border.Effect>
+
+        <StackPanel>
+            <!-- Başlık Alanı -->
+            <Grid Margin="2,2,4,12">
+                <TextBlock Text="Koy"
+                           FontSize="15"
+                           FontWeight="Bold"
+                           Foreground="#F4F4F5"
+                           VerticalAlignment="Center" />
+                <TextBlock Text="{Binding MonitorSummary}"
+                           FontSize="12"
+                           Foreground="#A1A1AA"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center" />
+            </Grid>
+
+            <!-- 2 Sütunlu Aç/Kapa Izgarası (64 px kartlar) -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Çentik Düğmesi -->
+                <Button Grid.Column="0"
+                        Height="64"
+                        Command="{Binding ToggleNotchCommand}"
+                        Cursor="Hand"
+                        BorderThickness="0"
+                        Background="Transparent">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="cardBorder"
+                                    CornerRadius="12"
+                                    Padding="14,0"
+                                    Background="#3B82F6">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock x:Name="lblTitle"
+                                               Text="{Binding [NavNotch], Source={x:Static res:Loc.Instance}}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="#FFFFFF" />
+                                    <TextBlock x:Name="lblStateOn"
+                                               Text="{Binding [On], Source={x:Static res:Loc.Instance}}"
+                                               FontSize="12"
+                                               Foreground="#FFFFFF"
+                                               Opacity="0.8"
+                                               Margin="0,2,0,0" />
+                                    <TextBlock x:Name="lblStateOff"
+                                               Text="{Binding [Off], Source={x:Static res:Loc.Instance}}"
+                                               FontSize="12"
+                                               Foreground="#A1A1AA"
+                                               Margin="0,2,0,0"
+                                               Visibility="Collapsed" />
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <DataTrigger Binding="{Binding NotchEnabled}" Value="False">
+                                    <Setter TargetName="cardBorder" Property="Background" Value="#27272A" />
+                                    <Setter TargetName="lblTitle" Property="Foreground" Value="#D4D4D8" />
+                                    <Setter TargetName="lblStateOn" Property="Visibility" Value="Collapsed" />
+                                    <Setter TargetName="lblStateOff" Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="cardBorder" Property="Opacity" Value="0.9" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- Dock Düğmesi -->
+                <Button Grid.Column="2"
+                        Height="64"
+                        Command="{Binding ToggleDockCommand}"
+                        Cursor="Hand"
+                        BorderThickness="0"
+                        Background="Transparent">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="cardBorder"
+                                    CornerRadius="12"
+                                    Padding="14,0"
+                                    Background="#3B82F6">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock x:Name="lblTitle"
+                                               Text="{Binding [NavDock], Source={x:Static res:Loc.Instance}}"
+                                               FontSize="14"
+                                               FontWeight="SemiBold"
+                                               Foreground="#FFFFFF" />
+                                    <TextBlock x:Name="lblStateOn"
+                                               Text="{Binding [On], Source={x:Static res:Loc.Instance}}"
+                                               FontSize="12"
+                                               Foreground="#FFFFFF"
+                                               Opacity="0.8"
+                                               Margin="0,2,0,0" />
+                                    <TextBlock x:Name="lblStateOff"
+                                               Text="{Binding [Off], Source={x:Static res:Loc.Instance}}"
+                                               FontSize="12"
+                                               Foreground="#A1A1AA"
+                                               Margin="0,2,0,0"
+                                               Visibility="Collapsed" />
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <DataTrigger Binding="{Binding DockEnabled}" Value="False">
+                                    <Setter TargetName="cardBorder" Property="Background" Value="#27272A" />
+                                    <Setter TargetName="lblTitle" Property="Foreground" Value="#D4D4D8" />
+                                    <Setter TargetName="lblStateOn" Property="Visibility" Value="Collapsed" />
+                                    <Setter TargetName="lblStateOff" Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="cardBorder" Property="Opacity" Value="0.9" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- Eylem Listesi -->
+            <StackPanel>
+                <Button Content="{Binding [OpenKoyWindowAction], Source={x:Static res:Loc.Instance}}"
+                        Style="{StaticResource MenuActionButtonStyle}"
+                        Command="{Binding OpenKoyWindowCommand}" />
+                <Button Content="{Binding PauseText}"
+                        Style="{StaticResource MenuActionButtonStyle}"
+                        Command="{Binding PauseOneHourCommand}" />
+
+                <Rectangle Height="1"
+                           Fill="#27272A"
+                           Margin="0,6" />
+
+                <Button Content="{Binding [ExitKoyAction], Source={x:Static res:Loc.Instance}}"
+                        Style="{StaticResource DangerActionButtonStyle}"
+                        Command="{Binding ExitCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

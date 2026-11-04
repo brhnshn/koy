@@ -14,9 +14,54 @@ namespace Koy.Platform.Shell;
 public sealed class FullscreenDetector : IFullscreenDetector
 {
     public nint NotchHandle { get; set; }
+    public HashSet<nint> IgnoredHandles { get; } = [];
 
-    public bool IsFullscreen()
+    public bool IsFullscreen() => IsFullscreen(0);
+
+    public bool IsFullscreen(nint targetMonitorHandle = 0)
     {
+        // Ön plandaki pencereyi al
+        var fg = PInvoke.GetForegroundWindow();
+        if (fg.IsNull || fg == PInvoke.GetDesktopWindow() || fg == PInvoke.GetShellWindow())
+            return false;
+
+        if ((NotchHandle != 0 && fg.Value == NotchHandle) || IgnoredHandles.Contains(fg.Value))
+            return false;
+
+        // Masaüstü pencerelerini (Progman, WorkerW) veya görev çubuklarını (birincil / ikincil) yoksay
+        unsafe
+        {
+            Span<char> buffer = stackalloc char[256];
+            fixed (char* ptr = buffer)
+            {
+                var len = PInvoke.GetClassName(fg, ptr, 256);
+                if (len > 0)
+                {
+                    var className = buffer[..len];
+                    if (className.SequenceEqual("Progman") ||
+                        className.SequenceEqual("WorkerW") ||
+                        className.SequenceEqual("Shell_TrayWnd") ||
+                        className.SequenceEqual("Shell_SecondaryTrayWnd") ||
+                        className.SequenceEqual("ScreenClippingHost"))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (IsScreenClippingHost(fg))
+            return false;
+
+        var fgMon = PInvoke.MonitorFromWindow(fg, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
+        if (fgMon.Value == 0)
+            return false;
+
+        // Belirli bir monitör sorgulanıyorsa ve ön plan penceresi başka bir monitördeyse
+        // bu ekran için tam ekran sayılmaz (AGENTS.md / M6.2: Yan ekrandaki tam ekran burayı gizlemez).
+        if (targetMonitorHandle != 0 && fgMon.Value != targetMonitorHandle)
+            return false;
+
         // 1. Windows bildirim durumunu sorgula (DirectX özel tam ekran veya sunum modu)
         // Not: QUNS_BUSY bilerek dahil edilmez çünkü Windows 11 Odaklanma Yardımı (Do Not Disturb / Quiet Hours)
         // devredeyken tam ekran oyun olmasa da QUNS_BUSY döndürür ve çentiği yanlışlıkla gizler.
@@ -31,41 +76,10 @@ public sealed class FullscreenDetector : IFullscreenDetector
         }
 
         // 2. Ön plandaki pencerenin monitörü tamamen kaplayıp kaplamadığını kontrol et (tarayıcı tam ekran, video vb.)
-        var fg = PInvoke.GetForegroundWindow();
-        if (fg.IsNull || fg == PInvoke.GetDesktopWindow() || fg == PInvoke.GetShellWindow())
-            return false;
-
-        if (NotchHandle != 0 && fg.Value == NotchHandle)
-            return false;
-
-        // Masaüstü pencerelerini (Progman, WorkerW) veya görev çubuğunu yoksay
-        unsafe
-        {
-            Span<char> buffer = stackalloc char[256];
-            fixed (char* ptr = buffer)
-            {
-                var len = PInvoke.GetClassName(fg, ptr, 256);
-                if (len > 0)
-                {
-                    var className = buffer[..len];
-                    if (className.SequenceEqual("Progman") ||
-                        className.SequenceEqual("WorkerW") ||
-                        className.SequenceEqual("Shell_TrayWnd"))
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        var hMon = PInvoke.MonitorFromWindow(fg, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
-        if (hMon.Value == 0)
-            return false;
-
         unsafe
         {
             var mi = new MONITORINFO { cbSize = (uint)sizeof(MONITORINFO) };
-            if (!PInvoke.GetMonitorInfo(hMon, ref mi))
+            if (!PInvoke.GetMonitorInfo(fgMon, ref mi))
                 return false;
 
             if (!PInvoke.GetWindowRect(fg, out var wr))
@@ -78,5 +92,46 @@ public sealed class FullscreenDetector : IFullscreenDetector
                 hasCaption: style.HasFlag(WINDOW_STYLE.WS_CAPTION),
                 isMaximized: style.HasFlag(WINDOW_STYLE.WS_MAXIMIZE));
         }
+    }
+
+    internal static bool IsScreenClippingHost(HWND hwnd) => IsScreenClippingHost((nint)hwnd.Value);
+
+    public static unsafe bool IsScreenClippingHost(nint handle)
+    {
+        if (handle == 0) return false;
+        var hwnd = new HWND(handle);
+
+        Span<char> buffer = stackalloc char[256];
+        fixed (char* ptr = buffer)
+        {
+            var len = PInvoke.GetClassName(hwnd, ptr, 256);
+            if (len > 0)
+            {
+                var className = buffer[..len];
+                if (className.SequenceEqual("ScreenClippingHost"))
+                    return true;
+            }
+        }
+
+        uint pid = 0;
+        PInvoke.GetWindowThreadProcessId(hwnd, &pid);
+        if (pid != 0)
+        {
+            try
+            {
+                using var proc = System.Diagnostics.Process.GetProcessById((int)pid);
+                var name = proc.ProcessName;
+                if (string.Equals(name, "ScreenClippingHost", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(name, "SnippingTool", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        return false;
     }
 }

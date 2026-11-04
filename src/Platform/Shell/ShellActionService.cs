@@ -26,22 +26,28 @@ public sealed class ShellActionService : IShellActionService
         PInvoke.SendInput(inputs, sizeof(INPUT));
     }
 
-    public unsafe void ToggleSystemTray()
+    // Win + B kısayolu sistem tepsisi taşma simgesini odaklar
+    public void ToggleSystemTray() => SendWinCombo(VIRTUAL_KEY.VK_B);
+
+    public void OpenQuickSettings() => SendWinCombo(VIRTUAL_KEY.VK_A);
+
+    public void OpenNotificationCenter() => SendWinCombo(VIRTUAL_KEY.VK_N);
+
+    private static unsafe void SendWinCombo(VIRTUAL_KEY key)
     {
-        // Win + B kısayolu sistem tepsisi taşma simgesini odaklar
         var inputs = new INPUT[4];
 
         // Win basıldı
         inputs[0].type = INPUT_TYPE.INPUT_KEYBOARD;
         inputs[0].Anonymous.ki.wVk = VIRTUAL_KEY.VK_LWIN;
 
-        // B basıldı
+        // Tuş basıldı
         inputs[1].type = INPUT_TYPE.INPUT_KEYBOARD;
-        inputs[1].Anonymous.ki.wVk = VIRTUAL_KEY.VK_B;
+        inputs[1].Anonymous.ki.wVk = key;
 
-        // B bırakıldı
+        // Tuş bırakıldı
         inputs[2].type = INPUT_TYPE.INPUT_KEYBOARD;
-        inputs[2].Anonymous.ki.wVk = VIRTUAL_KEY.VK_B;
+        inputs[2].Anonymous.ki.wVk = key;
         inputs[2].Anonymous.ki.dwFlags = KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP;
 
         // Win bırakıldı

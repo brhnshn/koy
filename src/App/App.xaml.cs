@@ -4,18 +4,20 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Koy.App.Features;
 using Koy.App.Features.Dock;
+using Koy.App.Features.Menu;
 using Koy.App.Features.Notch;
+using Koy.App.Features.Settings;
+using Koy.App.Features.Wizard;
 using Koy.Core.Settings;
 using Koy.Platform.Shell;
 using Velopack;
 
 namespace Koy.App;
 
-public partial class App : Application
+public static class Program
 {
-    private readonly List<IFeature> _features = [];
-
-    protected override void OnStartup(StartupEventArgs e)
+    [STAThread]
+    public static void Main(string[] args)
     {
         // Velopack kurulum ve güncelleme kancaları (kaldırma anında görev çubuğunu mutlaka geri getir)
         VelopackApp.Build()
@@ -23,6 +25,19 @@ public partial class App : Application
             .OnAfterUpdateFastCallback(_ => TaskbarService.Restore())
             .Run();
 
+        var app = new App();
+        app.InitializeComponent();
+        app.Run();
+    }
+}
+
+public partial class App : Application
+{
+    private readonly List<IFeature> _features = [];
+    private TrayIconManager? _trayIconManager;
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
         base.OnStartup(e);
 
         // Bellek: GPU ile çizimde sürücü sürece ~135 MB ekliyor (ölçüm: 169 MB → 34 MB private, RTX 4050).
@@ -32,16 +47,53 @@ public partial class App : Application
 
         // Görev çubuğu güvenliği: önceki oturum çöktüyse görev çubuğunu geri getir.
         TaskbarService.Restore();
-        AppDomain.CurrentDomain.UnhandledException += (_, _) => TaskbarService.Restore();
-        DispatcherUnhandledException += (_, _) => TaskbarService.Restore();
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            TaskbarService.Restore();
+            try
+            {
+                var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Koy");
+                Directory.CreateDirectory(logDir);
+                File.AppendAllText(Path.Combine(logDir, "crash.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] AppDomain Unhandled: {args.ExceptionObject}\n\n");
+            }
+            catch { }
+        };
+        DispatcherUnhandledException += (_, args) =>
+        {
+            TaskbarService.Restore();
+            try
+            {
+                var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Koy");
+                Directory.CreateDirectory(logDir);
+                File.AppendAllText(Path.Combine(logDir, "crash.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Dispatcher Unhandled: {args.Exception}\n\n");
+            }
+            catch { }
+        };
 
-        var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+        var store = new SettingsStore(SettingsStore.DefaultPath);
+        var settings = store.Load();
+
+        // İlk açılış sihirbazı: Ayar henüz tamamlanmadıysa 3 adımlı sihirbazı başlat
+        bool isFirstRun = !settings.FirstRunCompleted;
+        if (isFirstRun)
+        {
+            var wizard = new SetupWizardWindow();
+            wizard.ShowDialog();
+            settings = store.Load();
+        }
 
         var culture = new System.Globalization.CultureInfo(settings.Language == "en" ? "en-US" : "tr-TR");
         System.Globalization.CultureInfo.CurrentUICulture = culture;
         System.Globalization.CultureInfo.CurrentCulture = culture;
         Thread.CurrentThread.CurrentUICulture = culture;
         Thread.CurrentThread.CurrentCulture = culture;
+
+        // Dock Koy logosu tıklandığında Sağ Alt Menüyü aç
+        DockViewModel.OpenKoyMenuHandler = () => SagAltMenuWindow.Toggle();
+
+        // Sistem tepsisi simgesi: dock kapalıyken de Koy menüsüne erişilmesini sağlar
+        _trayIconManager = new TrayIconManager();
+        _trayIconManager.Start();
 
         // Yalnız açık özellikler başlatılır. Dock kapalıyken görev çubuğuna hiç dokunulmaz.
         if (settings.NotchEnabled)
@@ -52,12 +104,91 @@ public partial class App : Application
 
         foreach (var feature in _features)
             feature.Start();
+
+        // İlk kurulumdan hemen sonra ana uygulama doğrudan ekrana çıksın
+        if (isFirstRun)
+        {
+            KoyWindow.ShowInstance();
+        }
+    }
+
+    public void UpdateNotchState(bool enabled)
+    {
+        var existingNotch = _features.OfType<NotchFeature>().FirstOrDefault();
+        if (enabled && existingNotch is null)
+        {
+            var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+            var notch = new NotchFeature(settings);
+            _features.Add(notch);
+            notch.Start();
+        }
+        else if (!enabled && existingNotch is not null)
+        {
+            existingNotch.Stop();
+            _features.Remove(existingNotch);
+        }
+    }
+
+    public void UpdateDockState(bool enabled)
+    {
+        var existingDock = _features.OfType<DockFeature>().FirstOrDefault();
+        if (enabled && existingDock is null)
+        {
+            var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+            var dock = new DockFeature(settings);
+            _features.Add(dock);
+            dock.Start();
+        }
+        else if (!enabled && existingDock is not null)
+        {
+            existingDock.Stop();
+            _features.Remove(existingDock);
+            TaskbarService.Restore();
+        }
+    }
+
+    public void ReloadDock()
+    {
+        var existingDock = _features.OfType<DockFeature>().FirstOrDefault();
+        if (existingDock is not null)
+        {
+            existingDock.Stop();
+            _features.Remove(existingDock);
+            var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+            if (settings.DockEnabled)
+            {
+                var dock = new DockFeature(settings);
+                _features.Add(dock);
+                dock.Start();
+            }
+        }
+    }
+
+    public void ReloadNotch()
+    {
+        var existingNotch = _features.OfType<NotchFeature>().FirstOrDefault();
+        if (existingNotch is not null)
+        {
+            existingNotch.Stop();
+            _features.Remove(existingNotch);
+            var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+            if (settings.NotchEnabled)
+            {
+                var notch = new NotchFeature(settings);
+                _features.Add(notch);
+                notch.Start();
+            }
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _trayIconManager?.Dispose();
+        _trayIconManager = null;
+
         foreach (var feature in _features)
             feature.Stop();
+
         TaskbarService.Restore();
         base.OnExit(e);
     }

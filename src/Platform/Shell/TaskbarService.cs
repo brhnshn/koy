@@ -66,6 +66,31 @@ public static class TaskbarService
         DeleteState();
     }
 
+    /// <summary>
+    /// Gezgin, otomatik gizleme durumu değişince ya da kendi kendine görev çubuğunu yeniden gösterir;
+    /// o zaman alt kenarda bizim dock'la birlikte ikinci bir çubuk çıkar. Birincil veya ikincil
+    /// monitörlerdeki görev çubuklarından herhangi biri görünür olduysa tekrar gizler.
+    /// </summary>
+    public static void EnsureHidden()
+    {
+        var primary = PInvoke.FindWindow("Shell_TrayWnd", null);
+        if (primary != HWND.Null && PInvoke.IsWindowVisible(primary))
+        {
+            SetVisible(false);
+            return;
+        }
+
+        var secondary = HWND.Null;
+        while ((secondary = PInvoke.FindWindowEx(HWND.Null, secondary, "Shell_SecondaryTrayWnd", null)) != HWND.Null)
+        {
+            if (PInvoke.IsWindowVisible(secondary))
+            {
+                SetVisible(false);
+                return;
+            }
+        }
+    }
+
     private static void SetVisible(bool visible)
     {
         var command = visible ? SHOW_WINDOW_CMD.SW_SHOW : SHOW_WINDOW_CMD.SW_HIDE;

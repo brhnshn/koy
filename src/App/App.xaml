@@ -4,6 +4,9 @@
              ShutdownMode="OnExplicitShutdown">
   <Application.Resources>
     <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Resources/Styles.xaml" />
+      </ResourceDictionary.MergedDictionaries>
       <!-- Paylaşılan renkler ve stiller burada; pencere başına kopyalanmaz. -->
       <SolidColorBrush x:Key="NotchBackground" Color="#F0000000" />
       <SolidColorBrush x:Key="NotchForeground" Color="#FFFFFFFF" />

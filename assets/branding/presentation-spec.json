@@ -1,0 +1,26 @@
+{
+  "brand": "Koy",
+  "tagline": "Windows 11 için akıllı çentik ve minimalist yüzen dock",
+  "brief": "Windows 11 ekosistemine yerel, Mac akıcılığında yay fiziğine sahip, hafif (<60MB bellek), üstte korunaklı bir çentik ve altta yüzen cam rıhtım sunan masaüstü deneyimi.",
+  "adjectives": ["Minimalist", "Akışkan (Fluid)", "Korunaklı (Cove)", "Yerel Hassasiyet (Fluent)"],
+  "industry": "software",
+  "brand_color": "#2563EB",
+  "greyscale": false,
+  "final": true,
+  "round": 1,
+  "concepts": [
+    {
+      "name": "Koy Rozeti (Cove Squircle)",
+      "symbol": "koy-symbol-flat.svg",
+      "lockup": "koy-horizontal-color.svg",
+      "avatar": "dist/favicon-48.png",
+      "idea": "Windows 11 Fluent squircle karo içine oyulmuş çentik kavis ve negatif K monogramı.",
+      "rationale": [
+        "Ekranı temsil eden dış karo, çentiği simgeleyen üst oyuk ve Koy'u simgeleyen 'K' harfi ile 3 katmanlı zeki kompozisyon.",
+        "Windows 11 masaüstü, görev çubuğu ve Başlat menüsünde yerel bir sistem aracı gibi tok ve prestijli durur.",
+        "16 px'ten 512 px'e kadar tüm ölçeklerde yüksek kontrast ve net okunurluk sağlar."
+      ]
+    }
+  ],
+  "recommendation": "Koy Rozeti; hem uygulamanın iki temel fonksiyonunu (çentik & dock) hem de Windows 11 Fluent estetiğini en yüksek zanaatla birleştiren nihai marka sembolüdür."
+}

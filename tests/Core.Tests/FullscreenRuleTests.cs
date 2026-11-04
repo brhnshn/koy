@@ -28,6 +28,13 @@ public class FullscreenRuleTests
     }
 
     [Fact]
+    public void F11BrowserCoveringMonitor_WithMaximizedFlag_IsFullscreen()
+    {
+        // F11 tarayıcı veya video oynatıcı: WS_MAXIMIZE bayrağını korusa dahi monitöre tam oturur.
+        Assert.True(FullscreenRule.IsFullscreen(Monitor, Monitor, hasCaption: false, isMaximized: true));
+    }
+
+    [Fact]
     public void WindowSmallerThanMonitor_IsNotFullscreen()
     {
         var window = new WindowRect(100, 100, 900, 700);

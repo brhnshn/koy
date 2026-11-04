@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:res="clr-namespace:Koy.App.Resources"
         xmlns:local="clr-namespace:Koy.App.Features.Dock"
+        xmlns:preview="clr-namespace:Koy.App.Features.Dock.Preview"
+        xmlns:coreDock="clr-namespace:Koy.Core.Dock;assembly=Koy.Core"
         Title="Koy Dock"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -10,7 +12,9 @@
         ShowInTaskbar="False"
         Topmost="True"
         SizeToContent="WidthAndHeight"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        MouseEnter="OnWindowMouseEnter"
+        MouseLeave="OnWindowMouseLeave">
 
     <Window.ContextMenu>
         <ContextMenu>
@@ -20,215 +24,149 @@
         </ContextMenu>
     </Window.ContextMenu>
 
-    <Grid RenderTransformOrigin="0.5, 1">
-        <Grid.RenderTransform>
-            <TransformGroup>
-                <TranslateTransform Y="{Binding TranslationY}"/>
-            </TransformGroup>
-        </Grid.RenderTransform>
-        <Grid.Opacity>
-            <Binding Path="Opacity"/>
-        </Grid.Opacity>
+    <Grid>
+        <!-- Dock Gövdesi (Animasyon ile aşağı kayar ve saydamlaşır) -->
+        <Grid RenderTransformOrigin="0.5, 1"
+              IsHitTestVisible="{Binding IsVisible}">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <TranslateTransform Y="{Binding TranslationY}"/>
+                </TransformGroup>
+            </Grid.RenderTransform>
+            <Grid.Opacity>
+                <Binding Path="Opacity"/>
+            </Grid.Opacity>
 
-        <!-- Dock Ana Kapsülü -->
-        <Border Background="#E61A1A1A"
-                BorderBrush="#33FFFFFF"
-                BorderThickness="1"
-                CornerRadius="20"
-                Padding="8,6"
-                Margin="12"
-                SnapsToDevicePixels="True">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="20"
-                                  ShadowDepth="4"
-                                  Opacity="0.45"
-                                  Direction="270"
-                                  Color="#000000"/>
-            </Border.Effect>
+            <!-- 1. Yüzen Kapsül Modu (Varsayılan Seelen Modeli) -->
+            <local:DockCapsule Visibility="{Binding IsFullWidthMode, Converter={x:Static local:DockConverters.InverseBoolToVisibilityConverter}}"/>
 
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <!-- Windows Başlat Düğmesi -->
-                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                        Command="{Binding StartMenuCommand}"
-                        ToolTip="{x:Static res:Strings.StartMenu}"
-                        Width="42"
-                        Height="42"
-                        Margin="2,0"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border"
+            <!-- 2. Tam Genişlik Modu (44 px, Müzik Hapı + Uygulama Metin Hapı + Koy) -->
+            <local:DockFullWidth Visibility="{Binding IsFullWidthMode, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}"/>
+        </Grid>
+
+        <!-- 3. Çekil (Dodge) Modu İnce Tutamak: 120×4 px, 2 px yarıçap, alttan 4 px, rgba(24,24,27,0.35) -->
+        <Border Width="120"
+                Height="4"
+                CornerRadius="2"
+                Background="#5918181B"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,4"
+                Cursor="Hand"
+                ToolTip="Dock'u Göster"
+                Visibility="{Binding IsHandleVisible, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}"
+                MouseEnter="OnDodgeHandleMouseEnter"
+                MouseLeave="OnDodgeHandleMouseLeave"/>
+
+        <!-- 4. Canlı DWM Pencere Küçük Resim Önizlemesi -->
+        <Popup x:Name="ThumbnailPreviewPopup"
+               IsOpen="{Binding IsPreviewPopupOpen}"
+               PlacementTarget="{Binding PreviewPlacementTarget}"
+               Placement="Top"
+               VerticalOffset="-10"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               MouseEnter="OnPopupMouseEnter"
+               MouseLeave="OnPopupMouseLeave">
+            <Border Background="#F51C1C1E"
+                    BorderBrush="#1AFFFFFF"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Padding="8"
+                    SnapsToDevicePixels="True">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24"
+                                      ShadowDepth="4"
+                                      Opacity="0.45"
+                                      Direction="270"
+                                      Color="#000000"/>
+                </Border.Effect>
+
+                <Grid>
+                    <!-- Tekil Pencere Önizlemesi: 248 px genişlik, 132 px canlı küçük resim -->
+                    <StackPanel Width="232"
+                                Visibility="{Binding PreviewItem.IsMultiWindow, Converter={x:Static local:DockConverters.InverseBoolToVisibilityConverter}}">
+                        <!-- Başlık ve Kapatma Butonu -->
+                        <Grid Margin="4,0,4,6">
+                            <TextBlock Text="{Binding PreviewItem.SingleWindow.Title}"
+                                       FontSize="12"
+                                       Foreground="#D4D4D8"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"
+                                       MaxWidth="200"/>
+                            <Button HorizontalAlignment="Right"
+                                    Width="22"
+                                    Height="22"
                                     Background="Transparent"
-                                    CornerRadius="12">
-                                <Path HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      Fill="#4CC2FF"
-                                      Data="M 0,0 H 7 V 7 H 0 Z M 8.5,0 H 15.5 V 7 H 8.5 Z M 0,8.5 H 7 V 15.5 H 0 Z M 8.5,8.5 H 15.5 V 15.5 H 8.5 Z"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="#22FFFFFF"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="#33FFFFFF"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-
-                <!-- Dikey Ayırıcı -->
-                <Rectangle Width="1"
-                           Height="26"
-                           Fill="#26FFFFFF"
-                           Margin="4,0"/>
-
-                <!-- Dock Öğeleri Listesi -->
-                <ItemsControl x:Name="DockItemsList"
-                              ItemsSource="{Binding Items}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type local:DockItemViewModel}">
-                            <Border x:Name="ItemContainer"
-                                    Width="48"
-                                    Height="48"
-                                    Margin="3,0"
-                                    Background="Transparent"
-                                    CornerRadius="12"
+                                    BorderThickness="0"
                                     Cursor="Hand"
-                                    ToolTip="{Binding Title}"
-                                    MouseLeftButtonUp="OnItemLeftClick"
-                                    MouseRightButtonUp="OnItemRightClick"
-                                    MouseDown="OnItemMouseDown"
-                                    MouseEnter="OnItemMouseEnter"
-                                    MouseLeave="OnItemMouseLeave">
-                                <Border.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="{x:Static res:Strings.LaunchNewInstance}"
-                                                  Command="{Binding MiddleClickCommand}"/>
-                                        <Separator/>
-                                        <MenuItem Header="{x:Static res:Strings.Close}"
-                                                  Command="{Binding CloseCommand}"/>
-                                        <MenuItem Header="{x:Static res:Strings.EndTask}"
-                                                  Command="{Binding TerminateCommand}"/>
-                                    </ContextMenu>
-                                </Border.ContextMenu>
-
-                                <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="6"/>
-                                    </Grid.RowDefinitions>
-
-                                    <!-- Simge ve Büyütme Dönüşümü -->
-                                    <Grid Grid.Row="0"
-                                          Width="36"
-                                          Height="36"
-                                          RenderTransformOrigin="0.5, 0.5">
-                                        <Grid.RenderTransform>
-                                            <ScaleTransform ScaleX="{Binding Scale}" ScaleY="{Binding Scale}"/>
-                                        </Grid.RenderTransform>
-
-                                        <!-- Gerçek Simge -->
-                                        <Image Source="{Binding Icon}"
-                                               RenderOptions.BitmapScalingMode="HighQuality"
-                                               Width="34"
-                                               Height="34"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-
-                                        <!-- Simge Yoksa Yedek Şablon -->
-                                        <Border Width="34"
-                                                Height="34"
-                                                Background="#33FFFFFF"
-                                                CornerRadius="8"
-                                                Visibility="{Binding Icon, Converter={x:Static local:DockConverters.NullToVisibleConverter}}">
-                                            <Path HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  Fill="#CCCCCC"
-                                                  Data="M 2,2 H 14 V 14 H 2 Z"/>
+                                    Command="{Binding PreviewItem.CloseSpecificWindowCommand}"
+                                    CommandParameter="{Binding PreviewItem.SingleWindow.Handle}"
+                                    ToolTip="{x:Static res:Strings.Close}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="b" Background="Transparent" CornerRadius="5">
+                                            <Path Stroke="#D4D4D8" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Data="M 3,3 L 11,11 M 11,3 L 3,11"/>
                                         </Border>
-                                    </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="b" Property="Background" Value="#33FFFFFF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
 
-                                    <!-- Çalışan Uygulama Gösterge Noktası -->
-                                    <Grid Grid.Row="1"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center">
-                                        <Ellipse Width="4"
-                                                 Height="4"
-                                                 Visibility="{Binding IsRunning, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}">
-                                            <Ellipse.Style>
-                                                <Style TargetType="Ellipse">
-                                                    <Setter Property="Fill" Value="#88FFFFFF"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                            <Setter Property="Fill" Value="#4CC2FF"/>
-                                                            <Setter Property="Width" Value="10"/>
-                                                            <Setter Property="Height" Value="4"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding IsFlashing}" Value="True">
-                                                            <Setter Property="Fill" Value="#F59E0B"/>
-                                                            <Setter Property="Width" Value="6"/>
-                                                            <Setter Property="Height" Value="6"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Ellipse.Style>
-                                        </Ellipse>
-                                    </Grid>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                        <!-- Canlı DWM Küçük Resim Alanı -->
+                        <Border Height="132"
+                                Background="#1E1E1E"
+                                CornerRadius="8"
+                                ClipToBounds="True"
+                                Cursor="Hand"
+                                MouseLeftButtonUp="OnSingleThumbnailClick">
+                            <preview:WindowThumbnailPresenter WindowHandle="{Binding PreviewItem.SingleWindow.Handle}"/>
+                        </Border>
+                    </StackPanel>
 
-                <!-- Dikey Ayırıcı -->
-                <Rectangle Width="1"
-                           Height="26"
-                           Fill="#26FFFFFF"
-                           Margin="4,0"/>
-
-                <!-- Sistem Tepsisi Düğmesi -->
-                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                        Command="{Binding SystemTrayCommand}"
-                        ToolTip="{x:Static res:Strings.SystemTray}"
-                        Width="36"
-                        Height="42"
-                        Margin="2,0"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border"
-                                    Background="Transparent"
-                                    CornerRadius="10">
-                                <Path HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      Stroke="#CCCCCC"
-                                      StrokeThickness="1.5"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round"
-                                      Data="M 0,5 L 5,0 L 10,5"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="#22FFFFFF"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="#33FFFFFF"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </StackPanel>
-        </Border>
+                    <!-- Gruplanmış Pencereler Önizlemesi: Yan yana pencereler, 70 px canlı küçük resimler -->
+                    <StackPanel Orientation="Horizontal"
+                                Visibility="{Binding PreviewItem.IsMultiWindow, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}">
+                        <ItemsControl ItemsSource="{Binding PreviewItem.Windows}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type coreDock:DockWindowEntry}">
+                                    <Border Width="140"
+                                            Margin="4,0"
+                                            Background="Transparent">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Title}"
+                                                       FontSize="11"
+                                                       Foreground="#D4D4D8"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="2,0,2,4"/>
+                                            <Border Height="70"
+                                                    Background="#1E1E1E"
+                                                    CornerRadius="6"
+                                                    ClipToBounds="True"
+                                                    Cursor="Hand"
+                                                    MouseLeftButtonUp="OnGroupedThumbnailClick">
+                                                <preview:WindowThumbnailPresenter WindowHandle="{Binding Handle}"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Popup>
     </Grid>
 </Window>

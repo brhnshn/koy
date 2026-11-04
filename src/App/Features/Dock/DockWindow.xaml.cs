@@ -1,9 +1,9 @@
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Koy.Core.Display;
+using Koy.Core.Dock;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Dock;
@@ -15,6 +15,25 @@ public partial class DockWindow : Window
     private TimeSpan _lastRenderTime;
     private DisplayMonitor? _targetMonitor;
 
+    public DisplayMonitor? TargetMonitor => _targetMonitor;
+    public nint Handle => new WindowInteropHelper(this).Handle;
+
+    /// <summary>
+    /// Çalışma alanından ayrılacak yükseklik:
+    /// Seelen UI Yüzen Kapsül için 60 px + 10 px alt boşluk; Tam genişlik için 44 px; Yer ayır (ReserveSpace) için 46 px.
+    /// </summary>
+    public double ReservedHeight
+    {
+        get
+        {
+            if (ViewModel?.IsFullWidthMode == true)
+                return 44;
+            if (ViewModel?.Settings.DockProximity == DockProximityMode.ReserveSpace)
+                return 46;
+            return ActualHeight > 0 ? ActualHeight : 70;
+        }
+    }
+
     public uint WmShellHook { get; set; }
     public Action<nint, nint>? ShellHookHandler { get; set; }
     public Action? DisplayChangeHandler { get; set; }
@@ -24,6 +43,21 @@ public partial class DockWindow : Window
         InitializeComponent();
         Loaded += OnLoaded;
         SizeChanged += OnSizeChanged;
+        PreviewMouseDown += (_, e) =>
+        {
+            if (e.ChangedButton != MouseButton.Right)
+            {
+                DockContextMenuManager.CloseActive();
+            }
+        };
+        PreviewKeyDown += (_, e) =>
+        {
+            if (e.Key == Key.Escape)
+            {
+                DockContextMenuManager.CloseActive();
+                ViewModel?.ClosePreviewNow();
+            }
+        };
     }
 
     private const int WmDisplayChange = 0x007E;
@@ -61,19 +95,28 @@ public partial class DockWindow : Window
         {
             ViewModel.AnimationNeeded += OnAnimationNeeded;
             ViewModel.AnimationStopped += OnAnimationStopped;
+            ViewModel.RequestReposition += OnRequestReposition;
+            ViewModel.SetMonitor(_targetMonitor);
         }
 
         Reposition(_targetMonitor);
     }
 
+    private void OnRequestReposition()
+    {
+        Reposition(_targetMonitor);
+    }
+
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        ViewModel?.EvaluatePosition(ActualWidth);
         Reposition(_targetMonitor);
     }
 
     public void SetTargetMonitor(DisplayMonitor? monitor)
     {
         _targetMonitor = monitor;
+        ViewModel?.SetMonitor(monitor);
         Reposition(monitor);
     }
 
@@ -81,10 +124,30 @@ public partial class DockWindow : Window
     {
         _targetMonitor = targetMonitor ?? _targetMonitor;
 
+        if (ViewModel?.IsFullWidthMode == true)
+        {
+            SizeToContent = SizeToContent.Manual;
+            var screenWidth = _targetMonitor?.WidthDip ?? SystemParameters.PrimaryScreenWidth;
+            var screenHeight = _targetMonitor?.HeightDip ?? SystemParameters.PrimaryScreenHeight;
+            var screenLeft = _targetMonitor?.LeftDip ?? 0.0;
+            var screenTop = _targetMonitor?.TopDip ?? 0.0;
+
+            Width = screenWidth;
+            Height = 44.0;
+            Left = screenLeft;
+            Top = screenTop + screenHeight - 44.0;
+            return;
+        }
+
+        SizeToContent = SizeToContent.WidthAndHeight;
+
+        // Seelen UI yüzen kapsül: 60 px yükseklik, alttan 10 px boşluk (aşağı yapışınca alttan 0 px)
+        var bottomMargin = (ViewModel?.IsSnapped == true) ? 0.0 : 10.0;
+
         if (_targetMonitor is not null && _targetMonitor.WidthDip > 100)
         {
             Left = Math.Max(_targetMonitor.LeftDip, _targetMonitor.LeftDip + (_targetMonitor.WidthDip - ActualWidth) / 2);
-            Top = Math.Max(_targetMonitor.TopDip, _targetMonitor.TopDip + _targetMonitor.HeightDip - ActualHeight - 4);
+            Top = Math.Max(_targetMonitor.TopDip, _targetMonitor.TopDip + _targetMonitor.HeightDip - ActualHeight - bottomMargin);
         }
         else
         {
@@ -92,7 +155,7 @@ public partial class DockWindow : Window
             var screenHeight = SystemParameters.PrimaryScreenHeight;
 
             Left = Math.Max(0, (screenWidth - ActualWidth) / 2);
-            Top = Math.Max(0, screenHeight - ActualHeight - 4);
+            Top = Math.Max(0, screenHeight - ActualHeight - bottomMargin);
         }
     }
 
@@ -145,50 +208,52 @@ public partial class DockWindow : Window
         ViewModel?.UpdateSprings(dt);
     }
 
-    private void OnItemLeftClick(object sender, MouseButtonEventArgs e)
+    private void OnSingleThumbnailClick(object sender, MouseButtonEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: DockItemViewModel item })
+        if (ViewModel?.PreviewItem?.SingleWindow is not null)
         {
-            item.ClickCommand.Execute(null);
+            ViewModel.PreviewItem.ActivateSpecificWindowCommand.Execute(ViewModel.PreviewItem.SingleWindow.Handle);
+            ViewModel.ClosePreviewNow();
         }
     }
 
-    private void OnItemMouseDown(object sender, MouseButtonEventArgs e)
+    private void OnGroupedThumbnailClick(object sender, MouseButtonEventArgs e)
     {
-        if (e.ChangedButton == MouseButton.Middle &&
-            sender is FrameworkElement { DataContext: DockItemViewModel item })
+        if (sender is FrameworkElement { DataContext: DockWindowEntry entry } && ViewModel?.PreviewItem is not null)
         {
-            item.MiddleClickCommand.Execute(null);
-            e.Handled = true;
+            ViewModel.PreviewItem.ActivateSpecificWindowCommand.Execute(entry.Handle);
+            ViewModel.ClosePreviewNow();
         }
     }
 
-    private void OnItemRightClick(object sender, MouseButtonEventArgs e)
+    private void OnPopupMouseEnter(object sender, MouseEventArgs e)
     {
-        if (sender is FrameworkElement element && element.ContextMenu is not null)
-        {
-            element.ContextMenu.PlacementTarget = element;
-            element.ContextMenu.IsOpen = true;
-            e.Handled = true;
-        }
+        ViewModel?.OnPopupMouseEnter();
     }
 
-    private void OnItemMouseEnter(object sender, MouseEventArgs e)
+    private void OnPopupMouseLeave(object sender, MouseEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: DockItemViewModel item } &&
-            ViewModel is not null)
-        {
-            var index = ViewModel.Items.IndexOf(item);
-            if (index >= 0)
-            {
-                ViewModel.OnItemHover(index);
-            }
-        }
+        ViewModel?.OnPopupMouseLeave();
     }
 
-    private void OnItemMouseLeave(object sender, MouseEventArgs e)
+    private void OnDodgeHandleMouseEnter(object sender, MouseEventArgs e)
     {
-        ViewModel?.OnHoverEnded();
+        ViewModel?.SetMouseAtBottom(true);
+    }
+
+    private void OnDodgeHandleMouseLeave(object sender, MouseEventArgs e)
+    {
+        ViewModel?.SetMouseAtBottom(false);
+    }
+
+    private void OnWindowMouseEnter(object sender, MouseEventArgs e)
+    {
+        ViewModel?.SetMouseOverDock(true);
+    }
+
+    private void OnWindowMouseLeave(object sender, MouseEventArgs e)
+    {
+        ViewModel?.SetMouseOverDock(false);
     }
 
     protected override void OnClosed(EventArgs e)
@@ -198,6 +263,7 @@ public partial class DockWindow : Window
         {
             ViewModel.AnimationNeeded -= OnAnimationNeeded;
             ViewModel.AnimationStopped -= OnAnimationStopped;
+            ViewModel.RequestReposition -= OnRequestReposition;
         }
         base.OnClosed(e);
     }

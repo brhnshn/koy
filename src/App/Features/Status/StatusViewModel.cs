@@ -71,8 +71,8 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
         _powerService.PowerChanged += OnPowerChanged;
         _weatherService.WeatherChanged += OnWeatherChanged;
 
-        // İlk açılışta arka planda hava durumu isteği yap
-        _ = _weatherService.GetCurrentWeatherAsync(_settings.WeatherLatitude, _settings.WeatherLongitude);
+        // Hava durumu panel açılınca istenir (SetActive): açılıştaki HTTPS isteği TLS yığınıyla
+        // birkaç MB tutuyordu ve panel hiç açılmayabilir (AGENTS.md #5).
     }
 
     public void SetActive(bool active)

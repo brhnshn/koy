@@ -1,5 +1,6 @@
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace Koy.Platform.Shell;
@@ -64,5 +65,46 @@ public static class WindowStyles
             SET_WINDOW_POS_FLAGS.SWP_NOMOVE |
             SET_WINDOW_POS_FLAGS.SWP_NOSIZE |
             SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE);
+    }
+
+    /// <summary>
+    /// Pencereyi ön plana (foreground) taşır.
+    /// </summary>
+    public static void SetForeground(nint hwnd)
+    {
+        if (hwnd == 0) return;
+        PInvoke.SetForegroundWindow(new HWND(hwnd));
+    }
+
+    /// <summary>
+    /// Pencerenin ekranı kaplayıp kaplamadığını (WS_MAXIMIZE) denetler.
+    /// </summary>
+    public static bool IsWindowMaximized(nint hwnd)
+    {
+        if (hwnd == 0) return false;
+        var handle = new HWND(hwnd);
+        var style = (uint)PInvoke.GetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+        const uint WS_MAXIMIZE = 0x01000000;
+        return (style & WS_MAXIMIZE) != 0;
+    }
+
+    /// <summary>
+    /// Verilen pencerenin ait olduğu süreç kimliğini (PID) döndürür.
+    /// </summary>
+    public static uint GetWindowProcessId(nint hwnd)
+    {
+        if (hwnd == 0) return 0;
+        uint pid = 0;
+        unsafe { PInvoke.GetWindowThreadProcessId(new HWND(hwnd), &pid); }
+        return pid;
+    }
+
+    /// <summary>
+    /// Verilen pencerenin bulunduğu monitörün tanıtıcısını (HMONITOR) döndürür.
+    /// </summary>
+    public static nint GetWindowMonitor(nint hwnd)
+    {
+        if (hwnd == 0) return 0;
+        return PInvoke.MonitorFromWindow(new HWND(hwnd), MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST).Value;
     }
 }

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="title-a">
+  <title id="title-a">Koy Logo - Konsept A: Koy Monogramı</title>
+  <!-- Yekpare geometrik K: Sol dikey gövdeden filizlenen akıcı çentik ve dock kolları -->
+  <path fill="#000000" d="
+    M 52 54
+    C 52 44 60 36 70 36
+    C 80 36 88 44 88 54
+    V 108
+    L 142 56
+    C 150 48 162 48 170 56
+    C 178 64 178 76 170 84
+    L 116 128
+    L 178 174
+    C 186 182 186 194 178 202
+    C 170 210 158 210 150 202
+    L 88 152
+    V 202
+    C 88 212 80 220 70 220
+    C 60 220 52 212 52 202
+    Z
+  "/>
+  <!-- Sağda çentiğin yaylanma kavisini simgeleyen korunaklı kavisli yay noktası -->
+  <circle cx="188" cy="128" r="14" fill="#000000"/>
+</svg>

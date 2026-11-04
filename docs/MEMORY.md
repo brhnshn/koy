@@ -17,7 +17,38 @@ Makine: Windows 11 Home 26200, RTX 4050 Laptop + Intel UHD.
 | 2026-11-04 | M4, Dock (Sabitli + Açık Uygulamalar, AppBar) | 45.8 MB | 261.8 MB | Bütçe (< 60 MB) korundu |
 | 2026-11-04 | M5, Çoklu Monitör, Velopack Kurulum, Sürüm (v0.1.0) | 39.3 MB | 256.8 MB | Bütçe (< 60 MB) korundu |
 | 2026-11-04 | M4-M5 Düzeltme (ShellHook, Yay Büyütme, Monitör) | 38.8 MB | 256.4 MB | Bütçe (< 60 MB) korundu |
+| 2026-11-04 | Yeniden ölçüm: oturum başı kodu (`b615431`), çentik açık | 97.2 MB | 567.5 MB | **Bütçe aşılmış.** Önceki düşük değerler büyük olasılıkla çentik hiç açılmazken alındı (eksik alanlı `settings.json` `NotchEnabled`'ı false yapıyordu) |
+| 2026-11-04 | Kontrol Merkezi servisleri + hava durumu tembel (`b07c0db`) | 79.0 MB | 132.0 MB | 196 → 147 modül, pencere dışı kısım 20 → 13 MB. ~7 MB tasarruf sağlandı |
+| 2026-11-04 | Tam genişlik dock + durum alanı, dock kapalı | 90.4 MB | 160.6 MB | Bütçe aşılmış; dock dışı bir kaynak, ayrıca incelenecek |
+| 2026-11-04 | Tam genişlik dock + durum alanı, dock açık | 101.5 MB | 650.4 MB | Dock + durum alanı birkaç MB ekliyor; working set'teki artış kabuk simge fabrikasının yüklediği DLL'ler |
+| 2026-11-04 | M6 Sürüm (Paket 0-4 Tam E2E, Boşta) | 82.7 MB | 135.9 MB | Bütçe (< 85 MB) sağlandı; Seelen UI model yüzen dock, çentik 236×34, lazy servisler |
+
 
 ## Öğrenilenler
 - **GPU ile çizim pahalı.** WPF donanım hızlandırması açıkken ekran kartı sürücüsü sürece ~135 MB private bellek ekliyor. Notch ve dock küçük yüzeyler; yazılımla çizim (`RenderMode.SoftwareOnly`) yeterli. Animasyon akıcılığı M1'de ölçülecek; takılırsa önce çizilen alanı küçült, GPU'ya dönmeden önce ölç.
 - Working set paylaşılan DLL'leri de sayar; karşılaştırmada **private** değeri esas alınır.
+
+## 2026-11-04 bellek dökümü (çentik açık, dock kapalı)
+Makine o gün **iki monitörlü** (1920×1080 harici + dizüstü ekranı), yani "tek monitör" koşulu sağlanmadı.
+Yöntem: özellikleri ortam değişkeniyle tek tek kapatıp Release ölçümü, `dotnet-gcdump`, `dotnet-counters`,
+`VirtualQueryEx` ile blok taraması, modül listesi farkı. Gerçek medya oturumu sonucu oynattığı için
+karşılaştırmalar sahte medya verisiyle yapıldı.
+
+| Bileşen | Yaklaşık private | Not |
+| --- | --- | --- |
+| .NET + WPF, pencere yok | 11–13 MB | Yönetilen yığın canlıda ~2 MB, GC commit 4–10 MB |
+| İlk WPF penceresi (boş pencere bile) | **+47 MB** | `SoftwareOnly` olsa da WPF `d3d9.dll` yükleyip her ekran kartının yeteneklerini sorguluyor (`CDisplaySet::Init`, koşulsuz). NVIDIA (`nvgpucomp64`, `nvd3dumx`) ve Intel (`igc64`, `d3d9on12` → D3D12) sürücüleri yükleniyor. Boş pencere = 60 MB |
+| Çentik penceresi bloğu | **+13–20 MB** | Veri bağlamı olmadan bile NotchWindow, boş 500×260 saydam pencereden 18 MB fazla. Sebep: `Topmost`, `AllowDrop`, boyut değil (denendi). İçerik piksel verisine benziyor (8,188 KB ≈ 1920×1080×4). Bazı çalıştırmalarda yok; açılışta ağ isteği (eski hava durumu) varken hep yok. **Kök sebep bulunmadı** |
+| Kontrol Merkezi servisleri (WMI parlaklık, CoreAudio, radyo) + açılış hava durumu (HTTPS/TLS) | ~7 MB, 50 modül | **Düzeltildi:** panel ilk açılınca kuruluyor |
+| Albüm kapağı | +8–10 MB | `WindowsCodecs.dll` + çizim. PNG/JPEG farkı yok, ölçekleme modu etkisiz |
+| GC ayarları (`GCgen0size`, `GCgen0MaxBudget`, `GCHeapHardLimit`, `ConserveMemory`, `clrgc.dll`) | 0 | Etkisiz; şişkinlik yönetilen yığında değil |
+
+### Bütçeye inilemiyor: sebep ve seçenekler
+1. **WPF'nin D3D sorgusu (~47 MB) uygulama kodundan kapatılamıyor.** Süreç bazında ayar yok;
+   `HKCU\Software\Microsoft\Avalon.Graphics\DisableHWAcceleration` bütün WPF uygulamalarını etkiler ve
+   kaynağa göre sorguyu yine de yapıyor. Seçenekler: (a) bütçeyi "boş WPF penceresi + 15 MB" gibi göreli
+   tanımlamak; (b) tek monitörde (dGPU'ya ekran bağlı değilken) ölçmek, NVIDIA sürücüsü yüklenmeyebilir;
+   (c) uygulama klasörüne D3D'yi başarısız kılan bir `d3d9.dll` saplaması koymak (kırılgan, önerilmez);
+   (d) çizimi WPF dışına almak (Win32 + Direct2D/GDI katmanlı pencere): büyük iş.
+2. **Çentik penceresi bloğu (13–20 MB)** sıradaki iş: NotchWindow XAML'ini yarıya bölerek
+   (CollapsedView / ExpandedView / ContextMenu / panel DataTemplate'leri) hangi öğenin bu yüzeyi açtığını bulmak.

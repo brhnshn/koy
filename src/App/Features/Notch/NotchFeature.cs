@@ -5,6 +5,7 @@ using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
 using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
+using Koy.Core.Display;
 using Koy.Core.Notch;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
@@ -22,38 +23,46 @@ namespace Koy.App.Features.Notch;
 
 public sealed class NotchFeature(AppSettings settings) : IFeature
 {
-    private NotchWindow? _window;
+    private sealed class NotchWindowState : IDisposable
+    {
+        public required DisplayMonitor Monitor { get; set; }
+        public required NotchWindow Window { get; init; }
+        public required NotchViewModel ViewModel { get; init; }
+        public required VisibilityController VisibilityController { get; init; }
+        public required NotchController Controller { get; init; }
+        public nint Hwnd { get; set; }
+
+        public void Dispose()
+        {
+            Window.Close();
+            ViewModel.Dispose();
+            Controller.Dispose();
+            VisibilityController.Dispose();
+        }
+    }
+
+    private readonly Dictionary<string, NotchWindow> _windows = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, NotchWindowState> _windowStates = new(StringComparer.OrdinalIgnoreCase);
+
     private MediaService? _mediaService;
-    private AudioService? _audioService;
-    private RadioService? _radioService;
-    private BrightnessService? _brightnessService;
     private PowerService? _powerService;
     private WeatherService? _weatherService;
     private FocusAssistService? _focusAssistService;
     private ShelfService? _shelfService;
     private WindowTracker? _windowTracker;
     private FullscreenDetector? _fullscreenDetector;
-    private VisibilityController? _visibilityController;
     private MonitorService? _monitorService;
-    private NotchViewModel? _viewModel;
     private ITimer? _edgePeekTimer;
-    private nint _windowHwnd;
 
     public void Start()
     {
-        if (_window is not null)
+        if (_windows.Count > 0)
             return;
 
-        // Platform servisleri başlatılır
+        // Platform servisleri başlatılır (paylaşılan tekil servisler)
         _mediaService = new MediaService();
         _ = _mediaService.StartAsync();
 
-        _audioService = new AudioService();
-
-        _radioService = new RadioService();
-        _ = _radioService.StartAsync();
-
-        _brightnessService = new BrightnessService();
         _powerService = new PowerService();
         _weatherService = new WeatherService();
         _focusAssistService = new FocusAssistService();
@@ -61,49 +70,17 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         _windowTracker = new WindowTracker();
         _fullscreenDetector = new FullscreenDetector();
-        _visibilityController = new VisibilityController(settings.NotchVisibility);
         _monitorService = new MonitorService();
         _monitorService.Start();
+        _monitorService.MonitorsChanged += OnMonitorsChanged;
 
-        // Denetleyici ve etkin paneller
-        var controller = new NotchController();
-        controller.SetEnabledPanels(ParseEnabledPanels(settings.EnabledPanels));
+        var monitors = _monitorService.GetMonitors();
+        var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(monitors, settings.MonitorTarget);
 
-        // Panel ViewModel'leri
-        var musicVm = new MusicViewModel(_mediaService);
-        var controlCenterVm = new ControlCenterViewModel(
-            _audioService,
-            _radioService,
-            _brightnessService,
-            _focusAssistService,
-            settings);
-        var statusVm = new StatusViewModel(_powerService, _weatherService, settings);
-        var calendarVm = new CalendarViewModel(settings);
-        var shelfVm = new ShelfViewModel(_shelfService);
-
-        _viewModel = new NotchViewModel(
-            settings,
-            controller,
-            musicVm,
-            controlCenterVm,
-            statusVm,
-            calendarVm,
-            shelfVm,
-            _visibilityController);
-
-        var targetMonitor = _monitorService.GetMonitor(settings.MonitorTarget) ?? _monitorService.GetPrimaryMonitor();
-
-        _window = new NotchWindow { DataContext = _viewModel };
-        _window.SetTargetMonitor(targetMonitor);
-        _window.SourceInitialized += OnWindowSourceInitialized;
-        _window.DisplayChangeHandler = () =>
+        foreach (var monitor in targetMonitors)
         {
-            _monitorService.NotifyDisplayChanged();
-            var m = _monitorService.GetMonitor(settings.MonitorTarget) ?? _monitorService.GetPrimaryMonitor();
-            _window?.SetTargetMonitor(m);
-            UpdateNotchBounds();
-        };
-        _window.Show();
+            CreateNotchWindow(monitor);
+        }
 
         // 100 ms kenar gözetleme (peek) zamanlayıcısı; yalnız gizliyken çalışır (AGENTS.md #5)
         _edgePeekTimer = TimeProvider.System.CreateTimer(
@@ -112,59 +89,162 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             Timeout.InfiniteTimeSpan,
             Timeout.InfiniteTimeSpan);
 
-        _visibilityController.Changed += OnVisibilityChanged;
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
         _windowTracker.Start();
 
         UpdateEdgeTimer();
     }
 
-    private void OnWindowSourceInitialized(object? sender, EventArgs e)
+    private void CreateNotchWindow(DisplayMonitor monitor)
     {
-        if (_window is null || _visibilityController is null || _fullscreenDetector is null)
-            return;
+        var controller = new NotchController();
+        controller.SetEnabledPanels(ParseEnabledPanels(settings.EnabledPanels));
 
-        _windowHwnd = new WindowInteropHelper(_window).Handle;
-        _visibilityController.NotchHandle = _windowHwnd;
-        _fullscreenDetector.NotchHandle = _windowHwnd;
+        var visibilityController = new VisibilityController(settings.NotchVisibility);
 
-        UpdateNotchBounds();
+        var musicVm = new MusicViewModel(_mediaService!);
+        var controlCenterVm = new ControlCenterViewModel(
+            () => new AudioService(),
+            () => new RadioService(),
+            () => new BrightnessService(),
+            _focusAssistService!,
+            settings);
+        var statusVm = new StatusViewModel(_powerService!, _weatherService!, settings);
+        var calendarVm = new CalendarViewModel(settings);
+        var shelfVm = new ShelfViewModel(_shelfService!);
+
+        var viewModel = new NotchViewModel(
+            settings,
+            controller,
+            musicVm,
+            controlCenterVm,
+            statusVm,
+            calendarVm,
+            shelfVm,
+            visibilityController);
+
+        var window = new NotchWindow { DataContext = viewModel };
+        window.SetTargetMonitor(monitor);
+
+        var state = new NotchWindowState
+        {
+            Monitor = monitor,
+            Window = window,
+            ViewModel = viewModel,
+            VisibilityController = visibilityController,
+            Controller = controller
+        };
+
+        window.SourceInitialized += (s, e) =>
+        {
+            var hwnd = new WindowInteropHelper(window).Handle;
+            state.Hwnd = hwnd;
+            visibilityController.NotchHandle = hwnd;
+            _fullscreenDetector?.IgnoredHandles.Add(hwnd);
+            UpdateNotchBounds(window, visibilityController, monitor);
+        };
+
+        window.DisplayChangeHandler = () =>
+        {
+            _monitorService?.NotifyDisplayChanged();
+        };
+
+        visibilityController.Changed += OnVisibilityChanged;
+
+        _windowStates[monitor.Id] = state;
+        _windows[monitor.Id] = window;
+
+        window.Show();
+        UpdateNotchBounds(window, visibilityController, monitor);
     }
 
-    private void UpdateNotchBounds()
+    private void OnMonitorsChanged(object? sender, EventArgs e)
     {
-        if (_window is null || _visibilityController is null)
+        if (Application.Current is not null && !Application.Current.Dispatcher.CheckAccess())
+        {
+            Application.Current.Dispatcher.InvokeAsync(() => OnMonitorsChanged(sender, e));
             return;
+        }
 
-        var source = PresentationSource.FromVisual(_window);
-        var dpiX = source?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
-        var dpiY = source?.CompositionTarget?.TransformToDevice.M22 ?? 1.0;
+        if (_monitorService is null) return;
 
-        var targetMonitor = _monitorService?.GetMonitor(settings.MonitorTarget) ?? _monitorService?.GetPrimaryMonitor();
-        var monitorBounds = targetMonitor?.Bounds ?? new WindowRect(0, 0, (int)(SystemParameters.PrimaryScreenWidth * dpiX), (int)(SystemParameters.PrimaryScreenHeight * dpiY));
+        var currentMonitors = _monitorService.GetMonitors();
+        var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(currentMonitors, settings.MonitorTarget);
+        var targetKeys = new HashSet<string>(targetMonitors.Select(m => m.Id), StringComparer.OrdinalIgnoreCase);
 
+        // 1. Hedefte olmayan veya bağlantısı kesilen monitörlerin pencerelerini kapat
+        var toRemove = _windows.Keys.Where(k => !targetKeys.Contains(k)).ToList();
+        foreach (var key in toRemove)
+        {
+            if (_windowStates.Remove(key, out var state))
+            {
+                state.VisibilityController.Changed -= OnVisibilityChanged;
+                if (state.Hwnd != 0)
+                {
+                    _fullscreenDetector?.IgnoredHandles.Remove(state.Hwnd);
+                }
+                _windows.Remove(key);
+                state.Dispose();
+            }
+        }
+
+        // 2. Yeni monitörler için pencere oluştur veya mevcutların konumunu güncelle
+        foreach (var monitor in targetMonitors)
+        {
+            if (_windowStates.TryGetValue(monitor.Id, out var existingState))
+            {
+                existingState.Monitor = monitor;
+                existingState.Window.SetTargetMonitor(monitor);
+                UpdateNotchBounds(existingState.Window, existingState.VisibilityController, monitor);
+            }
+            else
+            {
+                CreateNotchWindow(monitor);
+            }
+        }
+
+        UpdateEdgeTimer();
+    }
+
+    private static void UpdateNotchBounds(NotchWindow window, VisibilityController visibilityController, DisplayMonitor monitor)
+    {
+        var source = PresentationSource.FromVisual(window);
+        var dpiX = source?.CompositionTarget?.TransformToDevice.M11 ?? monitor.DpiScaleX;
+        var dpiY = source?.CompositionTarget?.TransformToDevice.M22 ?? monitor.DpiScaleY;
+
+        var monitorBounds = monitor.Bounds;
         var notchWidth = 420 * dpiX;
         var notchHeight = 140 * dpiY;
         var monitorWidth = monitorBounds.Right - monitorBounds.Left;
         var left = (int)(monitorBounds.Left + (monitorWidth - notchWidth) / 2);
         var right = (int)(left + notchWidth);
 
-        _visibilityController.NotchBounds = new WindowRect(left, monitorBounds.Top, right, (int)(monitorBounds.Top + notchHeight));
+        visibilityController.NotchBounds = new WindowRect(left, monitorBounds.Top, right, (int)(monitorBounds.Top + notchHeight));
     }
 
     private void OnForegroundWindowChanged(object? sender, WindowInfo info)
     {
-        if (_visibilityController is null || _fullscreenDetector is null)
+        if (_fullscreenDetector is null)
             return;
 
-        var isFullscreen = _fullscreenDetector.IsFullscreen();
-        _visibilityController.SetFullscreen(isFullscreen);
-        _visibilityController.UpdateForegroundWindow(info.Handle, info.Bounds);
-
-        if (!isFullscreen && _windowHwnd != 0 && info.Handle != _windowHwnd)
+        foreach (var (_, state) in _windowStates)
         {
-            WindowStyles.ReassertTopmost(_windowHwnd);
+            // Her monitörün kendi tam ekran durumu sorgulanır:
+            // Yan ekranda tam ekran uygulama olması bu monitördeki Koy'u gizlemez!
+            var isFullscreen = _fullscreenDetector.IsFullscreen(state.Monitor.Handle);
+            state.VisibilityController.SetFullscreen(isFullscreen);
+            state.VisibilityController.UpdateForegroundWindow(info.Handle, info.Bounds);
+
+            if (!isFullscreen && state.Hwnd != 0 && info.Handle != state.Hwnd)
+            {
+                if (!FullscreenDetector.IsScreenClippingHost(info.Handle))
+                {
+                    WindowStyles.ReassertTopmost(state.Hwnd);
+                }
+            }
         }
+
+        UpdateEdgeTimer();
     }
 
     private void OnVisibilityChanged(object? sender, VisibilityResult result)
@@ -174,14 +254,15 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
     private void UpdateEdgeTimer()
     {
-        if (_visibilityController is null || _edgePeekTimer is null)
+        if (_edgePeekTimer is null || _windowStates.Count == 0)
             return;
 
-        var shouldRun = (!_visibilityController.IsVisible || _visibilityController.IsMouseAtEdge) &&
-                        !_visibilityController.IsFullscreen &&
-                        _visibilityController.Mode != VisibilityMode.Fixed;
+        var anyNeedsPeek = _windowStates.Values.Any(s =>
+            (!s.VisibilityController.IsVisible || s.VisibilityController.IsMouseAtEdge) &&
+            !s.VisibilityController.IsFullscreen &&
+            s.VisibilityController.Mode != VisibilityMode.Fixed);
 
-        if (shouldRun)
+        if (anyNeedsPeek)
         {
             _edgePeekTimer.Change(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(100));
         }
@@ -193,28 +274,39 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
     private void CheckEdgePeek()
     {
-        if (_visibilityController is null || _windowTracker is null)
-            return;
-
-        if (_visibilityController.IsFullscreen)
+        if (_windowTracker is null || _windowStates.Count == 0)
             return;
 
         if (_windowTracker.GetCursorPosition(out var x, out var y))
         {
-            var bounds = _visibilityController.NotchBounds;
-            var targetMonitor = _monitorService?.GetMonitor(settings.MonitorTarget) ?? _monitorService?.GetPrimaryMonitor();
-            var top = targetMonitor is not null ? targetMonitor.Bounds.Top : 0;
-            var minX = bounds.Left - 30;
-            var maxX = bounds.Right + 30;
-            var isAtEdge = y >= top && y <= top + 2 && (bounds.IsEmpty || (x >= minX && x <= maxX));
+            foreach (var (_, state) in _windowStates)
+            {
+                var vc = state.VisibilityController;
+                if (vc.IsFullscreen)
+                    continue;
 
-            if (isAtEdge)
-            {
-                _visibilityController.SetMouseAtEdge(true);
-            }
-            else if (_visibilityController.IsMouseAtEdge && !_visibilityController.IsMouseOver)
-            {
-                _visibilityController.SetMouseAtEdge(false);
+                var monitor = state.Monitor;
+                var top = monitor.Bounds.Top;
+                var left = monitor.Bounds.Left;
+                var right = monitor.Bounds.Right;
+
+                // İmleç bu monitör sınırları içinde mi?
+                if (x >= left && x <= right)
+                {
+                    var bounds = vc.NotchBounds;
+                    var minX = bounds.Left - 30;
+                    var maxX = bounds.Right + 30;
+                    var isAtEdge = y >= top && y <= top + 2 && (bounds.IsEmpty || (x >= minX && x <= maxX));
+
+                    if (isAtEdge)
+                    {
+                        vc.SetMouseAtEdge(true);
+                    }
+                    else if (vc.IsMouseAtEdge && !vc.IsMouseOver)
+                    {
+                        vc.SetMouseAtEdge(false);
+                    }
+                }
             }
         }
     }
@@ -224,8 +316,10 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         _edgePeekTimer?.Dispose();
         _edgePeekTimer = null;
 
-        if (_visibilityController is not null)
-            _visibilityController.Changed -= OnVisibilityChanged;
+        if (_monitorService is not null)
+        {
+            _monitorService.MonitorsChanged -= OnMonitorsChanged;
+        }
 
         if (_windowTracker is not null)
         {
@@ -234,32 +328,21 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             _windowTracker = null;
         }
 
-        _window?.Close();
-        _window = null;
-        _windowHwnd = 0;
+        foreach (var (_, state) in _windowStates)
+        {
+            state.VisibilityController.Changed -= OnVisibilityChanged;
+            state.Dispose();
+        }
+        _windowStates.Clear();
+        _windows.Clear();
 
         _monitorService?.Dispose();
         _monitorService = null;
-
-        _viewModel?.Dispose();
-        _viewModel = null;
-
-        _visibilityController?.Dispose();
-        _visibilityController = null;
 
         _fullscreenDetector = null;
 
         _mediaService?.Dispose();
         _mediaService = null;
-
-        _audioService?.Dispose();
-        _audioService = null;
-
-        _radioService?.Dispose();
-        _radioService = null;
-
-        _brightnessService?.Dispose();
-        _brightnessService = null;
 
         _powerService?.Dispose();
         _powerService = null;

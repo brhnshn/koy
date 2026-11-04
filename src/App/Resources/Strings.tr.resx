@@ -198,4 +198,502 @@
   <data name="TargetMonitorDesc" xml:space="preserve">
     <value>Notch ve Dock'un görüntüleneceği ekran</value>
   </data>
+  <data name="QuickSettings" xml:space="preserve">
+    <value>Hızlı ayarlar</value>
+  </data>
+  <data name="NotificationCenter" xml:space="preserve">
+    <value>Bildirimler ve takvim</value>
+  </data>
+  <data name="VolumeLevel" xml:space="preserve">
+    <value>Ses: %{0}</value>
+  </data>
+  <data name="VolumeMuted" xml:space="preserve">
+    <value>Ses: kapalı</value>
+  </data>
+  <data name="BatteryLevel" xml:space="preserve">
+    <value>Pil: %{0}</value>
+  </data>
+  <data name="BatteryCharging" xml:space="preserve">
+    <value>Pil: %{0} (şarj oluyor)</value>
+  </data>
+  <data name="NetworkWiFi" xml:space="preserve">
+    <value>Wi-Fi: bağlı</value>
+  </data>
+  <data name="NetworkEthernet" xml:space="preserve">
+    <value>Ethernet: bağlı</value>
+  </data>
+  <data name="NetworkCellular" xml:space="preserve">
+    <value>Hücresel: bağlı</value>
+  </data>
+  <data name="NetworkNoInternet" xml:space="preserve">
+    <value>İnternet erişimi yok</value>
+  </data>
+  <data name="NetworkDisconnected" xml:space="preserve">
+    <value>Bağlı değil</value>
+  </data>
+  <data name="NavGeneral" xml:space="preserve">
+    <value>Genel</value>
+  </data>
+  <data name="NavNotch" xml:space="preserve">
+    <value>Çentik</value>
+  </data>
+  <data name="NavDock" xml:space="preserve">
+    <value>Dock</value>
+  </data>
+  <data name="NavDisplays" xml:space="preserve">
+    <value>Ekranlar</value>
+  </data>
+  <data name="NavAppearance" xml:space="preserve">
+    <value>Görünüm</value>
+  </data>
+  <data name="NavShortcuts" xml:space="preserve">
+    <value>Kısayollar</value>
+  </data>
+  <data name="NavPerformance" xml:space="preserve">
+    <value>Performans</value>
+  </data>
+  <data name="NavAbout" xml:space="preserve">
+    <value>Hakkında</value>
+  </data>
+  <data name="ExitKoy" xml:space="preserve">
+    <value>Koy'dan çık</value>
+  </data>
+  <data name="GeneralSubtitle" xml:space="preserve">
+    <value>Başlangıç, dil ve güncellemeler</value>
+  </data>
+  <data name="NotchSubtitle" xml:space="preserve">
+    <value>Görünürlük, açık paneller ve çentik davranışı</value>
+  </data>
+  <data name="DockSubtitle" xml:space="preserve">
+    <value>Yerleşim, boyutlar ve pencere yönetimi</value>
+  </data>
+  <data name="DisplaysSubtitle" xml:space="preserve">
+    <value>Her ekranın çentiği ve dock'u ayrı ayarlanır</value>
+  </data>
+  <data name="AppearanceSubtitle" xml:space="preserve">
+    <value>Tema, vurgu rengi ve animasyonlar</value>
+  </data>
+  <data name="ShortcutsSubtitle" xml:space="preserve">
+    <value>Fare ve tekerlek eylemleri</value>
+  </data>
+  <data name="PerformanceSubtitle" xml:space="preserve">
+    <value>Bellek kullanımı ve güç tasarrufu</value>
+  </data>
+  <data name="AboutSubtitle" xml:space="preserve">
+    <value>Sürüm ve lisans bilgileri</value>
+  </data>
+  <data name="StartupHeader" xml:space="preserve">
+    <value>BAŞLANGIÇ</value>
+  </data>
+  <data name="RunAtStartupTitle" xml:space="preserve">
+    <value>Windows açılınca Koy'u başlat</value>
+  </data>
+  <data name="HideWindowsTaskbarTitle" xml:space="preserve">
+    <value>Windows görev çubuğunu gizle</value>
+  </data>
+  <data name="HideWindowsTaskbarDesc" xml:space="preserve">
+    <value>Dock açıkken ekranda tek çubuk olur</value>
+  </data>
+  <data name="LanguageHeader" xml:space="preserve">
+    <value>DİL</value>
+  </data>
+  <data name="InterfaceLanguageTitle" xml:space="preserve">
+    <value>Arayüz dili</value>
+  </data>
+  <data name="UpdatesHeader" xml:space="preserve">
+    <value>GÜNCELLEMELER</value>
+  </data>
+  <data name="AutoCheckUpdatesTitle" xml:space="preserve">
+    <value>Güncellemeleri otomatik denetle</value>
+  </data>
+  <data name="ChannelTitle" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
+  <data name="CheckNow" xml:space="preserve">
+    <value>Şimdi denetle</value>
+  </data>
+  <data name="WindowCloseNotice" xml:space="preserve">
+    <value>Bu pencereyi kapatmak Koy'u kapatmaz. Çıkmak için sağ alttaki Koy menüsünü ya da soldaki çıkış düğmesini kullanın.</value>
+  </data>
+  <data name="NotchHeader" xml:space="preserve">
+    <value>GENEL</value>
+  </data>
+  <data name="NotchEnabledTitle" xml:space="preserve">
+    <value>Çentik etkin</value>
+  </data>
+  <data name="VisibilityTitle" xml:space="preserve">
+    <value>Görünürlük</value>
+  </data>
+  <data name="VisFixed" xml:space="preserve">
+    <value>Sabit</value>
+  </data>
+  <data name="VisSmart" xml:space="preserve">
+    <value>Akıllı</value>
+  </data>
+  <data name="VisPeek" xml:space="preserve">
+    <value>Gözetleme</value>
+  </data>
+  <data name="HideInFullscreenTitle" xml:space="preserve">
+    <value>Tam ekranda gizle</value>
+  </data>
+  <data name="IdleDisplayTitle" xml:space="preserve">
+    <value>Boştayken</value>
+  </data>
+  <data name="IdleClockBattery" xml:space="preserve">
+    <value>Saat ve pil</value>
+  </data>
+  <data name="IdleClockOnly" xml:space="preserve">
+    <value>Yalnız saat</value>
+  </data>
+  <data name="IdleNone" xml:space="preserve">
+    <value>Hiçbiri</value>
+  </data>
+  <data name="OpenBehaviorTitle" xml:space="preserve">
+    <value>Açılma davranışı</value>
+  </data>
+  <data name="OpenOnHover" xml:space="preserve">
+    <value>Üzerine gelince</value>
+  </data>
+  <data name="OpenOnClick" xml:space="preserve">
+    <value>Tıklayınca</value>
+  </data>
+  <data name="PanelsHeader" xml:space="preserve">
+    <value>PANELLER</value>
+  </data>
+  <data name="PanelMusicTitle" xml:space="preserve">
+    <value>Müzik</value>
+  </data>
+  <data name="PanelCalendarTitle" xml:space="preserve">
+    <value>Takvim ve Pomodoro</value>
+  </data>
+  <data name="PanelShelfTitle" xml:space="preserve">
+    <value>Raf (sürükle-bırak)</value>
+  </data>
+  <data name="PanelControlCenterTitle" xml:space="preserve">
+    <value>Kontrol Merkezi</value>
+  </data>
+  <data name="PanelStatusTitle" xml:space="preserve">
+    <value>Durum (pil, hava)</value>
+  </data>
+  <data name="DockGeneralHeader" xml:space="preserve">
+    <value>GENEL</value>
+  </data>
+  <data name="DockEnabledTitle" xml:space="preserve">
+    <value>Dock etkin</value>
+  </data>
+  <data name="DockLayoutHeader" xml:space="preserve">
+    <value>YERLEŞİM VE DAVRANIŞ</value>
+  </data>
+  <data name="DockStyleTitle" xml:space="preserve">
+    <value>Dock stili</value>
+  </data>
+  <data name="StyleCapsule" xml:space="preserve">
+    <value>Yüzen kapsül</value>
+  </data>
+  <data name="StyleFullWidth" xml:space="preserve">
+    <value>Tam genişlik glass</value>
+  </data>
+  <data name="DockProximityTitle" xml:space="preserve">
+    <value>Pencere yaklaşınca</value>
+  </data>
+  <data name="ProxDockDown" xml:space="preserve">
+    <value>Aşağı yapış</value>
+  </data>
+  <data name="ProxReserve" xml:space="preserve">
+    <value>Yer ayır</value>
+  </data>
+  <data name="ProxDodge" xml:space="preserve">
+    <value>Çekil</value>
+  </data>
+  <data name="ProxAlwaysHidden" xml:space="preserve">
+    <value>Hep gizli</value>
+  </data>
+  <data name="DockSizeHeader" xml:space="preserve">
+    <value>BOYUTLAR</value>
+  </data>
+  <data name="DockIconSizeTitle" xml:space="preserve">
+    <value>Simge boyutu</value>
+  </data>
+  <data name="SizeSmall" xml:space="preserve">
+    <value>Küçük (24 px)</value>
+  </data>
+  <data name="SizeMedium" xml:space="preserve">
+    <value>Orta (28 px)</value>
+  </data>
+  <data name="SizeLarge" xml:space="preserve">
+    <value>Büyük (34 px)</value>
+  </data>
+  <data name="HoverMagnifyTitle" xml:space="preserve">
+    <value>Üzerine gelince simgeleri büyüt</value>
+  </data>
+  <data name="IndicatorStyleTitle" xml:space="preserve">
+    <value>Gösterge stili</value>
+  </data>
+  <data name="IndicatorDot" xml:space="preserve">
+    <value>Nokta</value>
+  </data>
+  <data name="IndicatorLine" xml:space="preserve">
+    <value>Çizgi</value>
+  </data>
+  <data name="StartButtonTitle" xml:space="preserve">
+    <value>Windows Başlat düğmesi</value>
+  </data>
+  <data name="FoldersSectionTitle" xml:space="preserve">
+    <value>Klasörler bölümü (İndirilenler)</value>
+  </data>
+  <data name="TaskbarRecoveryHeader" xml:space="preserve">
+    <value>GÖREV ÇUBUĞU KURTARMA</value>
+  </data>
+  <data name="RestoreTaskbarTitle" xml:space="preserve">
+    <value>Windows görev çubuğunu geri getir</value>
+  </data>
+  <data name="RestoreTaskbarDesc" xml:space="preserve">
+    <value>Görev çubuğu gizliyse anında tekrar görünür yapar</value>
+  </data>
+  <data name="ChannelStable" xml:space="preserve">
+    <value>Kararlı</value>
+  </data>
+  <data name="ChannelPreview" xml:space="preserve">
+    <value>Önizleme</value>
+  </data>
+  <data name="MusicWaveformTitle" xml:space="preserve">
+    <value>Müzik çalarken kapak ve dalga</value>
+  </data>
+  <data name="IndicatorsHeader" xml:space="preserve">
+    <value>GÖSTERGELER</value>
+  </data>
+  <data name="VolumeOsdTitle" xml:space="preserve">
+    <value>Ses göstergesi</value>
+  </data>
+  <data name="VolumeOsdDesc" xml:space="preserve">
+    <value>Ses değişince çentikte kısa gösterge</value>
+  </data>
+  <data name="BrightnessOsdTitle" xml:space="preserve">
+    <value>Parlaklık göstergesi</value>
+  </data>
+  <data name="HideWindowsOsdTitle" xml:space="preserve">
+    <value>Windows'un kendi göstergesini gizle</value>
+  </data>
+  <data name="ExperimentalDesc" xml:space="preserve">
+    <value>Deneysel</value>
+  </data>
+  <data name="SectionsHeader" xml:space="preserve">
+    <value>BÖLÜMLER</value>
+  </data>
+  <data name="PrimaryScreenHeader" xml:space="preserve">
+    <value>EKRAN 1 · ANA EKRAN · 1920×1080</value>
+  </data>
+  <data name="ScreenNotchTitle" xml:space="preserve">
+    <value>Çentik</value>
+  </data>
+  <data name="ScreenDockTitle" xml:space="preserve">
+    <value>Dock</value>
+  </data>
+  <data name="ScreenDockWindowsOnlyTitle" xml:space="preserve">
+    <value>Dock'ta yalnız bu ekrandaki pencereler</value>
+  </data>
+  <data name="NewDisplaysHeader" xml:space="preserve">
+    <value>YENİ EKRANLAR</value>
+  </data>
+  <data name="NewDisplayActionTitle" xml:space="preserve">
+    <value>Yeni bağlanan ekranda</value>
+  </data>
+  <data name="NewDisplayBoth" xml:space="preserve">
+    <value>Çentik ve dock</value>
+  </data>
+  <data name="NewDisplayNotchOnly" xml:space="preserve">
+    <value>Yalnız çentik</value>
+  </data>
+  <data name="NewDisplayNone" xml:space="preserve">
+    <value>Hiçbiri</value>
+  </data>
+  <data name="MultiMonitorNotice" xml:space="preserve">
+    <value>Bir ekranda tam ekran açılınca yalnız o ekrandaki Koy gizlenir. Diğer ekranlar etkilenmez.</value>
+  </data>
+  <data name="ThemeHeader" xml:space="preserve">
+    <value>TEMA</value>
+  </data>
+  <data name="ThemeTitle" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>Sistem</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>Koyu</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>Açık</value>
+  </data>
+  <data name="AccentColorTitle" xml:space="preserve">
+    <value>Vurgu rengi</value>
+  </data>
+  <data name="UseWindowsAccentTitle" xml:space="preserve">
+    <value>Windows vurgu rengini kullan</value>
+  </data>
+  <data name="MaterialTitle" xml:space="preserve">
+    <value>Malzeme</value>
+  </data>
+  <data name="MaterialDesc" xml:space="preserve">
+    <value>Yarı saydam biraz daha fazla kaynak kullanır</value>
+  </data>
+  <data name="MaterialSolid" xml:space="preserve">
+    <value>Katı</value>
+  </data>
+  <data name="MaterialTranslucent" xml:space="preserve">
+    <value>Yarı saydam</value>
+  </data>
+  <data name="CornerRadiusTitle" xml:space="preserve">
+    <value>Köşe yuvarlaklığı</value>
+  </data>
+  <data name="MotionHeader" xml:space="preserve">
+    <value>HAREKET</value>
+  </data>
+  <data name="AnimationTitle" xml:space="preserve">
+    <value>Animasyon</value>
+  </data>
+  <data name="AnimGentle" xml:space="preserve">
+    <value>Sakin</value>
+  </data>
+  <data name="AnimNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="AnimFast" xml:space="preserve">
+    <value>Hızlı</value>
+  </data>
+  <data name="AnimOff" xml:space="preserve">
+    <value>Kapalı</value>
+  </data>
+  <data name="ReduceMotionTitle" xml:space="preserve">
+    <value>Windows'un "animasyonları azalt" ayarına uy</value>
+  </data>
+  <data name="KeyboardHeader" xml:space="preserve">
+    <value>KLAVYE</value>
+  </data>
+  <data name="ShortcutToggleNotch" xml:space="preserve">
+    <value>Çentiği aç / kapat</value>
+  </data>
+  <data name="ShortcutOpenShelf" xml:space="preserve">
+    <value>Rafı aç</value>
+  </data>
+  <data name="ShortcutToggleDock" xml:space="preserve">
+    <value>Dock'u göster / gizle</value>
+  </data>
+  <data name="ShortcutOpenMenu" xml:space="preserve">
+    <value>Koy menüsü</value>
+  </data>
+  <data name="ShortcutPlayPause" xml:space="preserve">
+    <value>Müzik: oynat / duraklat</value>
+  </data>
+  <data name="KeySpace" xml:space="preserve">
+    <value>Boşluk</value>
+  </data>
+  <data name="ShortcutsNotice" xml:space="preserve">
+    <value>Kısayollar örnektir. Windows ya da başka bir uygulamayla çakışan kısayol kırmızıyla gösterilir.</value>
+  </data>
+  <data name="MouseHeader" xml:space="preserve">
+    <value>FARE</value>
+  </data>
+  <data name="WheelActionTitle" xml:space="preserve">
+    <value>Çentikte tekerlek</value>
+  </data>
+  <data name="WheelSwitchPanel" xml:space="preserve">
+    <value>Panel değiştir</value>
+  </data>
+  <data name="WheelVolume" xml:space="preserve">
+    <value>Ses</value>
+  </data>
+  <data name="MiddleClickTitle" xml:space="preserve">
+    <value>Dock'ta orta tık</value>
+  </data>
+  <data name="MidClickNewWindow" xml:space="preserve">
+    <value>Yeni pencere</value>
+  </data>
+  <data name="MidClickClose" xml:space="preserve">
+    <value>Kapat</value>
+  </data>
+  <data name="MemoryUsageTitle" xml:space="preserve">
+    <value>Bellek kullanımı</value>
+  </data>
+  <data name="BudgetDesc" xml:space="preserve">
+    <value>Bütçe 60 MB</value>
+  </data>
+  <data name="BatteryHeader" xml:space="preserve">
+    <value>PİL</value>
+  </data>
+  <data name="BatteryReduceMotion" xml:space="preserve">
+    <value>Pil tasarrufunda animasyonları azalt</value>
+  </data>
+  <data name="BatteryStopWaveform" xml:space="preserve">
+    <value>Pil tasarrufunda müzik dalgasını durdur</value>
+  </data>
+  <data name="DataHeader" xml:space="preserve">
+    <value>VERİ</value>
+  </data>
+  <data name="WeatherRefreshTitle" xml:space="preserve">
+    <value>Hava durumu yenileme</value>
+  </data>
+  <data name="Interval30m" xml:space="preserve">
+    <value>30 dakikada bir</value>
+  </data>
+  <data name="Interval1h" xml:space="preserve">
+    <value>1 saatte bir</value>
+  </data>
+  <data name="IntervalStartupOnly" xml:space="preserve">
+    <value>Yalnız açılışta</value>
+  </data>
+  <data name="AudioVisualizerTitle" xml:space="preserve">
+    <value>Ses görselleştirici</value>
+  </data>
+  <data name="AudioVisualizerDesc" xml:space="preserve">
+    <value>Deneysel, fazladan bellek kullanır</value>
+  </data>
+  <data name="IdleNotice" xml:space="preserve">
+    <value>Koy boştayken işlemci kullanmaz. Zamanlayıcılar yalnız ilgili panel açıkken çalışır.</value>
+  </data>
+  <data name="UpdatesTitle" xml:space="preserve">
+    <value>Güncellemeler</value>
+  </data>
+  <data name="DiagnosticInfoTitle" xml:space="preserve">
+    <value>Hata bildirirken eklenecek bilgiler</value>
+  </data>
+  <data name="CopyDiagnosticsAction" xml:space="preserve">
+    <value>Tanılama bilgisini kopyala</value>
+  </data>
+  <data name="TroubleshootingHeader" xml:space="preserve">
+    <value>SORUN GİDERME</value>
+  </data>
+  <data name="RestoreTaskbarDesc2" xml:space="preserve">
+    <value>Görev çubuğu kaybolursa</value>
+  </data>
+  <data name="RestoreButton" xml:space="preserve">
+    <value>Geri getir</value>
+  </data>
+  <data name="ResetSettingsTitle" xml:space="preserve">
+    <value>Bütün ayarları varsayılana döndür</value>
+  </data>
+  <data name="ResetButton" xml:space="preserve">
+    <value>Sıfırla</value>
+  </data>
+  <data name="LinksHeader" xml:space="preserve">
+    <value>BAĞLANTILAR</value>
+  </data>
+  <data name="SourceCodeTitle" xml:space="preserve">
+    <value>Kaynak kodu</value>
+  </data>
+  <data name="OpenGitHubAction" xml:space="preserve">
+    <value>GitHub'da aç</value>
+  </data>
+  <data name="OpenKoyWindowAction" xml:space="preserve">
+    <value>Koy penceresini aç</value>
+  </data>
+  <data name="PauseOneHourAction" xml:space="preserve">
+    <value>1 saat duraklat</value>
+  </data>
+  <data name="ResumePauseAction" xml:space="preserve">
+    <value>Duraklatmayı sonlandır</value>
+  </data>
+  <data name="ExitKoyAction" xml:space="preserve">
+    <value>Koy'dan çık</value>
+  </data>
 </root>

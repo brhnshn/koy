@@ -11,11 +11,14 @@ using Windows.Win32.UI.WindowsAndMessaging;
 namespace Koy.Platform.Shell;
 
 /// <summary>
-/// Kısayol (.lnk) veya çalıştırılabilir dosyalardan (.exe) 32x32 boyutunda simgeleri çıkaran
+/// Kısayol (.lnk), çalıştırılabilir dosya (.exe) ya da kabuk yolundan simgeyi saydam PNG olarak çıkaran
 /// ve bellek önbelleğinde tutan hafif yardımcı sınıf.
 /// </summary>
 public static class IconHelper
 {
+    // 48 px: dock simgesi 24 DIP, %200 ölçekte bile büyütülmeden net kalır.
+    private const int IconSize = 48;
+
     private static readonly ConcurrentDictionary<string, byte[]?> Cache = new(StringComparer.OrdinalIgnoreCase);
 
     public static byte[]? GetIconBytes(string path)
@@ -43,9 +46,9 @@ public static class IconHelper
 
             try
             {
-                factory.GetImage(new SIZE(32, 32), SIIGBF.SIIGBF_ICONONLY | SIIGBF.SIIGBF_BIGGERSIZEOK, out var bitmap);
+                factory.GetImage(new SIZE(IconSize, IconSize), SIIGBF.SIIGBF_ICONONLY, out var bitmap);
                 using (bitmap)
-                    return ConvertHBitmapToBmpBytes(new HBITMAP(bitmap.DangerousGetHandle()));
+                    return ConvertHBitmapToPng(new HBITMAP(bitmap.DangerousGetHandle()), IconSize);
             }
             finally
             {
@@ -83,7 +86,7 @@ public static class IconHelper
 
             try
             {
-                return ConvertHIconToBmpBytes(shinfo.hIcon);
+                return ConvertHIconToPng(shinfo.hIcon);
             }
             finally
             {
@@ -96,7 +99,7 @@ public static class IconHelper
         }
     }
 
-    internal static unsafe byte[]? ConvertHIconToBmpBytes(HICON hIcon)
+    private static byte[]? ConvertHIconToPng(HICON hIcon)
     {
         if (hIcon.IsNull)
             return null;
@@ -107,8 +110,8 @@ public static class IconHelper
 
         try
         {
-            var targetBmp = !iconInfo.hbmColor.IsNull ? iconInfo.hbmColor : iconInfo.hbmMask;
-            return targetBmp.IsNull ? null : ConvertHBitmapToBmpBytes(targetBmp);
+            // SHGFI_LARGEICON 32 px döner.
+            return iconInfo.hbmColor.IsNull ? null : ConvertHBitmapToPng(iconInfo.hbmColor, 32);
         }
         finally
         {
@@ -119,7 +122,7 @@ public static class IconHelper
         }
     }
 
-    private static unsafe byte[]? ConvertHBitmapToBmpBytes(HBITMAP hBitmap)
+    private static unsafe byte[]? ConvertHBitmapToPng(HBITMAP hBitmap, int size)
     {
         if (hBitmap.IsNull)
             return null;
@@ -127,70 +130,76 @@ public static class IconHelper
         var hdc = PInvoke.CreateCompatibleDC(default);
         try
         {
-            var bih = new BITMAPINFOHEADER
+            var bi = new BITMAPINFO
             {
-                biSize = (uint)sizeof(BITMAPINFOHEADER),
-                biWidth = 32,
-                biHeight = 32,
-                biPlanes = 1,
-                biBitCount = 32,
-                biCompression = 0 // BI_RGB
+                bmiHeader = new BITMAPINFOHEADER
+                {
+                    biSize = (uint)sizeof(BITMAPINFOHEADER),
+                    biWidth = size,
+                    biHeight = -size, // yukarıdan aşağı satır sırası (PNG ile aynı)
+                    biPlanes = 1,
+                    biBitCount = 32,
+                    biCompression = 0 // BI_RGB
+                }
             };
 
-            var bi = new BITMAPINFO { bmiHeader = bih };
-            var pixelData = new byte[32 * 32 * 4];
-
+            var bgra = new byte[size * size * 4];
             using var bmpHandle = new BitmapSafeHandle(hBitmap);
-            fixed (byte* pPixels = pixelData)
+            fixed (byte* pPixels = bgra)
             {
-                var lines = PInvoke.GetDIBits(
-                    hdc,
-                    bmpHandle,
-                    0,
-                    32,
-                    pPixels,
-                    &bi,
-                    DIB_USAGE.DIB_RGB_COLORS);
-
-                if (lines == 0)
+                if (PInvoke.GetDIBits(hdc, bmpHandle, 0, (uint)size, pPixels, &bi, DIB_USAGE.DIB_RGB_COLORS) == 0)
                     return null;
             }
 
-            using var ms = new MemoryStream();
-            using var writer = new BinaryWriter(ms);
-
-            // BMP Dosya Başlığı (14 bayt)
-            writer.Write((byte)'B');
-            writer.Write((byte)'M');
-            uint offBits = 14 + 40;
-            uint fileSize = offBits + (uint)pixelData.Length;
-            writer.Write(fileSize);
-            writer.Write((ushort)0);
-            writer.Write((ushort)0);
-            writer.Write(offBits);
-
-            // BMP Bilgi Başlığı (40 bayt)
-            writer.Write((uint)40);
-            writer.Write((int)32);
-            writer.Write((int)32);
-            writer.Write((ushort)1);
-            writer.Write((ushort)32);
-            writer.Write((uint)0);
-            writer.Write((uint)pixelData.Length);
-            writer.Write((int)0);
-            writer.Write((int)0);
-            writer.Write((uint)0);
-            writer.Write((uint)0);
-
-            // Piksel baytları
-            writer.Write(pixelData);
-            return ms.ToArray();
+            return PngEncoder.Encode(ToStraightRgba(bgra), size, size);
         }
         finally
         {
             if (hdc != default)
                 PInvoke.DeleteDC(hdc);
         }
+    }
+
+    /// <summary>
+    /// GDI'nin BGRA'sını PNG'nin düz (premultiplied olmayan) RGBA'sına çevirir.
+    /// Kabuk resim fabrikası premultiplied alfa verir; eski simgelerde alfa hiç yoktur (hepsi 0).
+    /// BMP ile WPF'e verildiğinde alfa kayboluyor ve simge siyah kare üstünde görünüyordu.
+    /// </summary>
+    private static byte[] ToStraightRgba(byte[] bgra)
+    {
+        var hasAlpha = false;
+        var premultiplied = true;
+        for (var i = 0; i < bgra.Length; i += 4)
+        {
+            var a = bgra[i + 3];
+            if (a != 0)
+                hasAlpha = true;
+            if (bgra[i] > a || bgra[i + 1] > a || bgra[i + 2] > a)
+                premultiplied = false;
+        }
+
+        var rgba = new byte[bgra.Length];
+        for (var i = 0; i < bgra.Length; i += 4)
+        {
+            int b = bgra[i], g = bgra[i + 1], r = bgra[i + 2], a = bgra[i + 3];
+            if (!hasAlpha)
+            {
+                a = 255;
+            }
+            else if (premultiplied && a is > 0 and < 255)
+            {
+                r = r * 255 / a;
+                g = g * 255 / a;
+                b = b * 255 / a;
+            }
+
+            rgba[i] = (byte)r;
+            rgba[i + 1] = (byte)g;
+            rgba[i + 2] = (byte)b;
+            rgba[i + 3] = (byte)a;
+        }
+
+        return rgba;
     }
 
     private sealed class IconSafeHandle : Microsoft.Win32.SafeHandles.SafeHandleZeroOrMinusOneIsInvalid

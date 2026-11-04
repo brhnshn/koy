@@ -16,6 +16,16 @@ public interface IShellActionService
     void ToggleSystemTray();
 
     /// <summary>
+    /// Windows Hızlı Ayarlar panelini (ağ, ses, pil) açmak için Win+A girdisi gönderir.
+    /// </summary>
+    void OpenQuickSettings();
+
+    /// <summary>
+    /// Windows Bildirim Merkezi ve takvimi açmak için Win+N girdisi gönderir.
+    /// </summary>
+    void OpenNotificationCenter();
+
+    /// <summary>
     /// Belirtilen dosya veya kısayolu çalıştırır.
     /// </summary>
     void Launch(string path, string? arguments = null);

@@ -64,6 +64,17 @@ public static class Strings
     public static string EndTask => Get(nameof(EndTask));
     public static string StartMenu => Get(nameof(StartMenu));
     public static string SystemTray => Get(nameof(SystemTray));
+    public static string QuickSettings => Get(nameof(QuickSettings));
+    public static string NotificationCenter => Get(nameof(NotificationCenter));
+    public static string VolumeLevel => Get(nameof(VolumeLevel));
+    public static string VolumeMuted => Get(nameof(VolumeMuted));
+    public static string BatteryLevel => Get(nameof(BatteryLevel));
+    public static string BatteryCharging => Get(nameof(BatteryCharging));
+    public static string NetworkWiFi => Get(nameof(NetworkWiFi));
+    public static string NetworkEthernet => Get(nameof(NetworkEthernet));
+    public static string NetworkCellular => Get(nameof(NetworkCellular));
+    public static string NetworkNoInternet => Get(nameof(NetworkNoInternet));
+    public static string NetworkDisconnected => Get(nameof(NetworkDisconnected));
     public static string TargetMonitor => Get(nameof(TargetMonitor));
     public static string TargetMonitorDesc => Get(nameof(TargetMonitorDesc));
 }

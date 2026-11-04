@@ -11,10 +11,13 @@ namespace Koy.App.Features.ControlCenter;
 
 public sealed partial class ControlCenterViewModel : ObservableObject, IDisposable
 {
-    private readonly IAudioService _audioService;
-    private readonly IRadioService _radioService;
-    private readonly IBrightnessService _brightnessService;
+    private readonly Func<IAudioService> _audioFactory;
+    private readonly Func<IRadioService> _radioFactory;
+    private readonly Func<IBrightnessService> _brightnessFactory;
     private readonly IFocusAssistService _focusAssistService;
+    private IAudioService? _audioService;
+    private IRadioService? _radioService;
+    private IBrightnessService? _brightnessService;
     private readonly AppSettings _settings;
     private readonly Dispatcher _dispatcher;
     private bool _disposed;
@@ -43,39 +46,65 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     [ObservableProperty]
     private bool _isBrightnessSupported;
 
+    // Servisler panel ilk açıldığında kurulur (AGENTS.md #5): WMI parlaklık sorgusu, CoreAudio ve
+    // radyo erişimi açılışta birkaç MB tutuyor ve panel hiç açılmayabilir. Kurulduktan sonra
+    // notch kapanana kadar yaşar ve bu ViewModel tarafından bırakılır.
     public ControlCenterViewModel(
-        IAudioService audioService,
-        IRadioService radioService,
-        IBrightnessService brightnessService,
+        Func<IAudioService> audioFactory,
+        Func<IRadioService> radioFactory,
+        Func<IBrightnessService> brightnessFactory,
         IFocusAssistService focusAssistService,
         AppSettings settings,
         Dispatcher? dispatcher = null)
     {
-        _audioService = audioService;
-        _radioService = radioService;
-        _brightnessService = brightnessService;
+        _audioFactory = audioFactory;
+        _radioFactory = radioFactory;
+        _brightnessFactory = brightnessFactory;
         _focusAssistService = focusAssistService;
         _settings = settings;
         _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
 
-        // Başlangıç değerleri
-        _volume = _audioService.Volume;
-        _volumePercent = (int)Math.Round(_volume * 100);
-        _isMuted = _audioService.IsMuted;
-
-        _isWiFiOn = _radioService.WiFiState == RadioState.On;
-        _isBluetoothOn = _radioService.BluetoothState == RadioState.On;
-
-        _isBrightnessSupported = _brightnessService.IsSupported;
-        _brightness = _brightnessService.Brightness;
-
-        _isDoNotDisturbOn = _focusAssistService.IsActive;
-
-        // Olay dinleyicileri
-        _audioService.StateChanged += OnAudioStateChanged;
-        _radioService.StateChanged += OnRadioStateChanged;
-        _brightnessService.BrightnessChanged += OnBrightnessChanged;
         _focusAssistService.StateChanged += OnFocusAssistChanged;
+    }
+
+    public void SetActive(bool active)
+    {
+        if (!active || _disposed)
+            return;
+
+        IsDoNotDisturbOn = _focusAssistService.IsActive;
+
+        if (_audioService is not null)
+            return;
+
+        _audioService = _audioFactory();
+        _audioService.StateChanged += OnAudioStateChanged;
+        Volume = _audioService.Volume;
+        VolumePercent = (int)Math.Round(Volume * 100);
+        IsMuted = _audioService.IsMuted;
+
+        // Radyo durumu StartAsync bitince StateChanged ile gelir.
+        _radioService = _radioFactory();
+        _radioService.StateChanged += OnRadioStateChanged;
+        _ = _radioService.StartAsync();
+
+        _ = InitializeBrightnessAsync();
+    }
+
+    private async Task InitializeBrightnessAsync()
+    {
+        // WMI sorgusu UI iş parçacığını bekletmesin.
+        var service = await Task.Run(_brightnessFactory);
+        if (_disposed)
+        {
+            service.Dispose();
+            return;
+        }
+
+        _brightnessService = service;
+        _brightnessService.BrightnessChanged += OnBrightnessChanged;
+        IsBrightnessSupported = _brightnessService.IsSupported;
+        Brightness = _brightnessService.Brightness;
     }
 
     private void OnAudioStateChanged(object? sender, AudioStateChangedEventArgs e)
@@ -118,6 +147,8 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     [RelayCommand]
     private async Task ToggleWiFiAsync()
     {
+        if (_radioService is null)
+            return;
         await _radioService.ToggleAsync(RadioKind.WiFi);
         IsWiFiOn = _radioService.WiFiState == RadioState.On;
     }
@@ -125,6 +156,8 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     [RelayCommand]
     private async Task ToggleBluetoothAsync()
     {
+        if (_radioService is null)
+            return;
         await _radioService.ToggleAsync(RadioKind.Bluetooth);
         IsBluetoothOn = _radioService.BluetoothState == RadioState.On;
     }
@@ -139,13 +172,13 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     [RelayCommand]
     private void ToggleMute()
     {
-        _audioService.ToggleMute();
+        _audioService?.ToggleMute();
     }
 
     public void OnVolumeSliderChanged(double newVolumePercent)
     {
         var normalized = (float)Math.Clamp(newVolumePercent / 100.0, 0.0, 1.0);
-        _audioService.SetVolume(normalized);
+        _audioService?.SetVolume(normalized);
         Volume = normalized;
         VolumePercent = (int)Math.Round(newVolumePercent);
     }
@@ -153,7 +186,7 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     public void OnBrightnessSliderChanged(double newBrightness)
     {
         var intBrightness = (int)Math.Clamp(newBrightness, 0, 100);
-        _brightnessService.SetBrightness(intBrightness);
+        _brightnessService?.SetBrightness(intBrightness);
         Brightness = intBrightness;
     }
 
@@ -163,9 +196,27 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
             return;
 
         _disposed = true;
-        _audioService.StateChanged -= OnAudioStateChanged;
-        _radioService.StateChanged -= OnRadioStateChanged;
-        _brightnessService.BrightnessChanged -= OnBrightnessChanged;
         _focusAssistService.StateChanged -= OnFocusAssistChanged;
+
+        if (_audioService is not null)
+        {
+            _audioService.StateChanged -= OnAudioStateChanged;
+            _audioService.Dispose();
+            _audioService = null;
+        }
+
+        if (_radioService is not null)
+        {
+            _radioService.StateChanged -= OnRadioStateChanged;
+            _radioService.Dispose();
+            _radioService = null;
+        }
+
+        if (_brightnessService is not null)
+        {
+            _brightnessService.BrightnessChanged -= OnBrightnessChanged;
+            _brightnessService.Dispose();
+            _brightnessService = null;
+        }
     }
 }

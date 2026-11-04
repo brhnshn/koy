@@ -1,6 +1,7 @@
 using Koy.Core.Dock;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.Shell;
 using Windows.Win32.UI.WindowsAndMessaging;
 
@@ -27,7 +28,7 @@ public sealed class AppBarService : IAppBarService
             return;
 
         if (heightDip <= 0)
-            heightDip = 64;
+            heightDip = 46;
 
         var hwnd = new HWND(windowHandle);
 
@@ -72,10 +73,27 @@ public sealed class AppBarService : IAppBarService
     private static unsafe void UpdatePositionInternal(HWND hwnd, int heightDip, double dpiScale)
     {
         if (heightDip <= 0)
-            heightDip = 64;
+            heightDip = 46;
 
-        var screenWidth = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSCREEN);
-        var screenHeight = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYSCREEN);
+        var screenLeft = 0;
+        var screenRight = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSCREEN);
+        var screenBottom = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYSCREEN);
+
+        var hMonitor = PInvoke.MonitorFromWindow(hwnd, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
+        if (hMonitor != 0)
+        {
+            var mi = new MONITORINFOEXW
+            {
+                monitorInfo = new MONITORINFO { cbSize = (uint)sizeof(MONITORINFOEXW) }
+            };
+            if (PInvoke.GetMonitorInfo(hMonitor, (MONITORINFO*)&mi))
+            {
+                screenLeft = mi.monitorInfo.rcMonitor.left;
+                screenRight = mi.monitorInfo.rcMonitor.right;
+                screenBottom = mi.monitorInfo.rcMonitor.bottom;
+            }
+        }
+
         var heightPx = (int)(heightDip * dpiScale);
 
         var data = new APPBARDATA
@@ -85,10 +103,10 @@ public sealed class AppBarService : IAppBarService
             uEdge = ABE_BOTTOM,
             rc = new RECT
             {
-                left = 0,
-                top = screenHeight - heightPx,
-                right = screenWidth,
-                bottom = screenHeight
+                left = screenLeft,
+                top = screenBottom - heightPx,
+                right = screenRight,
+                bottom = screenBottom
             }
         };
 

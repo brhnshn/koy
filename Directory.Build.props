@@ -7,5 +7,11 @@
     <Product>Koy</Product>
     <Version>0.1.0</Version>
     <PlatformTarget>x64</PlatformTarget>
+    <Authors>Burhan Şahin</Authors>
+    <Copyright>Copyright (c) 2026 Burhan Şahin</Copyright>
+    <Description>Lightweight spring-animated notch and Seelen-style dock for Windows 11</Description>
+    <RepositoryUrl>https://github.com/brhnshn/koy</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
 </Project>

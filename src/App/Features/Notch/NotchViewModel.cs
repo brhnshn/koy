@@ -1,9 +1,11 @@
 using System.ComponentModel;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Koy.App.Features.Calendar;
 using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
+using Koy.App.Features.Notch.OSD;
 using Koy.App.Features.Settings;
 using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
@@ -22,6 +24,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private readonly CalendarViewModel _calendar;
     private readonly ShelfViewModel _shelf;
     private readonly VisibilityController _visibility;
+    private readonly Dispatcher _dispatcher;
+    private DispatcherTimer? _clockTimer;
     private bool _disposed;
 
     public AppSettings Settings { get; }
@@ -32,6 +36,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public CalendarViewModel Calendar => _calendar;
     public ShelfViewModel Shelf => _shelf;
     public VisibilityController Visibility => _visibility;
+    public OsdIndicatorViewModel Osd { get; }
 
     public ObservableObject CurrentPanelContent => CurrentPanel switch
     {
@@ -50,16 +55,36 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private NotchPanel _currentPanel = NotchPanel.Music;
 
     [ObservableProperty]
-    private double _targetWidth = 200;
+    private double _targetWidth = 236;
 
     [ObservableProperty]
     private double _targetHeight = 34;
+
+    [ObservableProperty]
+    private double _targetCornerRadius = 18;
 
     [ObservableProperty]
     private bool _isNotchVisible = true;
 
     [ObservableProperty]
     private string _title = "Koy";
+
+    [ObservableProperty]
+    private string _clockTime = DateTime.Now.ToString("HH:mm");
+
+    [ObservableProperty]
+    private int _batteryPercent = 100;
+
+    [ObservableProperty]
+    private bool _isCharging;
+
+    [ObservableProperty]
+    private bool _hasBattery = true;
+
+    [ObservableProperty]
+    private double _batteryFillWidth = 17;
+
+    public bool IsMusicPlaying => Music.HasTrack && Music.IsPlaying;
 
     public event Action<double, double>? TargetSizeChanged;
     public event Action<bool>? TargetVisibilityChanged;
@@ -74,7 +99,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         StatusViewModel status,
         CalendarViewModel calendar,
         ShelfViewModel shelf,
-        VisibilityController? visibility = null)
+        VisibilityController? visibility = null,
+        OsdIndicatorViewModel? osd = null,
+        Dispatcher? dispatcher = null)
     {
         Settings = settings;
         _controller = controller;
@@ -84,6 +111,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _calendar = calendar;
         _shelf = shelf;
         _visibility = visibility ?? new VisibilityController(settings.NotchVisibility);
+        _dispatcher = dispatcher ?? (System.Windows.Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher);
+        Osd = osd ?? new OsdIndicatorViewModel(_dispatcher);
 
         _isNotchVisible = _visibility.IsVisible;
 
@@ -94,8 +123,69 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _music.TrackChanged += OnTrackChanged;
         _music.PropertyChanged += OnMusicPropertyChanged;
         _calendar.TimerFinished += OnCalendarTimerFinished;
+        _status.PropertyChanged += OnStatusPropertyChanged;
+        Osd.Activated += OnOsdStateChanged;
+        Osd.Dismissed += OnOsdStateChanged;
 
+        UpdateClock();
+        UpdateBatteryState();
         UpdateTargetSize();
+
+        if (_isNotchVisible)
+        {
+            StartClockTimer();
+        }
+    }
+
+    private void OnOsdStateChanged(object? sender, EventArgs e)
+    {
+        UpdateTargetSize();
+    }
+
+    private void OnStatusPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(StatusViewModel.BatteryPercent) or nameof(StatusViewModel.IsCharging) or nameof(StatusViewModel.HasBattery))
+        {
+            UpdateBatteryState();
+        }
+    }
+
+    private void UpdateBatteryState()
+    {
+        BatteryPercent = _status.BatteryPercent;
+        IsCharging = _status.IsCharging;
+        HasBattery = _status.HasBattery;
+        var pct = Math.Clamp(BatteryPercent, 0, 100);
+        // Dış gövde 22 DIP, iç dolgu alanı 17 DIP (22 - 3 - 2)
+        BatteryFillWidth = Math.Max(2.0, 17.0 * pct / 100.0);
+    }
+
+    private void StartClockTimer()
+    {
+        if (_clockTimer is not null)
+            return;
+
+        UpdateClock();
+        _clockTimer = new DispatcherTimer(DispatcherPriority.Background, _dispatcher)
+        {
+            Interval = TimeSpan.FromSeconds(15)
+        };
+        _clockTimer.Tick += (_, _) => UpdateClock();
+        _clockTimer.Start();
+    }
+
+    private void StopClockTimer()
+    {
+        if (_clockTimer is not null)
+        {
+            _clockTimer.Stop();
+            _clockTimer = null;
+        }
+    }
+
+    private void UpdateClock()
+    {
+        ClockTime = DateTime.Now.ToString("HH:mm");
     }
 
     private void OnCalendarTimerFinished()
@@ -113,6 +203,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     {
         if (e.PropertyName is nameof(MusicViewModel.IsPlaying) or nameof(MusicViewModel.HasTrack))
         {
+            OnPropertyChanged(nameof(IsMusicPlaying));
             if (State == NotchState.Collapsed)
                 UpdateTargetSize();
         }
@@ -145,26 +236,48 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         var isExpanded = State == NotchState.Expanded;
         _music.SetActive(isExpanded && CurrentPanel == NotchPanel.Music);
         _status.SetActive(isExpanded && CurrentPanel == NotchPanel.Status);
+        _controlCenter.SetActive(isExpanded && CurrentPanel == NotchPanel.ControlCenter);
     }
 
     private void OnVisibilityChanged(object? sender, VisibilityResult result)
     {
         IsNotchVisible = result.IsVisible;
+        if (IsNotchVisible)
+            StartClockTimer();
+        else
+            StopClockTimer();
+
         TargetVisibilityChanged?.Invoke(IsNotchVisible);
     }
 
     public void UpdateTargetSize()
     {
-        (TargetWidth, TargetHeight) = State switch
+        if (Osd.IsActive)
         {
-            NotchState.Collapsed => (Music.HasTrack && Music.IsPlaying ? 220 : 200, 34),
-            NotchState.Peek => (300, 38),
-            // Müzik paneli tek satır kontrol + ilerleme çubuğu; 140 altta boş kara alan bırakıyordu.
-            NotchState.Expanded => (420, CurrentPanel == NotchPanel.Music ? 112 : 140),
-            _ => (200, 34)
-        };
+            TargetWidth = 260;
+            TargetHeight = 40;
+            TargetCornerRadius = 20;
+        }
+        else
+        {
+            (TargetWidth, TargetHeight, TargetCornerRadius) = State switch
+            {
+                NotchState.Collapsed => (IsMusicPlaying ? 280 : 236, 34, 18),
+                NotchState.Peek => (300, 38, 20),
+                NotchState.Expanded => (420, CurrentPanel == NotchPanel.Music ? 112 : 140, 28),
+                _ => (236, 34, 18)
+            };
+        }
 
         TargetSizeChanged?.Invoke(TargetWidth, TargetHeight);
+    }
+
+    public void ShowVolume(float volume, bool isMuted) => Osd.ShowVolume(volume, isMuted);
+    public void ShowBrightness(int brightness) => Osd.ShowBrightness(brightness);
+
+    public void ExpandToShelf()
+    {
+        _controller.Expand(NotchPanel.Shelf);
     }
 
     [RelayCommand]
@@ -176,21 +289,11 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenSettings()
     {
-        var store = new SettingsStore(SettingsStore.DefaultPath);
-        var win = new SettingsWindow
-        {
-            DataContext = new SettingsViewModel(store)
-        };
-        if (win.ShowDialog() == true)
-        {
-            var updated = store.Load();
-            _visibility.Mode = updated.NotchVisibility;
-            _controller.SetEnabledPanels(NotchFeature.ParseEnabledPanels(updated.EnabledPanels));
-        }
+        KoyWindow.ShowInstance(1);
     }
 
     [RelayCommand]
-    private static void Quit() => System.Windows.Application.Current.Shutdown();
+    private void Quit() => System.Windows.Application.Current.Shutdown();
 
     public void Dispose()
     {
@@ -198,6 +301,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
             return;
 
         _disposed = true;
+        StopClockTimer();
         _controller.StateChanged -= OnStateChanged;
         _controller.PanelChanged -= OnPanelChanged;
         _controller.PanelTransitionTriggered -= OnPanelTransitionTriggered;
@@ -205,6 +309,10 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _music.TrackChanged -= OnTrackChanged;
         _music.PropertyChanged -= OnMusicPropertyChanged;
         _calendar.TimerFinished -= OnCalendarTimerFinished;
+        _status.PropertyChanged -= OnStatusPropertyChanged;
+        Osd.Activated -= OnOsdStateChanged;
+        Osd.Dismissed -= OnOsdStateChanged;
+        Osd.Dispose();
         _controller.Dispose();
         _visibility.Dispose();
         _music.Dispose();
