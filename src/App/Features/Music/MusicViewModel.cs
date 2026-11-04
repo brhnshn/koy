@@ -174,7 +174,7 @@ public sealed partial class MusicViewModel : ObservableObject, IDisposable
         HasTrack = true;
         Title = info.Title;
         Artist = info.Artist;
-        SourceAppId = CleanSourceAppId(info.SourceAppId);
+        SourceAppId = MediaAppName.FromSourceAppId(info.SourceAppId);
         IsPlaying = info.IsPlaying;
         Thumbnail = DecodeThumbnail(info.Thumbnail);
 
@@ -232,15 +232,6 @@ public sealed partial class MusicViewModel : ObservableObject, IDisposable
         return time.TotalHours >= 1
             ? $"{(int)time.TotalHours}:{time.Minutes:D2}:{time.Seconds:D2}"
             : $"{time.Minutes}:{time.Seconds:D2}";
-    }
-
-    private static string CleanSourceAppId(string sourceAppId)
-    {
-        if (string.IsNullOrWhiteSpace(sourceAppId))
-            return string.Empty;
-
-        var name = Path.GetFileNameWithoutExtension(sourceAppId);
-        return name;
     }
 
     private static BitmapImage? DecodeThumbnail(byte[]? bytes)

@@ -159,7 +159,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         {
             NotchState.Collapsed => (Music.HasTrack && Music.IsPlaying ? 220 : 200, 34),
             NotchState.Peek => (300, 38),
-            NotchState.Expanded => (420, 140),
+            // Müzik paneli tek satır kontrol + ilerleme çubuğu; 140 altta boş kara alan bırakıyordu.
+            NotchState.Expanded => (420, CurrentPanel == NotchPanel.Music ? 112 : 140),
             _ => (200, 34)
         };
 
