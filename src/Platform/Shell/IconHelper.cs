@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.IO;
+using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Gdi;
@@ -25,7 +26,39 @@ public static class IconHelper
         return Cache.GetOrAdd(path, ExtractIconInternal);
     }
 
-    private static unsafe byte[]? ExtractIconInternal(string path)
+    private static byte[]? ExtractIconInternal(string path)
+    {
+        // Önce kabuğun resim fabrikası: .lnk için kısayol okunu eklemez ve "shell:AppsFolder\<AUMID>"
+        // ile mağaza uygulamalarının gerçek simgesini verir. Olmazsa eski SHGetFileInfo yolu.
+        return ExtractWithImageFactory(path) ?? ExtractWithFileInfo(path);
+    }
+
+    private static unsafe byte[]? ExtractWithImageFactory(string path)
+    {
+        try
+        {
+            PInvoke.SHCreateItemFromParsingName(path, null, typeof(IShellItemImageFactory).GUID, out var obj).ThrowOnFailure();
+            if (obj is not IShellItemImageFactory factory)
+                return null;
+
+            try
+            {
+                factory.GetImage(new SIZE(32, 32), SIIGBF.SIIGBF_ICONONLY | SIIGBF.SIIGBF_BIGGERSIZEOK, out var bitmap);
+                using (bitmap)
+                    return ConvertHBitmapToBmpBytes(new HBITMAP(bitmap.DangerousGetHandle()));
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(factory);
+            }
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static unsafe byte[]? ExtractWithFileInfo(string path)
     {
         try
         {
@@ -75,76 +108,7 @@ public static class IconHelper
         try
         {
             var targetBmp = !iconInfo.hbmColor.IsNull ? iconInfo.hbmColor : iconInfo.hbmMask;
-            if (targetBmp.IsNull)
-                return null;
-
-            var hdc = PInvoke.CreateCompatibleDC(default);
-            try
-            {
-                var bih = new BITMAPINFOHEADER
-                {
-                    biSize = (uint)sizeof(BITMAPINFOHEADER),
-                    biWidth = 32,
-                    biHeight = 32,
-                    biPlanes = 1,
-                    biBitCount = 32,
-                    biCompression = 0 // BI_RGB
-                };
-
-                var bi = new BITMAPINFO { bmiHeader = bih };
-                var pixelData = new byte[32 * 32 * 4];
-
-                using var bmpHandle = new BitmapSafeHandle(targetBmp);
-                fixed (byte* pPixels = pixelData)
-                {
-                    var lines = PInvoke.GetDIBits(
-                        hdc,
-                        bmpHandle,
-                        0,
-                        32,
-                        pPixels,
-                        &bi,
-                        DIB_USAGE.DIB_RGB_COLORS);
-
-                    if (lines == 0)
-                        return null;
-                }
-
-                using var ms = new MemoryStream();
-                using var writer = new BinaryWriter(ms);
-
-                // BMP Dosya Başlığı (14 bayt)
-                writer.Write((byte)'B');
-                writer.Write((byte)'M');
-                uint offBits = 14 + 40;
-                uint fileSize = offBits + (uint)pixelData.Length;
-                writer.Write(fileSize);
-                writer.Write((ushort)0);
-                writer.Write((ushort)0);
-                writer.Write(offBits);
-
-                // BMP Bilgi Başlığı (40 bayt)
-                writer.Write((uint)40);
-                writer.Write((int)32);
-                writer.Write((int)32);
-                writer.Write((ushort)1);
-                writer.Write((ushort)32);
-                writer.Write((uint)0);
-                writer.Write((uint)pixelData.Length);
-                writer.Write((int)0);
-                writer.Write((int)0);
-                writer.Write((uint)0);
-                writer.Write((uint)0);
-
-                // Piksel baytları
-                writer.Write(pixelData);
-                return ms.ToArray();
-            }
-            finally
-            {
-                if (hdc != default)
-                    PInvoke.DeleteDC(hdc);
-            }
+            return targetBmp.IsNull ? null : ConvertHBitmapToBmpBytes(targetBmp);
         }
         finally
         {
@@ -152,6 +116,80 @@ public static class IconHelper
                 PInvoke.DeleteObject(iconInfo.hbmColor);
             if (!iconInfo.hbmMask.IsNull)
                 PInvoke.DeleteObject(iconInfo.hbmMask);
+        }
+    }
+
+    private static unsafe byte[]? ConvertHBitmapToBmpBytes(HBITMAP hBitmap)
+    {
+        if (hBitmap.IsNull)
+            return null;
+
+        var hdc = PInvoke.CreateCompatibleDC(default);
+        try
+        {
+            var bih = new BITMAPINFOHEADER
+            {
+                biSize = (uint)sizeof(BITMAPINFOHEADER),
+                biWidth = 32,
+                biHeight = 32,
+                biPlanes = 1,
+                biBitCount = 32,
+                biCompression = 0 // BI_RGB
+            };
+
+            var bi = new BITMAPINFO { bmiHeader = bih };
+            var pixelData = new byte[32 * 32 * 4];
+
+            using var bmpHandle = new BitmapSafeHandle(hBitmap);
+            fixed (byte* pPixels = pixelData)
+            {
+                var lines = PInvoke.GetDIBits(
+                    hdc,
+                    bmpHandle,
+                    0,
+                    32,
+                    pPixels,
+                    &bi,
+                    DIB_USAGE.DIB_RGB_COLORS);
+
+                if (lines == 0)
+                    return null;
+            }
+
+            using var ms = new MemoryStream();
+            using var writer = new BinaryWriter(ms);
+
+            // BMP Dosya Başlığı (14 bayt)
+            writer.Write((byte)'B');
+            writer.Write((byte)'M');
+            uint offBits = 14 + 40;
+            uint fileSize = offBits + (uint)pixelData.Length;
+            writer.Write(fileSize);
+            writer.Write((ushort)0);
+            writer.Write((ushort)0);
+            writer.Write(offBits);
+
+            // BMP Bilgi Başlığı (40 bayt)
+            writer.Write((uint)40);
+            writer.Write((int)32);
+            writer.Write((int)32);
+            writer.Write((ushort)1);
+            writer.Write((ushort)32);
+            writer.Write((uint)0);
+            writer.Write((uint)pixelData.Length);
+            writer.Write((int)0);
+            writer.Write((int)0);
+            writer.Write((uint)0);
+            writer.Write((uint)0);
+
+            // Piksel baytları
+            writer.Write(pixelData);
+            return ms.ToArray();
+        }
+        finally
+        {
+            if (hdc != default)
+                PInvoke.DeleteDC(hdc);
         }
     }
 

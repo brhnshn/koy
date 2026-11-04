@@ -83,3 +83,15 @@ IShellLinkW
 IPersistFile
 ShellLink
 
+SHCreateItemFromParsingName
+IShellItem
+IShellItemImageFactory
+SIIGBF
+DwmGetWindowAttribute
+EnumChildWindows
+QueryFullProcessImageName
+SHGetPropertyStoreForWindow
+IPropertyStore
+PropVariantToStringAlloc
+CoTaskMemFree
+PropVariantClear

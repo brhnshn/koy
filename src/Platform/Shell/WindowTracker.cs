@@ -1,8 +1,12 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Koy.Core.Shell;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Dwm;
+using Windows.Win32.System.Threading;
 using Windows.Win32.UI.Accessibility;
+using Windows.Win32.UI.Shell.PropertiesSystem;
 using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace Koy.Platform.Shell;
@@ -193,6 +197,10 @@ public sealed class WindowTracker : IWindowTracker
             if (IsShellOrDesktop(hwnd))
                 return true;
 
+            // Gizlenmiş (cloaked) pencereler ekranda yok: arka plandaki mağaza uygulamaları, "Windows Giriş Deneyimi" gibi.
+            if (IsCloaked(hwnd))
+                return true;
+
             // Pencere başlığı oku
             Span<char> titleBuffer = stackalloc char[256];
             int titleLen;
@@ -213,19 +221,12 @@ public sealed class WindowTracker : IWindowTracker
             // Süreç bilgisi
             uint pid = 0;
             PInvoke.GetWindowThreadProcessId(hwnd, &pid);
-            string? procPath = null;
-            if (pid != 0)
-            {
-                try
-                {
-                    using var proc = Process.GetProcessById((int)pid);
-                    procPath = proc.MainModule?.FileName;
-                }
-                catch
-                {
-                    // Bazı sistem süreçlerinin modül bilgisine erişim kısıtlıdır
-                }
-            }
+            var procPath = GetProcessPath(pid);
+
+            // Mağaza uygulamaları ApplicationFrameHost.exe içinde çalışır; hepsi aynı exe'ye düşüp genel simgeyle
+            // tek öğede toplanmasın diye uygulama kimliğinden (AUMID) kabuk yolu üretilir. Bu yol hem simge hem başlatma için geçerli.
+            if (IsApplicationFrameWindow(hwnd) && GetAppUserModelId(hwnd) is { Length: > 0 } aumid)
+                procPath = @"shell:AppsFolder\" + aumid;
 
             var iconData = !string.IsNullOrEmpty(procPath) ? IconHelper.GetIconBytes(procPath) : null;
             var bounds = new WindowRect(wr.left, wr.top, wr.right, wr.bottom);
@@ -334,6 +335,90 @@ public sealed class WindowTracker : IWindowTracker
 
         CurrentForeground = info;
         ForegroundWindowChanged?.Invoke(this, info);
+    }
+
+    private static unsafe string? GetProcessPath(uint pid)
+    {
+        if (pid == 0)
+            return null;
+
+        // Process.MainModule yönetici olarak çalışan süreçlerde erişim hatası verir; sınırlı sorgu hakkı yeterli.
+        using var process = PInvoke.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+        if (process.IsInvalid)
+            return null;
+
+        Span<char> buffer = stackalloc char[1024];
+        var size = (uint)buffer.Length;
+        fixed (char* pBuffer = buffer)
+        {
+            if (!PInvoke.QueryFullProcessImageName(process, PROCESS_NAME_FORMAT.PROCESS_NAME_WIN32, pBuffer, ref size))
+                return null;
+        }
+
+        return buffer[..(int)size].ToString();
+    }
+
+    private static unsafe bool IsCloaked(HWND hwnd)
+    {
+        int cloaked = 0;
+        var hr = PInvoke.DwmGetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, &cloaked, sizeof(int));
+        return hr.Succeeded && cloaked != 0;
+    }
+
+    private static unsafe bool IsApplicationFrameWindow(HWND hwnd)
+    {
+        Span<char> buffer = stackalloc char[64];
+        fixed (char* ptr = buffer)
+        {
+            var len = PInvoke.GetClassName(hwnd, ptr, buffer.Length);
+            return len > 0 && buffer[..len].SequenceEqual("ApplicationFrameWindow");
+        }
+    }
+
+    // PKEY_AppUserModel_ID
+    private static readonly PROPERTYKEY AppUserModelIdKey = new()
+    {
+        fmtid = new Guid("9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3"),
+        pid = 5
+    };
+
+    private static unsafe string? GetAppUserModelId(HWND hwnd)
+    {
+        try
+        {
+            PInvoke.SHGetPropertyStoreForWindow(hwnd, typeof(IPropertyStore).GUID, out var obj).ThrowOnFailure();
+            if (obj is not IPropertyStore store)
+                return null;
+
+            try
+            {
+                store.GetValue(AppUserModelIdKey, out var value);
+                try
+                {
+                    PInvoke.PropVariantToStringAlloc(value, out var str).ThrowOnFailure();
+                    try
+                    {
+                        return str.ToString();
+                    }
+                    finally
+                    {
+                        PInvoke.CoTaskMemFree(str.Value);
+                    }
+                }
+                finally
+                {
+                    PInvoke.PropVariantClear(ref value);
+                }
+            }
+            finally
+            {
+                Marshal.ReleaseComObject(store);
+            }
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static bool IsShellOrDesktop(HWND hwnd)
