@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Büyütülmüş pencerede dock</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#93C5FD}a:hover{color:#BFDBFE}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #F4F4F5; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #18181B;">
+
+  <!-- Büyütülmüş pencere: ekranın tamamı, altta boşluk yok -->
+  <div style="position: absolute; inset: 0; display: flex; flex-direction: column;">
+    <div style="height: 40px; background: #E4E4E7; display: flex; align-items: center; padding: 0 16px; gap: 12px; box-sizing: border-box;">
+      <span style="font-size: 13px; color: #3F3F46;">Proje notları.md · Kod</span>
+    </div>
+    <div style="flex-grow: 1; display: flex;">
+      <div style="width: 240px; background: #EDEDEF; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+        <div style="height: 8px; width: 70%; background: #D4D4D8; border-radius: 4px;"></div>
+        <div style="height: 8px; width: 55%; background: #D4D4D8; border-radius: 4px;"></div>
+        <div style="height: 8px; width: 80%; background: #D4D4D8; border-radius: 4px;"></div>
+      </div>
+      <div style="flex-grow: 1; padding: 40px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px;">
+        <div style="height: 10px; width: 46%; background: #D4D4D8; border-radius: 5px;"></div>
+        <div style="height: 10px; width: 72%; background: #E4E4E7; border-radius: 5px;"></div>
+        <div style="height: 10px; width: 64%; background: #E4E4E7; border-radius: 5px;"></div>
+        <div style="height: 10px; width: 38%; background: #BFDBFE; border-radius: 5px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Çentik ekranın üstünde kalır -->
+  <div style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 236px; height: 34px; background: #0A0A0B; border-radius: 0 0 18px 18px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-sizing: border-box; color: #F4F4F5;">
+    <span style="font-size: 13px; font-weight: 600;">14:36</span>
+    <div style="display: flex; align-items: center; gap: 2px;">
+      <div style="width: 22px; height: 11px; border: 1.5px solid #F4F4F5; border-radius: 3px; padding: 1px; box-sizing: border-box;"><div style="width: 72%; height: 100%; background: #4ADE80; border-radius: 1px;"></div></div>
+      <div style="width: 2px; height: 5px; background: #F4F4F5; border-radius: 1px;"></div>
+    </div>
+  </div>
+
+  <!-- Dock çekildi: altta ince tutamak, fare inince geri çıkar -->
+  <div style="position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); width: 120px; height: 4px; border-radius: 2px; background: rgba(24,24,27,0.35);"></div>
+
+  <!-- Açıklama -->
+  <div style="position: absolute; right: 32px; bottom: 32px; width: 340px; background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 12px; padding: 16px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.08);">
+    <span style="font-size: 14px; font-weight: 600;">Pencere üstüne binince dock çekilir</span>
+    <span style="font-size: 13px; color: #52525B; line-height: 1.45;">Büyütülmüş pencere ekranın tamamını kullanır, altta boşluk kalmaz. Fare alt kenara inince dock yukarı kayarak geri gelir. "Her zaman görünür" modunda yer ayırır.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

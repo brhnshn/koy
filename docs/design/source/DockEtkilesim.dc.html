@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Dock etkileşimleri</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 860px; box-sizing: border-box; padding: 40px; background: #E4E4E7; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;">
+
+  <!-- 1. Gruplanmış önizleme -->
+  <section style="background: #1F2A36; border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px;">
+    <span style="font-size: 15px; font-weight: 600;">Gruplanmış pencereler</span>
+    <span style="font-size: 12px; color: #A1A1AA;">Üzerine gelince bütün pencereler yan yana</span>
+    <div style="position: absolute; left: 20px; right: 20px; top: 92px; display: flex; gap: 8px; background: rgba(28,28,30,0.96); border: 1px solid rgba(255,255,255,0.10); border-radius: 12px; padding: 8px;">
+      <sc-for list="{{wins}}" as="w" hint-placeholder-count="3">
+        <div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+          <span style="font-size: 11px; color: #D4D4D8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{w}}</span>
+          <span style="height: 70px; border-radius: 6px; background: #F4F4F5;"></span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); height: 52px; background: rgba(24,24,27,0.9); border-radius: 15px; display: flex; align-items: center; gap: 4px; padding: 0 8px;">
+      <span style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><span style="width: 28px; height: 28px; border-radius: 8px; background: #EAB308;"></span></span>
+      <span style="width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; position: relative;"><span style="width: 28px; height: 28px; border-radius: 8px; background: #0EA5E9;"></span><span style="position: absolute; bottom: 1px; display: flex; gap: 2px;"><span style="width: 4px; height: 3px; border-radius: 2px; background: #60A5FA;"></span><span style="width: 4px; height: 3px; border-radius: 2px; background: #60A5FA;"></span><span style="width: 4px; height: 3px; border-radius: 2px; background: #60A5FA;"></span></span></span>
+      <span style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><span style="width: 28px; height: 28px; border-radius: 8px; background: #6366F1;"></span></span>
+    </div>
+  </section>
+
+  <!-- 2. Sağ tık menüsü -->
+  <section style="background: #1F2A36; border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px;">
+    <span style="font-size: 15px; font-weight: 600;">Sağ tık menüsü</span>
+    <span style="font-size: 12px; color: #A1A1AA;">Son dosyalar ve uygulama işlemleri</span>
+    <div style="position: absolute; left: 50%; top: 84px; transform: translateX(-50%); width: 260px; background: rgba(28,28,30,0.98); border: 1px solid rgba(255,255,255,0.10); border-radius: 12px; padding: 6px; display: flex; flex-direction: column;">
+      <span style="font-size: 11px; color: #71717A; padding: 6px 10px 4px;">SON KULLANILANLAR</span>
+      <span style="font-size: 13px; padding: 7px 10px;">rapor-ekim.docx</span>
+      <span style="font-size: 13px; padding: 7px 10px;">sunum-taslak.pptx</span>
+      <span style="height: 1px; background: #27272A; margin: 4px 0;"></span>
+      <span style="font-size: 13px; padding: 7px 10px; background: #27272A; border-radius: 6px;">Yeni pencere</span>
+      <span style="font-size: 13px; padding: 7px 10px;">Dock'tan kaldır</span>
+      <span style="font-size: 13px; padding: 7px 10px;">Bütün pencereleri kapat</span>
+      <span style="font-size: 13px; padding: 7px 10px; color: #FCA5A5;">Görev Yöneticisi'nde sonlandır</span>
+    </div>
+  </section>
+
+  <!-- 3. Rozet ve dikkat -->
+  <section style="background: #1F2A36; border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px;">
+    <span style="font-size: 15px; font-weight: 600;">Rozet ve dikkat isteyen pencere</span>
+    <span style="font-size: 12px; color: #A1A1AA;">Okunmamış sayısı; dikkat isteyen uygulamanın göstergesi turuncu</span>
+    <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -30%); height: 64px; background: rgba(24,24,27,0.9); border-radius: 18px; display: flex; align-items: center; gap: 8px; padding: 0 12px;">
+      <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; position: relative;"><span style="width: 34px; height: 34px; border-radius: 9px; background: #8B5CF6;"></span><span style="position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; border-radius: 9px; background: #EF4444; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-sizing: border-box;">3</span></span>
+      <span style="width: 48px; height: 48px; border-radius: 12px; background: rgba(249,115,22,0.18); display: flex; align-items: center; justify-content: center; position: relative;"><span style="width: 34px; height: 34px; border-radius: 9px; background: #0EA5E9;"></span><span style="position: absolute; bottom: 2px; width: 16px; height: 3px; border-radius: 2px; background: #F97316;"></span></span>
+      <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;"><span style="width: 34px; height: 34px; border-radius: 9px; background: #22C55E;"></span></span>
+    </div>
+  </section>
+
+  <!-- 4. Klasör yığını -->
+  <section style="background: #1F2A36; border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px;">
+    <span style="font-size: 15px; font-weight: 600;">Klasör (ayırıcının sağı)</span>
+    <span style="font-size: 12px; color: #A1A1AA;">Tıklayınca son dosyalar ızgara halinde açılır</span>
+    <div style="position: absolute; left: 50%; top: 82px; transform: translateX(-50%); width: 300px; background: rgba(28,28,30,0.98); border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; padding: 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+      <sc-for list="{{files}}" as="f" hint-placeholder-count="6">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+          <span style="width: 36px; height: 44px; border-radius: 6px; background: {{f.c}};"></span>
+          <span style="font-size: 10px; color: #D4D4D8;">{{f.n}}</span>
+        </div>
+      </sc-for>
+      <span style="grid-column: 1 / -1; font-size: 12px; color: #93C5FD; text-align: center; padding-top: 4px;">Klasörde aç</span>
+    </div>
+    <div style="position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); height: 52px; background: rgba(24,24,27,0.9); border-radius: 15px; display: flex; align-items: center; gap: 4px; padding: 0 8px;">
+      <span style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><span style="width: 28px; height: 28px; border-radius: 8px; background: #6366F1;"></span></span>
+      <span style="width: 1px; height: 26px; background: rgba(255,255,255,0.16); margin: 0 4px;"></span>
+      <span style="width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center;"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="#3B82F6"></path></svg></span>
+    </div>
+  </section>
+
+  <!-- 5. Sürükle -->
+  <section style="background: #1F2A36; border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px;">
+    <span style="font-size: 15px; font-weight: 600;">Sürükle ve sabitle</span>
+    <span style="font-size: 12px; color: #A1A1AA;">Simgeler aralanır; dosya uygulamanın üstüne bırakılınca onunla açılır</span>
+    <span style="position: absolute; left: 50%; top: 120px; transform: translateX(-50%) rotate(-6deg); width: 44px; height: 44px; border-radius: 11px; background: #F97316; box-shadow: 0 10px 24px rgba(0,0,0,0.4);"></span>
+    <div style="position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); height: 52px; background: rgba(24,24,27,0.9); border-radius: 15px; display: flex; align-items: center; gap: 4px; padding: 0 8px;">
+      <span style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><span style="width: 28px; height: 28px; border-radius: 8px; background: #EAB308;"></span></span>
+      <span style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><span style="width: 28px; height: 28px; border-radius: 8px; background: #0EA5E9;"></span></span>
+      <span style="width: 44px; height: 40px; border: 1.5px dashed rgba(255,255,255,0.4); border-radius: 10px; box-sizing: border-box;"></span>
+      <span style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><span style="width: 28px; height: 28px; border-radius: 8px; background: #6366F1;"></span></span>
+    </div>
+  </section>
+
+  <!-- 6. Büyütme -->
+  <section style="background: #1F2A36; border-radius: 16px; padding: 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 6px;">
+    <span style="font-size: 15px; font-weight: 600;">Büyütme efekti (isteğe bağlı)</span>
+    <span style="font-size: 12px; color: #A1A1AA;">Varsayılan kapalı; açılınca imlece yakın simgeler büyür</span>
+    <div style="position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); height: 52px; background: rgba(24,24,27,0.9); border-radius: 15px; display: flex; align-items: flex-end; gap: 4px; padding: 0 8px 6px; box-sizing: border-box;">
+      <sc-for list="{{mag}}" as="m" hint-placeholder-count="7">
+        <span style="width: {{m.s}}; height: {{m.s}}; border-radius: 9px; background: {{m.c}};"></span>
+      </sc-for>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const wins = ['Koy tasarımı · sekme', 'Belgeler · sekme', 'Haberler · sekme'];
+    const files = [
+      { n: 'fatura.pdf', c: '#EF4444' }, { n: 'ekran.png', c: '#3B82F6' }, { n: 'notlar.txt', c: '#71717A' },
+      { n: 'kurulum.exe', c: '#A1A1AA' }, { n: 'muzik.mp3', c: '#22C55E' }, { n: 'arsiv.zip', c: '#EAB308' }
+    ];
+    const sizes = ['30px', '34px', '44px', '58px', '44px', '34px', '30px'];
+    const colors = ['#EAB308', '#0EA5E9', '#6366F1', '#22C55E', '#8B5CF6', '#F97316', '#3B82F6'];
+    const mag = sizes.map((s, i) => ({ s, c: colors[i] }));
+    return { wins, files, mag };
+  }
+}
+</script>
+</body>
+</html>

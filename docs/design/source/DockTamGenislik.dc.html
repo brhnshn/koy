@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Tam genişlik dock, Koy tarzı</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #1F2A36; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5;">
+  <div style="position: absolute; left: -151px; top: 398px; width: 900px; height: 900px; border-radius: 50%; background: #243445"></div>
+  <div style="position: absolute; right: -260px; top: -200px; width: 800px; height: 800px; border-radius: 50%; background: #22303E;"></div>
+
+  <!-- Çentik -->
+  <div style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 236px; height: 34px; background: #0A0A0B; border-radius: 0 0 18px 18px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-sizing: border-box;">
+    <span style="font-size: 13px; font-weight: 600;">14:36</span>
+    <div style="display: flex; align-items: center; gap: 2px;">
+      <div style="width: 22px; height: 11px; border: 1.5px solid #F4F4F5; border-radius: 3px; padding: 1px; box-sizing: border-box;"><div style="width: 72%; height: 100%; background: #4ADE80; border-radius: 1px;"></div></div>
+      <div style="width: 2px; height: 5px; background: #F4F4F5; border-radius: 1px;"></div>
+    </div>
+  </div>
+
+  <!-- Tam genişlik, ince, saatsiz çubuk -->
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 44px; background: rgba(12,12,14,0.92); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; box-sizing: border-box;">
+
+    <!-- Sol: çalan müzik (çentiğe tıklayınca açılan panelin kısayolu) -->
+    <div style="width: 260px; display: flex; align-items: center; gap: 10px;">
+      <span style="width: 28px; height: 28px; border-radius: 6px; background: #22C55E;"></span>
+      <div style="display: flex; flex-direction: column; min-width: 0;">
+        <span style="font-size: 12px; font-weight: 600;">[Şarkı adı]</span>
+        <span style="font-size: 11px; color: #A1A1AA;">[Sanatçı]</span>
+      </div>
+    </div>
+
+    <!-- Orta: uygulamalar, aktif olan hap şeklinde vurgulu -->
+    <div style="display: flex; align-items: center; gap: 2px;">
+      <sc-for list="{{apps}}" as="a" hint-placeholder-count="8">
+        <span style="height: 36px; padding: 0 {{a.pad}}; border-radius: 10px; background: {{a.bg}}; display: flex; align-items: center; gap: 8px;">
+          <span style="width: 24px; height: 24px; border-radius: 6px; background: {{a.c}};"></span>
+          <sc-if value="{{a.active}}" hint-placeholder-val="{{ false }}">
+            <span style="font-size: 12px; color: #F4F4F5;">{{a.name}}</span>
+          </sc-if>
+        </span>
+      </sc-for>
+    </div>
+
+    <!-- Sağ: yalnız Koy simgesi -->
+    <div style="width: 260px; display: flex; justify-content: flex-end;">
+      <button aria-label="Koy menüsü" style="width: 40px; height: 36px; border: none; background: transparent; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E4E4E7" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16"></path><path d="M7 6c0 3 2 4 5 4s5-1 5-4"></path><path d="M4 18h16"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Açıklama -->
+  <div style="position: absolute; right: 32px; top: 120px; width: 300px; background: #FFFFFF; color: #18181B; border-radius: 12px; padding: 16px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px;">
+    <span style="font-size: 14px; font-weight: 600;">Windows'tan farkı</span>
+    <span style="font-size: 13px; color: #52525B; line-height: 1.45;">Saat, ağ, ses ve tepsi yok: onlar çentikte. Daha ince (44 px). Solda çalan müzik, ortada uygulamalar; aktif uygulama adıyla birlikte hap şeklinde. Sağda yalnız Koy simgesi.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const defs = [
+      ['Başlat', '#60A5FA'], ['Dosyalar', '#EAB308'], ['Tarayıcı', '#0EA5E9'], ['Kod', '#6366F1'],
+      ['Müzik', '#22C55E'], ['Sohbet', '#8B5CF6'], ['Notlar', '#F97316']
+    ];
+    const apps = defs.map(([name, c]) => {
+      const active = name === 'Kod';
+      return { name, c, active, bg: active ? 'rgba(255,255,255,0.12)' : 'transparent', pad: active ? '10px' : '6px' };
+    });
+    return { apps };
+  }
+}
+</script>
+</body>
+</html>

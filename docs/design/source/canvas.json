@@ -1,0 +1,303 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "CentikHud.dc.html": {
+      "h": 760,
+      "is_interactive": true,
+      "page": "centik",
+      "title": "Durumlar ve göstergeler",
+      "w": 1200,
+      "x": 0,
+      "y": 0
+    },
+    "CentikPaneller.dc.html": {
+      "h": 900,
+      "page": "centik",
+      "title": "Açık çentik panelleri",
+      "w": 1520,
+      "x": 1280,
+      "y": 0
+    },
+    "CiftEkran.dc.html": {
+      "h": 900,
+      "page": "pencereli",
+      "title": "İki ekran: tam ekran yalnız kendi ekranını etkiler",
+      "w": 1440,
+      "x": 1520,
+      "y": 1020
+    },
+    "DockEtkilesim.dc.html": {
+      "h": 860,
+      "page": "dock",
+      "title": "Dock etkileşimleri",
+      "w": 1440,
+      "x": 0,
+      "y": 1020
+    },
+    "DockGizli.dc.html": {
+      "h": 900,
+      "page": "pencereli",
+      "title": "Çekil: büyütülmüş pencere",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "DockTamGenislik.dc.html": {
+      "h": 900,
+      "page": "dock",
+      "title": "Tam genişlik biçimi (Koy tarzı)",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "DockYapis.dc.html": {
+      "h": 900,
+      "page": "pencereli",
+      "title": "Aşağı yapış: pencere yaklaşınca",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "DockYerAyir.dc.html": {
+      "h": 900,
+      "page": "pencereli",
+      "title": "Yer ayır: büyütülmüş pencere",
+      "w": 1440,
+      "x": 0,
+      "y": 1020
+    },
+    "IlkAcilis.dc.html": {
+      "h": 600,
+      "is_interactive": true,
+      "page": "koy",
+      "title": "İlk açılış",
+      "w": 880,
+      "x": 3840,
+      "y": 1420
+    },
+    "Kararlar.dc.html": {
+      "h": 1240,
+      "page": "kararlar",
+      "title": "Kararlar, ilkeler, yapılacaklar",
+      "w": 1200,
+      "x": 0,
+      "y": 0
+    },
+    "KoyCentik.dc.html": {
+      "h": 1220,
+      "page": "koy",
+      "title": "2 · Çentik",
+      "w": 880,
+      "x": 960,
+      "y": 0
+    },
+    "KoyDock.dc.html": {
+      "h": 1300,
+      "page": "koy",
+      "title": "3 · Dock",
+      "w": 880,
+      "x": 1920,
+      "y": 0
+    },
+    "KoyEkranlar.dc.html": {
+      "h": 820,
+      "page": "koy",
+      "title": "4 · Ekranlar",
+      "w": 880,
+      "x": 2880,
+      "y": 0
+    },
+    "KoyGorunum.dc.html": {
+      "h": 720,
+      "page": "koy",
+      "title": "5 · Görünüm",
+      "w": 880,
+      "x": 0,
+      "y": 1420
+    },
+    "KoyHakkinda.dc.html": {
+      "h": 700,
+      "page": "koy",
+      "title": "8 · Hakkında",
+      "w": 880,
+      "x": 2880,
+      "y": 1420
+    },
+    "KoyKisayollar.dc.html": {
+      "h": 760,
+      "page": "koy",
+      "title": "6 · Kısayollar",
+      "w": 880,
+      "x": 960,
+      "y": 1420
+    },
+    "KoyPerformans.dc.html": {
+      "h": 700,
+      "page": "koy",
+      "title": "7 · Performans",
+      "w": 880,
+      "x": 1920,
+      "y": 1420
+    },
+    "KoySayfa.dc.html": {
+      "h": 720,
+      "page": "koy",
+      "title": "1 · Genel",
+      "w": 880,
+      "x": 0,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 900,
+      "page": "dock",
+      "title": "Yüzen dock (varsayılan)",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "SagAltMenu.dc.html": {
+      "h": 520,
+      "is_interactive": true,
+      "page": "koy",
+      "title": "Sağ alttaki Koy menüsü",
+      "w": 480,
+      "x": 3840,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-04T15:10:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "page": "kararlar",
+    "view": "canvas"
+  },
+  "noteOrder": [
+    "tkoy",
+    "nkoy",
+    "tdock",
+    "ndock",
+    "tpen",
+    "npen",
+    "tcen",
+    "ncen"
+  ],
+  "notes": {
+    "ncen": {
+      "fill": "orange",
+      "page": "centik",
+      "text": "Burhan: Boring Notch / NotchNook gibi dosya rafı, takvim, ses ve parlaklık göstergesi çentikte olmalı. Uygulama adları, saat ve şarkılar örnek veridir.",
+      "w": 300,
+      "x": 2880,
+      "y": 0
+    },
+    "ndock": {
+      "fill": "orange",
+      "page": "dock",
+      "text": "Burhan: Seelen UI 'tam olarak bu olmalı'. Saat, pil, ağ dock'ta değil çentikte. Ayırıcı (klasörler, küçültülmüş pencereler) 'olabilir', kesin değil.",
+      "w": 300,
+      "x": 3040,
+      "y": 0
+    },
+    "nkoy": {
+      "fill": "orange",
+      "page": "koy",
+      "text": "Burhan: Koy tam ekran bir uygulama olmasın, orta boy yeter. Pencereyi kapatmak Koy'u kapatmaz; çıkış yalnız sağ alttaki menüden ya da pencerenin sol altındaki düğmeden.",
+      "w": 300,
+      "x": 4400,
+      "y": 0
+    },
+    "npen": {
+      "fill": "orange",
+      "page": "pencereli",
+      "text": "Burhan: Tam ekranda gidiyor, bu zaten var. Pencereli görünümde dock aşağıya yapışsın, uygulamayı engellemesin. Hepsi ayardan seçilecek (Koy › Dock › Pencere yaklaşınca).",
+      "w": 300,
+      "x": 3040,
+      "y": 0
+    },
+    "tcen": {
+      "kind": "title1",
+      "maxW": 2800,
+      "page": "centik",
+      "text": "Çentik: müzikten fazlası",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "tdock": {
+      "kind": "title1",
+      "maxW": 2960,
+      "page": "dock",
+      "text": "Dock: Seelen modeli, Windows çubuğundan farklı",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "tkoy": {
+      "kind": "title1",
+      "maxW": 4720,
+      "page": "koy",
+      "text": "Koy penceresi: orta boy (880 px), her sayfa ve ayarları",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "tpen": {
+      "kind": "title1",
+      "maxW": 2960,
+      "page": "pencereli",
+      "text": "Pencereli görünüm: dock pencereyi asla örtmez",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Kararlar.dc.html",
+    "KoySayfa.dc.html",
+    "KoyCentik.dc.html",
+    "KoyDock.dc.html",
+    "KoyEkranlar.dc.html",
+    "SagAltMenu.dc.html",
+    "KoyGorunum.dc.html",
+    "KoyKisayollar.dc.html",
+    "KoyPerformans.dc.html",
+    "KoyHakkinda.dc.html",
+    "IlkAcilis.dc.html",
+    "Main.dc.html",
+    "DockTamGenislik.dc.html",
+    "DockEtkilesim.dc.html",
+    "DockYapis.dc.html",
+    "DockGizli.dc.html",
+    "DockYerAyir.dc.html",
+    "CiftEkran.dc.html",
+    "CentikHud.dc.html",
+    "CentikPaneller.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "kararlar",
+      "name": "Kararlar ve notlar"
+    },
+    {
+      "id": "koy",
+      "name": "Koy uygulaması (ayarlar)"
+    },
+    {
+      "id": "dock",
+      "name": "Dock görünümü"
+    },
+    {
+      "id": "pencereli",
+      "name": "Pencereli görünüm"
+    },
+    {
+      "id": "centik",
+      "name": "Çentik görünümü"
+    }
+  ],
+  "title": "Koy arayüz taslakları"
+}

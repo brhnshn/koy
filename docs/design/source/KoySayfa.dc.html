@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Koy penceresi</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#93C5FD}a:hover{color:#BFDBFE}
+</style>
+</helmet>
+<div style="width: 880px; min-height: 600px; box-sizing: border-box; background: #18181B; border: 1px solid #2E2E33; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5;">
+
+  <!-- Başlık çubuğu -->
+  <div style="height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 4px 0 16px; background: #111113; border-bottom: 1px solid #232327;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F4F4F5" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16"></path><path d="M7 6c0 3 2 4 5 4s5-1 5-4"></path><path d="M4 18h16"></path></svg>
+      <span style="font-size: 12px; color: #D4D4D8;">Koy</span>
+    </div>
+    <div style="display: flex;">
+      <button aria-label="Küçült" style="width: 44px; height: 32px; border: none; background: transparent; color: #D4D4D8; display: flex; align-items: center; justify-content: center; padding: 0;"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 5h10" stroke="currentColor" stroke-width="1"></path></svg></button>
+      <button aria-label="Pencereyi kapat, Koy çalışmaya devam eder" style="width: 44px; height: 32px; border: none; background: transparent; color: #D4D4D8; display: flex; align-items: center; justify-content: center; padding: 0;"><svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 10M10 0L0 10" stroke="currentColor" stroke-width="1"></path></svg></button>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex;">
+    <!-- Kenar menüsü -->
+    <nav style="width: 208px; flex-shrink: 0; background: #111113; padding: 16px 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 2px;">
+      <sc-for list="{{nav}}" as="n" hint-placeholder-count="8">
+        <a href="#" style="height: 38px; display: flex; align-items: center; gap: 12px; padding: 0 12px; border-radius: 8px; text-decoration: none; font-size: 14px; background: {{n.bg}}; color: {{n.fg}}; position: relative;">
+          <span style="position: absolute; left: 0; top: 11px; width: 3px; height: 16px; border-radius: 2px; background: {{n.bar}};"></span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{n.icon}}"></path></svg>
+          {{n.label}}
+        </a>
+      </sc-for>
+      <div style="flex-grow: 1; min-height: 24px;"></div>
+      <button style="height: 38px; border: 1px solid #3F3F46; background: transparent; color: #FCA5A5; border-radius: 8px; font-size: 14px; font-family: inherit; display: flex; align-items: center; gap: 10px; padding: 0 12px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v9"></path><path d="M6.3 7a8 8 0 1 0 11.4 0"></path></svg>
+        Koy'dan çık
+      </button>
+    </nav>
+
+    <!-- İçerik -->
+    <main style="flex-grow: 1; padding: 24px 32px 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+      <h1 style="margin: 0; font-size: 22px; font-weight: 600;">{{title}}</h1>
+      <span style="font-size: 13px; color: #A1A1AA; padding-bottom: 12px;">{{sub}}</span>
+
+      <!-- Ekranlar: monitör düzeni -->
+      <sc-if value="{{isScreens}}" hint-placeholder-val="{{ false }}">
+        <div style="background: #111113; border-radius: 12px; height: 180px; display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 8px;">
+          <button aria-label="Ekran 1, ana ekran, seçili" style="width: 200px; height: 118px; border-radius: 8px; border: 2px solid #3B82F6; background: #27272A; position: relative; padding: 0; color: #F4F4F5; font-family: inherit; font-size: 22px; font-weight: 700;">
+            <span style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 40px; height: 7px; background: #0A0A0B; border-radius: 0 0 5px 5px;"></span>
+            <span style="position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); width: 64px; height: 8px; background: #52525B; border-radius: 4px;"></span>
+            1
+          </button>
+          <button aria-label="Ekran 2" style="width: 230px; height: 132px; border-radius: 8px; border: 2px solid #3F3F46; background: #27272A; position: relative; padding: 0; color: #F4F4F5; font-family: inherit; font-size: 22px; font-weight: 700;">
+            <span style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 40px; height: 7px; background: #0A0A0B; border-radius: 0 0 5px 5px;"></span>
+            <span style="position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); width: 64px; height: 8px; background: #52525B; border-radius: 4px;"></span>
+            2
+          </button>
+        </div>
+      </sc-if>
+
+      <!-- Hakkında: kimlik bloğu -->
+      <sc-if value="{{isAbout}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; align-items: center; gap: 16px; background: #111113; border-radius: 12px; padding: 20px; margin-bottom: 8px;">
+          <span style="width: 56px; height: 56px; border-radius: 14px; background: #0A0A0B; border: 1px solid #2E2E33; display: flex; align-items: center; justify-content: center;">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F4F4F5" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16"></path><path d="M7 6c0 3 2 4 5 4s5-1 5-4"></path><path d="M4 18h16"></path></svg>
+          </span>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 18px; font-weight: 700;">Koy</span>
+            <span style="font-size: 13px; color: #A1A1AA;">Sürüm 0.1.0 · GPLv3 · güncel</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Satırlar -->
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+        <sc-if value="{{r.isHead}}" hint-placeholder-val="{{ false }}">
+          <span style="font-size: 12px; font-weight: 600; color: #71717A; letter-spacing: 0.4px; padding: 18px 0 6px;">{{r.label}}</span>
+        </sc-if>
+
+        <sc-if value="{{r.isRow}}" hint-placeholder-val="{{ true }}">
+          <div style="min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 16px; background: #1F1F23; border-radius: 10px; margin-bottom: 4px; box-sizing: border-box;">
+            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+              <sc-if value="{{r.isOrder}}" hint-placeholder-val="{{ false }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#71717A" aria-hidden="true"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></svg>
+              </sc-if>
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                <span style="font-size: 14px;">{{r.label}}</span>
+                <sc-if value="{{r.hasDesc}}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size: 12px; color: #A1A1AA;">{{r.desc}}</span>
+                </sc-if>
+              </div>
+            </div>
+
+            <sc-if value="{{r.isToggle}}" hint-placeholder-val="{{ true }}">
+              <span style="flex-shrink: 0; width: 40px; height: 22px; border-radius: 11px; background: {{r.track}}; position: relative;"><span style="position: absolute; left: {{r.knob}}; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: {{r.knobBg}};"></span></span>
+            </sc-if>
+
+            <sc-if value="{{r.isSeg}}" hint-placeholder-val="{{ false }}">
+              <div style="flex-shrink: 0; display: flex; background: #27272A; border-radius: 8px; padding: 3px;">
+                <sc-for list="{{r.opts}}" as="o" hint-placeholder-count="3">
+                  <span style="padding: 6px 12px; border-radius: 6px; font-size: 13px; background: {{o.bg}}; color: {{o.fg}}; white-space: nowrap;">{{o.label}}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{r.isSelect}}" hint-placeholder-val="{{ false }}">
+              <span style="flex-shrink: 0; min-width: 180px; height: 32px; border-radius: 8px; background: #27272A; border: 1px solid #3F3F46; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; box-sizing: border-box; font-size: 13px; gap: 8px;">{{r.value}}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A1A1AA" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></span>
+            </sc-if>
+
+            <sc-if value="{{r.isSlider}}" hint-placeholder-val="{{ false }}">
+              <div style="flex-shrink: 0; display: flex; align-items: center; gap: 12px;">
+                <span style="width: 160px; height: 4px; border-radius: 2px; background: #3F3F46; position: relative;"><span style="position: absolute; left: 0; top: 0; height: 4px; width: {{r.pct}}; border-radius: 2px; background: #3B82F6;"></span><span style="position: absolute; left: {{r.pct}}; top: -6px; margin-left: -8px; width: 16px; height: 16px; border-radius: 50%; background: #F4F4F5;"></span></span>
+                <span style="width: 64px; font-size: 13px; color: #D4D4D8; text-align: right;">{{r.value}}</span>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{r.isButton}}" hint-placeholder-val="{{ false }}">
+              <button style="flex-shrink: 0; height: 32px; padding: 0 14px; border-radius: 8px; border: 1px solid #3F3F46; background: #27272A; color: {{r.btnFg}}; font-size: 13px; font-family: inherit;">{{r.value}}</button>
+            </sc-if>
+
+            <sc-if value="{{r.isKbd}}" hint-placeholder-val="{{ false }}">
+              <div style="flex-shrink: 0; display: flex; gap: 4px;">
+                <sc-for list="{{r.keys}}" as="k" hint-placeholder-count="3">
+                  <span style="min-width: 28px; height: 28px; padding: 0 8px; box-sizing: border-box; border-radius: 6px; background: #27272A; border: 1px solid #3F3F46; border-bottom-width: 2px; font-size: 12px; display: flex; align-items: center; justify-content: center;">{{k}}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{r.isSwatch}}" hint-placeholder-val="{{ false }}">
+              <div style="flex-shrink: 0; display: flex; gap: 8px;">
+                <sc-for list="{{r.colors}}" as="c" hint-placeholder-count="6">
+                  <span style="width: 22px; height: 22px; border-radius: 50%; background: {{c.c}}; box-shadow: 0 0 0 2px #1F1F23, 0 0 0 4px {{c.ring}};"></span>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{r.isStat}}" hint-placeholder-val="{{ false }}">
+              <div style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                <span style="font-size: 13px; color: #D4D4D8;">{{r.value}}</span>
+                <span style="width: 200px; height: 6px; border-radius: 3px; background: #3F3F46;"><span style="display: block; height: 6px; width: {{r.pct}}; border-radius: 3px; background: #4ADE80;"></span></span>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{r.isInfo}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; background: #172033; color: #BFDBFE; font-size: 13px; line-height: 1.45; margin: 4px 0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px;"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+            <span>{{r.label}}</span>
+          </div>
+        </sc-if>
+      </sc-for>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"page":{"editor":"enum","options":["genel","centik","dock","ekranlar","gorunum","kisayollar","performans","hakkinda"],"default":"genel"},"$preview":{"width":880,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const page = this.props.page ?? 'genel';
+    const H = (label) => ({ kind: 'head', label });
+    const T = (label, on, desc) => ({ kind: 'toggle', label, on, desc });
+    const S = (label, opts, sel, desc) => ({ kind: 'seg', label, opts, sel, desc });
+    const L = (label, value, desc) => ({ kind: 'select', label, value, desc });
+    const R = (label, pct, value, desc) => ({ kind: 'slider', label, pct, value, desc });
+    const B = (label, value, desc, danger) => ({ kind: 'button', label, value, desc, danger });
+    const K = (label, keys) => ({ kind: 'kbd', label, keys });
+    const O = (label, on) => ({ kind: 'toggle', label, on, order: true });
+    const I = (label) => ({ kind: 'info', label });
+
+    const pages = {
+      genel: {
+        title: 'Genel', sub: 'Başlangıç, dil ve güncellemeler',
+        rows: [
+          H('BAŞLANGIÇ'),
+          T('Windows açılınca Koy\'u başlat', true),
+          T('Windows görev çubuğunu gizle', true, 'Dock açıkken ekranda tek çubuk olur'),
+          H('DİL'),
+          L('Arayüz dili', 'Sistem dili (Türkçe)'),
+          H('GÜNCELLEMELER'),
+          T('Güncellemeleri otomatik denetle', true),
+          S('Kanal', ['Kararlı', 'Önizleme'], 0),
+          B('Son denetim: bugün 14:02', 'Şimdi denetle'),
+          I('Bu pencereyi kapatmak Koy\'u kapatmaz. Çıkmak için sağ alttaki Koy menüsünü ya da soldaki düğmeyi kullan.')
+        ]
+      },
+      centik: {
+        title: 'Çentik', sub: 'Ekranın üstündeki çentiğin görünümü ve panelleri',
+        rows: [
+          H('GÖRÜNÜRLÜK'),
+          T('Çentiği göster', true),
+          S('Ne zaman görünsün', ['Her zaman', 'Akıllı', 'Fareyle'], 1, 'Akıllı: pencere üstüne binince yukarı çekilir'),
+          T('Tam ekranda gizle', true, 'Yalnız tam ekran olan ekranda'),
+          H('BOŞTAYKEN'),
+          S('Çentikte göster', ['Saat ve pil', 'Yalnız saat', 'Hiçbiri'], 0),
+          T('Müzik çalarken kapak ve dalga', true),
+          H('GÖSTERGELER'),
+          T('Ses göstergesi', true, 'Ses değişince çentikte kısa gösterge'),
+          T('Parlaklık göstergesi', true),
+          T('Windows\'un kendi göstergesini gizle', false, 'Deneysel'),
+          H('PANELLER · SÜRÜKLEYEREK SIRALA'),
+          O('Müzik', true), O('Takvim ve Pomodoro', true), O('Raf', true), O('Kontrol merkezi', true), O('Durum (pil, hava)', false),
+          H('DAVRANIŞ'),
+          S('Açılma', ['Üzerine gelince', 'Tıklayınca'], 1),
+          R('Boyut', '50%', 'Orta')
+        ]
+      },
+      dock: {
+        title: 'Dock', sub: 'Uygulamalar, klasörler ve pencerelerle davranış',
+        rows: [
+          H('DOCK'),
+          T('Dock\'u göster', true),
+          S('Biçim', ['Yüzen', 'Tam genişlik'], 0),
+          H('PENCERE YAKLAŞINCA'),
+          S('Davranış', ['Yer ayır', 'Aşağı yapış', 'Çekil', 'Hep gizli'], 1, 'Aşağı yapış: dock alt kenara iner, pencereyi örtmez'),
+          T('Tam ekranda gizle', true, 'Yalnız tam ekran olan ekranda'),
+          R('Geri çıkma gecikmesi', '30%', '150 ms', 'Fare alt kenara inince'),
+          H('SİMGELER'),
+          R('Simge boyutu', '45%', '40 px'),
+          T('Büyütme efekti', false),
+          S('Çalışan göstergesi', ['Nokta', 'Çizgi'], 0),
+          T('Aynı uygulamanın pencerelerini grupla', true),
+          T('Bildirim rozetleri', true),
+          H('BÖLÜMLER'),
+          T('Başlat düğmesi', true),
+          T('Ayırıcıdan sonra klasörler', true, 'İndirilenler, Belgeler'),
+          T('Küçültülmüş pencereleri sağda göster', true),
+          T('Son kullanılan uygulamalar', false),
+          H('ÖNİZLEME'),
+          T('Üzerine gelince pencere önizlemesi', true),
+          R('Önizleme gecikmesi', '40%', '400 ms')
+        ]
+      },
+      ekranlar: {
+        title: 'Ekranlar', sub: 'Her ekranın çentiği ve dock\'u ayrı ayarlanır',
+        rows: [
+          H('EKRAN 1 · ANA EKRAN · 1920×1080'),
+          T('Çentik', true),
+          T('Dock', true),
+          T('Dock\'ta yalnız bu ekrandaki pencereler', false),
+          H('YENİ EKRANLAR'),
+          S('Yeni bağlanan ekranda', ['Çentik ve dock', 'Yalnız çentik', 'Hiçbiri'], 0),
+          I('Bir ekranda tam ekran açılınca yalnız o ekrandaki Koy gizlenir. Diğer ekranlar etkilenmez.')
+        ]
+      },
+      gorunum: {
+        title: 'Görünüm', sub: 'Tema, renk ve hareket',
+        rows: [
+          H('TEMA'),
+          S('Tema', ['Sistem', 'Koyu', 'Açık'], 1),
+          { kind: 'swatch', label: 'Vurgu rengi' },
+          T('Windows vurgu rengini kullan', false),
+          S('Malzeme', ['Katı', 'Yarı saydam'], 0, 'Yarı saydam biraz daha fazla kaynak kullanır'),
+          R('Köşe yuvarlaklığı', '60%', '18 px'),
+          H('HAREKET'),
+          S('Animasyon', ['Sakin', 'Normal', 'Hızlı', 'Kapalı'], 1),
+          T('Windows\'un "animasyonları azalt" ayarına uy', true)
+        ]
+      },
+      kisayollar: {
+        title: 'Kısayollar', sub: 'Klavye ve fare. Değiştirmek için kısayola tıkla',
+        rows: [
+          H('KLAVYE'),
+          K('Çentiği aç / kapat', ['Win', 'Alt', 'N']),
+          K('Rafı aç', ['Win', 'Alt', 'R']),
+          K('Dock\'u göster / gizle', ['Win', 'Alt', 'D']),
+          K('Koy menüsü', ['Win', 'Alt', 'K']),
+          K('Müzik: oynat / duraklat', ['Win', 'Alt', 'Boşluk']),
+          I('Kısayollar örnektir. Windows ya da başka bir uygulamayla çakışan kısayol kırmızıyla gösterilir.'),
+          H('FARE'),
+          S('Çentikte tekerlek', ['Panel değiştir', 'Ses'], 0),
+          S('Dock\'ta orta tık', ['Yeni pencere', 'Kapat'], 0)
+        ]
+      },
+      performans: {
+        title: 'Performans', sub: 'Koy hafif kalsın diye',
+        rows: [
+          { kind: 'stat', label: 'Bellek kullanımı', value: 'örnek: 42 MB / 60 MB', pct: '70%', desc: 'Bütçe 60 MB' },
+          H('PİL'),
+          T('Pil tasarrufunda animasyonları azalt', true),
+          T('Pil tasarrufunda müzik dalgasını durdur', true),
+          H('VERİ'),
+          L('Hava durumu yenileme', '30 dakikada bir'),
+          T('Ses görselleştirici', false, 'Deneysel, fazladan bellek kullanır'),
+          I('Koy boştayken işlemci kullanmaz. Zamanlayıcılar yalnız ilgili panel açıkken çalışır.')
+        ]
+      },
+      hakkinda: {
+        title: 'Hakkında', sub: 'Sürüm, sorun giderme ve lisans',
+        rows: [
+          B('Güncellemeler', 'Şimdi denetle'),
+          B('Hata bildirirken eklenecek bilgiler', 'Tanılama bilgisini kopyala'),
+          H('SORUN GİDERME'),
+          B('Windows görev çubuğunu geri getir', 'Geri getir', 'Görev çubuğu kaybolursa'),
+          B('Bütün ayarları varsayılana döndür', 'Sıfırla', '', true),
+          H('BAĞLANTILAR'),
+          B('Kaynak kodu', 'GitHub\'da aç')
+        ]
+      }
+    };
+
+    const p = pages[page] ?? pages.genel;
+    const accents = ['#3B82F6', '#8B5CF6', '#EC4899', '#F97316', '#22C55E', '#14B8A6'];
+    const rows = p.rows.map((r) => {
+      const on = !!r.on;
+      return {
+        label: r.label,
+        desc: r.desc ?? '',
+        hasDesc: !!r.desc,
+        isHead: r.kind === 'head',
+        isInfo: r.kind === 'info',
+        isRow: r.kind !== 'head' && r.kind !== 'info',
+        isToggle: r.kind === 'toggle',
+        isOrder: !!r.order,
+        isSeg: r.kind === 'seg',
+        isSelect: r.kind === 'select',
+        isSlider: r.kind === 'slider',
+        isButton: r.kind === 'button',
+        isKbd: r.kind === 'kbd',
+        isSwatch: r.kind === 'swatch',
+        isStat: r.kind === 'stat',
+        track: on ? '#3B82F6' : '#3F3F46',
+        knob: on ? '21px' : '3px',
+        knobBg: on ? '#FFFFFF' : '#D4D4D8',
+        opts: (r.opts ?? []).map((label, i) => ({ label, bg: i === r.sel ? '#3F3F46' : 'transparent', fg: i === r.sel ? '#F4F4F5' : '#A1A1AA' })),
+        value: r.value ?? '',
+        pct: r.pct ?? '0%',
+        btnFg: r.danger ? '#FCA5A5' : '#F4F4F5',
+        keys: r.keys ?? [],
+        colors: accents.map((c, i) => ({ c, ring: i === 0 ? '#F4F4F5' : 'transparent' }))
+      };
+    });
+
+    const navDefs = [
+      ['genel', 'Genel', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z'],
+      ['centik', 'Çentik', 'M3 4h18M7 4c0 4 2 6 5 6s5-2 5-6'],
+      ['dock', 'Dock', 'M3 20h18M5 16h4v-4H5zM10 16h4v-4h-4zM15 16h4v-4h-4z'],
+      ['ekranlar', 'Ekranlar', 'M2 5h12v9H2zM6 18h4M16 8h6v8h-6zM18 20h2'],
+      ['gorunum', 'Görünüm', 'M12 3a9 9 0 1 0 0 18c1 0 1.5-.8 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.8.7-1.5 1.5-1.5H16a5 5 0 0 0 5-5c0-4.4-4-7.8-9-7.8zM7.5 12h.01M10 8h.01M15 8h.01'],
+      ['kisayollar', 'Kısayollar', 'M3 6h18v12H3zM7 10h.01M11 10h.01M15 10h.01M7 14h10'],
+      ['performans', 'Performans', 'M3 12h4l3-8 4 16 3-8h4'],
+      ['hakkinda', 'Hakkında', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01']
+    ];
+    const nav = navDefs.map(([id, label, icon]) => ({
+      label, icon,
+      bg: id === page ? '#27272A' : 'transparent',
+      fg: id === page ? '#F4F4F5' : '#A1A1AA',
+      bar: id === page ? '#3B82F6' : 'transparent'
+    }));
+
+    return { title: p.title, sub: p.sub, rows, nav, isScreens: page === 'ekranlar', isAbout: page === 'hakkinda' };
+  }
+}
+</script>
+</body>
+</html>

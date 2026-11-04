@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Dock aşağı yapışır</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #1F2A36; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5;">
+  <div style="position: absolute; left: -200px; top: 420px; width: 900px; height: 900px; border-radius: 50%; background: #243445;"></div>
+  <div style="position: absolute; right: -260px; top: -200px; width: 800px; height: 800px; border-radius: 50%; background: #22303E;"></div>
+
+  <!-- Çentik -->
+  <div style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 236px; height: 34px; background: #0A0A0B; border-radius: 0 0 18px 18px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-sizing: border-box;">
+    <span style="font-size: 13px; font-weight: 600;">14:36</span>
+    <div style="display: flex; align-items: center; gap: 2px;">
+      <div style="width: 22px; height: 11px; border: 1.5px solid #F4F4F5; border-radius: 3px; padding: 1px; box-sizing: border-box;"><div style="width: 72%; height: 100%; background: #4ADE80; border-radius: 1px;"></div></div>
+      <div style="width: 2px; height: 5px; background: #F4F4F5; border-radius: 1px;"></div>
+    </div>
+  </div>
+
+  <!-- Normal boy pencere: alt kenarı dock'un eski yerine iniyor -->
+  <div style="position: absolute; left: 300px; top: 110px; width: 840px; height: 742px; background: #F4F4F5; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.4); color: #18181B;">
+    <div style="height: 36px; background: #E4E4E7; display: flex; align-items: center; padding: 0 14px; font-size: 12px; color: #3F3F46;">Proje notları.md · Kod</div>
+    <div style="flex-grow: 1; padding: 32px 40px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;">
+      <div style="height: 10px; width: 46%; background: #D4D4D8; border-radius: 5px;"></div>
+      <div style="height: 10px; width: 72%; background: #E4E4E7; border-radius: 5px;"></div>
+      <div style="height: 10px; width: 64%; background: #E4E4E7; border-radius: 5px;"></div>
+      <div style="height: 10px; width: 38%; background: #BFDBFE; border-radius: 5px;"></div>
+      <div style="flex-grow: 1;"></div>
+      <div style="height: 28px; border-radius: 6px; background: #E4E4E7; display: flex; align-items: center; padding: 0 12px; font-size: 12px; color: #52525B;">Pencerenin alt kısmı görünür kalır</div>
+    </div>
+  </div>
+
+  <!-- Yüzen dock'un eski yeri -->
+  <div style="position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); width: 520px; height: 60px; border: 1.5px dashed rgba(255,255,255,0.35); border-radius: 18px; box-sizing: border-box;"></div>
+
+  <!-- Yapışmış dock: alt kenara oturur, ince -->
+  <div style="position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); height: 46px; background: rgba(24,24,27,0.96); border: 1px solid rgba(255,255,255,0.10); border-bottom: none; border-radius: 14px 14px 0 0; display: flex; align-items: center; gap: 2px; padding: 0 10px; box-sizing: border-box;">
+    <sc-for list="{{apps}}" as="a" hint-placeholder-count="8">
+      <span style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <span style="width: 26px; height: 26px; border-radius: 7px; background: {{a.c}};"></span>
+        <span style="position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); width: {{a.w}}; height: 3px; border-radius: 2px; background: {{a.dot}};"></span>
+      </span>
+    </sc-for>
+  </div>
+
+  <!-- Açıklama -->
+  <div style="position: absolute; right: 32px; top: 120px; width: 250px; background: #FFFFFF; color: #18181B; border-radius: 12px; padding: 16px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.2);">
+    <span style="font-size: 14px; font-weight: 600;">Aşağı yapış</span>
+    <span style="font-size: 13px; color: #52525B; line-height: 1.45;">Normal boy bir pencere dock'a yaklaşınca dock alt kenara iner ve incelir (60 → 46 px). Pencerenin alt kısmı örtülmez. Pencere uzaklaşınca dock yeniden yüzer.</span>
+    <span style="font-size: 12px; color: #71717A;">Kesik çizgi: dock'un yüzerken durduğu yer</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const run = '#A1A1AA', act = '#60A5FA', no = 'transparent';
+    const apps = [
+      { c: '#60A5FA', dot: no, w: '6px' },
+      { c: '#EAB308', dot: run, w: '6px' },
+      { c: '#0EA5E9', dot: run, w: '6px' },
+      { c: '#6366F1', dot: act, w: '14px' },
+      { c: '#22C55E', dot: run, w: '6px' },
+      { c: '#8B5CF6', dot: no, w: '6px' },
+      { c: '#F97316', dot: no, w: '6px' },
+      { c: '#3B82F6', dot: no, w: '6px' }
+    ];
+    return { apps };
+  }
+}
+</script>
+</body>
+</html>

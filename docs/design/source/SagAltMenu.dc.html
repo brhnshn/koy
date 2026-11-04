@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Sağ alttaki Koy menüsü</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#93C5FD}a:hover{color:#BFDBFE}
+</style>
+</helmet>
+<div style="width: 480px; height: 520px; position: relative; overflow: hidden; background: #1F2A36; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5;">
+
+  <!-- Menü -->
+  <div style="position: absolute; right: 16px; bottom: 84px; width: 320px; background: rgba(24,24,27,0.97); border: 1px solid rgba(255,255,255,0.10); border-radius: 16px; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 16px 40px rgba(0,0,0,0.45);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px;">
+      <span style="font-size: 15px; font-weight: 700;">Koy</span>
+      <span style="font-size: 12px; color: #A1A1AA;">2 ekranda çalışıyor</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+      <sc-for list="{{toggles}}" as="t" hint-placeholder-count="2">
+        <button onClick="{{t.flip}}" style="height: 64px; border: none; border-radius: 12px; background: {{t.bg}}; color: {{t.fg}}; font-family: inherit; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 0 14px;">
+          <span style="font-size: 14px; font-weight: 600;">{{t.label}}</span>
+          <span style="font-size: 12px; opacity: 0.8;">{{t.state}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+      <button style="height: 40px; border: none; background: transparent; color: #F4F4F5; border-radius: 8px; font-size: 14px; font-family: inherit; text-align: left; padding: 0 10px;">Koy penceresini aç</button>
+      <button style="height: 40px; border: none; background: transparent; color: #F4F4F5; border-radius: 8px; font-size: 14px; font-family: inherit; text-align: left; padding: 0 10px;">1 saat duraklat</button>
+      <div style="height: 1px; background: #27272A; margin: 6px 0;"></div>
+      <button style="height: 40px; border: none; background: transparent; color: #FCA5A5; border-radius: 8px; font-size: 14px; font-family: inherit; text-align: left; padding: 0 10px;">Koy'dan çık</button>
+    </div>
+  </div>
+
+  <!-- Dock'un sağ ucu: Koy simgesi seçili -->
+  <div style="position: absolute; right: 16px; bottom: 10px; height: 60px; background: rgba(24,24,27,0.88); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; display: flex; align-items: center; gap: 4px; padding: 0 8px; box-sizing: border-box;">
+    <span style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;"><span style="width: 34px; height: 34px; border-radius: 9px; background: #F97316;"></span></span>
+    <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.16); margin: 0 6px;"></div>
+    <button aria-label="Koy menüsü" style="width: 40px; height: 48px; border: none; background: rgba(255,255,255,0.12); border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F4F4F5" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16"></path><path d="M7 6c0 3 2 4 5 4s5-1 5-4"></path><path d="M4 18h16"></path></svg>
+    </button>
+  </div>
+
+  <span style="position: absolute; left: 20px; top: 20px; width: 200px; font-size: 12px; color: #A1A1AA; line-height: 1.5;">Dock kapalıysa aynı menü Windows bildirim alanındaki Koy simgesinden açılır.</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":480,"height":520}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { notch: true, dock: true }; }
+  renderVals() {
+    const mk = (key, label) => {
+      const on = this.state[key];
+      return {
+        label,
+        state: on ? 'Açık' : 'Kapalı',
+        bg: on ? '#3B82F6' : '#27272A',
+        fg: on ? '#FFFFFF' : '#D4D4D8',
+        flip: () => this.setState({ [key]: !on })
+      };
+    };
+    return { toggles: [mk('notch', 'Çentik'), mk('dock', 'Dock')] };
+  }
+}
+</script>
+</body>
+</html>

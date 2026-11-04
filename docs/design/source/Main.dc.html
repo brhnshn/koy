@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Koy yüzen dock</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#93C5FD}a:hover{color:#BFDBFE}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #1F2A36; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5;">
+
+  <!-- Duvar kâğıdı: sakin, düz -->
+  <div style="position: absolute; left: -200px; top: 420px; width: 900px; height: 900px; border-radius: 50%; background: #243445;"></div>
+  <div style="position: absolute; right: -260px; top: -200px; width: 800px; height: 800px; border-radius: 50%; background: #22303E;"></div>
+
+  <!-- Çentik, kapalı: sol saat, sağ pil ve ağ -->
+  <div style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 236px; height: 34px; background: #0A0A0B; border-radius: 0 0 18px 18px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-sizing: border-box;">
+    <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.2px;">{{time}}</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F4F4F5" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 9a15 15 0 0 1 20 0"></path><path d="M5.5 12.5a10 10 0 0 1 13 0"></path><path d="M9 16a5 5 0 0 1 6 0"></path><circle cx="12" cy="19.5" r="0.8"></circle></svg>
+      <div style="display: flex; align-items: center; gap: 2px;">
+        <div style="width: 22px; height: 11px; border: 1.5px solid #F4F4F5; border-radius: 3px; padding: 1px; box-sizing: border-box;"><div style="width: 72%; height: 100%; background: #4ADE80; border-radius: 1px;"></div></div>
+        <div style="width: 2px; height: 5px; background: #F4F4F5; border-radius: 1px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pencere önizlemesi: simgenin üstüne gelince -->
+  <div style="position: absolute; left: 596px; top: 560px; width: 248px; background: rgba(28,28,30,0.96); border: 1px solid rgba(255,255,255,0.10); border-radius: 14px; padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 16px 40px rgba(0,0,0,0.45);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px;">
+      <span style="font-size: 12px; color: #D4D4D8;">Proje notları.md · Kod</span>
+      <button aria-label="Pencereyi kapat" style="width: 24px; height: 24px; border: none; background: transparent; border-radius: 6px; color: #D4D4D8; display: flex; align-items: center; justify-content: center; padding: 0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+    <div style="height: 132px; border-radius: 8px; background: #1E1E1E; display: flex; flex-direction: column; gap: 6px; padding: 12px; box-sizing: border-box;">
+      <div style="height: 6px; width: 60%; background: #3F3F46; border-radius: 3px;"></div>
+      <div style="height: 6px; width: 82%; background: #3F3F46; border-radius: 3px;"></div>
+      <div style="height: 6px; width: 44%; background: #3B82F6; border-radius: 3px;"></div>
+      <div style="height: 6px; width: 70%; background: #3F3F46; border-radius: 3px;"></div>
+      <div style="height: 6px; width: 52%; background: #3F3F46; border-radius: 3px;"></div>
+    </div>
+  </div>
+
+  <!-- Yüzen dock -->
+  <div style="position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); height: 60px; background: rgba(24,24,27,0.88); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; display: flex; align-items: center; gap: 4px; padding: 0 8px; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+
+    <button aria-label="Başlat" style="width: 48px; height: 48px; border: none; background: transparent; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0;">
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8.5" height="8.5" rx="1.5" fill="#60A5FA"></rect><rect x="12.5" y="3" width="8.5" height="8.5" rx="1.5" fill="#60A5FA"></rect><rect x="3" y="12.5" width="8.5" height="8.5" rx="1.5" fill="#60A5FA"></rect><rect x="12.5" y="12.5" width="8.5" height="8.5" rx="1.5" fill="#60A5FA"></rect></svg>
+    </button>
+
+    <sc-for list="{{apps}}" as="app" hint-placeholder-count="6">
+      <button aria-label="{{app.name}}" style="width: 48px; height: 48px; border: none; background: {{app.bg}}; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; padding: 0;">
+        <span style="width: 34px; height: 34px; border-radius: 9px; background: {{app.color}}; color: #FFFFFF; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{app.letter}}</span>
+        <span style="position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: {{app.dotW}}; height: 3px; border-radius: 2px; background: {{app.dot}};"></span>
+      </button>
+    </sc-for>
+
+    <!-- Ayırıcı: sağda klasörler ve küçültülmüş pencereler -->
+    <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.16); margin: 0 6px;"></div>
+
+    <button aria-label="İndirilenler klasörü" style="width: 48px; height: 48px; border: none; background: transparent; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0;">
+      <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="#3B82F6"></path><path d="M12 10v5m-2.5-2.5L12 15l2.5-2.5" stroke="#FFFFFF" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg>
+    </button>
+    <button aria-label="Küçültülmüş pencere: Fatura.pdf" style="width: 48px; height: 48px; border: none; background: transparent; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0;">
+      <span style="width: 36px; height: 26px; border-radius: 5px; background: #F4F4F5; border: 2px solid #52525B; box-sizing: border-box;"></span>
+    </button>
+
+    <!-- Koy simgesi: sağ uçta, menüyü açar -->
+    <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.16); margin: 0 6px;"></div>
+    <button aria-label="Koy menüsü" style="width: 40px; height: 48px; border: none; background: transparent; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 0;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E4E4E7" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16"></path><path d="M7 6c0 3 2 4 5 4s5-1 5-4"></path><path d="M4 18h16"></path></svg>
+    </button>
+  </div>
+
+  <!-- Açıklama etiketleri -->
+  <div style="position: absolute; left: 870px; top: 640px; display: flex; flex-direction: column; gap: 4px; width: 260px;">
+    <span style="font-size: 12px; color: #A1A1AA;">Ayırıcının sağı: klasörler ve küçültülmüş pencereler</span>
+  </div>
+  <div style="position: absolute; left: 50%; top: 48px; transform: translateX(-50%); font-size: 12px; color: #A1A1AA;">Saat, ağ ve pil çentikte; dock'ta yalnız uygulamalar</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"time":{"editor":"text","default":"14:36"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const run = '#A1A1AA', act = '#60A5FA', none = 'transparent';
+    const apps = [
+      { name: 'Dosyalar', letter: 'D', color: '#EAB308', dot: run, dotW: '6px', bg: 'transparent' },
+      { name: 'Tarayıcı', letter: 'T', color: '#0EA5E9', dot: run, dotW: '6px', bg: 'transparent' },
+      { name: 'Kod', letter: 'K', color: '#6366F1', dot: act, dotW: '16px', bg: 'rgba(255,255,255,0.10)' },
+      { name: 'Müzik', letter: 'M', color: '#22C55E', dot: run, dotW: '6px', bg: 'transparent' },
+      { name: 'Sohbet', letter: 'S', color: '#8B5CF6', dot: none, dotW: '6px', bg: 'transparent' },
+      { name: 'Notlar', letter: 'N', color: '#F97316', dot: none, dotW: '6px', bg: 'transparent' }
+    ];
+    return { time: this.props.time ?? '14:36', apps };
+  }
+}
+</script>
+</body>
+</html>

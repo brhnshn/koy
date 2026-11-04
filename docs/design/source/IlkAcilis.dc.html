@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Koy ilk açılış</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 880px; height: 600px; box-sizing: border-box; background: #18181B; border: 1px solid #2E2E33; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5;">
+  <div style="flex-grow: 1; padding: 48px 56px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+    <span style="font-size: 13px; color: #A1A1AA;">Adım 2 / 3</span>
+    <h1 style="margin: 0; font-size: 28px; font-weight: 600;">Koy ekranında ne olsun?</h1>
+    <span style="font-size: 14px; color: #A1A1AA;">Sonra Koy penceresinden istediğin zaman değiştirebilirsin.</span>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px;">
+      <sc-for list="{{opts}}" as="o" hint-placeholder-count="3">
+        <button onClick="{{o.pick}}" style="height: 248px; border-radius: 14px; border: 2px solid {{o.border}}; background: #1F1F23; color: #F4F4F5; font-family: inherit; padding: 0; display: flex; flex-direction: column; overflow: hidden; text-align: left;">
+          <span style="height: 150px; width: 100%; background: #243445; position: relative; display: block;">
+            <span style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 64px; height: 12px; border-radius: 0 0 7px 7px; background: #0A0A0B; opacity: {{o.notch}};"></span>
+            <span style="position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); width: 120px; height: 18px; border-radius: 7px; background: rgba(24,24,27,0.9); opacity: {{o.dock}};"></span>
+          </span>
+          <span style="padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 15px; font-weight: 600;">{{o.title}}</span>
+            <span style="font-size: 12px; color: #A1A1AA; line-height: 1.4;">{{o.desc}}</span>
+          </span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="height: 76px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; border-top: 1px solid #232327;">
+    <div style="display: flex; gap: 6px;">
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #52525B;"></span>
+      <span style="width: 24px; height: 8px; border-radius: 4px; background: #3B82F6;"></span>
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #52525B;"></span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button style="height: 36px; padding: 0 18px; border-radius: 8px; border: 1px solid #3F3F46; background: transparent; color: #F4F4F5; font-size: 14px; font-family: inherit;">Geri</button>
+      <button style="height: 36px; padding: 0 18px; border-radius: 8px; border: none; background: #3B82F6; color: #FFFFFF; font-size: 14px; font-weight: 600; font-family: inherit;">Devam</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":880,"height":600}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sel: 0 }; }
+  renderVals() {
+    const defs = [
+      { title: 'Çentik ve dock', desc: 'Windows görev çubuğu gizlenir, yerine Koy dock\'u gelir.', notch: '1', dock: '1' },
+      { title: 'Yalnız çentik', desc: 'Windows görev çubuğu olduğu gibi kalır.', notch: '1', dock: '0' },
+      { title: 'Yalnız dock', desc: 'Çentik kapalı; saat ve pil dock\'un sağ ucunda.', notch: '0', dock: '1' }
+    ];
+    const opts = defs.map((d, i) => ({ ...d, border: this.state.sel === i ? '#3B82F6' : '#2E2E33', pick: () => this.setState({ sel: i }) }));
+    return { opts };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Dock yer ayırır</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; background: #1F2A36; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5;">
+
+  <!-- Büyütülmüş pencere: alt kenarı dock'un üstünde biter -->
+  <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 46px; background: #F4F4F5; display: flex; flex-direction: column; color: #18181B;">
+    <div style="height: 36px; background: #E4E4E7; display: flex; align-items: center; padding: 0 16px; font-size: 12px; color: #3F3F46;">Tarayıcı · büyütülmüş</div>
+    <div style="flex-grow: 1; padding: 48px 120px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box;">
+      <div style="height: 14px; width: 40%; background: #D4D4D8; border-radius: 7px;"></div>
+      <div style="height: 10px; width: 78%; background: #E4E4E7; border-radius: 5px;"></div>
+      <div style="height: 10px; width: 70%; background: #E4E4E7; border-radius: 5px;"></div>
+      <div style="height: 10px; width: 74%; background: #E4E4E7; border-radius: 5px;"></div>
+      <div style="flex-grow: 1;"></div>
+      <div style="height: 30px; border-radius: 6px; background: #E4E4E7; display: flex; align-items: center; padding: 0 12px; font-size: 12px; color: #52525B;">Sayfanın en altı tam görünür, dock'un arkasında kalmaz</div>
+    </div>
+  </div>
+
+  <!-- Çentik -->
+  <div style="position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 236px; height: 34px; background: #0A0A0B; border-radius: 0 0 18px 18px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-sizing: border-box;">
+    <span style="font-size: 13px; font-weight: 600;">14:36</span>
+    <div style="display: flex; align-items: center; gap: 2px;">
+      <div style="width: 22px; height: 11px; border: 1.5px solid #F4F4F5; border-radius: 3px; padding: 1px; box-sizing: border-box;"><div style="width: 72%; height: 100%; background: #4ADE80; border-radius: 1px;"></div></div>
+      <div style="width: 2px; height: 5px; background: #F4F4F5; border-radius: 1px;"></div>
+    </div>
+  </div>
+
+  <!-- Ayrılan şerit: koyu, dock ortada; yanlarda duvar kâğıdı görünmez -->
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 46px; background: #141416; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center;">
+    <div style="display: flex; align-items: center; gap: 2px;">
+      <sc-for list="{{apps}}" as="a" hint-placeholder-count="8">
+        <span style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; position: relative;">
+          <span style="width: 26px; height: 26px; border-radius: 7px; background: {{a.c}};"></span>
+          <span style="position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); width: {{a.w}}; height: 3px; border-radius: 2px; background: {{a.dot}};"></span>
+        </span>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- Açıklama -->
+  <div style="position: absolute; right: 32px; bottom: 80px; width: 300px; background: #18181B; border: 1px solid #3F3F46; border-radius: 12px; padding: 16px 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px;">
+    <span style="font-size: 14px; font-weight: 600;">Yer ayır</span>
+    <span style="font-size: 13px; color: #A1A1AA; line-height: 1.45;">Dock çalışma alanından 46 px ayırır. Büyütülmüş pencere tam olarak dock'un üstünde biter, arada boşluk kalmaz. Şerit koyu olduğu için yanlarda boş duvar kâğıdı görünmez.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const run = '#A1A1AA', act = '#60A5FA', no = 'transparent';
+    const apps = [
+      { c: '#60A5FA', dot: no, w: '6px' },
+      { c: '#EAB308', dot: run, w: '6px' },
+      { c: '#0EA5E9', dot: act, w: '14px' },
+      { c: '#6366F1', dot: run, w: '6px' },
+      { c: '#22C55E', dot: run, w: '6px' },
+      { c: '#8B5CF6', dot: no, w: '6px' },
+      { c: '#F97316', dot: no, w: '6px' },
+      { c: '#3B82F6', dot: no, w: '6px' }
+    ];
+    return { apps };
+  }
+}
+</script>
+</body>
+</html>

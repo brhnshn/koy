@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Açık çentik panelleri</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1520px; height: 900px; box-sizing: border-box; padding: 40px; background: #1F2A36; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 32px; align-content: start;">
+
+  <!-- Müzik -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-size: 13px; color: #A1A1AA;">Müzik</span>
+    <div style="background: #0A0A0B; border-radius: 0 0 28px 28px; padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; gap: 14px; align-items: center;">
+        <span style="width: 72px; height: 72px; border-radius: 12px; background: #22C55E; flex-shrink: 0;"></span>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+          <span style="font-size: 15px; font-weight: 600;">[Şarkı adı]</span>
+          <span style="font-size: 12px; color: #A1A1AA;">[Sanatçı]</span>
+          <span style="font-size: 11px; color: #71717A;">Müzik uygulaması</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: #A1A1AA;">1:24<span style="flex-grow: 1; height: 4px; border-radius: 2px; background: #3F3F46;"><span style="display: block; width: 38%; height: 4px; border-radius: 2px; background: #F4F4F5;"></span></span>3:41</div>
+      <div style="display: flex; justify-content: center; gap: 28px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#F4F4F5" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"></path></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#F4F4F5" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"></path></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#F4F4F5" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"></path></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Takvim ve Pomodoro -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-size: 13px; color: #A1A1AA;">Takvim ve Pomodoro</span>
+    <div style="background: #0A0A0B; border-radius: 0 0 28px 28px; padding: 18px 20px 22px; display: flex; gap: 18px;">
+      <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; width: 210px; font-size: 11px; text-align: center;">
+        <sc-for list="{{days}}" as="d" hint-placeholder-count="35">
+          <span style="height: 22px; line-height: 22px; border-radius: 11px; background: {{d.bg}}; color: {{d.fg}};">{{d.n}}</span>
+        </sc-for>
+      </div>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+        <span style="width: 84px; height: 84px; border-radius: 50%; border: 6px solid #3F3F46; border-top-color: #F87171; border-right-color: #F87171; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600;">18:00</span>
+        <span style="font-size: 11px; color: #A1A1AA;">Çalışma · 2/4</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Raf -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-size: 13px; color: #A1A1AA;">Raf: dosya bırakınca otomatik açılır</span>
+    <div style="background: #0A0A0B; border-radius: 0 0 28px 28px; padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="border: 1.5px dashed #3B82F6; background: rgba(59,130,246,0.08); border-radius: 14px; height: 118px; display: flex; align-items: center; justify-content: center; gap: 14px;">
+        <span style="width: 40px; height: 50px; border-radius: 6px; background: #EF4444;"></span>
+        <span style="width: 40px; height: 50px; border-radius: 6px; background: #3B82F6;"></span>
+        <span style="font-size: 12px; color: #BFDBFE;">Bırak, sonra istediğin yere sürükle</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: #A1A1AA;"><span>2 öğe</span><span>Rafı temizle</span></div>
+    </div>
+  </div>
+
+  <!-- Kontrol merkezi -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-size: 13px; color: #A1A1AA;">Kontrol merkezi</span>
+    <div style="background: #0A0A0B; border-radius: 0 0 28px 28px; padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+        <span style="height: 56px; border-radius: 12px; background: #3B82F6; padding: 8px 10px; box-sizing: border-box; font-size: 12px; font-weight: 600;">Wi-Fi<br><span style="font-weight: 400; opacity: 0.8;">Ev ağı</span></span>
+        <span style="height: 56px; border-radius: 12px; background: #3B82F6; padding: 8px 10px; box-sizing: border-box; font-size: 12px; font-weight: 600;">Bluetooth<br><span style="font-weight: 400; opacity: 0.8;">Açık</span></span>
+        <span style="height: 56px; border-radius: 12px; background: #27272A; padding: 8px 10px; box-sizing: border-box; font-size: 12px; font-weight: 600;">Rahatsız<br><span style="font-weight: 400; opacity: 0.8;">etme</span></span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;"><span style="width: 52px; color: #A1A1AA;">Ses</span><span style="flex-grow: 1; height: 6px; border-radius: 3px; background: #3F3F46;"><span style="display: block; width: 42%; height: 6px; border-radius: 3px; background: #F4F4F5;"></span></span></div>
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;"><span style="width: 52px; color: #A1A1AA;">Parlaklık</span><span style="flex-grow: 1; height: 6px; border-radius: 3px; background: #3F3F46;"><span style="display: block; width: 64%; height: 6px; border-radius: 3px; background: #FACC15;"></span></span></div>
+    </div>
+  </div>
+
+  <!-- Durum -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-size: 13px; color: #A1A1AA;">Durum: pil, hava, ağ</span>
+    <div style="background: #0A0A0B; border-radius: 0 0 28px 28px; padding: 18px 20px 22px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+      <div style="background: #18181B; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 11px; color: #A1A1AA;">Pil</span><span style="font-size: 20px; font-weight: 600;">%72</span><span style="font-size: 11px; color: #4ADE80;">Şarj oluyor</span></div>
+      <div style="background: #18181B; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 11px; color: #A1A1AA;">[Şehir]</span><span style="font-size: 20px; font-weight: 600;">14°</span><span style="font-size: 11px; color: #A1A1AA;">Parçalı bulutlu</span></div>
+      <div style="background: #18181B; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 11px; color: #A1A1AA;">Ağ</span><span style="font-size: 14px; font-weight: 600;">Ev ağı</span><span style="font-size: 11px; color: #A1A1AA;">İnternet var</span></div>
+    </div>
+  </div>
+
+  <!-- Kısa bildirim -->
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <span style="font-size: 13px; color: #A1A1AA;">Kısa bildirimler (Peek)</span>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+      <div style="width: 320px; height: 44px; background: #0A0A0B; border-radius: 0 0 22px 22px; display: flex; align-items: center; gap: 10px; padding: 0 16px; box-sizing: border-box; font-size: 13px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #F87171;"></span>Pomodoro bitti · 5 dk mola</div>
+      <div style="width: 320px; height: 44px; background: #0A0A0B; border-radius: 0 0 22px 22px; display: flex; align-items: center; gap: 10px; padding: 0 16px; box-sizing: border-box; font-size: 13px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #4ADE80;"></span>Şarj tamamlandı</div>
+      <div style="width: 320px; height: 44px; background: #0A0A0B; border-radius: 0 0 22px 22px; display: flex; align-items: center; gap: 10px; padding: 0 16px; box-sizing: border-box; font-size: 13px;"><span style="width: 10px; height: 10px; border-radius: 50%; background: #60A5FA;"></span>Kulaklık bağlandı</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1520,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const head = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'].map((n) => ({ n, bg: 'transparent', fg: '#71717A' }));
+    const blanks = Array.from({ length: 6 }, () => ({ n: '', bg: 'transparent', fg: '#F4F4F5' }));
+    const nums = Array.from({ length: 30 }, (_, i) => {
+      const d = i + 1;
+      return { n: String(d), bg: d === 4 ? '#F87171' : 'transparent', fg: d === 4 ? '#0A0A0B' : '#D4D4D8' };
+    });
+    return { days: head.concat(blanks, nums) };
+  }
+}
+</script>
+</body>
+</html>

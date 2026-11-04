@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Koy kararları ve notlar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#2563EB}a:hover{color:#1D4ED8}
+</style>
+</helmet>
+<div style="width: 1200px; min-height: 1240px; box-sizing: border-box; padding: 56px 64px; background: #FAFAFA; color: #18181B; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; gap: 36px;">
+
+  <div style="display: flex; flex-direction: column; gap: 8px;">
+    <span style="font-size: 13px; font-weight: 600; color: #2563EB; letter-spacing: 0.4px;">KOY · 4 KASIM 2026</span>
+    <h1 style="margin: 0; font-size: 40px; font-weight: 700;">Kararlar, ilkeler ve yapılacaklar</h1>
+    <p style="margin: 0; font-size: 16px; color: #52525B; max-width: 760px; line-height: 1.5;">Bu tuval Burhan'ın kararlarına göre hazırlandı. Kaynak: vault'ta projects/notch-dock/Kurallar.md, depoda docs/ROADMAP.md (M6).</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;">
+
+    <section style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 14px;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Burhan'ın kararları</h2>
+      <sc-for list="{{decisions}}" as="d" hint-placeholder-count="8">
+        <div style="display: flex; gap: 12px;">
+          <span style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #2563EB; margin-top: 7px;"></span>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 15px; font-weight: 600;">{{d.t}}</span>
+            <span style="font-size: 14px; color: #52525B; line-height: 1.45;">{{d.b}}</span>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <section style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Tasarım ilkeleri</h2>
+        <sc-for list="{{principles}}" as="p" hint-placeholder-count="5">
+          <div style="display: flex; gap: 12px; font-size: 14px; line-height: 1.45;">
+            <span style="flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; background: #EFF6FF; color: #2563EB; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;">{{p.n}}</span>
+            <span>{{p.t}}</span>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 10px;">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Yapılacaklar (M6)</h2>
+        <sc-for list="{{todo}}" as="x" hint-placeholder-count="8">
+          <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.45;">
+            <span style="flex-shrink: 0; width: 16px; height: 16px; border: 1.5px solid #A1A1AA; border-radius: 4px; margin-top: 2px; box-sizing: border-box;"></span>
+            <span><b style="font-weight: 600;">{{x.a}}</b> {{x.t}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </div>
+
+  <section style="background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 10px;">
+    <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Açık sorular (Burhan seçecek)</h2>
+    <sc-for list="{{questions}}" as="q" hint-placeholder-count="4">
+      <span style="font-size: 14px; line-height: 1.5; color: #3F3F46;">{{q}}</span>
+    </sc-for>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1200,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const decisions = [
+      { t: 'Windows\'tan farklı olmalı', b: '"Aynıysa insanlar neden kullansın?" Tam genişlik Windows tarzı çubuk reddedildi.' },
+      { t: 'Seelen UI modeli', b: 'Yüzen ya da tam genişlik seçilir, pencere üstüne binince dock çekilir, simgenin üzerinde pencere önizlemesi, her ekranda ayrı dock.' },
+      { t: 'Pencereli görünümde aşağı yapış', b: 'Normal boy pencere dock\'a yaklaşınca dock alt kenara iner, uygulamayı örtmez. Tam ekranda gizlenir. Hepsi ayardan seçilir.' },
+      { t: 'Çentik müzikten fazlası', b: 'Dosya rafı, takvim, ses ve parlaklık göstergesi çentikte (Boring Notch / NotchNook gibi).' },
+      { t: 'Çoklu ekran zorunlu', b: 'Her ekranda ayrı çentik ve dock, kendi DPI\'ında. Yan ekrandaki tam ekran ana ekrandaki Koy\'u gizlemez.' },
+      { t: 'Hafiflik ana hedef', b: 'Rakiplerin en çok şikayet edilen yanı kaynak ve pil tüketimi.' },
+      { t: 'Koy\'un kendi arayüzü', b: 'Orta boy pencere, simgesi sağ altta. Çıkış yalnız oradan; pencereyi kapatmak Koy\'u kapatmaz.' },
+      { t: 'Ekranda tek çubuk', b: 'Dock açıkken Windows görev çubuğu hiç görünmez.' },
+      { t: 'Simgeler', b: 'Net, saydam arka planlı, kısayol oku yok.' }
+    ];
+    const principles = [
+      'Durum bilgisi (saat, pil, ağ) çentikte; dock yalnız uygulamalar ve klasörler için.',
+      'Boştayken işlemci kullanımı sıfır: zamanlayıcı ve animasyon yalnız görünür panelde.',
+      'Dock hiçbir pencerenin içeriğini örtmez: yer ayırır, aşağı yapışır ya da çekilir.',
+      'Göz yoran animasyon yok; yay animasyonları kısa ve sakin.',
+      'Her davranış ayardan değiştirilebilir, varsayılanlar akıllı.'
+    ].map((t, i) => ({ n: String(i + 1), t }));
+    const todo = [
+      { a: 'Çoklu ekran:', t: 'her monitörde çentik ve dock penceresi, ekran tak/çıkar.' },
+      { a: 'Tam ekran:', t: 'monitör başına algılama, testli.' },
+      { a: 'Görev çubuğu:', t: 'ikincil ekranlardaki çubuklar da gizlenip geri gelsin.' },
+      { a: 'Dock modları:', t: 'yer ayır, aşağı yapış, çekil, hep gizli.' },
+      { a: 'Pencere önizlemesi:', t: 'DWM küçük resmi, yalnız üzerine gelince.' },
+      { a: 'Çentik göstergeleri:', t: 'ses ve parlaklık.' },
+      { a: 'Koy simgesi ve menüsü:', t: 'sağ altta; çıkış yalnız buradan.' },
+      { a: 'Koy penceresi:', t: 'bu tuvaldeki 8 sayfa.' },
+      { a: 'Bellek:', t: 'bütçe aşımı (~95 MB) ayrı oturumda araştırılıyor.' }
+    ];
+    const questions = [
+      'Dock\'ta macOS gibi ayırıcı (sağda klasörler, küçültülmüş pencereler) olsun mu? Şimdilik "olabilir" olarak tasarımda, ayardan kapatılabilir.',
+      'Varsayılan "pencere yaklaşınca" davranışı: Aşağı yapış mı, Çekil mi? Tasarımda Aşağı yapış seçili.',
+      'Tam genişlik biçimi Windows\'a benzemesin diye saatsiz ve ince tasarlandı; beğenilmezse kaldırılabilir.',
+      'Kısayollar örnek; Windows kısayollarıyla çakışma kontrolü yapılacak.'
+    ];
+    return { decisions, principles, todo, questions };
+  }
+}
+</script>
+</body>
+</html>

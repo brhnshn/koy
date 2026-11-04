@@ -10,6 +10,7 @@ Windows 11 için hafif bir **notch** (ekranın üst ortasında, yay animasyonlu 
 - Hedefler, mimari, kararlar: `docs/PLAN.md`
 - Sıradaki iş ve dosya dosya yapılacaklar: `docs/ROADMAP.md`
 - Bellek ölçümleri: `docs/MEMORY.md`
+- Arayüz tasarımı (dock, çentik, Koy penceresi, her sayfanın ayarları): `docs/DESIGN.md`. Arayüz işinden önce oku. Ekranların görseli: `docs/design/index.html` (tarayıcıda aç).
 
 ## Yığın
 C# + WPF, .NET 10 (`global.json`), yalnız Windows 11. MVVM: CommunityToolkit.Mvvm. Win32: Microsoft.Windows.CsWin32. Test: xUnit. Lisans GPLv3.
