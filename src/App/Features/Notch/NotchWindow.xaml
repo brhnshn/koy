@@ -15,7 +15,7 @@
         d:DataContext="{d:DesignInstance local:NotchViewModel}"
         Title="Koy"
         Width="500" Height="260"
-        WindowStyle="None" AllowsTransparency="True" Background="{x:Null}"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False" ShowActivated="False"
         AllowDrop="True"
         DragEnter="Notch_DragEnter"
