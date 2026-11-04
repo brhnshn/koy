@@ -17,13 +17,14 @@ public sealed class FullscreenDetector : IFullscreenDetector
 
     public bool IsFullscreen()
     {
-        // 1. Windows bildirim durumunu sorgula (DirectX tam ekran, sunum modu veya busy)
+        // 1. Windows bildirim durumunu sorgula (DirectX özel tam ekran veya sunum modu)
+        // Not: QUNS_BUSY bilerek dahil edilmez çünkü Windows 11 Odaklanma Yardımı (Do Not Disturb / Quiet Hours)
+        // devredeyken tam ekran oyun olmasa da QUNS_BUSY döndürür ve çentiği yanlışlıkla gizler.
         var hr = PInvoke.SHQueryUserNotificationState(out var notificationState);
         if (hr.Succeeded)
         {
             if (notificationState is QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN or
-                                     QUERY_USER_NOTIFICATION_STATE.QUNS_PRESENTATION_MODE or
-                                     QUERY_USER_NOTIFICATION_STATE.QUNS_BUSY)
+                                     QUERY_USER_NOTIFICATION_STATE.QUNS_PRESENTATION_MODE)
             {
                 return true;
             }
@@ -68,6 +69,11 @@ public sealed class FullscreenDetector : IFullscreenDetector
                 return false;
 
             if (!PInvoke.GetWindowRect(fg, out var wr))
+                return false;
+
+            // Standart başlıklı (WS_CAPTION) bir pencere maksimize olsa bile tam ekran oyun/video sayılmaz
+            var style = (WINDOW_STYLE)PInvoke.GetWindowLong(fg, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            if (style.HasFlag(WINDOW_STYLE.WS_CAPTION))
                 return false;
 
             return wr.left <= mi.rcMonitor.left &&

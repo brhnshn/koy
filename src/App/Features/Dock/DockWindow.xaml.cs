@@ -81,7 +81,7 @@ public partial class DockWindow : Window
     {
         _targetMonitor = targetMonitor ?? _targetMonitor;
 
-        if (_targetMonitor is not null)
+        if (_targetMonitor is not null && _targetMonitor.WidthDip > 100)
         {
             Left = Math.Max(_targetMonitor.LeftDip, _targetMonitor.LeftDip + (_targetMonitor.WidthDip - ActualWidth) / 2);
             Top = Math.Max(_targetMonitor.TopDip, _targetMonitor.TopDip + _targetMonitor.HeightDip - ActualHeight - 4);

@@ -67,7 +67,7 @@ public partial class NotchWindow : Window
     {
         _targetMonitor = targetMonitor ?? _targetMonitor;
 
-        if (_targetMonitor is not null)
+        if (_targetMonitor is not null && _targetMonitor.WidthDip > 100)
         {
             Left = _targetMonitor.LeftDip + (_targetMonitor.WidthDip - Width) / 2;
             Top = _targetMonitor.TopDip;
