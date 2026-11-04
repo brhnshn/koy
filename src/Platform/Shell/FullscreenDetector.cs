@@ -71,15 +71,12 @@ public sealed class FullscreenDetector : IFullscreenDetector
             if (!PInvoke.GetWindowRect(fg, out var wr))
                 return false;
 
-            // Standart başlıklı (WS_CAPTION) bir pencere maksimize olsa bile tam ekran oyun/video sayılmaz
             var style = (WINDOW_STYLE)PInvoke.GetWindowLong(fg, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
-            if (style.HasFlag(WINDOW_STYLE.WS_CAPTION))
-                return false;
-
-            return wr.left <= mi.rcMonitor.left &&
-                   wr.top <= mi.rcMonitor.top &&
-                   wr.right >= mi.rcMonitor.right &&
-                   wr.bottom >= mi.rcMonitor.bottom;
+            return FullscreenRule.IsFullscreen(
+                new WindowRect(wr.left, wr.top, wr.right, wr.bottom),
+                new WindowRect(mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right, mi.rcMonitor.bottom),
+                hasCaption: style.HasFlag(WINDOW_STYLE.WS_CAPTION),
+                isMaximized: style.HasFlag(WINDOW_STYLE.WS_MAXIMIZE));
         }
     }
 }

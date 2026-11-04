@@ -5,27 +5,29 @@ namespace Koy.Core.Settings;
 /// <summary>
 /// settings.json içeriği. Yeni alan eklerken varsayılan değer ver ki eski dosyalar bozulmasın.
 /// Alan yeniden adlandırılır ya da silinirse <see cref="Version"/> artırılır.
+/// Özellikler bilerek <c>set</c>: kaynak üreticili JSON, <c>init</c> özelliklerde dosyada olmayan alanı
+/// varsayılan yerine sıfırlıyor (NotchEnabled false olup çentik hiç açılmıyordu).
 /// </summary>
 public sealed record AppSettings
 {
-    public int Version { get; init; } = 1;
-    public string Language { get; init; } = "tr";
-    public bool NotchEnabled { get; init; } = true;
+    public int Version { get; set; } = 1;
+    public string Language { get; set; } = "tr";
+    public bool NotchEnabled { get; set; } = true;
 
     /// <summary>Kapalıysa Windows görev çubuğuna hiç dokunulmaz.</summary>
-    public bool DockEnabled { get; init; }
+    public bool DockEnabled { get; set; }
 
-    public VisibilityMode NotchVisibility { get; init; } = VisibilityMode.Fixed;
-    public VisibilityMode DockVisibility { get; init; } = VisibilityMode.Smart;
-    public bool DockHoverMagnify { get; init; } = true;
-    public string MonitorTarget { get; init; } = "Primary";
-    public string? AccentColor { get; init; }
+    public VisibilityMode NotchVisibility { get; set; } = VisibilityMode.Fixed;
+    public VisibilityMode DockVisibility { get; set; } = VisibilityMode.Smart;
+    public bool DockHoverMagnify { get; set; } = true;
+    public string MonitorTarget { get; set; } = "Primary";
+    public string? AccentColor { get; set; }
 
-    public List<string> ControlCenterLayout { get; init; } = ["wifi", "bluetooth", "donotdisturb"];
-    public List<string> EnabledPanels { get; init; } = ["music", "controlcenter", "status", "calendar", "shelf"];
-    public double WeatherLatitude { get; init; } = 41.01;
-    public double WeatherLongitude { get; init; } = 28.97;
-    public string WeatherCity { get; init; } = "İstanbul";
+    public List<string> ControlCenterLayout { get; set; } = ["wifi", "bluetooth", "donotdisturb"];
+    public List<string> EnabledPanels { get; set; } = ["music", "controlcenter", "status", "calendar", "shelf"];
+    public double WeatherLatitude { get; set; } = 41.01;
+    public double WeatherLongitude { get; set; } = 28.97;
+    public string WeatherCity { get; set; } = "İstanbul";
 
     public bool Equals(AppSettings? other)
     {

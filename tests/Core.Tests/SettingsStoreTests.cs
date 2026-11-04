@@ -27,6 +27,18 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void Partial_file_keeps_defaults_for_missing_fields()
+    {
+        // Eski ya da elle yazılmış dosyada olmayan alanlar varsayılanını korumalı (NotchEnabled false olursa çentik hiç açılmaz).
+        Directory.CreateDirectory(_dir);
+        File.WriteAllText(Path.Combine(_dir, "settings.json"), """{ "DockEnabled": true }""");
+
+        var loaded = NewStore().Load();
+
+        Assert.Equal(new AppSettings { DockEnabled = true }, loaded);
+    }
+
+    [Fact]
     public void Corrupt_file_returns_defaults()
     {
         var store = NewStore();
