@@ -9,8 +9,8 @@
 <br />
 <br />
 
-**Windows 11 için hafif, yay fiziği animasyonlu Çentik (Notch) ve Seelen UI modelinde Dock.**  
-*Lightweight, zero-browser, spring-animated Notch & Dock for Windows 11.*
+**Windows 11 için hafif, yay fiziği animasyonlu Çentik (Notch) ve akıllı masaüstü Dock'u.**  
+*Lightweight, zero-browser, spring-animated Notch & smart desktop Dock for Windows 11.*
 
 [![CI](https://github.com/brhnshn/koy/actions/workflows/ci.yml/badge.svg)](https://github.com/brhnshn/koy/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/brhnshn/koy?color=3B82F6&label=Release)](https://github.com/brhnshn/koy/releases/latest)
@@ -53,7 +53,7 @@ Ekranın üst ortasında (`Top = 0`), içbükey (*concave*) üst kulaklara sahip
   - **Kontrol Merkezi:** CoreAudio ses seviyesi, WMI (dahili) ve DDC/CI (harici monitör) donanım parlaklık kaydırıcıları, Wi-Fi ve Bluetooth radyo anahtarları, Rahatsız Etme durumu.
   - **Durum:** Pil yüzdesi, şarj durumu ve API anahtarsız **Open-Meteo** hava durumu (30 dk önbellekli).
 
-### 2. Seelen UI Modelinde Dock
+### 2. Akıllı Masaüstü Dock'u (Smart Desktop Dock)
 Windows görev çubuğunun sıradan bir kopyası değildir; saat, pil ve ağ göstergelerini çentiğe devrederek yalnızca uygulama ve pencere yönetimine odaklanır:
 - **İki Yerleşim Stili:**
   - **Yüzen Kapsül (Floating Capsule — Varsayılan):** 60 px yükseklik, alttan 10 px yukarıda, 18 px köşe yuvarlaklığı. Düzen: *Başlat → Uygulamalar (nokta/çizgi göstergeli) → Ayırıcı → Klasörler (İndirilenler) & Küçültülmüş Pencereler → Ayırıcı → Koy Menüsü*.
@@ -175,9 +175,15 @@ koy/
 **Koy** is an ultra-lightweight, native **Notch** and **Dock** for Windows 11 built with **C# (.NET 10) and WPF**. Unlike Electron or Tauri/WebView2 alternatives that spawn multiple browser processes, Koy runs in a **single process** with software rendering (`RenderMode.SoftwareOnly`), consuming **0% CPU when idle** and keeping memory footprint minimal.
 
 - **Spring-Animated Top Notch:** Shows clock & battery when idle (236×34 px), album art & static waveform when playing music, 1.5s OSD HUD overlays for volume and brightness (260×40 px), and expands into 5 panels (*Music with GSMTC session switcher, Calendar & Pomodoro timer, Drag-and-Drop File/Text Shelf, Control Center, and Weather/Battery Status*).
-- **Seelen-Style Dock:** Choose between **Floating Capsule** (60 px) or **Full-Width Glass** (44 px) layouts, with intelligent window proximity modes (*Dodge / Intellihide*, *Reserve Space via AppBar*, *Always Hidden*), live 400ms DWM window thumbnail previews (`DwmRegisterThumbnail`), and rock-solid Windows taskbar recovery (`TaskbarService.Restore()`).
+- **Smart Desktop Dock:** Choose between **Floating Capsule** (60 px) or **Full-Width Glass** (44 px) layouts, with intelligent window proximity modes (*Dodge / Intellihide*, *Reserve Space via AppBar*, *Always Hidden*), live 400ms DWM window thumbnail previews (`DwmRegisterThumbnail`), and rock-solid Windows taskbar recovery (`TaskbarService.Restore()`).
 - **True Multi-Monitor Support:** Independent per-monitor DPI scaling and per-monitor fullscreen isolation (playing a fullscreen game or video on your secondary monitor only hides Koy on that display).
 - **Bilingual UI:** Instant runtime switching between **English** and **Turkish**.
+
+---
+
+## Esinlenmeler & Teşekkür (Acknowledgements)
+
+Koy; modern masaüstü deneyimi, ada/çentik konsepti ve pencere etkileşimleri konusunda [Nectar](https://github.com/kua8/Nectar) ve [Seelen UI](https://github.com/seelen-game/aurora) gibi harika açık kaynak projelerinden ilham almıştır. Koy, Windows 11 ekosistemi için sıfır tarayıcı bağımlılığı (WebView2/Electron içermeyen), minimum bellek ve doğrudan yerel C# (.NET 10) / WPF mimarisiyle bağımsız olarak sıfırdan geliştirilmiştir.
 
 ---
 
