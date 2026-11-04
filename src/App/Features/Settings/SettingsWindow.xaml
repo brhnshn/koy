@@ -94,6 +94,19 @@
             </StackPanel>
             <CheckBox Grid.Column="1" IsChecked="{Binding RunAtStartup}" VerticalAlignment="Center" />
           </Grid>
+
+          <!-- Hedef Monitör -->
+          <Grid Style="{StaticResource OptionRow}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <TextBlock Text="{x:Static res:Strings.TargetMonitor}" FontWeight="Medium" />
+              <TextBlock Text="{x:Static res:Strings.TargetMonitorDesc}" FontSize="11" Foreground="#888888" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" Width="140" ItemsSource="{Binding AvailableMonitors}" SelectedItem="{Binding MonitorTarget}" />
+          </Grid>
         </StackPanel>
       </TabItem>
 

@@ -14,4 +14,5 @@ public sealed record DockItem(
     bool IsRunning,
     bool IsActive,
     IReadOnlyList<nint> WindowHandles,
-    int ProcessId = 0);
+    int ProcessId = 0,
+    bool IsFlashing = false);

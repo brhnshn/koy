@@ -39,7 +39,7 @@ jobs:
 
       - name: Generate SHA256 Checksums
         run: |
-          Get-ChildItem -Path dist -File | ForEach-Object {
+          Get-ChildItem -Path dist -File | Where-Object { $_.Name -ne "SHA256SUMS.txt" } | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
             "$hash  $($_.Name)" | Out-File -FilePath dist/SHA256SUMS.txt -Append -Encoding utf8
           }

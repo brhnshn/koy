@@ -16,6 +16,7 @@ Makine: Windows 11 Home 26200, RTX 4050 Laptop + Intel UHD.
 | 2026-11-04 | M3, Takvim, Pomodoro, Raf, Ayarlar | 39.2 MB | 256.6 MB | Bütçe (< 60 MB) korundu |
 | 2026-11-04 | M4, Dock (Sabitli + Açık Uygulamalar, AppBar) | 45.8 MB | 261.8 MB | Bütçe (< 60 MB) korundu |
 | 2026-11-04 | M5, Çoklu Monitör, Velopack Kurulum, Sürüm (v0.1.0) | 39.3 MB | 256.8 MB | Bütçe (< 60 MB) korundu |
+| 2026-11-04 | M4-M5 Düzeltme (ShellHook, Yay Büyütme, Monitör) | 38.8 MB | 256.4 MB | Bütçe (< 60 MB) korundu |
 
 ## Öğrenilenler
 - **GPU ile çizim pahalı.** WPF donanım hızlandırması açıkken ekran kartı sürücüsü sürece ~135 MB private bellek ekliyor. Notch ve dock küçük yüzeyler; yazılımla çizim (`RenderMode.SoftwareOnly`) yeterli. Animasyon akıcılığı M1'de ölçülecek; takılırsa önce çizilen alanı küçült, GPU'ya dönmeden önce ölç.

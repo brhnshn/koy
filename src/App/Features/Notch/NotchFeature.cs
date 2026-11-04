@@ -34,6 +34,7 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
     private WindowTracker? _windowTracker;
     private FullscreenDetector? _fullscreenDetector;
     private VisibilityController? _visibilityController;
+    private MonitorService? _monitorService;
     private NotchViewModel? _viewModel;
     private ITimer? _edgePeekTimer;
     private nint _windowHwnd;
@@ -61,6 +62,8 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         _windowTracker = new WindowTracker();
         _fullscreenDetector = new FullscreenDetector();
         _visibilityController = new VisibilityController(settings.NotchVisibility);
+        _monitorService = new MonitorService();
+        _monitorService.Start();
 
         // Denetleyici ve etkin paneller
         var controller = new NotchController();
@@ -88,8 +91,18 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             shelfVm,
             _visibilityController);
 
+        var targetMonitor = _monitorService.GetMonitor(settings.MonitorTarget) ?? _monitorService.GetPrimaryMonitor();
+
         _window = new NotchWindow { DataContext = _viewModel };
+        _window.SetTargetMonitor(targetMonitor);
         _window.SourceInitialized += OnWindowSourceInitialized;
+        _window.DisplayChangeHandler = () =>
+        {
+            _monitorService.NotifyDisplayChanged();
+            var m = _monitorService.GetMonitor(settings.MonitorTarget) ?? _monitorService.GetPrimaryMonitor();
+            _window?.SetTargetMonitor(m);
+            UpdateNotchBounds();
+        };
         _window.Show();
 
         // 100 ms kenar gözetleme (peek) zamanlayıcısı; yalnız gizliyken çalışır (AGENTS.md #5)
@@ -115,17 +128,28 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         _visibilityController.NotchHandle = _windowHwnd;
         _fullscreenDetector.NotchHandle = _windowHwnd;
 
+        UpdateNotchBounds();
+    }
+
+    private void UpdateNotchBounds()
+    {
+        if (_window is null || _visibilityController is null)
+            return;
+
         var source = PresentationSource.FromVisual(_window);
         var dpiX = source?.CompositionTarget?.TransformToDevice.M11 ?? 1.0;
         var dpiY = source?.CompositionTarget?.TransformToDevice.M22 ?? 1.0;
 
-        var screenWidth = SystemParameters.PrimaryScreenWidth * dpiX;
+        var targetMonitor = _monitorService?.GetMonitor(settings.MonitorTarget) ?? _monitorService?.GetPrimaryMonitor();
+        var monitorBounds = targetMonitor?.Bounds ?? new WindowRect(0, 0, (int)(SystemParameters.PrimaryScreenWidth * dpiX), (int)(SystemParameters.PrimaryScreenHeight * dpiY));
+
         var notchWidth = 420 * dpiX;
         var notchHeight = 140 * dpiY;
-        var left = (int)((screenWidth - notchWidth) / 2);
+        var monitorWidth = monitorBounds.Right - monitorBounds.Left;
+        var left = (int)(monitorBounds.Left + (monitorWidth - notchWidth) / 2);
         var right = (int)(left + notchWidth);
 
-        _visibilityController.NotchBounds = new WindowRect(left, 0, right, (int)notchHeight);
+        _visibilityController.NotchBounds = new WindowRect(left, monitorBounds.Top, right, (int)(monitorBounds.Top + notchHeight));
     }
 
     private void OnForegroundWindowChanged(object? sender, WindowInfo info)
@@ -178,9 +202,11 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         if (_windowTracker.GetCursorPosition(out var x, out var y))
         {
             var bounds = _visibilityController.NotchBounds;
+            var targetMonitor = _monitorService?.GetMonitor(settings.MonitorTarget) ?? _monitorService?.GetPrimaryMonitor();
+            var top = targetMonitor is not null ? targetMonitor.Bounds.Top : 0;
             var minX = bounds.Left - 30;
             var maxX = bounds.Right + 30;
-            var isAtEdge = y >= 0 && y <= 2 && (bounds.IsEmpty || (x >= minX && x <= maxX));
+            var isAtEdge = y >= top && y <= top + 2 && (bounds.IsEmpty || (x >= minX && x <= maxX));
 
             if (isAtEdge)
             {
@@ -211,6 +237,9 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         _window?.Close();
         _window = null;
         _windowHwnd = 0;
+
+        _monitorService?.Dispose();
+        _monitorService = null;
 
         _viewModel?.Dispose();
         _viewModel = null;

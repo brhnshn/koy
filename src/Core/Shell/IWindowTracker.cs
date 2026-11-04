@@ -13,7 +13,8 @@ public sealed record OpenWindowInfo(
     string Title,
     string? ProcessPath,
     int ProcessId,
-    WindowRect Bounds);
+    WindowRect Bounds,
+    byte[]? IconData = null);
 
 /// <summary>
 /// Ön plan penceresi, konum değişiklikleri ve açık pencereleri izleyen sözleşme.
@@ -24,6 +25,8 @@ public interface IWindowTracker : IDisposable
     event EventHandler<WindowInfo>? ForegroundWindowChanged;
 
     event EventHandler? WindowsChanged;
+
+    event EventHandler<nint>? WindowFlashing;
 
     WindowInfo? CurrentForeground { get; }
 

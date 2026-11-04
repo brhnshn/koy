@@ -64,4 +64,6 @@ public static class Strings
     public static string EndTask => Get(nameof(EndTask));
     public static string StartMenu => Get(nameof(StartMenu));
     public static string SystemTray => Get(nameof(SystemTray));
+    public static string TargetMonitor => Get(nameof(TargetMonitor));
+    public static string TargetMonitorDesc => Get(nameof(TargetMonitorDesc));
 }

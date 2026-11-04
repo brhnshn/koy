@@ -24,6 +24,7 @@ public class DockTests
 
         public event EventHandler<WindowInfo>? ForegroundWindowChanged;
         public event EventHandler? WindowsChanged;
+        public event EventHandler<nint>? WindowFlashing;
 
         public IReadOnlyList<OpenWindowInfo> GetOpenWindows() => Windows;
 
@@ -31,6 +32,8 @@ public class DockTests
         public void MinimizeWindow(nint handle) => Minimized.Add(handle);
         public void CloseWindow(nint handle) => Closed.Add(handle);
         public void TerminateProcess(int processId) => Terminated.Add(processId);
+
+        public void TriggerWindowFlashing(nint handle) => WindowFlashing?.Invoke(this, handle);
 
         public void TriggerForegroundChange(WindowInfo info)
         {
@@ -362,5 +365,76 @@ public class DockTests
         controller.Refresh();
 
         Assert.False(controller.IsHiddenByFullscreen);
+    }
+
+    [Fact]
+    public void Refresh_PreservesIconDataForUnpinnedRunningApp()
+    {
+        var dummyIcon = new byte[] { 0x42, 0x4D, 0x01, 0x02 };
+        var pinnedService = new FakePinnedAppsService();
+        var windowTracker = new FakeWindowTracker
+        {
+            Windows =
+            [
+                new OpenWindowInfo(3001, "Custom App", @"C:\App\custom.exe", 999, new WindowRect(0, 0, 500, 500), dummyIcon)
+            ]
+        };
+        var shell = new FakeShellActionService();
+
+        using var controller = new DockController(pinnedService, windowTracker, shell);
+        controller.Refresh();
+
+        Assert.Single(controller.Items);
+        Assert.Equal(dummyIcon, controller.Items[0].IconData);
+        Assert.False(controller.Items[0].IsPinned);
+        Assert.True(controller.Items[0].IsRunning);
+    }
+
+    [Fact]
+    public void WindowFlashing_SetsIsFlashingOnMatchingDockItem()
+    {
+        var pinnedService = new FakePinnedAppsService
+        {
+            Apps = [new PinnedApp("App", @"C:\Pins\app.lnk", @"C:\app.exe", null)]
+        };
+        var windowTracker = new FakeWindowTracker
+        {
+            Windows = [new OpenWindowInfo(1001, "App", @"C:\app.exe", 100, new WindowRect(0, 0, 400, 400))]
+        };
+        var shell = new FakeShellActionService();
+
+        using var controller = new DockController(pinnedService, windowTracker, shell);
+        controller.Refresh();
+
+        Assert.False(controller.Items[0].IsFlashing);
+
+        windowTracker.TriggerWindowFlashing(1001);
+
+        Assert.True(controller.Items[0].IsFlashing);
+    }
+
+    [Fact]
+    public void HandleItemClick_ClearsFlashingState()
+    {
+        var pinnedService = new FakePinnedAppsService
+        {
+            Apps = [new PinnedApp("App", @"C:\Pins\app.lnk", @"C:\app.exe", null)]
+        };
+        var windowTracker = new FakeWindowTracker
+        {
+            Windows = [new OpenWindowInfo(1001, "App", @"C:\app.exe", 100, new WindowRect(0, 0, 400, 400))]
+        };
+        var shell = new FakeShellActionService();
+
+        using var controller = new DockController(pinnedService, windowTracker, shell);
+        controller.Refresh();
+
+        windowTracker.TriggerWindowFlashing(1001);
+        Assert.True(controller.Items[0].IsFlashing);
+
+        controller.HandleItemClick(controller.Items[0]);
+        controller.Refresh();
+
+        Assert.False(controller.Items[0].IsFlashing);
     }
 }

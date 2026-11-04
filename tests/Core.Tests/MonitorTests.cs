@@ -99,4 +99,28 @@ public class MonitorTests
         Assert.NotNull(service.GetMonitor("LG UltraWide"));
         Assert.Null(service.GetMonitor("Unknown"));
     }
+
+    [Fact]
+    public void ResolveTargetMonitor_HandlesPrimarySpecificAndFallbacks()
+    {
+        var primary = new DisplayMonitor("D1", "Primary Display", new WindowRect(0, 0, 1920, 1080), WindowRect.Empty, true);
+        var secondary = new DisplayMonitor("D2", "Side Display", new WindowRect(1920, 0, 3840, 1080), WindowRect.Empty, false);
+        var service = new FakeMonitorService { Monitors = [primary, secondary] };
+
+        // 1. Specific
+        var specific = service.GetMonitor("D2") ?? service.GetPrimaryMonitor();
+        Assert.Equal("D2", specific?.Id);
+
+        // 2. Name
+        var byName = service.GetMonitor("Side Display") ?? service.GetPrimaryMonitor();
+        Assert.Equal("D2", byName?.Id);
+
+        // 3. Fallback when unknown
+        var fallback = service.GetMonitor("NonExistent") ?? service.GetPrimaryMonitor();
+        Assert.Equal("D1", fallback?.Id);
+
+        // 4. Fallback when Primary
+        var primaryTarget = service.GetMonitor("Primary") ?? service.GetPrimaryMonitor();
+        Assert.Equal("D1", primaryTarget?.Id);
+    }
 }

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Koy.Core.Animation;
+using Koy.Core.Display;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Notch;
@@ -22,10 +23,13 @@ public partial class NotchWindow : Window
 
     private NotchViewModel? ViewModel => DataContext as NotchViewModel;
 
+    private DisplayMonitor? _targetMonitor;
+    public Action? DisplayChangeHandler { get; set; }
+
     public NotchWindow()
     {
         InitializeComponent();
-        Loaded += (_, _) => PlaceAtTopCenter();
+        Loaded += (_, _) => PlaceAtTopCenter(_targetMonitor);
         DataContextChanged += OnDataContextChanged;
     }
 
@@ -40,23 +44,40 @@ public partial class NotchWindow : Window
         var source = HwndSource.FromHwnd(_hwnd);
         source?.AddHook(WndProc);
 
-        PlaceAtTopCenter();
+        PlaceAtTopCenter(_targetMonitor);
     }
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
         if (msg == WmDisplayChange)
         {
-            PlaceAtTopCenter();
+            DisplayChangeHandler?.Invoke();
+            PlaceAtTopCenter(_targetMonitor);
         }
         return 0;
     }
 
-    public void PlaceAtTopCenter()
+    public void SetTargetMonitor(DisplayMonitor? monitor)
     {
-        var screenWidth = SystemParameters.PrimaryScreenWidth;
-        Left = (screenWidth - Width) / 2;
-        Top = 0;
+        _targetMonitor = monitor;
+        PlaceAtTopCenter(monitor);
+    }
+
+    public void PlaceAtTopCenter(DisplayMonitor? targetMonitor = null)
+    {
+        _targetMonitor = targetMonitor ?? _targetMonitor;
+
+        if (_targetMonitor is not null)
+        {
+            Left = _targetMonitor.LeftDip + (_targetMonitor.WidthDip - Width) / 2;
+            Top = _targetMonitor.TopDip;
+        }
+        else
+        {
+            var screenWidth = SystemParameters.PrimaryScreenWidth;
+            Left = (screenWidth - Width) / 2;
+            Top = 0;
+        }
     }
 
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

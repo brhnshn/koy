@@ -3,6 +3,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.Core.Animation;
 using Koy.Core.Dock;
 
 namespace Koy.App.Features.Dock;
@@ -13,6 +14,7 @@ namespace Koy.App.Features.Dock;
 public sealed partial class DockItemViewModel : ObservableObject
 {
     private readonly DockController _controller;
+    private readonly Spring _scaleSpring = new(1.0) { Stiffness = 320, Damping = 26 };
 
     public DockItem Model { get; private set; }
 
@@ -29,6 +31,9 @@ public sealed partial class DockItemViewModel : ObservableObject
     private bool _isActive;
 
     [ObservableProperty]
+    private bool _isFlashing;
+
+    [ObservableProperty]
     private ImageSource? _icon;
 
     [ObservableProperty]
@@ -43,6 +48,7 @@ public sealed partial class DockItemViewModel : ObservableObject
         _isPinned = model.IsPinned;
         _isRunning = model.IsRunning;
         _isActive = model.IsActive;
+        _isFlashing = model.IsFlashing;
 
         if (model.IconData is { Length: > 0 })
         {
@@ -57,11 +63,30 @@ public sealed partial class DockItemViewModel : ObservableObject
         IsPinned = model.IsPinned;
         IsRunning = model.IsRunning;
         IsActive = model.IsActive;
+        IsFlashing = model.IsFlashing;
 
         if (Icon is null && model.IconData is { Length: > 0 })
         {
             Icon = LoadImage(model.IconData);
         }
+    }
+
+    public void SetTargetScale(double target)
+    {
+        _scaleSpring.Target = target;
+    }
+
+    public bool StepScale(double dt)
+    {
+        var moving = _scaleSpring.Step(dt);
+        Scale = _scaleSpring.Value;
+        return moving;
+    }
+
+    public void SnapScale(double scale)
+    {
+        _scaleSpring.SnapTo(scale);
+        Scale = scale;
     }
 
     [RelayCommand]

@@ -26,6 +26,9 @@ public sealed class AppBarService : IAppBarService
         if (windowHandle == 0 || _registeredHandles.Contains(windowHandle))
             return;
 
+        if (heightDip <= 0)
+            heightDip = 64;
+
         var hwnd = new HWND(windowHandle);
 
         var data = new APPBARDATA
@@ -68,6 +71,9 @@ public sealed class AppBarService : IAppBarService
 
     private static unsafe void UpdatePositionInternal(HWND hwnd, int heightDip, double dpiScale)
     {
+        if (heightDip <= 0)
+            heightDip = 64;
+
         var screenWidth = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSCREEN);
         var screenHeight = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CYSCREEN);
         var heightPx = (int)(heightDip * dpiScale);

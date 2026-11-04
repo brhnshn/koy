@@ -192,4 +192,10 @@
   <data name="SystemTray" xml:space="preserve">
     <value>System Tray</value>
   </data>
+  <data name="TargetMonitor" xml:space="preserve">
+    <value>Target Display</value>
+  </data>
+  <data name="TargetMonitorDesc" xml:space="preserve">
+    <value>Display monitor where Notch and Dock appear</value>
+  </data>
 </root>

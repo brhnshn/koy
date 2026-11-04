@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using Koy.Core.Display;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Dock;
@@ -12,6 +13,11 @@ public partial class DockWindow : Window
     private DockViewModel? ViewModel => DataContext as DockViewModel;
     private bool _isRenderingHooked;
     private TimeSpan _lastRenderTime;
+    private DisplayMonitor? _targetMonitor;
+
+    public uint WmShellHook { get; set; }
+    public Action<nint, nint>? ShellHookHandler { get; set; }
+    public Action? DisplayChangeHandler { get; set; }
 
     public DockWindow()
     {
@@ -32,14 +38,19 @@ public partial class DockWindow : Window
         var source = HwndSource.FromHwnd(hwnd);
         source?.AddHook(WndProc);
 
-        Reposition();
+        Reposition(_targetMonitor);
     }
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
         if (msg == WmDisplayChange)
         {
-            Reposition();
+            DisplayChangeHandler?.Invoke();
+            Reposition(_targetMonitor);
+        }
+        else if (WmShellHook != 0 && msg == WmShellHook)
+        {
+            ShellHookHandler?.Invoke(wParam, lParam);
         }
         return 0;
     }
@@ -49,28 +60,50 @@ public partial class DockWindow : Window
         if (ViewModel is not null)
         {
             ViewModel.AnimationNeeded += OnAnimationNeeded;
+            ViewModel.AnimationStopped += OnAnimationStopped;
         }
 
-        Reposition();
+        Reposition(_targetMonitor);
     }
 
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        Reposition();
+        Reposition(_targetMonitor);
     }
 
-    public void Reposition()
+    public void SetTargetMonitor(DisplayMonitor? monitor)
     {
-        var screenWidth = SystemParameters.PrimaryScreenWidth;
-        var screenHeight = SystemParameters.PrimaryScreenHeight;
+        _targetMonitor = monitor;
+        Reposition(monitor);
+    }
 
-        Left = Math.Max(0, (screenWidth - ActualWidth) / 2);
-        Top = Math.Max(0, screenHeight - ActualHeight - 4);
+    public void Reposition(DisplayMonitor? targetMonitor = null)
+    {
+        _targetMonitor = targetMonitor ?? _targetMonitor;
+
+        if (_targetMonitor is not null)
+        {
+            Left = Math.Max(_targetMonitor.LeftDip, _targetMonitor.LeftDip + (_targetMonitor.WidthDip - ActualWidth) / 2);
+            Top = Math.Max(_targetMonitor.TopDip, _targetMonitor.TopDip + _targetMonitor.HeightDip - ActualHeight - 4);
+        }
+        else
+        {
+            var screenWidth = SystemParameters.PrimaryScreenWidth;
+            var screenHeight = SystemParameters.PrimaryScreenHeight;
+
+            Left = Math.Max(0, (screenWidth - ActualWidth) / 2);
+            Top = Math.Max(0, screenHeight - ActualHeight - 4);
+        }
     }
 
     private void OnAnimationNeeded(object? sender, EventArgs e)
     {
         StartRendering();
+    }
+
+    private void OnAnimationStopped(object? sender, EventArgs e)
+    {
+        StopRendering();
     }
 
     private void StartRendering()
@@ -164,6 +197,7 @@ public partial class DockWindow : Window
         if (ViewModel is not null)
         {
             ViewModel.AnimationNeeded -= OnAnimationNeeded;
+            ViewModel.AnimationStopped -= OnAnimationStopped;
         }
         base.OnClosed(e);
     }

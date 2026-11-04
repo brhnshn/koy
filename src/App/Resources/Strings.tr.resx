@@ -192,4 +192,10 @@
   <data name="SystemTray" xml:space="preserve">
     <value>Sistem Tepsisi</value>
   </data>
+  <data name="TargetMonitor" xml:space="preserve">
+    <value>Hedef Ekran</value>
+  </data>
+  <data name="TargetMonitorDesc" xml:space="preserve">
+    <value>Notch ve Dock'un görüntüleneceği ekran</value>
+  </data>
 </root>

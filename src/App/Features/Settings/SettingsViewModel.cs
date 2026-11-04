@@ -1,8 +1,10 @@
+using System.Collections.ObjectModel;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Koy.Core.Settings;
 using Koy.Core.Visibility;
+using Koy.Platform.Display;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Settings;
@@ -28,6 +30,11 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _dockHoverMagnify = true;
+
+    [ObservableProperty]
+    private string _monitorTarget = "Primary";
+
+    public ObservableCollection<string> AvailableMonitors { get; } = [];
 
     [ObservableProperty]
     private bool _enableMusic = true;
@@ -63,7 +70,24 @@ public sealed partial class SettingsViewModel : ObservableObject
         _dockEnabled = settings.DockEnabled;
         _dockVisibility = settings.DockVisibility;
         _dockHoverMagnify = settings.DockHoverMagnify;
+        _monitorTarget = settings.MonitorTarget ?? "Primary";
         _accentColor = settings.AccentColor ?? "#3B82F6";
+
+        AvailableMonitors.Add("Primary");
+        AvailableMonitors.Add("All");
+
+        try
+        {
+            using var monitorService = new MonitorService();
+            foreach (var m in monitorService.GetMonitors())
+            {
+                if (!string.IsNullOrEmpty(m.Name) && !AvailableMonitors.Contains(m.Name))
+                    AvailableMonitors.Add(m.Name);
+            }
+        }
+        catch
+        {
+        }
 
         var panels = settings.EnabledPanels ?? ["music", "controlcenter", "status", "calendar", "shelf"];
         _enableMusic = panels.Contains("music", StringComparer.OrdinalIgnoreCase);
@@ -96,6 +120,7 @@ public sealed partial class SettingsViewModel : ObservableObject
             DockEnabled = DockEnabled,
             DockVisibility = DockVisibility,
             DockHoverMagnify = DockHoverMagnify,
+            MonitorTarget = MonitorTarget,
             AccentColor = AccentColor,
             EnabledPanels = enabledPanels
         };

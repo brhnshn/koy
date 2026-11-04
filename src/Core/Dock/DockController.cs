@@ -13,6 +13,7 @@ public sealed class DockController : IDisposable
     private readonly IShellActionService _shellActionService;
     private readonly IFullscreenDetector? _fullscreenDetector;
 
+    private readonly HashSet<nint> _flashingHandles = [];
     private List<DockItem> _items = [];
     private bool _isHiddenByFullscreen;
     private bool _disposed;
@@ -37,6 +38,7 @@ public sealed class DockController : IDisposable
 
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
         _windowTracker.WindowsChanged += OnWindowsChanged;
+        _windowTracker.WindowFlashing += OnWindowFlashing;
     }
 
     public void Start()
@@ -66,6 +68,14 @@ public sealed class DockController : IDisposable
             var handles = matchingWindows.ConvertAll(w => w.Handle);
             var processId = matchingWindows.Count > 0 ? matchingWindows[0].ProcessId : 0;
 
+            if (isActive)
+            {
+                foreach (var h in handles)
+                    _flashingHandles.Remove(h);
+            }
+
+            var isFlashing = handles.Any(h => _flashingHandles.Contains(h));
+
             foreach (var m in matchingWindows)
                 remainingWindows.Remove(m);
 
@@ -79,7 +89,8 @@ public sealed class DockController : IDisposable
                 IsRunning: isRunning,
                 IsActive: isActive,
                 WindowHandles: handles,
-                ProcessId: processId));
+                ProcessId: processId,
+                IsFlashing: isFlashing));
         }
 
         // 2. Sabitlenmemiş açık pencereleri grupla
@@ -94,6 +105,14 @@ public sealed class DockController : IDisposable
             var isActive = list.Any(w => currentForeground is not null && w.Handle == currentForeground.Handle);
             var handles = list.ConvertAll(w => w.Handle);
 
+            if (isActive)
+            {
+                foreach (var h in handles)
+                    _flashingHandles.Remove(h);
+            }
+
+            var isFlashing = handles.Any(h => _flashingHandles.Contains(h));
+
             var title = !string.IsNullOrWhiteSpace(first.Title)
                 ? first.Title
                 : Path.GetFileNameWithoutExtension(first.ProcessPath) ?? "App";
@@ -103,12 +122,13 @@ public sealed class DockController : IDisposable
                 Title: title,
                 FilePath: first.ProcessPath,
                 TargetPath: first.ProcessPath,
-                IconData: null,
+                IconData: first.IconData,
                 IsPinned: false,
                 IsRunning: true,
                 IsActive: isActive,
                 WindowHandles: handles,
-                ProcessId: first.ProcessId));
+                ProcessId: first.ProcessId,
+                IsFlashing: isFlashing));
         }
 
         _items = newItems;
@@ -129,6 +149,9 @@ public sealed class DockController : IDisposable
 
         if (item.WindowHandles.Count == 0)
             return;
+
+        foreach (var h in item.WindowHandles)
+            _flashingHandles.Remove(h);
 
         // Halihazırda aktifse küçült, değilse öne getir
         if (item.IsActive)
@@ -210,6 +233,12 @@ public sealed class DockController : IDisposable
         return false;
     }
 
+    private void OnWindowFlashing(object? sender, nint handle)
+    {
+        _flashingHandles.Add(handle);
+        Refresh();
+    }
+
     private void OnForegroundWindowChanged(object? sender, WindowInfo e)
     {
         Refresh();
@@ -227,5 +256,6 @@ public sealed class DockController : IDisposable
 
         _windowTracker.ForegroundWindowChanged -= OnForegroundWindowChanged;
         _windowTracker.WindowsChanged -= OnWindowsChanged;
+        _windowTracker.WindowFlashing -= OnWindowFlashing;
     }
 }

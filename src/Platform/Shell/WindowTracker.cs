@@ -22,6 +22,10 @@ public sealed class WindowTracker : IWindowTracker
 
     public event EventHandler<WindowInfo>? ForegroundWindowChanged;
     public event EventHandler? WindowsChanged;
+    public event EventHandler<nint>? WindowFlashing;
+
+    private readonly List<HWND> _shellHookWindows = [];
+    public uint ShellHookMessage { get; private set; }
 
     public WindowInfo? CurrentForeground { get; private set; }
 
@@ -71,12 +75,68 @@ public sealed class WindowTracker : IWindowTracker
         UpdateForegroundWindow();
     }
 
+    public void RegisterShellHook(nint windowHandle)
+    {
+        if (windowHandle == 0) return;
+        var hwnd = new HWND(windowHandle);
+        if (!_shellHookWindows.Contains(hwnd))
+        {
+            if (PInvoke.RegisterShellHookWindow(hwnd))
+            {
+                _shellHookWindows.Add(hwnd);
+                ShellHookMessage = PInvoke.RegisterWindowMessage("SHELLHOOK");
+            }
+        }
+    }
+
+    public void DeregisterShellHook(nint windowHandle)
+    {
+        if (windowHandle == 0) return;
+        var hwnd = new HWND(windowHandle);
+        if (_shellHookWindows.Remove(hwnd))
+        {
+            PInvoke.DeregisterShellHookWindow(hwnd);
+        }
+    }
+
+    public void HandleShellHookMessage(nint wParam, nint lParam)
+    {
+        var shellEvent = wParam.ToInt32();
+        const int HSHELL_WINDOWCREATED = 1;
+        const int HSHELL_WINDOWDESTROYED = 2;
+        const int HSHELL_ACTIVATESHELLWINDOW = 3;
+        const int HSHELL_WINDOWACTIVATED = 4;
+        const int HSHELL_REDRAW = 6;
+        const int HSHELL_FLASH = 0x8006;
+        const int HSHELL_RUDEAPPACTIVATED = 0x8004;
+
+        if (shellEvent == HSHELL_FLASH)
+        {
+            WindowFlashing?.Invoke(this, lParam);
+            WindowsChanged?.Invoke(this, EventArgs.Empty);
+        }
+        else if (shellEvent is HSHELL_WINDOWCREATED or HSHELL_WINDOWDESTROYED or HSHELL_REDRAW)
+        {
+            WindowsChanged?.Invoke(this, EventArgs.Empty);
+        }
+        else if (shellEvent is HSHELL_WINDOWACTIVATED or HSHELL_RUDEAPPACTIVATED or HSHELL_ACTIVATESHELLWINDOW)
+        {
+            UpdateForegroundWindow();
+        }
+    }
+
     public void Stop()
     {
         if (!_started)
             return;
 
         _started = false;
+
+        foreach (var hwnd in _shellHookWindows)
+        {
+            PInvoke.DeregisterShellHookWindow(hwnd);
+        }
+        _shellHookWindows.Clear();
 
         if (_foregroundHook.Value != 0)
         {
@@ -167,8 +227,9 @@ public sealed class WindowTracker : IWindowTracker
                 }
             }
 
+            var iconData = !string.IsNullOrEmpty(procPath) ? IconHelper.GetIconBytes(procPath) : null;
             var bounds = new WindowRect(wr.left, wr.top, wr.right, wr.bottom);
-            windows.Add(new OpenWindowInfo(hwnd.Value, title, procPath, (int)pid, bounds));
+            windows.Add(new OpenWindowInfo(hwnd.Value, title, procPath, (int)pid, bounds, iconData));
 
             return true;
         }, 0);

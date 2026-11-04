@@ -44,6 +44,9 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     public ObservableCollection<DockItemViewModel> Items { get; } = [];
 
     public event EventHandler? AnimationNeeded;
+    public event EventHandler? AnimationStopped;
+
+    public DockController Controller => _controller;
 
     public DockViewModel(
         AppSettings settings,
@@ -110,21 +113,28 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         for (var i = 0; i < Items.Count; i++)
         {
             var dist = Math.Abs(i - hoveredIndex);
-            if (dist == 0)
-                Items[i].Scale = 1.28;
-            else if (dist == 1)
-                Items[i].Scale = 1.14;
-            else
-                Items[i].Scale = 1.0;
+            var targetScale = dist switch
+            {
+                0 => 1.30,
+                1 => 1.15,
+                _ => 1.0
+            };
+            Items[i].SetTargetScale(targetScale);
         }
+
+        _isAnimating = true;
+        AnimationNeeded?.Invoke(this, EventArgs.Empty);
     }
 
     public void OnHoverEnded()
     {
         for (var i = 0; i < Items.Count; i++)
         {
-            Items[i].Scale = 1.0;
+            Items[i].SetTargetScale(1.0);
         }
+
+        _isAnimating = true;
+        AnimationNeeded?.Invoke(this, EventArgs.Empty);
     }
 
     public void UpdateSprings(double deltaSeconds)
@@ -138,9 +148,17 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         TranslationY = _translateSpring.Value;
         Opacity = Math.Clamp(_opacitySpring.Value, 0.0, 1.0);
 
-        if (!tMoving && !oMoving)
+        var scaleMoving = false;
+        foreach (var item in Items)
+        {
+            if (item.StepScale(deltaSeconds))
+                scaleMoving = true;
+        }
+
+        if (!tMoving && !oMoving && !scaleMoving)
         {
             _isAnimating = false;
+            AnimationStopped?.Invoke(this, EventArgs.Empty);
         }
     }
 
