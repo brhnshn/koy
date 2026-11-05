@@ -578,7 +578,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
                     var newVm = new DockItemViewModel(model, _controller)
                     {
                         IconSize = IconSize,
-                        ItemSize = ItemSize
+                        ItemSize = ItemSize,
+                        UseLineIndicator = _settings.DockIndicatorStyle == 1
                     };
                     if (targetIndex < Items.Count)
                         Items.Insert(targetIndex, newVm);

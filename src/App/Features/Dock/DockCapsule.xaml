@@ -196,6 +196,17 @@
                                                     <Setter Property="CornerRadius" Value="1.5"/>
                                                     <Setter Property="Background" Value="#A1A1AA"/>
                                                 </MultiDataTrigger>
+                                                <!-- Gösterge stili "Çizgi": çalışan uygulama da 16×3 px çizgi alır -->
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsRunning}" Value="True"/>
+                                                        <Condition Binding="{Binding IsActive}" Value="False"/>
+                                                        <Condition Binding="{Binding IsAttention}" Value="False"/>
+                                                        <Condition Binding="{Binding IsMultiWindow}" Value="False"/>
+                                                        <Condition Binding="{Binding UseLineIndicator}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Width" Value="16"/>
+                                                </MultiDataTrigger>
                                                 <!-- Aktif: 16×3 px çizgi #60A5FA -->
                                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
                                                     <Setter Property="Visibility" Value="Visible"/>
