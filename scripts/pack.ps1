@@ -2,12 +2,19 @@
 # Kullanım: powershell -ExecutionPolicy Bypass -File scripts\pack.ps1 [-Version 0.1.0]
 
 param(
-    [string]$Version = "0.1.0"
+    [string]$Version = ""
 )
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 Set-Location $root
+
+# Surum verilmediyse Directory.Build.props'taki surumu kullan (release-please bunu gunceller).
+if (-not $Version) {
+    $versionMatch = [regex]::Match((Get-Content (Join-Path $root 'Directory.Build.props') -Raw), '<Version>([^<]+)</Version>')
+    if (-not $versionMatch.Success) { throw 'Directory.Build.props icinde <Version> bulunamadi; -Version ver.' }
+    $Version = $versionMatch.Groups[1].Value
+}
 
 # Native komutlar $ErrorActionPreference'a takilmaz; cikis kodunu elle denetle.
 function Assert-LastExit([string]$what) {
@@ -30,10 +37,17 @@ Assert-LastExit 'dotnet publish'
 
 Write-Host "==> Velopack paketi (vpk pack) olusturuluyor..." -ForegroundColor Cyan
 
-# vpk aracini kontrol et, yoksa yukle
-if (-not (Get-Command 'vpk' -ErrorAction SilentlyContinue)) {
-    Write-Host "vpk yukleniyor..." -ForegroundColor Yellow
-    dotnet tool install -g vpk | Out-Null
+# vpk surumu Velopack paket surumuyle ayni olmali (csproj'daki surum tek kaynak)
+$vpkVersion = & (Join-Path $PSScriptRoot 'get-velopack-version.ps1')
+$vpkLine = dotnet tool list -g | Select-String '^vpk\s+(\S+)'
+$vpkHave = if ($vpkLine) { $vpkLine.Matches[0].Groups[1].Value } else { $null }
+if ($vpkHave -ne $vpkVersion) {
+    Write-Host "vpk $vpkVersion kuruluyor (mevcut: $vpkHave)..." -ForegroundColor Yellow
+    if ($vpkHave) {
+        dotnet tool update -g vpk --version $vpkVersion | Out-Null
+    } else {
+        dotnet tool install -g vpk --version $vpkVersion | Out-Null
+    }
     Assert-LastExit 'vpk kurulumu'
 }
 
