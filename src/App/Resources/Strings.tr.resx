@@ -888,4 +888,13 @@
   <data name="TabShelf" xml:space="preserve">
     <value>Raf</value>
   </data>
+  <data name="DockShowTrayTitle" xml:space="preserve">
+    <value>Sistem tepsisi</value>
+  </data>
+  <data name="DockShowTrayDesc" xml:space="preserve">
+    <value>Arka plan uygulamalarının simgeleri (Discord, Steam…) dock'ta bir pencerede</value>
+  </data>
+  <data name="TrayEmpty" xml:space="preserve">
+    <value>Tepsi simgesi yok</value>
+  </data>
 </root>

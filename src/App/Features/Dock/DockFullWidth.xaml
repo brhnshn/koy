@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:res="clr-namespace:Koy.App.Resources"
-             xmlns:local="clr-namespace:Koy.App.Features.Dock">
+             xmlns:local="clr-namespace:Koy.App.Features.Dock"
+             xmlns:tray="clr-namespace:Koy.App.Features.Dock.Tray">
 
     <!-- Tam Genişlik Modu (Glass / Cam): 44 px yükseklik, üst sınır parıltısı, akrilik koyu arka plan -->
     <Border Background="#D4121216"
@@ -174,12 +175,15 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <!-- Sağ Bölüm: Yalnız Koy Simgesi (36×34 px, 8 px radius, Koy SVG) -->
-            <Button Grid.Column="2"
-                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+            <!-- Sağ Bölüm: Sistem Tepsisi ve Koy Simgesi (36×34 px, 8 px radius, Koy SVG) -->
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center">
+            <tray:TrayButton/>
+            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                     Command="{Binding OpenKoyMenuCommand}"
                     ToolTip="Koy Menüsü"
-                    HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Width="36"
                     Height="34"
@@ -205,6 +209,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
+            </StackPanel>
         </Grid>
     </Border>
 </UserControl>

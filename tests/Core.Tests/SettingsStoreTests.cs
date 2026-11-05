@@ -189,6 +189,22 @@ public sealed class SettingsStoreTests : IDisposable
         Assert.Equal(Koy.Core.Dock.DockProximityMode.Dodge, store.Load().DockProximity);
     }
 
+    [Fact]
+    public void DockShowTray_DefaultsOnForOldFilesAndRoundTripsOff()
+    {
+        // Tepsi alanı olmayan eski dosyada tepsi açık gelmeli; kapatılınca kapalı kalmalı.
+        var store = NewStore();
+        Directory.CreateDirectory(_dir);
+        File.WriteAllText(store.Path, """{ "DockEnabled": true }""");
+        Assert.True(store.Load().DockShowTray);
+
+        store.Save(new AppSettings { DockShowTray = false });
+        var loaded = store.Load();
+
+        Assert.False(loaded.DockShowTray);
+        Assert.NotEqual(new AppSettings(), loaded);
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_dir))

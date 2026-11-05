@@ -39,6 +39,9 @@ public sealed record AppSettings
     public bool DockShowStartButton { get; set; } = true;
     public bool DockShowFolders { get; set; } = true;
     public bool DockShowMinimized { get; set; } = true;
+
+    /// <summary>Dock'ta sistem tepsisi düğmesi. Açıkken Koy uygulamaların tepsi simgelerini kendisi toplar.</summary>
+    public bool DockShowTray { get; set; } = true;
     public bool DockShowBadges { get; set; } = true;
     public bool DockThumbnailPreview { get; set; } = true;
     public int DockThumbnailDelayMs { get; set; } = 400;
@@ -128,6 +131,7 @@ public sealed record AppSettings
                DockShowStartButton == other.DockShowStartButton &&
                DockShowFolders == other.DockShowFolders &&
                DockShowMinimized == other.DockShowMinimized &&
+               DockShowTray == other.DockShowTray &&
                DockShowBadges == other.DockShowBadges &&
                DockThumbnailPreview == other.DockThumbnailPreview &&
                DockThumbnailDelayMs == other.DockThumbnailDelayMs &&
@@ -189,6 +193,7 @@ public sealed record AppSettings
         hash.Add(DockShowStartButton);
         hash.Add(DockShowFolders);
         hash.Add(DockShowMinimized);
+        hash.Add(DockShowTray);
         hash.Add(DockShowBadges);
         hash.Add(DockThumbnailPreview);
         hash.Add(DockThumbnailDelayMs);
