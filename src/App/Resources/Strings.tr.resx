@@ -468,12 +468,6 @@
   <data name="BrightnessOsdTitle" xml:space="preserve">
     <value>Parlaklık göstergesi</value>
   </data>
-  <data name="HideWindowsOsdTitle" xml:space="preserve">
-    <value>Windows'un kendi göstergesini gizle</value>
-  </data>
-  <data name="ExperimentalDesc" xml:space="preserve">
-    <value>Deneysel</value>
-  </data>
   <data name="SectionsHeader" xml:space="preserve">
     <value>BÖLÜMLER</value>
   </data>
@@ -621,9 +615,6 @@
   <data name="BatteryReduceMotion" xml:space="preserve">
     <value>Pil tasarrufunda animasyonları azalt</value>
   </data>
-  <data name="BatteryStopWaveform" xml:space="preserve">
-    <value>Pil tasarrufunda müzik dalgasını durdur</value>
-  </data>
   <data name="DataHeader" xml:space="preserve">
     <value>VERİ</value>
   </data>
@@ -638,12 +629,6 @@
   </data>
   <data name="IntervalStartupOnly" xml:space="preserve">
     <value>Yalnız açılışta</value>
-  </data>
-  <data name="AudioVisualizerTitle" xml:space="preserve">
-    <value>Ses görselleştirici</value>
-  </data>
-  <data name="AudioVisualizerDesc" xml:space="preserve">
-    <value>Deneysel, fazladan bellek kullanır</value>
   </data>
   <data name="IdleNotice" xml:space="preserve">
     <value>Koy boştayken işlemci kullanmaz. Zamanlayıcılar yalnız ilgili panel açıkken çalışır.</value>

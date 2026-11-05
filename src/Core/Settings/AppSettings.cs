@@ -11,7 +11,7 @@ namespace Koy.Core.Settings;
 /// </summary>
 public sealed record AppSettings
 {
-    public int Version { get; set; } = 1;
+    public int Version { get; set; } = 2;
     public string Language { get; set; } = "tr";
     public bool NotchEnabled { get; set; } = true;
 
@@ -54,9 +54,7 @@ public sealed record AppSettings
     public bool AutoCheckUpdates { get; set; } = true;
     public string UpdateChannel { get; set; } = "Kararlı";
     public bool BatterySaverReduceMotion { get; set; } = true;
-    public bool BatterySaverStopWaveform { get; set; } = true;
     public string WeatherRefreshInterval { get; set; } = "30m";
-    public bool AudioVisualizerEnabled { get; set; }
     public double DockIconSize { get; set; } = 28.0;
     public int IdleDisplayMode { get; set; }
     public int NotchOpenBehavior { get; set; } = 1;
@@ -127,9 +125,7 @@ public sealed record AppSettings
                AutoCheckUpdates == other.AutoCheckUpdates &&
                UpdateChannel == other.UpdateChannel &&
                BatterySaverReduceMotion == other.BatterySaverReduceMotion &&
-               BatterySaverStopWaveform == other.BatterySaverStopWaveform &&
                WeatherRefreshInterval == other.WeatherRefreshInterval &&
-               AudioVisualizerEnabled == other.AudioVisualizerEnabled &&
                DockIconSize.Equals(other.DockIconSize) &&
                IdleDisplayMode == other.IdleDisplayMode &&
                NotchOpenBehavior == other.NotchOpenBehavior &&
@@ -187,9 +183,7 @@ public sealed record AppSettings
         hash.Add(AutoCheckUpdates);
         hash.Add(UpdateChannel);
         hash.Add(BatterySaverReduceMotion);
-        hash.Add(BatterySaverStopWaveform);
         hash.Add(WeatherRefreshInterval);
-        hash.Add(AudioVisualizerEnabled);
         hash.Add(DockIconSize);
         hash.Add(IdleDisplayMode);
         hash.Add(NotchOpenBehavior);

@@ -114,17 +114,6 @@
             </Grid>
         </Border>
 
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [HideWindowsOsdTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                    <TextBlock Text="{Binding [ExperimentalDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
-                </StackPanel>
-                <CheckBox IsChecked="{Binding HideWindowsOsd}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
-            </Grid>
-        </Border>
-
         <!-- PANELLER -->
         <TextBlock Text="{Binding [PanelsHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 

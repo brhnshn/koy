@@ -62,9 +62,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _showBrightnessOsd = true;
 
     [ObservableProperty]
-    private bool _hideWindowsOsd;
-
-    [ObservableProperty]
     private bool _panelMusic = true;
 
     [ObservableProperty]
@@ -81,9 +78,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private int _notchOpenBehavior = 1; // 0: Üzerine gelince, 1: Tıklayınca
-
-    [ObservableProperty]
-    private string _notchSize = "Orta";
 
     // --- DOCK ---
     [ObservableProperty]
@@ -111,9 +105,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private int _dockIndicatorStyle; // 0: Nokta, 1: Çizgi
 
     [ObservableProperty]
-    private bool _dockGroupWindows = true;
-
-    [ObservableProperty]
     private bool _dockShowBadges = true;
 
     [ObservableProperty]
@@ -124,9 +115,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _dockShowMinimized = true;
-
-    [ObservableProperty]
-    private bool _dockShowRecent;
 
     [ObservableProperty]
     private bool _dockThumbnailPreview = true;
@@ -193,9 +181,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _batterySaverReduceMotion = true;
 
     [ObservableProperty]
-    private bool _batterySaverStopWaveform = true;
-
-    [ObservableProperty]
     private string _weatherRefreshInterval = "30m"; // 30m, 1h, startup
 
     [ObservableProperty]
@@ -211,9 +196,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     public int[] PomodoroWorkOptions { get; } = [15, 20, 25, 30, 45, 50, 60];
     public int[] PomodoroShortBreakOptions { get; } = [3, 5, 10, 15];
     public int[] PomodoroLongBreakOptions { get; } = [10, 15, 20, 30];
-
-    [ObservableProperty]
-    private bool _audioVisualizerEnabled;
 
     // --- HAKKINDA ---
     [ObservableProperty]
@@ -277,12 +259,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             AnimationSpeed = s.AnimationSpeed;
             RespectReduceMotion = s.RespectReduceMotion;
             BatterySaverReduceMotion = s.BatterySaverReduceMotion;
-            BatterySaverStopWaveform = s.BatterySaverStopWaveform;
             WeatherRefreshInterval = s.WeatherRefreshInterval;
             PomodoroWorkMinutes = s.PomodoroWorkMinutes;
             PomodoroShortBreakMinutes = s.PomodoroShortBreakMinutes;
             PomodoroLongBreakMinutes = s.PomodoroLongBreakMinutes;
-            AudioVisualizerEnabled = s.AudioVisualizerEnabled;
 
             WheelAction = s.WheelAction;
             MiddleClickAction = s.MiddleClickAction;
@@ -450,12 +430,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             AnimationSpeed = AnimationSpeed,
             RespectReduceMotion = RespectReduceMotion,
             BatterySaverReduceMotion = BatterySaverReduceMotion,
-            BatterySaverStopWaveform = BatterySaverStopWaveform,
             WeatherRefreshInterval = WeatherRefreshInterval,
             PomodoroWorkMinutes = PomodoroWorkMinutes,
             PomodoroShortBreakMinutes = PomodoroShortBreakMinutes,
             PomodoroLongBreakMinutes = PomodoroLongBreakMinutes,
-            AudioVisualizerEnabled = AudioVisualizerEnabled,
             WheelAction = WheelAction,
             MiddleClickAction = MiddleClickAction,
             EnabledPanels = enabledPanels

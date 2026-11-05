@@ -468,12 +468,6 @@
   <data name="BrightnessOsdTitle" xml:space="preserve">
     <value>Brightness indicator</value>
   </data>
-  <data name="HideWindowsOsdTitle" xml:space="preserve">
-    <value>Hide Windows default indicator</value>
-  </data>
-  <data name="ExperimentalDesc" xml:space="preserve">
-    <value>Experimental</value>
-  </data>
   <data name="SectionsHeader" xml:space="preserve">
     <value>SECTIONS</value>
   </data>
@@ -621,9 +615,6 @@
   <data name="BatteryReduceMotion" xml:space="preserve">
     <value>Reduce animations on battery saver</value>
   </data>
-  <data name="BatteryStopWaveform" xml:space="preserve">
-    <value>Stop music waveform on battery saver</value>
-  </data>
   <data name="DataHeader" xml:space="preserve">
     <value>DATA</value>
   </data>
@@ -638,12 +629,6 @@
   </data>
   <data name="IntervalStartupOnly" xml:space="preserve">
     <value>On startup only</value>
-  </data>
-  <data name="AudioVisualizerTitle" xml:space="preserve">
-    <value>Audio visualizer</value>
-  </data>
-  <data name="AudioVisualizerDesc" xml:space="preserve">
-    <value>Experimental, consumes extra memory</value>
   </data>
   <data name="IdleNotice" xml:space="preserve">
     <value>Koy uses 0% CPU when idle. Timers only run when their respective panel is open.</value>

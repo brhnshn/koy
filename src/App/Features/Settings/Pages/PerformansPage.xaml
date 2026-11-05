@@ -42,16 +42,6 @@
             </Grid>
         </Border>
 
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [BatteryStopWaveform], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                </StackPanel>
-                <CheckBox IsChecked="{Binding BatterySaverStopWaveform}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
-            </Grid>
-        </Border>
-
         <!-- VERİ -->
         <TextBlock Text="{Binding [DataHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 
@@ -66,17 +56,6 @@
                     <ComboBoxItem Content="{Binding [Interval1h], Source={x:Static res:Loc.Instance}}" Tag="1h" />
                     <ComboBoxItem Content="{Binding [IntervalStartupOnly], Source={x:Static res:Loc.Instance}}" Tag="startup" />
                 </ComboBox>
-            </Grid>
-        </Border>
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [AudioVisualizerTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                    <TextBlock Text="{Binding [AudioVisualizerDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
-                </StackPanel>
-                <CheckBox IsChecked="{Binding AudioVisualizerEnabled}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
 

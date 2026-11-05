@@ -89,11 +89,11 @@ public sealed class SetupWizardLogicTests : IDisposable
         var modifiedSaverMotion = s1 with { BatterySaverReduceMotion = false };
         Assert.NotEqual(s1, modifiedSaverMotion);
 
-        var modifiedSaverWave = s1 with { BatterySaverStopWaveform = false };
-        Assert.NotEqual(s1, modifiedSaverWave);
+        var modifiedOsd = s1 with { ShowVolumeOsd = false };
+        Assert.NotEqual(s1, modifiedOsd);
 
-        var modifiedVisualizer = s1 with { AudioVisualizerEnabled = true };
-        Assert.NotEqual(s1, modifiedVisualizer);
+        var modifiedPomodoro = s1 with { PomodoroWorkMinutes = 50 };
+        Assert.NotEqual(s1, modifiedPomodoro);
     }
 
     public void Dispose()
