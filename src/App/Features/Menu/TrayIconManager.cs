@@ -1,6 +1,7 @@
 using System.Windows.Interop;
 using System.Windows.Threading;
 using Koy.App.Features.Settings;
+using Koy.Core.Diagnostics;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Menu;
@@ -43,7 +44,7 @@ public sealed class TrayIconManager : IDisposable
         _singleClickTimer.Tick += (_, _) =>
         {
             _singleClickTimer.Stop();
-            SagAltMenuWindow.Toggle();
+            CrashLog.Guard("Tepsi tek tık", SagAltMenuWindow.Toggle);
         };
 
         _trayService = new TrayIconService(_hwndSource.Handle, WmTrayCallback);
@@ -52,6 +53,20 @@ public sealed class TrayIconManager : IDisposable
     }
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    {
+        // WndProc'tan sızan istisna süreci STATUS_FATAL_USER_CALLBACK_EXCEPTION ile düşürür; logla ve yut.
+        try
+        {
+            return HandleMessage(msg, lParam, ref handled);
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("TrayIconManager.WndProc", ex);
+            return 0;
+        }
+    }
+
+    private nint HandleMessage(int msg, nint lParam, ref bool handled)
     {
         if (msg == WmTrayCallback)
         {

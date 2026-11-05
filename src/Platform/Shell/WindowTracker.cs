@@ -285,6 +285,19 @@ public sealed class WindowTracker : IWindowTracker
         uint idEventThread,
         uint dwmsEventTime)
     {
+        // Yerel geri çağrıdan sızan istisna süreci düşürür; logla ve yut.
+        try
+        {
+            HandleWinEvent(@event, hwnd, idObject, idChild);
+        }
+        catch (Exception ex)
+        {
+            Koy.Core.Diagnostics.CrashLog.Write("WindowTracker.OnWinEvent", ex);
+        }
+    }
+
+    private void HandleWinEvent(uint @event, HWND hwnd, int idObject, int idChild)
+    {
         if (hwnd.IsNull)
             return;
 

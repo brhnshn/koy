@@ -8,6 +8,7 @@ using Koy.App.Features.Menu;
 using Koy.App.Features.Notch;
 using Koy.App.Features.Settings;
 using Koy.App.Features.Wizard;
+using Koy.Core.Diagnostics;
 using Koy.Core.Settings;
 using Koy.Platform.Shell;
 using Velopack;
@@ -46,29 +47,8 @@ public partial class App : Application
             RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
 
         // Görev çubuğu güvenliği: önceki oturum çöktüyse görev çubuğunu geri getir.
-        TaskbarService.Restore();
-        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
-        {
-            TaskbarService.Restore();
-            try
-            {
-                var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Koy");
-                Directory.CreateDirectory(logDir);
-                File.AppendAllText(Path.Combine(logDir, "crash.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] AppDomain Unhandled: {args.ExceptionObject}\n\n");
-            }
-            catch { }
-        };
-        DispatcherUnhandledException += (_, args) =>
-        {
-            TaskbarService.Restore();
-            try
-            {
-                var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Koy");
-                Directory.CreateDirectory(logDir);
-                File.AppendAllText(Path.Combine(logDir, "crash.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Dispatcher Unhandled: {args.Exception}\n\n");
-            }
-            catch { }
-        };
+        SafeRestoreTaskbar();
+        InstallGlobalErrorHandlers();
 
         var store = new SettingsStore(SettingsStore.DefaultPath);
         var settings = store.Load();
@@ -110,6 +90,44 @@ public partial class App : Application
         {
             KoyWindow.ShowInstance();
         }
+    }
+
+    /// <summary>
+    /// Görev çubuğunu geri getirir; hata verse bile çağıranın (çökme işleyicisi) akışını bozmaz.
+    /// </summary>
+    private static void SafeRestoreTaskbar()
+    {
+        try
+        {
+            TaskbarService.Restore();
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("TaskbarService.Restore başarısız", ex);
+        }
+    }
+
+    private void InstallGlobalErrorHandlers()
+    {
+        // Önce log, sonra görev çubuğu: Restore bir istisna atsa bile kayıt yazılmış olur.
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            CrashLog.Write(args.IsTerminating ? "AppDomain Unhandled (süreç sonlanıyor)" : "AppDomain Unhandled", args.ExceptionObject);
+            SafeRestoreTaskbar();
+        };
+
+        DispatcherUnhandledException += (_, args) =>
+        {
+            CrashLog.Write("Dispatcher Unhandled", args.Exception);
+            SafeRestoreTaskbar();
+        };
+
+        // Gözlenmeyen Task hataları: süreci düşürmez, ama izi kalsın.
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            CrashLog.Write("Unobserved Task", args.Exception);
+            args.SetObserved();
+        };
     }
 
     public void UpdateNotchState(bool enabled)

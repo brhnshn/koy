@@ -1,4 +1,5 @@
 using System.Windows;
+using Koy.Core.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -59,10 +60,18 @@ public partial class NotchWindow : Window
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
+        // WndProc'tan sızan istisna süreci düşürür; logla ve yut.
         if (msg == WmDisplayChange)
         {
-            DisplayChangeHandler?.Invoke();
-            PlaceAtTopCenter(_targetMonitor);
+            try
+            {
+                DisplayChangeHandler?.Invoke();
+                PlaceAtTopCenter(_targetMonitor);
+            }
+            catch (Exception ex)
+            {
+                CrashLog.Write("NotchWindow.WndProc", ex);
+            }
         }
         return 0;
     }

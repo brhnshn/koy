@@ -1,4 +1,5 @@
 using System.Windows;
+using Koy.Core.Diagnostics;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -77,14 +78,22 @@ public partial class DockWindow : Window
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
     {
-        if (msg == WmDisplayChange)
+        // WndProc'tan sızan istisna süreci düşürür; logla ve yut.
+        try
         {
-            DisplayChangeHandler?.Invoke();
-            Reposition(_targetMonitor);
+            if (msg == WmDisplayChange)
+            {
+                DisplayChangeHandler?.Invoke();
+                Reposition(_targetMonitor);
+            }
+            else if (WmShellHook != 0 && msg == WmShellHook)
+            {
+                ShellHookHandler?.Invoke(wParam, lParam);
+            }
         }
-        else if (WmShellHook != 0 && msg == WmShellHook)
+        catch (Exception ex)
         {
-            ShellHookHandler?.Invoke(wParam, lParam);
+            CrashLog.Write("DockWindow.WndProc", ex);
         }
         return 0;
     }
