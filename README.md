@@ -45,7 +45,7 @@ Masaüstü özelleştirme araçlarının çoğu (Electron, Tauri veya WebView2 t
 ### 1. Yay Animasyonlu Çentik (Notch) & OSD HUD
 Ekranın üst ortasında (`Top = 0`), içbükey (*concave*) üst kulaklara sahip özel `NotchShape` vektör geometrisiyle konumlanır:
 - **Boşta Durum (236×34 px):** Solda saat, sağda pil yüzdesi. Müzik çalarken solda albüm kapağı (22×22 px), sağda **%0 CPU** harcayan 4 çubuklu dalga ikonu.
-- **OSD HUD Göstergeleri (260×40 px):** Sistem sesi veya ekran parlaklığı değiştiğinde 1,5 saniye boyunca çentikte beliren akıcı gösterge (ses için beyaz `#F4F4F5`, parlaklık için sarı `#FACC15`). *Durum: görünüm yazıldı, henüz ses ve parlaklık olaylarına bağlanmadı.*
+- **OSD HUD Göstergeleri (260×40 px):** Sistem sesi veya ekran parlaklığı değiştiğinde 1,5 saniye boyunca çentikte beliren akıcı gösterge (ses için beyaz `#F4F4F5`, parlaklık için sarı `#FACC15`). Sistem sesi (CoreAudio) ve parlaklık (WMI / DDC-CI) değişimlerine bağlıdır; Koy penceresinden ayrı ayrı kapatılır. Parlaklık göstergesi yalnız parlaklığı okunabilen ekranlarda çalışır.
 - **Genişleyen 5 Sekmeli Panel (640 px):**
   - **Müzik:** `GlobalSystemMediaTransportControls` ile Spotify, YouTube (Edge/Chrome/Firefox) ve medya oynatıcılar için kapak resmi, şarkı/sanatçı bilgisi, interaktif zaman çubuğu (`Seek`) ve çoklu oturum geçişi.
   - **Takvim & Pomodoro:** Pazartesi başlangıçlı ay görünümü ve çalışma/kısa mola/uzun mola durum makineli **Pomodoro** sayacı (süre bitiminde yay titreşimli Peek bildirimi).
@@ -59,14 +59,15 @@ Windows görev çubuğunun sıradan bir kopyası değildir; saat, pil ve ağ gö
   - **Yüzen Kapsül (Floating Capsule — Varsayılan):** 60 px yükseklik, alttan 10 px yukarıda, 18 px köşe yuvarlaklığı. Düzen: *Başlat → Uygulamalar (nokta/çizgi göstergeli) → Ayırıcı → Klasörler (İndirilenler) & Küçültülmüş Pencereler → Ayırıcı → Koy Menüsü*.
   - **Tam Genişlik Cam (Full-Width Glass):** 44 px yükseklik. Solda çalan medya hapı, ortada uygulamalar (aktif pencere adıyla hap biçiminde), sağda Koy simgesi.
 - **Pencere Yaklaşma Davranışları (`DockProximityMode`):**
-  - **Çekil / Akıllı Gizlenme (`Dodge` — Varsayılan):** Pencere yaklaştığında veya büyütüldüğünde dock ekranın altına çekilir; fare alt kenara indiğinde geri gelir.
+  - **Aşağı Yapış (`DockDown` — Varsayılan):** Normal boy bir pencere yaklaşınca dock alt kenara iner (60 px'ten 46 px'e incelir, yalnız üst köşeleri yuvarlak kalır); pencere uzaklaşınca yeniden yüzer.
+  - **Çekil / Akıllı Gizlenme (`Dodge`):** Pencere yaklaştığında veya büyütüldüğünde dock ekranın altına çekilir; fare alt kenara indiğinde geri gelir.
   - **Yer Ayır (`ReserveSpace`):** `SHAppBarMessage` ile çalışma alanından 46 px yer ayırır; büyütülmüş pencereler tam dock'un üstünde biter.
   - **Hep Gizli (`AlwaysHidden`):** Yalnızca fare ekranın alt kenarına geldiğinde görünür.
 - **Canlı DWM Pencere Önizlemesi:** Simgenin üzerinde 400 ms durulduğunda `DwmRegisterThumbnail` ile gerçek zamanlı pencere önizlemesi.
 - **Z-Order Kararlılığı:** Alt+Tab ile pencereler arasında geçiş yaparken sabitlenmemiş açık uygulama simgelerinin sırası zıplamaz (`_stableUnpinnedOrder`).
 
 ### 3. Çoklu Ekran (Multi-Monitor) İzolasyonu
-- **Ekran Başına Pencere & DPI:** *Durum: varsayılan olarak yalnız birincil ekran kullanılır; ekran seçimi arayüzü henüz yok.* Etkinleştirilen her monitör kendi `NotchWindow` ve `DockWindow` örneğine sahiptir ve o ekranın Per-Monitor DPI ölçeğine göre net çizilir.
+- **Ekran Başına Pencere & DPI:** Koy penceresindeki **Ekranlar** sayfası bağlı monitörleri bir harita olarak gösterir; her ekran için çentik ve dock ayrı açılıp kapatılır, yeni bağlanan ekranda ne gösterileceği seçilir. Etkinleştirilen her monitör kendi `NotchWindow` ve `DockWindow` örneğine sahiptir ve o ekranın Per-Monitor DPI ölçeğine göre çizilir. *Not: gerçek çok monitörlü ve karışık DPI'lı bir kurulumda henüz elle denenmedi.*
 - **Bağımsız Tam Ekran Algılama:** Yan ekranda tam ekran bir oyun veya video açıldığında **yalnız o ekrandaki Koy gizlenir**; ana ekrandaki Çentik ve Dock kesintisiz çalışmaya devam eder (`Win+Shift+S` ekran alıntısı aracı filtreli).
 - **Dinamik Tak-Çıkar (`WM_DISPLAYCHANGE`):** Monitör bağlandığında, çıkarıldığında veya çözünürlük değiştiğinde pencereler otomatik oluşturulur ve yeniden yerleşir.
 - **İkincil Görev Çubukları:** Çoklu ekranda hem ana (`Shell_TrayWnd`) hem de ikincil (`Shell_SecondaryTrayWnd`) Windows görev çubukları senkron yönetilir.
@@ -74,8 +75,18 @@ Windows görev çubuğunun sıradan bir kopyası değildir; saat, pil ve ağ gö
 ### 4. Koy Penceresi, Sağ Alt Menü & İlk Kurulum Sihirbazı
 - **880 px Koy Penceresi:** Sekiz modüler ayar sayfası (*Genel, Çentik, Dock, Ekranlar, Görünüm, Kısayollar, Performans, Hakkında*). Pencereyi kapatmak Koy'u sonlandırmaz; yalnızca ayar görünümünü gizler.
 - **Acil Durum Görev Çubuğu Kurtarma:** *Dock* ve *Hakkında* sayfalarında Windows görev çubuğunu tek tıkla geri getiren acil durum düğmesi.
-- **Sağ Alt Sistem Menüsü (320 px):** Çentik ve Dock'u anında açıp kapatma, Koy penceresini açma, **1 saat duraklatma** (henüz yalnız bayrağı değiştiriyor) ve uygulamadan tam çıkış.
+- **Sağ Alt Sistem Menüsü (320 px):** Çentik ve Dock'u anında açıp kapatma, Koy penceresini açma, **1 saat duraklatma** (çentik ve dock durur, görev çubuğu geri gelir; bir saat sonra ya da tekrar basınca devam eder) ve uygulamadan tam çıkış. Çıkış yalnız bu menüde ve Koy penceresindeki "Koy'dan çık" düğmesinde vardır.
+- **Genel Kısayollar:** `RegisterHotKey` ile gerçek kayıt; çentik, raf, dock, Koy menüsü ve oynat/duraklat için varsayılanlar `Ctrl+Alt+N/R/D/K/Space` (Windows'un kendi `Win+harf` kısayollarıyla çakışmaz). Kısayollar sayfasından tuş yakalayarak değiştirilir; Windows'un ayırdığı ya da başka uygulamanın tuttuğu kombinasyonlar kullanıcıya bildirilir.
+- **Koyu / Açık Tema:** Sistem, Koyu veya Açık; vurgu rengi, katı ya da yarı saydam malzeme, köşe yuvarlaklığı ve animasyon hızı Görünüm sayfasından ayarlanır. "Animasyonları azalt" ve pil tasarrufu hareketi kapatır.
+- **Koy'u Kaldır:** Hakkında sayfasındaki düğme Koy tarzında bir onay açar ("Ayarlarımı sakla" varsayılan işaretli), görev çubuğunu geri getirir ve Velopack kaldırıcısını başlatır. Yalnız kurulu sürümde etkindir. Windows'un "Yüklü uygulamalar" sayfasından kaldırınca da görev çubuğu geri gelir, başlatma kaydı silinir ve ayarlarınız korunur.
 - **Canlı Çoklu Dil (TR / EN):** Uygulamayı yeniden başlatmadan Türkçe ve İngilizce arasında anında geçiş.
+
+### 5. Bilinen Eksikler
+Dürüst durum: aşağıdakiler henüz yok ya da doğrulanmadı.
+- **Bellek:** tek monitörde boşta hedefimiz 60 MB'ın altında; son ölçüm (v0.1.0 hazırlığı) boşta 82,7 MB private idi, hedefin üzerinde; ayrıntılar [`docs/MEMORY.md`](docs/MEMORY.md) içinde. Son arayüz, kısayol ve çoklu ekran revizyonlarından sonra yeniden ölçülmedi; bütçe kararı bekliyor.
+- **Çoklu ekran:** gerçek çok monitörlü ve karışık DPI'lı donanımda ve ikincil görev çubuğu AppBar'ında elle denenmedi.
+- **Henüz yok:** pano geçmişi, mikrofon/kamera kullanım göstergesi, Bluetooth cihaz bildirimi, ayrıntılı pil göstergesi. Sıra için [`docs/ROADMAP.md`](docs/ROADMAP.md).
+- **Doğrulanmadı:** hareket (animasyon) akıcılığı, yarı saydam malzemenin gerçek cihazda görünümü, sistem teması değişince canlı güncelleme, uygulama içi kaldırma akışının gerçek bir kurulumda uçtan uca denenmesi.
 
 ---
 
@@ -101,7 +112,7 @@ Windows görev çubuğunun sıradan bir kopyası değildir; saat, pil ve ağ gö
 git clone https://github.com/brhnshn/koy.git
 cd koy
 
-# 2. Derleyin ve 193 birim testini çalıştırın
+# 2. Derleyin ve birim testlerini çalıştırın (460 test)
 dotnet build Koy.slnx -c Release -warnaserror
 dotnet test Koy.slnx -c Release
 
@@ -150,10 +161,12 @@ koy/
 │   ├── Platform/      # Windows 11 API uygulamaları (CsWin32 NativeMethods.txt & WinRT). WPF YOK.
 │   └── App/           # WPF arayüzü, ince ViewModel'ler, 8 sayfalı KoyWindow, vektör ikonlar ve .resx dil dosyaları.
 ├── tests/
-│   └── Core.Tests/    # xUnit birim testleri (193 test: Spring, NotchController, DockPositionResolver, Pomodoro vb.).
+│   └── Core.Tests/    # xUnit birim testleri (460 test: Spring, NotchController, DockPositionResolver, Pomodoro, kısayollar, ekran yerleşimi, kaldırma vb.).
+├── tools/
+│   └── Koy.UiSnapshots/ # Arayüzü ekrana çıkarmadan PNG'ye çizen yardımcı (görsel doğrulama).
 ├── assets/branding/   # Koy Rozeti (Konsept C) vektör SVG, PNG ve çok katmanlı ICO marka varlıkları.
 ├── docs/              # PLAN.md, DESIGN.md, ROADMAP.md, MEMORY.md ve çevrimdışı tasarım galerisi.
-└── scripts/           # pack.ps1 (Velopack paketleyici) ve measure-memory.ps1 (bellek ölçüm betiği).
+└── scripts/           # pack.ps1 (Velopack paketleyici), measure-memory.ps1 (bellek ölçümü), generate-icons.py (marka simgeleri).
 ```
 
 ---
@@ -174,9 +187,10 @@ koy/
 
 **Koy** is an ultra-lightweight, native **Notch** and **Dock** for Windows 11 built with **C# (.NET 10) and WPF**. Unlike Electron or Tauri/WebView2 alternatives that spawn multiple browser processes, Koy runs in a **single process** with software rendering (`RenderMode.SoftwareOnly`), consuming **0% CPU when idle** and keeping memory footprint minimal.
 
-- **Spring-Animated Top Notch:** Shows clock & battery when idle (236×34 px), album art & static waveform when playing music, 1.5s OSD HUD overlays for volume and brightness (260×40 px), and expands into 5 panels (*Music with GSMTC session switcher, Calendar & Pomodoro timer, Drag-and-Drop File/Text Shelf, Control Center, and Weather/Battery Status*).
+- **Spring-Animated Top Notch:** Shows clock & battery when idle (236×34 px), album art & static waveform when playing music, 1.5s OSD HUD overlays wired to system volume and brightness changes (260×40 px), and expands into 5 panels (*Music with GSMTC session switcher, Calendar & Pomodoro timer, Drag-and-Drop File/Text Shelf, Control Center, and Weather/Battery Status*).
 - **Smart Desktop Dock:** Choose between **Floating Capsule** (60 px) or **Full-Width Glass** (44 px) layouts, with intelligent window proximity modes (*Dodge / Intellihide*, *Reserve Space via AppBar*, *Always Hidden*), live 400ms DWM window thumbnail previews (`DwmRegisterThumbnail`), and rock-solid Windows taskbar recovery (`TaskbarService.Restore()`).
-- **True Multi-Monitor Support:** Independent per-monitor DPI scaling and per-monitor fullscreen isolation (playing a fullscreen game or video on your secondary monitor only hides Koy on that display).
+- **Multi-Monitor Support:** A Displays page lets you choose a notch and dock per monitor, with per-monitor DPI and per-monitor fullscreen isolation (not yet verified on real mixed-DPI hardware).
+- **Customizable global shortcuts, dark/light theme, and an in-app uninstall flow** (settings are kept by default).
 - **Bilingual UI:** Instant runtime switching between **English** and **Turkish**.
 
 ---

@@ -24,6 +24,8 @@ Makine: Windows 11 Home 26200, RTX 4050 Laptop + Intel UHD.
 | 2026-11-04 | M6 Sürüm (Paket 0-4 Tam E2E, Boşta) | 82.7 MB | 135.9 MB | Bütçe kararı revizyon sonrasına bırakıldı (hedef < 60 MB geçerli; 85 MB eşiği resmi karar değil); Seelen UI model yüzen dock, çentik 236×34, lazy servisler |
 
 
+> **Not (2026-11-05):** Yukarıdaki son ölçümden sonra kısayollar, çoklu ekran, tema/ikon/hareket ve kaldırma ekranı eklendi; **bu revizyon sonrası bellek ölçülmedi.** Karar ve yeni ölçüm bekliyor.
+
 ## Öğrenilenler
 - **GPU ile çizim pahalı.** WPF donanım hızlandırması açıkken ekran kartı sürücüsü sürece ~135 MB private bellek ekliyor. Notch ve dock küçük yüzeyler; yazılımla çizim (`RenderMode.SoftwareOnly`) yeterli. Animasyon akıcılığı M1'de ölçülecek; takılırsa önce çizilen alanı küçült, GPU'ya dönmeden önce ölç.
 - Working set paylaşılan DLL'leri de sayar; karşılaştırmada **private** değeri esas alınır.
