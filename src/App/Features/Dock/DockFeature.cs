@@ -18,7 +18,7 @@ namespace Koy.App.Features.Dock;
 /// Açıldığında Windows görev çubuğunu gizler, kapandığında güvenle geri yükler (AGENTS.md #7 & #12).
 /// Çoklu monitör ortamında hedef ekranların her biri için bağımsız bir DockWindow örneği yönetir (M6.2).
 /// </summary>
-public sealed class DockFeature(AppSettings settings) : IFeature
+public sealed class DockFeature(AppSettings settings, SharedServices services) : IFeature
 {
     private sealed class DockWindowState : IDisposable
     {
@@ -59,7 +59,7 @@ public sealed class DockFeature(AppSettings settings) : IFeature
 
         // Platform servislerini başlat
         _pinnedAppsService = new PinnedAppsService();
-        _windowTracker = new WindowTracker();
+        _windowTracker = services.AcquireWindowTracker();
         _shellActionService = new ShellActionService();
         _fullscreenDetector = new FullscreenDetector();
         _monitorService = new MonitorService();
@@ -70,7 +70,9 @@ public sealed class DockFeature(AppSettings settings) : IFeature
             _pinnedAppsService,
             _windowTracker,
             _shellActionService,
-            _fullscreenDetector);
+            _fullscreenDetector,
+            refreshDebounce: TimeSpan.FromMilliseconds(120),
+            post: action => Application.Current?.Dispatcher.InvokeAsync(action));
 
         // Yalnızca ReserveSpace (Yer ayır) yakınlık modunda masaüstü çalışma alanından (AppBar) yer ayır
         if (settings.DockProximity == DockProximityMode.ReserveSpace)
@@ -78,9 +80,8 @@ public sealed class DockFeature(AppSettings settings) : IFeature
             _appBarService = new AppBarService();
         }
 
-        // Medya servisi (Tam genişlik Now Playing hapı için)
-        _mediaService = new MediaService();
-        _ = _mediaService.StartAsync();
+        // Medya servisi (Tam genişlik Now Playing hapı için); Notch ile paylaşılan tek örnek
+        _mediaService = services.AcquireMediaService();
 
         var monitors = _monitorService.GetMonitors();
         var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(monitors, settings.MonitorTarget);
@@ -99,13 +100,30 @@ public sealed class DockFeature(AppSettings settings) : IFeature
 
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
         _windowTracker.WindowsChanged += OnWindowsChanged;
+
+        // İzleyici paylaşımlı: Notch onu önceden başlattıysa ilk ön plan olayı bir daha gelmez, mevcut durumu elle uygula.
+        var trackerWasRunning = _windowTracker.IsStarted;
         _windowTracker.Start();
+        if (trackerWasRunning && _windowTracker.CurrentForeground is { } currentForeground)
+            OnForegroundWindowChanged(this, currentForeground);
 
         // Hide() sonrası Gezgin görev çubuğunu bir kez daha gösterebiliyor; açılışta hemen yakala.
         TaskbarService.EnsureHidden();
         _controller.Start();
 
         UpdateEdgeTimer();
+    }
+
+    /// <summary>
+    /// Explorer yeniden başlayınca yeni görev çubuğu görünür ve varsayılan durumda gelir; gizlemeyi yeniden uygular.
+    /// TaskbarService.Hide idempotent olduğundan kullanıcının asıl görev çubuğu durumu korunur.
+    /// </summary>
+    public void ReapplyTaskbarHiding()
+    {
+        if (_windowStates.Count == 0)
+            return;
+
+        TaskbarService.Hide();
     }
 
     private void CreateDockWindow(DisplayMonitor monitor)
@@ -349,6 +367,13 @@ public sealed class DockFeature(AppSettings settings) : IFeature
 
     private void CheckEdgePeek()
     {
+        // Savunma: UI thread dışından çağrılırsa (VerifyAccess çökmesi, 4.11 23:18) UI'a taşı.
+        if (Application.Current is { } app && !app.Dispatcher.CheckAccess())
+        {
+            app.Dispatcher.InvokeAsync(CheckEdgePeek, DispatcherPriority.Background);
+            return;
+        }
+
         if (_windowTracker is null || _windowStates.Count == 0)
             return;
 
@@ -375,8 +400,12 @@ public sealed class DockFeature(AppSettings settings) : IFeature
         _edgePeekTimer?.Stop();
         _edgePeekTimer = null;
 
-        _mediaService?.Dispose();
-        _mediaService = null;
+        // Paylaşılan servisleri yalnız bırak; son kullanıcı bırakınca SharedServices Dispose eder.
+        if (_mediaService is not null)
+        {
+            services.ReleaseMediaService();
+            _mediaService = null;
+        }
 
         if (_monitorService is not null)
         {
@@ -403,8 +432,8 @@ public sealed class DockFeature(AppSettings settings) : IFeature
             }
             _windowTracker.ForegroundWindowChanged -= OnForegroundWindowChanged;
             _windowTracker.WindowsChanged -= OnWindowsChanged;
-            _windowTracker.Dispose();
             _windowTracker = null;
+            services.ReleaseWindowTracker();
         }
 
         foreach (var (_, state) in _windowStates)

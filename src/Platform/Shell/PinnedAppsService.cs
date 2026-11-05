@@ -1,4 +1,5 @@
 using System.IO;
+using System.Runtime.InteropServices;
 using Koy.Core.Dock;
 using Windows.Win32;
 using Windows.Win32.System.Com;
@@ -49,13 +50,14 @@ public sealed class PinnedAppsService : IPinnedAppsService
 
     private static unsafe string? ResolveShortcutTarget(string shortcutPath)
     {
+        object? link = null;
         try
         {
             var shellLinkType = Type.GetTypeFromCLSID(new Guid("00021401-0000-0000-C000-000000000046"));
             if (shellLinkType is null)
                 return null;
 
-            var link = Activator.CreateInstance(shellLinkType);
+            link = Activator.CreateInstance(shellLinkType);
             if (link is IPersistFile persistFile && link is IShellLinkW shellLink)
             {
                 fixed (char* pFile = shortcutPath)
@@ -75,6 +77,12 @@ public sealed class PinnedAppsService : IPinnedAppsService
         catch
         {
             // Kısayol bozuksa veya çözümlenemiyorsa null döner
+        }
+        finally
+        {
+            // Her yenilemede onlarca kısayol çözülür; RCW'yi GC'ye bırakmadan hemen serbest bırak (COM sızıntısı).
+            if (link is not null && Marshal.IsComObject(link))
+                Marshal.FinalReleaseComObject(link);
         }
 
         return null;

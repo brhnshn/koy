@@ -633,7 +633,22 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
     private void OnControllerItemsChanged(object? sender, EventArgs e) => UpdateItems();
     private void OnFullscreenStateChanged(object? sender, bool isFullscreen) => EvaluatePosition(_lastContentWidth);
-    private void OnVisibilityChanged(object? sender, VisibilityResult result) => EvaluatePosition(_lastContentWidth);
+    private void OnVisibilityChanged(object? sender, VisibilityResult result)
+    {
+        // Medya peek zamanlayıcısı ThreadPool'dan tikler; EvaluatePosition pencereye dokunduğu için UI'a taşı.
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null || dispatcher.CheckAccess())
+        {
+            EvaluatePosition(_lastContentWidth);
+            return;
+        }
+
+        dispatcher.InvokeAsync(() =>
+        {
+            if (!_disposed)
+                EvaluatePosition(_lastContentWidth);
+        });
+    }
     private void OnActiveMenuChanged(object? sender, EventArgs e) => EvaluatePosition(_lastContentWidth);
 
     public void Dispose()

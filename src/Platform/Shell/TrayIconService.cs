@@ -15,6 +15,13 @@ public sealed class TrayIconService : IDisposable
     private readonly uint _callbackMessage;
     private DestroyIconSafeHandle? _safeIconHandle;
     private bool _isAdded;
+    private string _tooltip = "Koy";
+
+    /// <summary>
+    /// Explorer (yeniden) başlayıp görev çubuğunu oluşturunca bütün üst düzey pencerelere yayınlanan mesaj.
+    /// Tepsi simgeleri Explorer ile birlikte silindiği için bu mesajda simge yeniden eklenmeli.
+    /// </summary>
+    public static uint TaskbarCreatedMessage { get; } = PInvoke.RegisterWindowMessage("TaskbarCreated");
 
     public TrayIconService(nint hwnd, uint callbackMessage = 0x8001)
     {
@@ -25,6 +32,7 @@ public sealed class TrayIconService : IDisposable
     public unsafe bool Add(string tooltip = "Koy")
     {
         if (_isAdded || _hwnd == 0) return false;
+        _tooltip = tooltip;
 
         // Uygulamanın kendi gömülü ikonunu (Koy.exe) çıkar
         HICON hIcon = default;
@@ -74,6 +82,15 @@ public sealed class TrayIconService : IDisposable
 
         _isAdded = PInvoke.Shell_NotifyIcon(NOTIFY_ICON_MESSAGE.NIM_ADD, pData);
         return _isAdded;
+    }
+
+    /// <summary>Explorer yeniden başlatıldıktan sonra simgeyi yeniden ekler (eski kayıt zaten silinmiştir).</summary>
+    public bool Recreate()
+    {
+        _isAdded = false;
+        _safeIconHandle?.Dispose();
+        _safeIconHandle = null;
+        return Add(_tooltip);
     }
 
     public unsafe void Remove()

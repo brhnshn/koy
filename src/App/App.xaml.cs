@@ -8,6 +8,7 @@ using Koy.App.Features.Menu;
 using Koy.App.Features.Notch;
 using Koy.App.Features.Settings;
 using Koy.App.Features.Wizard;
+using Koy.Core.Diagnostics;
 using Koy.Core.Settings;
 using Koy.Platform.Shell;
 using Velopack;
@@ -19,10 +20,12 @@ public static class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // Velopack kurulum ve güncelleme kancaları (kaldırma anında görev çubuğunu mutlaka geri getir)
+        // Velopack kurulum ve güncelleme kancaları: kaldırma ve güncelleme sürecin ölmesiyle biter,
+        // OnExit çalışmayabilir; görev çubuğu bu kancalarda mutlaka geri getirilir (hata verse bile süreç düşmesin).
         VelopackApp.Build()
-            .OnBeforeUninstallFastCallback(_ => TaskbarService.Restore())
-            .OnAfterUpdateFastCallback(_ => TaskbarService.Restore())
+            .OnBeforeUninstallFastCallback(_ => App.SafeRestoreTaskbar())
+            .OnBeforeUpdateFastCallback(_ => App.SafeRestoreTaskbar())
+            .OnAfterUpdateFastCallback(_ => App.SafeRestoreTaskbar())
             .Run();
 
         var app = new App();
@@ -35,6 +38,7 @@ public partial class App : Application
 {
     private readonly List<IFeature> _features = [];
     private TrayIconManager? _trayIconManager;
+    private readonly SharedServices _services = new();
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -46,29 +50,8 @@ public partial class App : Application
             RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
 
         // Görev çubuğu güvenliği: önceki oturum çöktüyse görev çubuğunu geri getir.
-        TaskbarService.Restore();
-        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
-        {
-            TaskbarService.Restore();
-            try
-            {
-                var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Koy");
-                Directory.CreateDirectory(logDir);
-                File.AppendAllText(Path.Combine(logDir, "crash.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] AppDomain Unhandled: {args.ExceptionObject}\n\n");
-            }
-            catch { }
-        };
-        DispatcherUnhandledException += (_, args) =>
-        {
-            TaskbarService.Restore();
-            try
-            {
-                var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Koy");
-                Directory.CreateDirectory(logDir);
-                File.AppendAllText(Path.Combine(logDir, "crash.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Dispatcher Unhandled: {args.Exception}\n\n");
-            }
-            catch { }
-        };
+        SafeRestoreTaskbar();
+        InstallGlobalErrorHandlers();
 
         var store = new SettingsStore(SettingsStore.DefaultPath);
         var settings = store.Load();
@@ -82,6 +65,9 @@ public partial class App : Application
             settings = store.Load();
         }
 
+        // Sihirbaz X ile kapatıldıysa (tamamlanmadıysa) dock açılıp görev çubuğu gizlenmesin.
+        settings = FirstRunPolicy.ApplySafeDefaultsIfIncomplete(settings);
+
         var culture = new System.Globalization.CultureInfo(settings.Language == "en" ? "en-US" : "tr-TR");
         System.Globalization.CultureInfo.CurrentUICulture = culture;
         System.Globalization.CultureInfo.CurrentCulture = culture;
@@ -93,14 +79,15 @@ public partial class App : Application
 
         // Sistem tepsisi simgesi: dock kapalıyken de Koy menüsüne erişilmesini sağlar
         _trayIconManager = new TrayIconManager();
+        _trayIconManager.ExplorerRestarted += OnExplorerRestarted;
         _trayIconManager.Start();
 
         // Yalnız açık özellikler başlatılır. Dock kapalıyken görev çubuğuna hiç dokunulmaz.
         if (settings.NotchEnabled)
-            _features.Add(new NotchFeature(settings));
+            _features.Add(new NotchFeature(settings, _services));
 
         if (settings.DockEnabled)
-            _features.Add(new DockFeature(settings));
+            _features.Add(new DockFeature(settings, _services));
 
         foreach (var feature in _features)
             feature.Start();
@@ -112,13 +99,60 @@ public partial class App : Application
         }
     }
 
+    /// <summary>
+    /// Görev çubuğunu geri getirir; hata verse bile çağıranın (çökme işleyicisi) akışını bozmaz.
+    /// </summary>
+    private void OnExplorerRestarted()
+    {
+        CrashLog.Guard("Explorer yeniden başladı", () =>
+        {
+            foreach (var dock in _features.OfType<DockFeature>())
+                dock.ReapplyTaskbarHiding();
+        });
+    }
+
+    internal static void SafeRestoreTaskbar()
+    {
+        try
+        {
+            TaskbarService.Restore();
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("TaskbarService.Restore başarısız", ex);
+        }
+    }
+
+    private void InstallGlobalErrorHandlers()
+    {
+        // Önce log, sonra görev çubuğu: Restore bir istisna atsa bile kayıt yazılmış olur.
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            CrashLog.Write(args.IsTerminating ? "AppDomain Unhandled (süreç sonlanıyor)" : "AppDomain Unhandled", args.ExceptionObject);
+            SafeRestoreTaskbar();
+        };
+
+        DispatcherUnhandledException += (_, args) =>
+        {
+            CrashLog.Write("Dispatcher Unhandled", args.Exception);
+            SafeRestoreTaskbar();
+        };
+
+        // Gözlenmeyen Task hataları: süreci düşürmez, ama izi kalsın.
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            CrashLog.Write("Unobserved Task", args.Exception);
+            args.SetObserved();
+        };
+    }
+
     public void UpdateNotchState(bool enabled)
     {
         var existingNotch = _features.OfType<NotchFeature>().FirstOrDefault();
         if (enabled && existingNotch is null)
         {
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            var notch = new NotchFeature(settings);
+            var notch = new NotchFeature(settings, _services);
             _features.Add(notch);
             notch.Start();
         }
@@ -135,7 +169,7 @@ public partial class App : Application
         if (enabled && existingDock is null)
         {
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            var dock = new DockFeature(settings);
+            var dock = new DockFeature(settings, _services);
             _features.Add(dock);
             dock.Start();
         }
@@ -157,7 +191,7 @@ public partial class App : Application
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
             if (settings.DockEnabled)
             {
-                var dock = new DockFeature(settings);
+                var dock = new DockFeature(settings, _services);
                 _features.Add(dock);
                 dock.Start();
             }
@@ -174,7 +208,7 @@ public partial class App : Application
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
             if (settings.NotchEnabled)
             {
-                var notch = new NotchFeature(settings);
+                var notch = new NotchFeature(settings, _services);
                 _features.Add(notch);
                 notch.Start();
             }
@@ -188,6 +222,8 @@ public partial class App : Application
 
         foreach (var feature in _features)
             feature.Stop();
+
+        _services.Dispose();
 
         TaskbarService.Restore();
         base.OnExit(e);

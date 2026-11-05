@@ -103,9 +103,25 @@ public partial class SagAltMenuWindow : Window
         }
 
         // 4. Pencere boyutları
-        Measure(new Size(320, double.PositiveInfinity));
+        // WPF Window.Measure, HWND yokken GetWindowMinMax içinde FailFast ile süreci düşürür (kaydedilen 5.11 17:11 çökmesi).
+        // Bu yüzden ölçmeden önce HWND'yi (göstermeden) oluştururuz; böylece ilk gösterimde de titremesiz konumlanır.
         double menuWidth = 320;
-        double menuHeight = DesiredSize.Height > 100 ? DesiredSize.Height : (ActualHeight > 100 ? ActualHeight : 350);
+        double menuHeight = 350;
+        if (EnsureNativeWindow())
+        {
+            try
+            {
+                Measure(new Size(menuWidth, double.PositiveInfinity));
+                if (DesiredSize.Height > 100)
+                    menuHeight = DesiredSize.Height;
+                else if (ActualHeight > 100)
+                    menuHeight = ActualHeight;
+            }
+            catch (InvalidOperationException)
+            {
+                // Ölçülemezse tahmini yükseklikle devam; Loaded'da gerçek boyutla yeniden konumlanır.
+            }
+        }
 
         // 5. Hedef koordinatları belirle
         double targetLeft;
@@ -140,6 +156,19 @@ public partial class SagAltMenuWindow : Window
 
         Left = targetLeft;
         Top = targetTop;
+    }
+
+    /// <summary>HWND'yi göstermeden oluşturur; Measure/konumlama için gereklidir.</summary>
+    private bool EnsureNativeWindow()
+    {
+        try
+        {
+            return new System.Windows.Interop.WindowInteropHelper(this).EnsureHandle() != 0;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
     }
 
     private void Window_Deactivated(object? sender, EventArgs e)

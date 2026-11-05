@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using Koy.App.Features.Calendar;
 using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
@@ -21,7 +22,7 @@ using Koy.Platform.Weather;
 
 namespace Koy.App.Features.Notch;
 
-public sealed class NotchFeature(AppSettings settings) : IFeature
+public sealed class NotchFeature(AppSettings settings, SharedServices services) : IFeature
 {
     private sealed class NotchWindowState : IDisposable
     {
@@ -52,7 +53,7 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
     private WindowTracker? _windowTracker;
     private FullscreenDetector? _fullscreenDetector;
     private MonitorService? _monitorService;
-    private ITimer? _edgePeekTimer;
+    private DispatcherTimer? _edgePeekTimer;
 
     public void Start()
     {
@@ -60,15 +61,14 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             return;
 
         // Platform servisleri başlatılır (paylaşılan tekil servisler)
-        _mediaService = new MediaService();
-        _ = _mediaService.StartAsync();
+        _mediaService = services.AcquireMediaService();
 
         _powerService = new PowerService();
         _weatherService = new WeatherService();
         _focusAssistService = new FocusAssistService();
         _shelfService = new ShelfService();
 
-        _windowTracker = new WindowTracker();
+        _windowTracker = services.AcquireWindowTracker();
         _fullscreenDetector = new FullscreenDetector();
         _monitorService = new MonitorService();
         _monitorService.Start();
@@ -82,15 +82,22 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             CreateNotchWindow(monitor);
         }
 
-        // 100 ms kenar gözetleme (peek) zamanlayıcısı; yalnız gizliyken çalışır (AGENTS.md #5)
-        _edgePeekTimer = TimeProvider.System.CreateTimer(
-            _ => CheckEdgePeek(),
-            null,
-            Timeout.InfiniteTimeSpan,
-            Timeout.InfiniteTimeSpan);
+        // 100 ms kenar gözetleme (peek) zamanlayıcısı; yalnız gizliyken çalışır (AGENTS.md #5).
+        // DispatcherTimer UI thread'de tikler: eskiden ThreadPool zamanlayıcısıydı ve CheckEdgePeek
+        // pencere/durum nesnelerine UI dışından dokunup VerifyAccess çökmesine yol açıyordu.
+        _edgePeekTimer = new DispatcherTimer(DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMilliseconds(100)
+        };
+        _edgePeekTimer.Tick += (_, _) => CheckEdgePeek();
 
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
+
+        // İzleyici paylaşımlı: Dock onu önceden başlattıysa ilk ön plan olayı bir daha gelmez, mevcut durumu elle uygula.
+        var trackerWasRunning = _windowTracker.IsStarted;
         _windowTracker.Start();
+        if (trackerWasRunning && _windowTracker.CurrentForeground is { } currentForeground)
+            OnForegroundWindowChanged(this, currentForeground);
 
         UpdateEdgeTimer();
     }
@@ -264,11 +271,12 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         if (anyNeedsPeek)
         {
-            _edgePeekTimer.Change(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(100));
+            if (!_edgePeekTimer.IsEnabled)
+                _edgePeekTimer.Start();
         }
-        else
+        else if (_edgePeekTimer.IsEnabled)
         {
-            _edgePeekTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            _edgePeekTimer.Stop();
         }
     }
 
@@ -313,7 +321,7 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
     public void Stop()
     {
-        _edgePeekTimer?.Dispose();
+        _edgePeekTimer?.Stop();
         _edgePeekTimer = null;
 
         if (_monitorService is not null)
@@ -324,8 +332,8 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         if (_windowTracker is not null)
         {
             _windowTracker.ForegroundWindowChanged -= OnForegroundWindowChanged;
-            _windowTracker.Dispose();
             _windowTracker = null;
+            services.ReleaseWindowTracker();
         }
 
         foreach (var (_, state) in _windowStates)
@@ -341,8 +349,12 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         _fullscreenDetector = null;
 
-        _mediaService?.Dispose();
-        _mediaService = null;
+        // Paylaşılan medya servisi: yalnız bırak (Dock hâlâ kullanıyor olabilir).
+        if (_mediaService is not null)
+        {
+            services.ReleaseMediaService();
+            _mediaService = null;
+        }
 
         _powerService?.Dispose();
         _powerService = null;

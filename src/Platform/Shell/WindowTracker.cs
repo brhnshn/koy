@@ -33,6 +33,9 @@ public sealed class WindowTracker : IWindowTracker
 
     public WindowInfo? CurrentForeground { get; private set; }
 
+    /// <summary>İzleyici çalışıyor mu (paylaşımlı kullanımda ikinci özellik mevcut durumu elle okumalı).</summary>
+    public bool IsStarted => _started;
+
     public WindowTracker()
     {
         // Delegasyon alan olarak tutulur; aksi halde Win32 geri çağrısı sırasında GC toplayabilir.
@@ -221,11 +224,19 @@ public sealed class WindowTracker : IWindowTracker
             // Süreç bilgisi
             uint pid = 0;
             PInvoke.GetWindowThreadProcessId(hwnd, &pid);
+
+            // Mağaza (UWP) penceresinin sahibi ApplicationFrameHost.exe'dir ve bütün Mağaza uygulamalarına ortaktır.
+            // Gerçek uygulama sürecini çocuk CoreWindow'dan bul; bulunamazsa 0 (askıdaki uygulama): "Sonlandır" çalışmaz
+            // ama başka uygulamaları da kapatmaz.
+            var isFrameWindow = IsApplicationFrameWindow(hwnd);
+            if (isFrameWindow)
+                pid = ResolveUwpProcessId(hwnd, pid);
+
             var procPath = GetProcessPath(pid);
 
             // Mağaza uygulamaları ApplicationFrameHost.exe içinde çalışır; hepsi aynı exe'ye düşüp genel simgeyle
             // tek öğede toplanmasın diye uygulama kimliğinden (AUMID) kabuk yolu üretilir. Bu yol hem simge hem başlatma için geçerli.
-            if (IsApplicationFrameWindow(hwnd) && GetAppUserModelId(hwnd) is { Length: > 0 } aumid)
+            if (isFrameWindow && GetAppUserModelId(hwnd) is { Length: > 0 } aumid)
                 procPath = @"shell:AppsFolder\" + aumid;
 
             var iconData = !string.IsNullOrEmpty(procPath) ? IconHelper.GetIconBytes(procPath) : null;
@@ -268,6 +279,10 @@ public sealed class WindowTracker : IWindowTracker
         try
         {
             using var proc = Process.GetProcessById(processId);
+            // Ortak çatı süreçleri (ApplicationFrameHost, explorer…) öldürülürse ilgisiz uygulamalar da kapanır.
+            if (!ProcessTerminationPolicy.CanTerminate(processId, proc.ProcessName, Environment.ProcessId))
+                return;
+
             proc.Kill();
         }
         catch
@@ -284,6 +299,19 @@ public sealed class WindowTracker : IWindowTracker
         int idChild,
         uint idEventThread,
         uint dwmsEventTime)
+    {
+        // Yerel geri çağrıdan sızan istisna süreci düşürür; logla ve yut.
+        try
+        {
+            HandleWinEvent(@event, hwnd, idObject, idChild);
+        }
+        catch (Exception ex)
+        {
+            Koy.Core.Diagnostics.CrashLog.Write("WindowTracker.OnWinEvent", ex);
+        }
+    }
+
+    private void HandleWinEvent(uint @event, HWND hwnd, int idObject, int idChild)
     {
         if (hwnd.IsNull)
             return;
@@ -373,6 +401,25 @@ public sealed class WindowTracker : IWindowTracker
         int cloaked = 0;
         var hr = PInvoke.DwmGetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, &cloaked, sizeof(int));
         return hr.Succeeded && cloaked != 0;
+    }
+
+    private static unsafe uint ResolveUwpProcessId(HWND frameWindow, uint framePid)
+    {
+        uint result = 0;
+        PInvoke.EnumChildWindows(frameWindow, (HWND child, LPARAM _) =>
+        {
+            uint childPid = 0;
+            PInvoke.GetWindowThreadProcessId(child, &childPid);
+            if (childPid != 0 && childPid != framePid)
+            {
+                result = childPid;
+                return false;
+            }
+
+            return true;
+        }, 0);
+
+        return result;
     }
 
     private static unsafe bool IsApplicationFrameWindow(HWND hwnd)

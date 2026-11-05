@@ -215,7 +215,29 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _visibility.OnMediaActivity();
     }
 
+    // Core zamanlayıcıları (otomatik peek, fare çıkışı, medya peek) ThreadPool'dan tikler;
+    // durum ve pencere nesnelerine yalnız UI thread'inden dokunulur.
+    private void RunOnUi(Action action)
+    {
+        if (_dispatcher.CheckAccess())
+        {
+            action();
+            return;
+        }
+
+        _dispatcher.InvokeAsync(() =>
+        {
+            if (!_disposed)
+                action();
+        });
+    }
+
     private void OnStateChanged(object? sender, NotchState newState)
+    {
+        RunOnUi(() => ApplyState(newState));
+    }
+
+    private void ApplyState(NotchState newState)
     {
         State = newState;
         UpdateTargetSize();
@@ -240,6 +262,11 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     }
 
     private void OnVisibilityChanged(object? sender, VisibilityResult result)
+    {
+        RunOnUi(() => ApplyVisibility(result));
+    }
+
+    private void ApplyVisibility(VisibilityResult result)
     {
         IsNotchVisible = result.IsVisible;
         if (IsNotchVisible)

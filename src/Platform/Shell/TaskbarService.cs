@@ -1,4 +1,5 @@
 using System.IO;
+using Koy.Core.Shell;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Shell;
@@ -16,18 +17,23 @@ public static class TaskbarService
 {
     private const uint ABM_GETSTATE = 0x00000004;
     private const uint ABM_SETSTATE = 0x0000000A;
-    private const int ABS_AUTOHIDE = 0x00000001;
-    private const int ABS_ALWAYSONTOP = 0x00000002;
+    private const int ABS_AUTOHIDE = TaskbarStatePolicy.AutoHide;
 
     private static readonly string StateFilePath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "Koy",
         "taskbar-state.json");
 
+    /// <summary>
+    /// Görev çubuğunu gizler. Birden çok kez çağrılabilir (idempotent): zaten gizliyken kayıtlı "önceki durum"
+    /// korunur, böylece bizim koyduğumuz AUTOHIDE kullanıcının gerçek durumu sanılıp üzerine yazılmaz.
+    /// Explorer yeniden başlayınca da aynı çağrı gizlemeyi yeniden uygular.
+    /// </summary>
     public static unsafe void Hide()
     {
+        var saved = ReadSavedState();
         var primary = PInvoke.FindWindow("Shell_TrayWnd", null);
-        var prevState = ABS_ALWAYSONTOP;
+        var prevState = saved is { Hidden: true } s ? s.PreviousState : TaskbarStatePolicy.AlwaysOnTop;
 
         if (primary != HWND.Null)
         {
@@ -36,32 +42,37 @@ public static class TaskbarService
                 cbSize = (uint)sizeof(APPBARDATA),
                 hWnd = primary
             };
-            prevState = (int)PInvoke.SHAppBarMessage(ABM_GETSTATE, ref data);
+            var current = (int)PInvoke.SHAppBarMessage(ABM_GETSTATE, ref data);
+            prevState = TaskbarStatePolicy.ChoosePreviousState(saved, current);
 
             data.lParam = new LPARAM((nint)ABS_AUTOHIDE);
             PInvoke.SHAppBarMessage(ABM_SETSTATE, ref data);
         }
 
-        SaveState(hidden: true, prevState);
+        SaveState(new TaskbarSavedState(true, prevState));
         SetVisible(false);
     }
 
+    /// <summary>
+    /// Görev çubuğunu (birincil ve bütün ikincil monitörlerdekileri) geri getirir ve durumu önceki haline döndürür.
+    /// Explorer çalışmıyorsa (birincil çubuk yok) durum dosyası silinmez; sonraki açılış yeniden dener.
+    /// </summary>
     public static unsafe void Restore()
     {
         SetVisible(true);
 
-        var prevState = ReadSavedState();
+        var saved = ReadSavedState();
         var primary = PInvoke.FindWindow("Shell_TrayWnd", null);
-        if (primary != HWND.Null)
+        if (primary == HWND.Null)
+            return;
+
+        var data = new APPBARDATA
         {
-            var data = new APPBARDATA
-            {
-                cbSize = (uint)sizeof(APPBARDATA),
-                hWnd = primary,
-                lParam = new LPARAM((nint)(prevState > 0 ? prevState : ABS_ALWAYSONTOP))
-            };
-            PInvoke.SHAppBarMessage(ABM_SETSTATE, ref data);
-        }
+            cbSize = (uint)sizeof(APPBARDATA),
+            hWnd = primary,
+            lParam = new LPARAM((nint)TaskbarStatePolicy.ResolveRestoreState(saved))
+        };
+        PInvoke.SHAppBarMessage(ABM_SETSTATE, ref data);
 
         DeleteState();
     }
@@ -105,7 +116,7 @@ public static class TaskbarService
             PInvoke.ShowWindow(secondary, command);
     }
 
-    private static void SaveState(bool hidden, int previousState)
+    private static void SaveState(TaskbarSavedState state)
     {
         try
         {
@@ -113,8 +124,7 @@ public static class TaskbarService
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            var json = $"{{\"taskbarHidden\": {hidden.ToString().ToLowerInvariant()}, \"previousState\": {previousState}, \"timestamp\": \"{DateTime.UtcNow:O}\"}}";
-            File.WriteAllText(StateFilePath, json);
+            File.WriteAllText(StateFilePath, TaskbarStatePolicy.Serialize(state, DateTime.UtcNow));
         }
         catch
         {
@@ -122,28 +132,17 @@ public static class TaskbarService
         }
     }
 
-    private static int ReadSavedState()
+    private static TaskbarSavedState? ReadSavedState()
     {
         try
         {
             if (File.Exists(StateFilePath))
-            {
-                var content = File.ReadAllText(StateFilePath);
-                var idx = content.IndexOf("\"previousState\":", StringComparison.OrdinalIgnoreCase);
-                if (idx >= 0)
-                {
-                    var start = idx + 16;
-                    var end = content.IndexOfAny([',', '}'], start);
-                    var numStr = (end > start ? content[start..end] : content[start..]).Trim();
-                    if (int.TryParse(numStr, out var val))
-                        return val;
-                }
-            }
+                return TaskbarStatePolicy.Parse(File.ReadAllText(StateFilePath));
         }
         catch
         {
         }
-        return ABS_ALWAYSONTOP;
+        return null;
     }
 
     private static void DeleteState()
