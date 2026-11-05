@@ -517,7 +517,7 @@
     <value>Bellek kullanımı</value>
   </data>
   <data name="BudgetDesc" xml:space="preserve">
-    <value>Bütçe 60 MB</value>
+    <value>Hedef 100-150 MB, 200 MB'a kadar kabul</value>
   </data>
   <data name="BatteryHeader" xml:space="preserve">
     <value>Pil</value>

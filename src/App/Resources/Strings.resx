@@ -517,7 +517,7 @@
     <value>Memory usage</value>
   </data>
   <data name="BudgetDesc" xml:space="preserve">
-    <value>Budget 60 MB</value>
+    <value>Target 100-150 MB, up to 200 MB accepted</value>
   </data>
   <data name="BatteryHeader" xml:space="preserve">
     <value>Battery</value>

@@ -136,7 +136,7 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 - [x] Dock düzeni ayardan seçilir: yüzen kapsül ya da tam genişlik.
 - [x] "Pencere yaklaşınca" davranışı ayardan seçilir: **Yer ayır** (dock alt kenara oturur, çalışma alanı ayrılır), **Aşağı yapış** (normal boy pencere yaklaşınca dock alt kenara iner, incelir, pencereyi örtmez; varsayılan), **Çekil** (büyütülmüş pencerede gizlenir, fare alt kenara inince gelir), **Hep gizli**. Tam ekranda her modda gizli. Büyütülmüş pencere ile dock arasında boşluk kalmamalı. Paket C'de varsayılan `DockDown` oldu ve her yüklemede `Dodge`'a çeviren göç kaldırıldı. Not: eski bir kurulumda `settings.json`'da `Dodge` yazılı kalmış olabilir; Dock sayfasından Aşağı yapış seçilir.
 - [x] Simgenin üzerine gelince pencere önizlemesi (DWM thumbnail, `DwmRegisterThumbnail`). Yalnız üzerine gelindiğinde kurulur, bellek ölçülür.
-- [ ] İsteğe bağlı ayırıcı: solda uygulamalar, sağda klasörler, son kullanılanlar ve küçültülmüş pencereler. **Kısmi:** ayırıcı, tek klasör (İndirilenler) ve küçültülmüş pencereler var; son kullanılanlar yok, ayar arayüzü yok.
+- [x] İsteğe bağlı ayırıcı: solda uygulamalar, sağda klasörler, son kullanılanlar ve küçültülmüş pencereler. Ayırıcı, İndirilenler klasörü, küçültülmüş pencereler ve son kullanılanlar yığını var (Windows Son Kullanılanlar klasörü, en çok 10 öğe, yalnız tıklanınca okunur); hepsi Dock sayfasından kapatılır.
 - [ ] Saat, pil, ses ve ağ dock'tan çentiğe taşınır (tasarıma göre). **Kısmi:** dock'ta durum alanı yok; saat ve pil çentikte, ses kontrol merkezinde. Ağ durumu hiçbir yerde gösterilmiyor (`INetworkService` / `NetworkService` bağlı değil).
 
 ### 6.4 Çentik genişler
@@ -144,7 +144,7 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 - [x] Dosya rafı ve takvim çentikte zaten var (M3). Kapalı çentikten erişimi gözden geçirilir.
 
 ### 6.5 Koy'un kendi arayüzü
-- [ ] Sağ altta Koy simgesi: dock açıkken dock'un sağ ucunda, dock kapalıyken bildirim alanında (`Shell_NotifyIcon`, CsWin32 ile, WinForms yok). Tıklayınca Koy penceresi açılır. **Kısmi:** simge ve menü çalışıyor, "1 saat duraklat" artık gerçekten çentik ve dock'u durduruyor (Paket C), Explorer yeniden başlayınca simge yeniden ekleniyor; ama tepsi simgesi dock durumundan bağımsız hep gösteriliyor, dock açıkken iki simge olabilir.
+- [x] Sağ altta Koy simgesi: dock açıkken dock'un sağ ucunda, dock kapalıyken bildirim alanında (`Shell_NotifyIcon`, CsWin32 ile, WinForms yok). Tıklayınca Koy penceresi açılır. Dock penceresi varken bildirim alanı simgesi kaldırılır (tek simge), dock kapanınca ya da duraklayınca geri gelir; "1 saat duraklat" gerçekten çentik ve dock'u durdurur; Explorer yeniden başlayınca simge (gizli değilse) yeniden eklenir. **Elle denenmedi** (dock açma/kapama/duraklatma, Explorer yeniden başlatma).
 - [x] Çıkış yalnız sağ alt menüden ve Koy penceresindeki "Koy'dan çık" düğmesinden yapılır; çentik ve dock sağ tık menülerindeki "Çıkış" kaldırıldı (Paket C).
 - [x] Ayarlar penceresi yeni tasarıma göre "Koy penceresi" olur: orta boy (880 px), sekiz sayfa (Genel, Çentik, Dock, Ekranlar, Görünüm, Kısayollar, Performans, Hakkında). Sayfaların ayarları tasarım galerisinde. "Hakkında"da "Windows görev çubuğunu geri getir" acil durum düğmesi bulunur. Paket C ve D ile ayarlar gerçekten bağlandı; Hakkında sayfasına ayrıca "Koy'u kaldır" eklendi.
 - [x] İlk açılış: üç adımlık kurulum (ne gösterilsin: çentik ve dock / yalnız çentik / yalnız dock).
@@ -152,7 +152,7 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 ### 6.6 Kabul
 - [ ] İki ekranla dene: yan ekranda tam ekran video oynarken ana ekranda çentik ve dock duruyor. **Kısmi:** mantık monitör başına ve testli, kullanıcı Ekranlar sayfasından açabiliyor; gerçek iki ekranla elle kabul testi yapılmadı.
 - [ ] Ekranı çıkar ve tak: pencereler doğru yere geliyor, görev çubuğu bütün ekranlarda gizli. **Kısmi:** kod var, gerçek donanımda denenmeli.
-- [x] Bellek ölçüldü: 82.7 MB private. Bütçe kararı revizyon sonrasına bırakıldı: AGENTS.md'deki < 60 MB hedefi geçerli, 85 MB eşiği resmi karar değil (bkz. `docs/MEMORY.md`).
+- [x] Bellek ölçüldü: 82.7 MB private. Bütçe kararı 2026-11-06'da verildi: boşta 100–150 MB hedef, 200 MB'a kadar kabul (bkz. `docs/MEMORY.md`).
 
 ---
 
@@ -168,13 +168,13 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 - [x] **Belge son geçişi:** AGENTS, README, DESIGN, CHANGELOG gerçek duruma getirildi.
 
 ## Sıradaki
-**E paketi adayları** (bellek bütçesi kararı bekliyor; her biri yeni servis demek, önce ölç):
+**E paketi adayları** (bütçe kararı verildi: 100–150 MB hedef, 200 MB'a kadar kabul; her biri yeni servis demek, önce ölç):
 - [ ] Pano geçmişi (yalnız metin, sınırlı ve silinebilir).
 - [ ] Mikrofon / kamera kullanım göstergesi (çentikte nokta).
 - [ ] Bluetooth cihaz HUD'u (kulaklık bağlandı / pil seviyesi).
 - [ ] Pil HUD'u tamamlama (düşük pil, şarj tamamlandı uyarıları).
 - [ ] **RAM optimizasyonu:** #14 radyo servisini açılışta kuruyor (önceden Kontrol paneli ilk açılınca); boşta bellek farkını ölç, gerekirse radyo izlemesini ilk ihtiyaca ertele ya da simge işi için yükü azalt.
-- [ ] **Bellek bütçesi kararı:** son ölçüm 82,7 MB, revizyon sonrası yeniden ölçülmedi. Karar çıkmadan E paketi başlamaz (`docs/MEMORY.md`).
+- [x] **Bellek bütçesi kararı (2026-11-06):** boşta 100–150 MB private hedef, çok ekran / açık panellerle 200 MB'a kadar kabul. Son ölçüm 63,9 MB (`docs/MEMORY.md`); dock/tepsi paketi sonrası yeniden ölçülecek.
 
 **Katkıcı PR'ları (xdaxer):**
 - [x] #8 pilsiz makinede pil gizleme, #10 dock pencere önizlemesi, #12 Kontrol Merkezi Wi-Fi/Bluetooth yönetimi, #13 açılış zemini: `main`'e alındı (bizim düzeltmelerimizle).
@@ -182,7 +182,7 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 - [ ] #11: kapsam kararı bekliyor (bu ROADMAP v1 dışı demişti).
 - #9: `main`'de farklı bir yapıyla (Ekranlar sayfası, D2) çözüldü; kapatılacak.
 
-**Hâlâ açık olan eksikler:** takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi (konum sabit İstanbul); kontrol merkezi döşeme sırasının sürükleyerek değiştirilmesi (`ControlCenterLayout` okunmuyor); dock'ta "son kullanılanlar" ve ağ durumu; ses görselleştirici; tepsi simgesinin dock durumuyla tek simgeye indirilmesi; gerçek çoklu monitör ve karışık DPI doğrulaması; bellek ölçümü.
+**Hâlâ açık olan eksikler:** takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi (konum sabit İstanbul); kontrol merkezi döşeme sırasının sürükleyerek değiştirilmesi (`ControlCenterLayout` okunmuyor); dock'ta ağ durumu (çentik tarafında), UWP uygulama sabitlemeleri (AUMID); ses görselleştirici; gerçek çoklu monitör ve karışık DPI doğrulaması; bellek ölçümü.
 
 ---
 
@@ -191,11 +191,24 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 - [x] `Platform/Shell/TrayHostService.cs`: kendi iş parçacığında gizli `Shell_TrayWnd` penceresi, her kaydı Windows'a da iletir. `ShellTrayLocator.FindExplorerTray` görev çubuğu gizleme/geri getirme kodunda Koy'un kendi penceresini atlar.
 - [x] `SharedServices.AcquireTrayHost`: bütün monitörlerdeki dock'lar aynı örneği paylaşır; yalnız Windows görev çubuğu gizliyken (ayar açık ve en az bir dock penceresi var) kurulur. Ayar: Dock sayfası "Sistem tepsisini dock'ta göster" (`DockShowTray`, varsayılan açık).
 - [x] Koy kapanır / duraklatılır / dock kapanır / ayar kapanır → pencere kapanır ve Windows tepsisi geri gelir; çökme işleyicileri görev çubuğunu ve tepsi penceresini birlikte kapatır.
+- [x] Sağ tıkta açılır pencere kapanmaz: uygulamanın bağlam menüsü açıkken açık kalır; menüden seçim yapılınca ya da pencere ve menünün dışına tıklanınca yay animasyonuyla kapanır (`TrayPopupDismissPolicy`, odak kaybı kapatma sebebi değil).
 - [ ] **Elle sınama** (proje sahibi): Discord/Steam/Tailscale tıklama ve menü; Görev Yöneticisi'nden süreci öldür → Windows tepsisi ve görev çubuğu geri; Explorer'ı yeniden başlat → simgeler geri; çok monitör.
 - [ ] Bellek ölçümü (AGENTS #1): main ile main + tepsi karşılaştırması, `docs/MEMORY.md`.
+
+## Dock ve tepsi paketi (2026-11-06)
+- [x] **Gözcü süreç:** `src/Watchdog/` (`Koy.Watchdog.exe`, Native AOT, pencere yok). Dock görev çubuğunu gizlediği sürece tek gözcü çalışır, Koy'un PID'ini bekler; Koy öldürülürse görev çubuğunu geri getirir (`taskbar-state.json`), temiz çıkışta dokunmaz. Görev çubuğu mantığı `TaskbarService.cs` / `ShellTrayLocator.cs` dosyalarını bağlayarak paylaşılır; karar mantığı `Core/Shell/WatchdogPolicy.cs`. `scripts/pack.ps1` ve `release.yml` exe'yi Koy'un klasörüne koyar. **AOT yayın bu makinede (C++ araçları yok) üretilemedi; elle sınama bekliyor.**
+- [x] **Sabitli uygulama sırası:** sıra `AppSettings.DockPinnedOrder`'da; ilk açılışta Taskband `Favorites` tohum (okunamazsa klasör sırası); dock'ta sürükleyerek sıralama (yay ile kayma). Mantık `Core/Dock/PinnedOrder.cs`, testli.
+- [x] **Alt kenardan açılma ve tam ekran:** büyütülmüş pencerede dock gizliyse fare alt kenarda ~300 ms durunca (tuş basılı değilken) çıkar, "Alt kenardan aç" ayarıyla kapatılır; gerçek tam ekranda asla çıkmaz. Tam ekran üç işaretin birleşimi, monitör başına (`FullscreenRule`, `EdgeRevealTracker`, `DockPositionResolver`), testli.
+- [x] **Tepsi açılır penceresi** sağ tıkta kapanmıyor (yukarıda).
+- [x] **Tek tepsi simgesi** (6.5).
+- [x] **Dock'ta son kullanılanlar** (6.3).
+- [x] **Çoklu ekran varsayılanı:** yeni ekran varsayılanı çentik ve dock açık (`MonitorPolicy.DefaultNewScreenMode`), testli.
+- [x] **Belgeler:** bellek bütçesi kararı, ölçüm kaydı, CHANGELOG.
+- [ ] **Elle sınama** (proje sahibi): Görev Yöneticisi'nden Koy'u öldür → görev çubuğu birkaç sn içinde kendiliğinden gelmeli; Koy'dan çık / dock'u kapat → gözcü kalmamalı (Görev Yöneticisi'nde `Koy.Watchdog.exe`); simge sürükleyerek sırala, yeniden başlatınca sıra korunmalı; büyütülmüş pencerede alt kenara git (tuş basılı değilken ~300 ms sonra çıkar), oyun / F11 / tam ekran videoda çıkmasın; tepsi simgesine sağ tık → pencere açık kalsın, menüden seçince / dışarı tıklayınca kapansın; dock açıkken bildirim alanında Koy simgesi olmasın, dock kapanınca gelsin; son kullanılanlar yığını; ikinci ekran takınca çentik ve dock açılsın.
+- [ ] Gözcü AOT paketinin gerçek CI/`pack.ps1` çıktısından boyut ve bellek ölçümü; paket sonrası Koy belleğinin yeniden ölçümü (`docs/MEMORY.md`).
 
 ## Sonraya kalanlar
 - Google / Outlook takvim (OAuth).
 - Tepsi: gizli (taşma) simgeleri ayrı gösterme, balon bildirimleri (`NIF_INFO`), animasyonlu simgelerin ölçümü.
-- Sabitli uygulama sırasını kayıt defterinden (`Taskband\Favorites`) okuma.
+- UWP (Store) uygulamalarının dock'ta sabitlenmesi: kimlik AUMID, simge `shell:AppsFolder`, pencere eşleme `SHGetPropertyStoreForWindow`. Windows'un sabitleri arasında Spotify, WhatsApp gibi UWP uygulamalar var; Koy bugün yalnız `.lnk` sabitlerini gösteriyor.
 - Kod imzalama.

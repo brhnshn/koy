@@ -1,7 +1,9 @@
 # Bellek ölçüm kaydı
 
 Her aşamanın sonunda `scripts/measure-memory.ps1` çalıştır ve sonucu bu tabloya ekle.
-Hedef: tek monitörde, boşta **< 60 MB private**.
+Hedef (karar 2026-11-06): boşta **100–150 MB private**; çok ekran ya da açık panellerle **200 MB'a kadar kabul**.
+Eski hedef olan tek monitörde < 60 MB, WPF'in ilk pencere maliyeti (~47 MB, aşağıdaki döküm) yüzünden ulaşılamadığı için bırakıldı;
+aşağıdaki eski satırlardaki "Bütçe (< 60 MB) korundu" notları o günün hedefine göredir.
 
 Makine: Windows 11 Home 26200, RTX 4050 Laptop + Intel UHD.
 
@@ -22,9 +24,11 @@ Makine: Windows 11 Home 26200, RTX 4050 Laptop + Intel UHD.
 | 2026-11-04 | Tam genişlik dock + durum alanı, dock kapalı | 90.4 MB | 160.6 MB | Bütçe aşılmış; dock dışı bir kaynak, ayrıca incelenecek |
 | 2026-11-04 | Tam genişlik dock + durum alanı, dock açık | 101.5 MB | 650.4 MB | Dock + durum alanı birkaç MB ekliyor; working set'teki artış kabuk simge fabrikasının yüklediği DLL'ler |
 | 2026-11-04 | M6 Sürüm (Paket 0-4 Tam E2E, Boşta) | 82.7 MB | 135.9 MB | Bütçe kararı revizyon sonrasına bırakıldı (hedef < 60 MB geçerli; 85 MB eşiği resmi karar değil); Seelen UI model yüzen dock, çentik 236×34, lazy servisler |
+| 2026-11-06 | Revizyon sonrası (main `ccb3a96`, Release) | 63,9 MB | 177,7 MB | Tek monitör; çentik + dock + tepsi açık; açılıştan sonra 15 sn boşta. Yeni bütçenin (100–150 MB hedef) altında. Koy penceresi bu ölçümde açılmadı. |
 
-
-> **Not (2026-11-05):** Yukarıdaki son ölçümden sonra kısayollar, çoklu ekran, tema/ikon/hareket ve kaldırma ekranı eklendi; **bu revizyon sonrası bellek ölçülmedi.** Karar ve yeni ölçüm bekliyor.
+> **Not (2026-11-05):** 82,7 MB'lık ölçümden sonra kısayollar, çoklu ekran, tema/ikon/hareket ve kaldırma ekranı eklendi; bu revizyon 2026-11-06 satırında ölçüldü (63,9 MB). Dock/tepsi paketi (gözcü süreç, son kullanılanlar, sabitli sıra, kenardan açma) sonrası yeniden ölçülmedi.
+>
+> **Gözcü süreç (`Koy.Watchdog.exe`):** yalnız dock görev çubuğunu gizlediği sürece ayrı bir süreç olarak çalışır; bu satırlar Koy sürecinin ölçümüdür, gözcü ayrı sayılır. Native AOT derlemesi bu geliştirme makinesinde C++ derleme araçları olmadığı için üretilemedi, bu yüzden AOT gözcünün private belleği ölçülmedi (IL ile derlenmiş, JIT'li sürüm 5 MB civarı; AOT'un belirgin biçimde altında olması beklenir). CI'da ve `scripts/pack.ps1` ile üretilince ölçülmeli.
 
 ## Öğrenilenler
 - **GPU ile çizim pahalı.** WPF donanım hızlandırması açıkken ekran kartı sürücüsü sürece ~135 MB private bellek ekliyor. Notch ve dock küçük yüzeyler; yazılımla çizim (`RenderMode.SoftwareOnly`) yeterli. Animasyon akıcılığı M1'de ölçülecek; takılırsa önce çizilen alanı küçült, GPU'ya dönmeden önce ölç.

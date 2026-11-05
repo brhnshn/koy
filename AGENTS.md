@@ -73,7 +73,7 @@ Bağımlılık yönü: `App → Platform → Core` ve `App → Core`. Core hiçb
 Özellikler ayrı projelere (assembly) bölünmez; klasör yeterli.
 
 ## Değişmez kurallar
-1. **Bellek bütçesi: tek monitör, boşta < 60 MB private.** Her aşama sonunda `scripts/measure-memory.ps1` çalıştır, sonucu `docs/MEMORY.md` tablosuna yaz. Bütçeyi aşan değişiklik birleştirilmez; önce sebebi bul.
+1. **Bellek bütçesi: boşta 100–150 MB private hedef; çok ekran ya da açık panellerle 200 MB'a kadar kabul.** Her aşama sonunda `scripts/measure-memory.ps1` çalıştır, sonucu `docs/MEMORY.md` tablosuna yaz (ölçüm koşulunu da yaz: monitör sayısı, açık özellikler, bekleme süresi). 200 MB'ı aşan ya da önceki ölçüme göre açıklanamayan sıçrama yapan değişiklik birleştirilmez; önce sebebi bul.
 2. **Tarayıcı yok.** WebView2, CefSharp, Electron, Blazor Hybrid kullanılmaz.
 3. **Yazılımla çizim varsayılan.** GPU ile çizim ~135 MB ekliyor (bkz. `docs/MEMORY.md`). `App.xaml.cs` içindeki `RenderMode.SoftwareOnly` satırını ölçmeden kaldırma.
 4. **Tek süreç; tek istisna görev çubuğunu geri getiren gözcü.** Bütün pencereler (her monitör için notch + dock, ayarlar) aynı süreçte. Koy penceresi (`KoyWindow`) ilk açılışta oluşturulur ve tek örnek olarak kalır; kapatınca yok edilmez, gizlenir (`OnClosing` iptal edilir, ayarlar kaydedilir). Açılmamışsa hiç oluşturulmaz. Koy'u gerçekten kapatan yalnız "Koy'dan çık" düğmesi ve sağ alt menüdür; çentik ve dock bağlam menülerinde Çıkış yoktur.
