@@ -894,6 +894,9 @@
   <data name="DockShowTrayDesc" xml:space="preserve">
     <value>While the Windows taskbar is hidden, background apps’ icons (Discord, OneDrive…) open from a button on the dock</value>
   </data>
+  <data name="SystemTray" xml:space="preserve">
+    <value>System tray</value>
+  </data>
   <data name="TrayEmpty" xml:space="preserve">
     <value>No tray icons</value>
   </data>

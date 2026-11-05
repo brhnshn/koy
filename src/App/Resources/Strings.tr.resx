@@ -894,6 +894,9 @@
   <data name="DockShowTrayDesc" xml:space="preserve">
     <value>Windows görev çubuğu gizliyken arka plan uygulamalarının simgeleri (Discord, OneDrive…) dock'taki düğmeden açılır</value>
   </data>
+  <data name="SystemTray" xml:space="preserve">
+    <value>Sistem tepsisi</value>
+  </data>
   <data name="TrayEmpty" xml:space="preserve">
     <value>Tepsi simgesi yok</value>
   </data>
