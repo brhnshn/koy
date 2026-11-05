@@ -14,7 +14,7 @@ public sealed class SetupWizardLogicTests : IDisposable
         var settings = new AppSettings();
         Assert.False(settings.FirstRunCompleted);
         Assert.Equal("Dark", settings.Theme);
-        Assert.Equal(18.0, settings.CornerRadius);
+        Assert.Equal(12.0, settings.CornerRadius);
         Assert.Equal("Normal", settings.AnimationSpeed);
         Assert.True(settings.RespectReduceMotion);
         Assert.True(settings.HideWindowsTaskbar);
@@ -68,7 +68,7 @@ public sealed class SetupWizardLogicTests : IDisposable
         var modifiedTheme = s1 with { Theme = "Açık" };
         Assert.NotEqual(s1, modifiedTheme);
 
-        var modifiedRadius = s1 with { CornerRadius = 12.0 };
+        var modifiedRadius = s1 with { CornerRadius = 6.0 };
         Assert.NotEqual(s1, modifiedRadius);
 
         var modifiedAnim = s1 with { AnimationSpeed = "Hızlı" };

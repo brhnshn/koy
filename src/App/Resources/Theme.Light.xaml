@@ -1,0 +1,49 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Açık tema renkleri. Anahtar listesi Theme.Dark.xaml ile aynı olmalı (bkz. oradaki not). -->
+
+    <!-- Yüzeyler -->
+    <SolidColorBrush x:Key="KoyBgWindow" Color="#F4F4F5" />
+    <SolidColorBrush x:Key="KoyBgShell" Color="#E9E9EC" />
+    <SolidColorBrush x:Key="KoyBgRow" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="KoyBgControl" Color="#E8E8EC" />
+    <SolidColorBrush x:Key="KoyBgHover" Color="#DCDCE2" />
+    <SolidColorBrush x:Key="KoyBgActive" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="KoyBgNavHover" Color="#DEDEE3" />
+    <SolidColorBrush x:Key="KoyBgNavActive" Color="#FFFFFF" />
+
+    <!-- Kenarlıklar -->
+    <SolidColorBrush x:Key="KoyBorderHairline" Color="#E1E1E6" />
+    <SolidColorBrush x:Key="KoyBorderShell" Color="#D4D4DA" />
+    <SolidColorBrush x:Key="KoyBorderStrong" Color="#C4C4CC" />
+    <SolidColorBrush x:Key="KoyBorderControl" Color="#8A8A93" />
+
+    <!-- Yazı -->
+    <SolidColorBrush x:Key="KoyTextPrimary" Color="#18181B" />
+    <SolidColorBrush x:Key="KoyTextSecondary" Color="#52525B" />
+    <SolidColorBrush x:Key="KoyTextMuted" Color="#63636D" />
+    <SolidColorBrush x:Key="KoyTextDisabled" Color="#A1A1AA" />
+
+    <!-- Vurgu (varsayılan Koy mavisi, açık zemin için koyulaştırılmış yazı tonu) -->
+    <SolidColorBrush x:Key="KoyAccent" Color="#3B82F6" />
+    <SolidColorBrush x:Key="KoyAccentHover" Color="#326CCC" />
+    <SolidColorBrush x:Key="KoyAccentPressed" Color="#2C5EB0" />
+    <SolidColorBrush x:Key="KoyOnAccent" Color="#0A0A0B" />
+    <SolidColorBrush x:Key="KoyAccentText" Color="#3470D3" />
+    <SolidColorBrush x:Key="KoyFocusRing" Color="#3B82F6" />
+    <SolidColorBrush x:Key="KoyAccentSubtle" Color="#223B82F6" />
+
+    <!-- Bilgi ve durum -->
+    <SolidColorBrush x:Key="KoyBgInfo" Color="#E8F0FE" />
+    <SolidColorBrush x:Key="KoyFgInfo" Color="#1E3A8A" />
+    <SolidColorBrush x:Key="KoyDangerText" Color="#B91C1C" />
+    <SolidColorBrush x:Key="KoyDangerBorder" Color="#F0B4B4" />
+    <SolidColorBrush x:Key="KoyDangerBg" Color="#FDECEC" />
+    <SolidColorBrush x:Key="KoyStatusOk" Color="#059669" />
+    <SolidColorBrush x:Key="KoyStatusWarn" Color="#B45309" />
+
+    <!-- Anahtar (toggle) -->
+    <SolidColorBrush x:Key="KoyToggleTrackOff" Color="#E4E4E7" />
+    <SolidColorBrush x:Key="KoyToggleKnobOff" Color="#6B6B75" />
+    <SolidColorBrush x:Key="KoyToggleKnobOn" Color="#FFFFFF" />
+</ResourceDictionary>

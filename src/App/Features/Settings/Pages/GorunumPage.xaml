@@ -8,87 +8,120 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
 
+    <UserControl.Resources>
+        <Style x:Key="AccentSwatch" TargetType="RadioButton" BasedOn="{StaticResource ColorRadioStyle}">
+            <Setter Property="GroupName" Value="Accent" />
+        </Style>
+    </UserControl.Resources>
+
     <StackPanel Margin="0,0,16,24">
-        <TextBlock Text="{Binding [NavAppearance], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="#F4F4F5" />
-        <TextBlock Text="{Binding [AppearanceSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [NavAppearance], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="{Binding [AppearanceSubtitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageSubtitleStyle}" />
 
         <!-- TEMA -->
         <TextBlock Text="{Binding [ThemeHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="360">
                     <TextBlock Text="{Binding [ThemeTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [ThemeDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="#27272A" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
-                        <RadioButton Content="{Binding [ThemeSystem], Source={x:Static res:Loc.Instance}}" GroupName="ThemeGroup"
-                                     IsChecked="{Binding Theme, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Sistem}"
-                                     Style="{StaticResource SegRadioStyle}" />
-                        <RadioButton Content="{Binding [ThemeDark], Source={x:Static res:Loc.Instance}}" GroupName="ThemeGroup"
-                                     IsChecked="{Binding Theme, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Koyu}"
-                                     Style="{StaticResource SegRadioStyle}" />
-                        <RadioButton Content="{Binding [ThemeLight], Source={x:Static res:Loc.Instance}}" GroupName="ThemeGroup"
-                                     IsChecked="{Binding Theme, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Açık}"
-                                     Style="{StaticResource SegRadioStyle}" />
+                        <RadioButton GroupName="Theme" Style="{StaticResource SegRadioStyle}"
+                                     IsChecked="{Binding Theme, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=System}">
+                            <StackPanel Orientation="Horizontal">
+                                <res:KoyIcon Data="{StaticResource IconLaptop}" Size="14" Margin="0,0,6,0" />
+                                <TextBlock Text="{Binding [ThemeSystem], Source={x:Static res:Loc.Instance}}" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton GroupName="Theme" Style="{StaticResource SegRadioStyle}"
+                                     IsChecked="{Binding Theme, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Dark}">
+                            <StackPanel Orientation="Horizontal">
+                                <res:KoyIcon Data="{StaticResource IconMoon}" Size="14" Margin="0,0,6,0" />
+                                <TextBlock Text="{Binding [ThemeDark], Source={x:Static res:Loc.Instance}}" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton GroupName="Theme" Style="{StaticResource SegRadioStyle}"
+                                     IsChecked="{Binding Theme, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Light}">
+                            <StackPanel Orientation="Horizontal">
+                                <res:KoyIcon Data="{StaticResource IconSun}" Size="14" Margin="0,0,6,0" />
+                                <TextBlock Text="{Binding [ThemeLight], Source={x:Static res:Loc.Instance}}" />
+                            </StackPanel>
+                        </RadioButton>
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
 
-        <!-- Vurgu Rengi Paleti -->
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="360">
                     <TextBlock Text="{Binding [AccentColorTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [AccentColorDesc2], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <RadioButton Background="#3B82F6" GroupName="AccentColors"
-                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#3B82F6}"
-                                 Style="{StaticResource ColorRadioStyle}" />
-                    <RadioButton Background="#8B5CF6" GroupName="AccentColors"
-                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#8B5CF6}"
-                                 Style="{StaticResource ColorRadioStyle}" />
-                    <RadioButton Background="#EC4899" GroupName="AccentColors"
-                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#EC4899}"
-                                 Style="{StaticResource ColorRadioStyle}" />
-                    <RadioButton Background="#F97316" GroupName="AccentColors"
-                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#F97316}"
-                                 Style="{StaticResource ColorRadioStyle}" />
-                    <RadioButton Background="#22C55E" GroupName="AccentColors"
-                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#22C55E}"
-                                 Style="{StaticResource ColorRadioStyle}" />
-                    <RadioButton Background="#14B8A6" GroupName="AccentColors" Margin="0"
-                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#14B8A6}"
-                                 Style="{StaticResource ColorRadioStyle}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
+                            IsEnabled="{Binding UseWindowsAccent, Converter={x:Static local:InverseBooleanConverter.Instance}}">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.4" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <RadioButton Style="{StaticResource AccentSwatch}" Background="#3B82F6" ToolTip="{Binding [AccentBlue], Source={x:Static res:Loc.Instance}}"
+                                 AutomationProperties.Name="{Binding [AccentBlue], Source={x:Static res:Loc.Instance}}"
+                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#3B82F6}" />
+                    <RadioButton Style="{StaticResource AccentSwatch}" Background="#8B5CF6" ToolTip="{Binding [AccentPurple], Source={x:Static res:Loc.Instance}}"
+                                 AutomationProperties.Name="{Binding [AccentPurple], Source={x:Static res:Loc.Instance}}"
+                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#8B5CF6}" />
+                    <RadioButton Style="{StaticResource AccentSwatch}" Background="#EC4899" ToolTip="{Binding [AccentPink], Source={x:Static res:Loc.Instance}}"
+                                 AutomationProperties.Name="{Binding [AccentPink], Source={x:Static res:Loc.Instance}}"
+                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#EC4899}" />
+                    <RadioButton Style="{StaticResource AccentSwatch}" Background="#F97316" ToolTip="{Binding [AccentOrange], Source={x:Static res:Loc.Instance}}"
+                                 AutomationProperties.Name="{Binding [AccentOrange], Source={x:Static res:Loc.Instance}}"
+                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#F97316}" />
+                    <RadioButton Style="{StaticResource AccentSwatch}" Background="#22C55E" ToolTip="{Binding [AccentGreen], Source={x:Static res:Loc.Instance}}"
+                                 AutomationProperties.Name="{Binding [AccentGreen], Source={x:Static res:Loc.Instance}}"
+                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#22C55E}" />
+                    <RadioButton Style="{StaticResource AccentSwatch}" Background="#14B8A6" ToolTip="{Binding [AccentTeal], Source={x:Static res:Loc.Instance}}"
+                                 AutomationProperties.Name="{Binding [AccentTeal], Source={x:Static res:Loc.Instance}}"
+                                 IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#14B8A6}" />
                 </StackPanel>
             </Grid>
         </Border>
 
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="480">
                     <TextBlock Text="{Binding [UseWindowsAccentTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [UseWindowsAccentDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding UseWindowsAccent}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
+                <CheckBox AutomationProperties.Name="{Binding [UseWindowsAccentTitle], Source={x:Static res:Loc.Instance}}"
+                          IsChecked="{Binding UseWindowsAccent}" Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
 
+        <!-- YÜZEY -->
+        <TextBlock Text="{Binding [SurfaceHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
+
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="400">
                     <TextBlock Text="{Binding [MaterialTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                     <TextBlock Text="{Binding [MaterialDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="#27272A" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
-                        <RadioButton Content="{Binding [MaterialSolid], Source={x:Static res:Loc.Instance}}" GroupName="MatGroup"
-                                     IsChecked="{Binding Material, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Katı}"
-                                     Style="{StaticResource SegRadioStyle}" />
-                        <RadioButton Content="{Binding [MaterialTranslucent], Source={x:Static res:Loc.Instance}}" GroupName="MatGroup"
-                                     IsChecked="{Binding Material, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Yarı saydam}"
-                                     Style="{StaticResource SegRadioStyle}" />
+                        <RadioButton GroupName="Material" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [MaterialSolid], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding Material, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Katı}" />
+                        <RadioButton GroupName="Material" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [MaterialTranslucent], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding Material, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter='Yarı saydam'}" />
                     </StackPanel>
                 </Border>
             </Grid>
@@ -96,10 +129,23 @@
 
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="400">
                     <TextBlock Text="{Binding [CornerRadiusTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [CornerRadiusDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <TextBlock Text="18 px" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#D4D4D8" FontSize="13" />
+                <Border Style="{StaticResource SegmentContainerStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton GroupName="Corner" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [CornerSharp], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding CornerRadius, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=6}" />
+                        <RadioButton GroupName="Corner" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [CornerStandard], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding CornerRadius, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=12}" />
+                        <RadioButton GroupName="Corner" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [CornerRound], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding CornerRadius, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=17}" />
+                    </StackPanel>
+                </Border>
             </Grid>
         </Border>
 
@@ -108,23 +154,24 @@
 
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="320">
                     <TextBlock Text="{Binding [AnimationTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [AnimationDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="#27272A" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
-                        <RadioButton Content="{Binding [AnimGentle], Source={x:Static res:Loc.Instance}}" GroupName="AnimSpeed"
-                                     IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Sakin}"
-                                     Style="{StaticResource SegRadioStyle}" />
-                        <RadioButton Content="{Binding [AnimNormal], Source={x:Static res:Loc.Instance}}" GroupName="AnimSpeed"
-                                     IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Normal}"
-                                     Style="{StaticResource SegRadioStyle}" />
-                        <RadioButton Content="{Binding [AnimFast], Source={x:Static res:Loc.Instance}}" GroupName="AnimSpeed"
-                                     IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Hızlı}"
-                                     Style="{StaticResource SegRadioStyle}" />
-                        <RadioButton Content="{Binding [AnimOff], Source={x:Static res:Loc.Instance}}" GroupName="AnimSpeed"
-                                     IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Kapalı}"
-                                     Style="{StaticResource SegRadioStyle}" />
+                        <RadioButton GroupName="Anim" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [AnimGentle], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Sakin}" />
+                        <RadioButton GroupName="Anim" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [AnimNormal], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Normal}" />
+                        <RadioButton GroupName="Anim" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [AnimFast], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Hızlı}" />
+                        <RadioButton GroupName="Anim" Style="{StaticResource SegRadioStyle}"
+                                     Content="{Binding [AnimOff], Source={x:Static res:Loc.Instance}}"
+                                     IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Kapalı}" />
                     </StackPanel>
                 </Border>
             </Grid>
@@ -132,11 +179,12 @@
 
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="480">
                     <TextBlock Text="{Binding [ReduceMotionTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [ReduceMotionDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding RespectReduceMotion}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
+                <CheckBox AutomationProperties.Name="{Binding [ReduceMotionTitle], Source={x:Static res:Loc.Instance}}"
+                          IsChecked="{Binding RespectReduceMotion}" Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
     </StackPanel>

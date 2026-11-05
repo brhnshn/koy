@@ -10,6 +10,7 @@ using Koy.App.Features.Notch;
 using Koy.App.Features.Settings;
 using Koy.App.Features.Shortcuts;
 using Koy.App.Features.Wizard;
+using Koy.App.Resources;
 using Koy.Core.Diagnostics;
 using Koy.Core.Settings;
 using Koy.Core.Shortcuts;
@@ -69,6 +70,9 @@ public partial class App : Application
 
         var store = new SettingsStore(SettingsStore.DefaultPath);
         var settings = store.Load();
+
+        // Tema ve ortak kaynaklar, ilk pencere (sihirbaz dahil) oluşmadan önce yüklenir.
+        ThemeManager.Apply(this, settings);
 
         // İlk açılış sihirbazı: Ayar henüz tamamlanmadıysa 3 adımlı sihirbazı başlat
         bool isFirstRun = !settings.FirstRunCompleted;

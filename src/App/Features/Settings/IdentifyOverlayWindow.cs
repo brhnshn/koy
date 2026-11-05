@@ -39,22 +39,25 @@ public sealed class IdentifyOverlayWindow : Window
         Height = Size;
         Opacity = 0;
 
-        Content = new Border
+        // Renkler tema token'larından (Koyu/Açık doğru); kaynaklar uygulama düzeyinde.
+        var label = new TextBlock
+        {
+            Text = number.ToString(System.Globalization.CultureInfo.CurrentCulture),
+            FontSize = 110,
+            FontWeight = FontWeights.Bold,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        label.SetResourceReference(TextBlock.ForegroundProperty, "KoyTextPrimary");
+        var frame = new Border
         {
             CornerRadius = new CornerRadius(28),
-            Background = new SolidColorBrush(Color.FromArgb(0xE6, 0x18, 0x18, 0x1B)),
-            BorderBrush = new SolidColorBrush(Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF)),
             BorderThickness = new Thickness(1),
-            Child = new TextBlock
-            {
-                Text = number.ToString(System.Globalization.CultureInfo.CurrentCulture),
-                FontSize = 110,
-                FontWeight = FontWeights.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(0xF4, 0xF4, 0xF5)),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            }
+            Child = label
         };
+        frame.SetResourceReference(Border.BackgroundProperty, "KoyBgWindow");
+        frame.SetResourceReference(Border.BorderBrushProperty, "KoyBorderStrong");
+        Content = frame;
 
         DpiChanged += (_, _) => Place();
         _timer.Tick += (_, _) =>

@@ -16,7 +16,7 @@
         ShowInTaskbar="False"
         Topmost="True"
         ResizeMode="NoResize"
-        FontFamily="Segoe UI Variable Text, Segoe UI, sans-serif"
+        FontFamily="{DynamicResource KoyFont}"
         Deactivated="Window_Deactivated">
 
     <Window.Resources>
@@ -24,7 +24,7 @@
             <Setter Property="Height" Value="40" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="#F4F4F5" />
+            <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -34,16 +34,16 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="btnBorder"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource KoyRadiusControl}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#27272A" />
+                                <Setter TargetName="btnBorder" Property="Background" Value="{DynamicResource KoyBgControl}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#3F3F46" />
+                                <Setter TargetName="btnBorder" Property="Background" Value="{DynamicResource KoyBorderStrong}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -52,16 +52,16 @@
         </Style>
 
         <Style x:Key="DangerActionButtonStyle" TargetType="Button" BasedOn="{StaticResource MenuActionButtonStyle}">
-            <Setter Property="Foreground" Value="#FCA5A5" />
+            <Setter Property="Foreground" Value="{DynamicResource KoyDangerText}" />
         </Style>
     </Window.Resources>
 
     <!-- Ana Açılır Menü Kabuğu: 320 px, 16 px köşe yuvarlaklığı, koyu yarı saydam yüzey -->
     <Border Margin="16"
-            Background="#F718181B"
-            BorderBrush="#1AFFFFFF"
+            Background="{DynamicResource KoyBgWindow}"
+            BorderBrush="{DynamicResource KoyBorderHairline}"
             BorderThickness="1"
-            CornerRadius="16"
+            CornerRadius="{DynamicResource KoyRadiusWindow}"
             Padding="14">
         <Border.Effect>
             <DropShadowEffect Color="#000000" Opacity="0.45" BlurRadius="28" ShadowDepth="10" Direction="270" />
@@ -73,11 +73,11 @@
                 <TextBlock Text="Koy"
                            FontSize="15"
                            FontWeight="Bold"
-                           Foreground="#F4F4F5"
+                           Foreground="{DynamicResource KoyTextPrimary}"
                            VerticalAlignment="Center" />
                 <TextBlock Text="{Binding MonitorSummary}"
                            FontSize="12"
-                           Foreground="#A1A1AA"
+                           Foreground="{DynamicResource KoyTextSecondary}"
                            HorizontalAlignment="Right"
                            VerticalAlignment="Center" />
             </Grid>
@@ -100,33 +100,33 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="cardBorder"
-                                    CornerRadius="12"
+                                    CornerRadius="{DynamicResource KoyRadiusRow}"
                                     Padding="14,0"
-                                    Background="#3B82F6">
+                                    Background="{DynamicResource KoyAccent}">
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock x:Name="lblTitle"
                                                Text="{Binding [NavNotch], Source={x:Static res:Loc.Instance}}"
                                                FontSize="14"
                                                FontWeight="SemiBold"
-                                               Foreground="#FFFFFF" />
+                                               Foreground="{DynamicResource KoyOnAccent}" />
                                     <TextBlock x:Name="lblStateOn"
                                                Text="{Binding [On], Source={x:Static res:Loc.Instance}}"
                                                FontSize="12"
-                                               Foreground="#FFFFFF"
+                                               Foreground="{DynamicResource KoyOnAccent}"
                                                Opacity="0.8"
                                                Margin="0,2,0,0" />
                                     <TextBlock x:Name="lblStateOff"
                                                Text="{Binding [Off], Source={x:Static res:Loc.Instance}}"
                                                FontSize="12"
-                                               Foreground="#A1A1AA"
+                                               Foreground="{DynamicResource KoyTextSecondary}"
                                                Margin="0,2,0,0"
                                                Visibility="Collapsed" />
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <DataTrigger Binding="{Binding NotchEnabled}" Value="False">
-                                    <Setter TargetName="cardBorder" Property="Background" Value="#27272A" />
-                                    <Setter TargetName="lblTitle" Property="Foreground" Value="#D4D4D8" />
+                                    <Setter TargetName="cardBorder" Property="Background" Value="{DynamicResource KoyBgControl}" />
+                                    <Setter TargetName="lblTitle" Property="Foreground" Value="{DynamicResource KoyTextSecondary}" />
                                     <Setter TargetName="lblStateOn" Property="Visibility" Value="Collapsed" />
                                     <Setter TargetName="lblStateOff" Property="Visibility" Value="Visible" />
                                 </DataTrigger>
@@ -148,33 +148,33 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="cardBorder"
-                                    CornerRadius="12"
+                                    CornerRadius="{DynamicResource KoyRadiusRow}"
                                     Padding="14,0"
-                                    Background="#3B82F6">
+                                    Background="{DynamicResource KoyAccent}">
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock x:Name="lblTitle"
                                                Text="{Binding [NavDock], Source={x:Static res:Loc.Instance}}"
                                                FontSize="14"
                                                FontWeight="SemiBold"
-                                               Foreground="#FFFFFF" />
+                                               Foreground="{DynamicResource KoyOnAccent}" />
                                     <TextBlock x:Name="lblStateOn"
                                                Text="{Binding [On], Source={x:Static res:Loc.Instance}}"
                                                FontSize="12"
-                                               Foreground="#FFFFFF"
+                                               Foreground="{DynamicResource KoyOnAccent}"
                                                Opacity="0.8"
                                                Margin="0,2,0,0" />
                                     <TextBlock x:Name="lblStateOff"
                                                Text="{Binding [Off], Source={x:Static res:Loc.Instance}}"
                                                FontSize="12"
-                                               Foreground="#A1A1AA"
+                                               Foreground="{DynamicResource KoyTextSecondary}"
                                                Margin="0,2,0,0"
                                                Visibility="Collapsed" />
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <DataTrigger Binding="{Binding DockEnabled}" Value="False">
-                                    <Setter TargetName="cardBorder" Property="Background" Value="#27272A" />
-                                    <Setter TargetName="lblTitle" Property="Foreground" Value="#D4D4D8" />
+                                    <Setter TargetName="cardBorder" Property="Background" Value="{DynamicResource KoyBgControl}" />
+                                    <Setter TargetName="lblTitle" Property="Foreground" Value="{DynamicResource KoyTextSecondary}" />
                                     <Setter TargetName="lblStateOn" Property="Visibility" Value="Collapsed" />
                                     <Setter TargetName="lblStateOff" Property="Visibility" Value="Visible" />
                                 </DataTrigger>
@@ -189,20 +189,29 @@
 
             <!-- Eylem Listesi -->
             <StackPanel>
-                <Button Content="{Binding [OpenKoyWindowAction], Source={x:Static res:Loc.Instance}}"
-                        Style="{StaticResource MenuActionButtonStyle}"
-                        Command="{Binding OpenKoyWindowCommand}" />
-                <Button Content="{Binding PauseText}"
-                        Style="{StaticResource MenuActionButtonStyle}"
-                        Command="{Binding PauseOneHourCommand}" />
+                <Button Style="{StaticResource MenuActionButtonStyle}" Command="{Binding OpenKoyWindowCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <res:KoyIcon Data="{DynamicResource IconAppWindow}" Size="16" Margin="0,0,12,0" />
+                        <TextBlock Text="{Binding [OpenKoyWindowAction], Source={x:Static res:Loc.Instance}}" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource MenuActionButtonStyle}" Command="{Binding PauseOneHourCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <res:KoyIcon Data="{DynamicResource IconPause}" Size="16" Margin="0,0,12,0" />
+                        <TextBlock Text="{Binding PauseText}" />
+                    </StackPanel>
+                </Button>
 
                 <Rectangle Height="1"
-                           Fill="#27272A"
+                           Fill="{DynamicResource KoyBorderHairline}"
                            Margin="0,6" />
 
-                <Button Content="{Binding [ExitKoyAction], Source={x:Static res:Loc.Instance}}"
-                        Style="{StaticResource DangerActionButtonStyle}"
-                        Command="{Binding ExitCommand}" />
+                <Button Style="{StaticResource DangerActionButtonStyle}" Command="{Binding ExitCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <res:KoyIcon Data="{DynamicResource IconPower}" Size="16" Margin="0,0,12,0" />
+                        <TextBlock Text="{Binding ExitText}" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </StackPanel>
     </Border>

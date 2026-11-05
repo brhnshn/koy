@@ -26,6 +26,13 @@ public sealed partial class SagAltMenuViewModel : ObservableObject
     [ObservableProperty]
     private bool _isPaused;
 
+    /// <summary>Çıkış tek tıkla olmaz: ilk tıklama düğmeyi "Çıkışı onayla"ya çevirir, menü kapanınca sıfırlanır.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ExitText))]
+    private bool _isExitConfirming;
+
+    public string ExitText => Koy.App.Resources.Loc.Instance[IsExitConfirming ? "ExitKoyConfirm" : "ExitKoyAction"];
+
     [ObservableProperty]
     private string _pauseText = "1 saat duraklat";
 
@@ -43,6 +50,7 @@ public sealed partial class SagAltMenuViewModel : ObservableObject
 
     public void Refresh()
     {
+        IsExitConfirming = false;
         var settings = _store.Load();
         NotchEnabled = settings.NotchEnabled;
         DockEnabled = settings.DockEnabled;
@@ -104,6 +112,12 @@ public sealed partial class SagAltMenuViewModel : ObservableObject
     [RelayCommand]
     private void Exit()
     {
+        if (!IsExitConfirming)
+        {
+            IsExitConfirming = true;
+            return;
+        }
+
         TaskbarService.Restore();
         Application.Current?.Shutdown();
     }

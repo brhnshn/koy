@@ -2,10 +2,11 @@ using System.Diagnostics;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.App.Resources;
+using Koy.Core.Appearance;
 using Koy.Core.Dock;
 using Koy.Core.Settings;
 using Koy.Core.Visibility;
-using Koy.Platform.Display;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Settings;
@@ -40,7 +41,32 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private string _updateChannel = "Kararlı";
 
     [ObservableProperty]
-    private string _lastCheckText = "Son denetim: bugün 14:02";
+    [NotifyPropertyChangedFor(nameof(LastCheckText), nameof(AboutStatusText), nameof(CheckButtonText), nameof(CanCheckUpdates))]
+    [NotifyCanExecuteChangedFor(nameof(CheckUpdatesCommand))]
+    private bool _isCheckingUpdates;
+
+    /// <summary>Son denetimin gerçek durumu; hiç denetim yapılmadıysa "Henüz denetlenmedi".</summary>
+    public string LastCheckText
+    {
+        get
+        {
+            if (IsCheckingUpdates)
+                return Strings.Get("UpdateChecking");
+            return UpdateStatus.LastResult switch
+            {
+                UpdateCheckResult.Failed => Strings.Get("UpdateCheckFailed"),
+                UpdateCheckResult.NotInstalled => Strings.Get("UpdateNotInstalled"),
+                _ when UpdateStatus.LastCheck is { } t => string.Format(Strings.Get("UpdateLastCheck"), FormatCheckTime(t, DateTime.Now)),
+                _ => Strings.Get("UpdateNeverChecked")
+            };
+        }
+    }
+
+    public string CheckButtonText => Strings.Get(IsCheckingUpdates ? "UpdateChecking" : "CheckNow");
+    public bool CanCheckUpdates => !IsCheckingUpdates;
+
+    private static string FormatCheckTime(DateTime t, DateTime now) =>
+        t.Date == now.Date ? string.Format(Strings.Get("UpdateToday"), t.ToString("HH:mm")) : t.ToString("d MMM HH:mm");
 
     // --- ÇENTİK ---
     [ObservableProperty]
@@ -127,9 +153,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
     // --- EKRANLAR ---
     [ObservableProperty]
-    private int _monitorCount = 1;
-
-    [ObservableProperty]
     private bool _screen1Notch = true;
 
     [ObservableProperty]
@@ -143,7 +166,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
     // --- GÖRÜNÜM ---
     [ObservableProperty]
-    private string _theme = "Koyu";
+    private string _theme = "Dark";
 
     [ObservableProperty]
     private string _accentColor = "#3B82F6";
@@ -155,7 +178,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private string _material = "Katı";
 
     [ObservableProperty]
-    private double _cornerRadius = 18.0;
+    private double _cornerRadius = 12.0;
 
     [ObservableProperty]
     private string _animationSpeed = "Normal";
@@ -172,13 +195,17 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
     // --- PERFORMANS ---
     [ObservableProperty]
-    private double _memoryUsageMb = 38.0;
+    private double _memoryUsageMb;
 
     [ObservableProperty]
-    private string _memoryUsageText = "38 MB / 60 MB";
+    private string _memoryUsageText = "–";
 
     [ObservableProperty]
-    private double _memoryPct = 63.0;
+    private double _memoryPct;
+
+    /// <summary>0: bütçe içinde, 1: bütçenin %80'i aşıldı, 2: 60 MB bütçesi aşıldı.</summary>
+    [ObservableProperty]
+    private int _memoryLevel;
 
     [ObservableProperty]
     private bool _batterySaverReduceMotion = true;
@@ -201,11 +228,24 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     public int[] PomodoroLongBreakOptions { get; } = [10, 15, 20, 30];
 
     // --- HAKKINDA ---
-    [ObservableProperty]
-    private string _appVersion = "0.1.0";
+    /// <summary>Çalışan derlemenin sürümü (AssemblyInformationalVersion; "+commit" eki atılır).</summary>
+    public string AppVersion { get; } = AppInfo.Version;
 
-    [ObservableProperty]
-    private string _aboutStatusText = "Sürüm 0.1.0 · GPLv3 · güncel";
+    /// <summary>Hakkında kimlik kartı: sürüm, lisans ve güncelleme durumu (denetim yapılmadıysa "güncel" denmez).</summary>
+    public string AboutStatusText
+    {
+        get
+        {
+            var line = string.Format(Strings.Get("AboutVersionLine"), AppVersion);
+            var state = IsCheckingUpdates ? Strings.Get("UpdateChecking") : UpdateStatus.LastResult switch
+            {
+                UpdateCheckResult.UpToDate => Strings.Get("UpdateStateUpToDate"),
+                UpdateCheckResult.Failed => Strings.Get("UpdateStateFailed"),
+                _ => Strings.Get("UpdateStateUnknown")
+            };
+            return $"{line} · {state}";
+        }
+    }
 
     public event Action? SettingsSaved;
 
@@ -256,11 +296,13 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             IdleDisplayMode = s.IdleDisplayMode;
             NotchOpenBehavior = s.NotchOpenBehavior;
 
-            Theme = s.Theme;
-            AccentColor = s.AccentColor ?? "#3B82F6";
-            Material = s.Material;
-            CornerRadius = s.CornerRadius;
-            AnimationSpeed = s.AnimationSpeed;
+            // Eski sürümlerin karışık değerleri ("Koyu", 18 vb.) seçenek değerlerine indirilir.
+            Theme = ThemeSetting.Normalize(s.Theme);
+            AccentColor = s.AccentColor ?? AccentPalette.DefaultHex;
+            UseWindowsAccent = s.UseWindowsAccent;
+            Material = MaterialSetting.Normalize(s.Material);
+            CornerRadius = CornerSetting.ToStored(CornerSetting.Resolve(s.CornerRadius));
+            AnimationSpeed = MotionPolicy.NormalizeSpeed(s.AnimationSpeed);
             RespectReduceMotion = s.RespectReduceMotion;
             BatterySaverReduceMotion = s.BatterySaverReduceMotion;
             WeatherRefreshInterval = s.WeatherRefreshInterval;
@@ -281,15 +323,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
             RefreshMemory();
 
-            try
-            {
-                using var monitorService = new MonitorService();
-                MonitorCount = monitorService.GetMonitors().Count;
-            }
-            catch
-            {
-                MonitorCount = 1;
-            }
         }
         finally
         {
@@ -306,12 +339,15 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             MemoryUsageMb = Math.Round(memMb, 1);
             MemoryUsageText = $"{MemoryUsageMb:N1} MB / 60 MB";
             MemoryPct = Math.Clamp((MemoryUsageMb / 60.0) * 100.0, 0, 100);
+            MemoryLevel = MemoryUsageMb > 60 ? 2 : MemoryUsageMb >= 48 ? 1 : 0;
         }
         catch
         {
-            MemoryUsageMb = 38.0;
-            MemoryUsageText = "38 MB / 60 MB";
-            MemoryPct = 63.0;
+            // Ölçülemediyse uydurma değer gösterilmez.
+            MemoryUsageMb = 0;
+            MemoryUsageText = "–";
+            MemoryPct = 0;
+            MemoryLevel = 0;
         }
     }
 
@@ -329,13 +365,21 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     {
         base.OnPropertyChanged(e);
         if (_isLoading) return;
-        if (e.PropertyName is nameof(SelectedPageIndex) or nameof(MemoryUsageMb) or nameof(MemoryUsageText) or nameof(MemoryPct) or nameof(MonitorCount))
+        if (e.PropertyName is nameof(SelectedPageIndex) or nameof(MemoryUsageMb) or nameof(MemoryUsageText) or nameof(MemoryPct) or nameof(MemoryLevel)
+            or nameof(IsResetConfirming) or nameof(IsCheckingUpdates) or nameof(LastCheckText) or nameof(AboutStatusText) or nameof(CheckButtonText) or nameof(CanCheckUpdates))
             return;
 
         SaveSettings();
 
         if (Application.Current is not App app)
             return;
+
+        if (e.PropertyName is nameof(Theme) or nameof(AccentColor) or nameof(UseWindowsAccent) or nameof(Material)
+            or nameof(CornerRadius) or nameof(AnimationSpeed) or nameof(RespectReduceMotion) or nameof(BatterySaverReduceMotion))
+        {
+            // Görünüm ayarları açık pencerelere anında yansır.
+            ThemeManager.Apply(app, _store.Load());
+        }
 
         if (e.PropertyName == nameof(NotchEnabled))
         {
@@ -429,6 +473,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             NotchOpenBehavior = NotchOpenBehavior,
             Theme = Theme,
             AccentColor = AccentColor,
+            UseWindowsAccent = UseWindowsAccent,
             Material = Material,
             CornerRadius = CornerRadius,
             AnimationSpeed = AnimationSpeed,
@@ -448,24 +493,31 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void SetAccentColor(string hex)
-    {
-        AccentColor = hex;
-    }
-
-    [RelayCommand]
     public void RestoreTaskbar()
     {
         TaskbarService.Restore();
     }
 
+    /// <summary>Sıfırlama iki adımlı: ilk tıklama onay ister (yanlışlıkla silmeyi önler).</summary>
+    [ObservableProperty]
+    private bool _isResetConfirming;
+
+    [RelayCommand]
+    public void RequestReset() => IsResetConfirming = true;
+
+    [RelayCommand]
+    public void CancelReset() => IsResetConfirming = false;
+
     [RelayCommand]
     public void ResetSettings()
     {
+        IsResetConfirming = false;
         // Kurulum sihirbazı tamamlandı bilgisi korunur; yoksa sıfırlama sihirbazı yeniden açardı.
         _store.Save(FirstRunPolicy.CreateReset(_store.Load()));
         LoadFromSettings();
         SettingsSaved?.Invoke();
+        if (Application.Current is { } current)
+            ThemeManager.Apply(current, _store.Load());
 
         // Çalışan çentik ve dock yeni varsayılanlarla yeniden kurulur.
         if (Application.Current is App app)
@@ -490,32 +542,41 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanCheckUpdates))]
     public async Task CheckUpdatesAsync()
     {
+        IsCheckingUpdates = true;
         try
         {
             var mgr = new Velopack.UpdateManager(new Velopack.Sources.GithubSource("https://github.com/brhnshn/koy", null, UpdateChannel == "Önizleme"));
-            if (mgr.IsInstalled)
+            if (!mgr.IsInstalled)
             {
-                var newVersion = await mgr.CheckForUpdatesAsync();
-                if (newVersion != null)
-                {
-                    await mgr.DownloadUpdatesAsync(newVersion);
-                    // ApplyUpdatesAndRestart süreci hemen sonlandırır (OnExit çalışmaz): görev çubuğunu önce geri getir.
-                    Koy.App.App.SafeRestoreTaskbar();
-                    mgr.ApplyUpdatesAndRestart(newVersion);
-                    return;
-                }
+                // Geliştirme çalıştırmasında denetim yapılamaz; başarı gibi gösterilmez.
+                UpdateStatus.Record(UpdateCheckResult.NotInstalled);
+                return;
             }
-            var now = DateTime.Now.ToString("HH:mm");
-            LastCheckText = Language == "en" ? $"Last check: today {now}" : $"Son denetim: bugün {now}";
-            AboutStatusText = Language == "en" ? $"Version {AppVersion} · GPLv3 · up to date" : $"Sürüm {AppVersion} · GPLv3 · güncel";
+
+            var newVersion = await mgr.CheckForUpdatesAsync();
+            if (newVersion != null)
+            {
+                await mgr.DownloadUpdatesAsync(newVersion);
+                // ApplyUpdatesAndRestart süreci hemen sonlandırır (OnExit çalışmaz): görev çubuğunu önce geri getir.
+                Koy.App.App.SafeRestoreTaskbar();
+                mgr.ApplyUpdatesAndRestart(newVersion);
+                return;
+            }
+
+            UpdateStatus.Record(UpdateCheckResult.UpToDate);
         }
         catch
         {
-            var now = DateTime.Now.ToString("HH:mm");
-            LastCheckText = Language == "en" ? $"Last check: today {now}" : $"Son denetim: bugün {now}";
+            UpdateStatus.Record(UpdateCheckResult.Failed);
+        }
+        finally
+        {
+            IsCheckingUpdates = false;
+            OnPropertyChanged(nameof(LastCheckText));
+            OnPropertyChanged(nameof(AboutStatusText));
         }
     }
 
