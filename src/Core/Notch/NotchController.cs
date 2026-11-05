@@ -15,6 +15,9 @@ public sealed class NotchController : IDisposable
     public event EventHandler<NotchPanel>? PanelChanged;
     public event Action<int>? PanelTransitionTriggered;
 
+    /// <summary>Açık paneller listesi (kümesi ya da sırası) değişti; sekme çubuğu yeniden kurulmalı.</summary>
+    public event EventHandler? EnabledPanelsChanged;
+
     public NotchState State { get; private set; } = NotchState.Collapsed;
     public NotchPanel CurrentPanel { get; private set; } = NotchPanel.Music;
     public bool IsMouseOver { get; private set; }
@@ -37,6 +40,8 @@ public sealed class NotchController : IDisposable
         _enabledPanels.AddRange(panels);
         if (_enabledPanels.Count == 0)
             _enabledPanels.Add(NotchPanel.Music);
+
+        EnabledPanelsChanged?.Invoke(this, EventArgs.Empty);
 
         if (!_enabledPanels.Contains(CurrentPanel))
             SelectPanel(_enabledPanels[0]);
@@ -99,7 +104,9 @@ public sealed class NotchController : IDisposable
         {
             if (!_enabledPanels.Contains(panel.Value))
             {
+                // Ayarlarda kapalı panel (ör. sürükle-bırakta Raf) geçici olarak listeye girer; sekme çubuğu da bilsin.
                 _enabledPanels.Add(panel.Value);
+                EnabledPanelsChanged?.Invoke(this, EventArgs.Empty);
             }
             SelectPanel(panel.Value);
         }

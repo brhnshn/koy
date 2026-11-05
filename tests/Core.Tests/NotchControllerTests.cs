@@ -275,4 +275,46 @@ public class NotchControllerTests
         Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
         Assert.Equal(0, transitions);
     }
+
+    [Fact]
+    public void SetEnabledPanels_RaisesEnabledPanelsChanged_WithNewOrder()
+    {
+        using var controller = new NotchController();
+        var raised = 0;
+        controller.EnabledPanelsChanged += (_, _) => raised++;
+
+        controller.SetEnabledPanels([NotchPanel.Calendar, NotchPanel.Music]);
+
+        Assert.Equal(1, raised);
+        Assert.Equal([NotchPanel.Calendar, NotchPanel.Music], controller.EnabledPanels);
+    }
+
+    [Fact]
+    public void Expand_ToDisabledPanel_AddsItAndRaisesEnabledPanelsChanged()
+    {
+        using var controller = new NotchController();
+        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.Calendar]);
+        var raised = 0;
+        controller.EnabledPanelsChanged += (_, _) => raised++;
+
+        controller.Expand(NotchPanel.Shelf);
+
+        Assert.Equal(1, raised);
+        Assert.Equal([NotchPanel.Music, NotchPanel.Calendar, NotchPanel.Shelf], controller.EnabledPanels);
+        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+    }
+
+    [Fact]
+    public void Expand_ToEnabledPanel_DoesNotRaiseEnabledPanelsChanged()
+    {
+        using var controller = new NotchController();
+        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter]);
+        var raised = 0;
+        controller.EnabledPanelsChanged += (_, _) => raised++;
+
+        controller.Expand(NotchPanel.ControlCenter);
+
+        Assert.Equal(0, raised);
+        Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
+    }
 }

@@ -153,8 +153,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         Osd.Activated += OnOsdActivated;
         Osd.Dismissed += OnOsdStateChanged;
 
-        foreach (var panel in _controller.EnabledPanels)
-            Tabs.Add(new NotchTabViewModel(panel, TabLabel(panel)) { IsSelected = panel == _controller.CurrentPanel });
+        _controller.EnabledPanelsChanged += OnEnabledPanelsChanged;
+        RebuildTabs();
 
         // Windows tepsisi gizli olduğu için Wi-Fi ve Bluetooth'un durumunu gösteren tek yer çentik.
         ShowRadioStatus = _controller.EnabledPanels.Contains(NotchPanel.ControlCenter);
@@ -297,6 +297,16 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         UpdateActivePanels();
     }
 
+    private void OnEnabledPanelsChanged(object? sender, EventArgs e) => RunOnUi(RebuildTabs);
+
+    // Sekmeler açık panellerden ve onların sırasından türer; liste değişince baştan kurulur.
+    private void RebuildTabs()
+    {
+        Tabs.Clear();
+        foreach (var panel in _controller.EnabledPanels)
+            Tabs.Add(new NotchTabViewModel(panel, TabLabel(panel)) { IsSelected = panel == _controller.CurrentPanel });
+    }
+
     private void UpdateActivePanels()
     {
         var isExpanded = State == NotchState.Expanded;
@@ -390,6 +400,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         StopClockTimer();
         _controller.StateChanged -= OnStateChanged;
         _controller.PanelChanged -= OnPanelChanged;
+        _controller.EnabledPanelsChanged -= OnEnabledPanelsChanged;
         _controller.PanelTransitionTriggered -= OnPanelTransitionTriggered;
         _visibility.Changed -= OnVisibilityChanged;
         _music.TrackChanged -= OnTrackChanged;
