@@ -60,7 +60,7 @@
               <Style.Triggers>
                 <MultiDataTrigger>
                   <MultiDataTrigger.Conditions>
-                    <Condition Binding="{Binding State}" Value="{x:Static core:NotchState.Collapsed}" />
+                    <Condition Binding="{Binding ShowCollapsedLayout}" Value="True" />
                     <Condition Binding="{Binding Osd.IsActive}" Value="False" />
                   </MultiDataTrigger.Conditions>
                   <Setter Property="Visibility" Value="Visible" />
@@ -279,7 +279,7 @@
               <Style.Triggers>
                 <MultiDataTrigger>
                   <MultiDataTrigger.Conditions>
-                    <Condition Binding="{Binding State}" Value="{x:Static core:NotchState.Peek}" />
+                    <Condition Binding="{Binding ShowPeekLayout}" Value="True" />
                     <Condition Binding="{Binding Osd.IsActive}" Value="False" />
                   </MultiDataTrigger.Conditions>
                   <Setter Property="Visibility" Value="Visible" />

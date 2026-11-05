@@ -104,6 +104,20 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _hasBattery;
 
+    /// <summary>Boşta yerleşimi (saat, pil, simgeler) çizilsin mi: kapalıyken ve parça yokken fareyle üstüne gelince de (bkz. <see cref="NotchLayout"/>).</summary>
+    public bool ShowCollapsedLayout => NotchLayout.ShowCollapsedLayout(State, Music.HasTrack);
+
+    /// <summary>Şarkı bilgili ipucu yerleşimi çizilsin mi.</summary>
+    public bool ShowPeekLayout => NotchLayout.ShowPeekLayout(State, Music.HasTrack);
+
+    partial void OnStateChanged(NotchState value) => NotifyLayoutChanged();
+
+    private void NotifyLayoutChanged()
+    {
+        OnPropertyChanged(nameof(ShowCollapsedLayout));
+        OnPropertyChanged(nameof(ShowPeekLayout));
+    }
+
     partial void OnHasBatteryChanged(bool value) => OnPropertyChanged(nameof(ShowIdleBattery));
 
     [ObservableProperty]
@@ -245,6 +259,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         if (e.PropertyName is nameof(MusicViewModel.IsPlaying) or nameof(MusicViewModel.HasTrack))
         {
             OnPropertyChanged(nameof(IsMusicPlaying));
+            NotifyLayoutChanged();
             if (State == NotchState.Collapsed)
                 UpdateTargetSize();
         }
