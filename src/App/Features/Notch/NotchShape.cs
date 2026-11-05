@@ -70,6 +70,9 @@ public class NotchShape : ContentControl
         var geo = BuildGeometry(width, height, CornerRadius, EarRadius);
         _geometry = geo;
         Clip = geo;
+        // WPF ilk OnRender'ı boyut olayından önce çağırır; şekil hazır olunca yeniden çizilmezse
+        // açılıştaki kapalı çentiğin zemini hiç görünmez (boyut değişene kadar saydam kalır).
+        InvalidateVisual();
     }
 
     protected override void OnRender(DrawingContext dc)
