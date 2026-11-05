@@ -141,6 +141,93 @@
   <data name="NetworkDisconnected" xml:space="preserve">
     <value>Not connected</value>
   </data>
+  <data name="NetworkEthernetShort" xml:space="preserve">
+    <value>Ethernet</value>
+  </data>
+  <data name="NetworkCellularShort" xml:space="preserve">
+    <value>Cellular</value>
+  </data>
+  <data name="NotificationsButton" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="NotificationsTooltip" xml:space="preserve">
+    <value>Open Notification Center</value>
+  </data>
+  <data name="HomeTimerLabel" xml:space="preserve">
+    <value>Timer {0}</value>
+  </data>
+  <data name="HomeStopwatchLabel" xml:space="preserve">
+    <value>Stopwatch {0}</value>
+  </data>
+  <data name="HomePomodoroLabel" xml:space="preserve">
+    <value>Pomodoro {0}</value>
+  </data>
+  <data name="PeekConnectionsTooltip" xml:space="preserve">
+    <value>Connections</value>
+  </data>
+  <data name="CalViewMonth" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="CalViewWeek" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="CalViewDay" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="CalToolPomodoro" xml:space="preserve">
+    <value>Pomodoro</value>
+  </data>
+  <data name="CalToolTimer" xml:space="preserve">
+    <value>Timer</value>
+  </data>
+  <data name="CalToolStopwatch" xml:space="preserve">
+    <value>Stopwatch</value>
+  </data>
+  <data name="CalAddEvent" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="CalEventTitleHint" xml:space="preserve">
+    <value>New event</value>
+  </data>
+  <data name="CalEventTimeHint" xml:space="preserve">
+    <value>HH:mm</value>
+  </data>
+  <data name="CalNoEvents" xml:space="preserve">
+    <value>No events</value>
+  </data>
+  <data name="CalDeleteEvent" xml:space="preserve">
+    <value>Delete event</value>
+  </data>
+  <data name="CalToday" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="CalPrevious" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="CalNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="TimerDecrease" xml:space="preserve">
+    <value>Decrease</value>
+  </data>
+  <data name="TimerIncrease" xml:space="preserve">
+    <value>Increase</value>
+  </data>
+  <data name="TimerPresetMinutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="TimerPause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="TimerLap" xml:space="preserve">
+    <value>Lap</value>
+  </data>
+  <data name="TimerLapRow" xml:space="preserve">
+    <value>Lap {0}</value>
+  </data>
+  <data name="TimerDone" xml:space="preserve">
+    <value>Done</value>
+  </data>
   <data name="NavGeneral" xml:space="preserve">
     <value>General</value>
   </data>

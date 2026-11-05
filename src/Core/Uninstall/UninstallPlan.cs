@@ -30,7 +30,7 @@ public static class UninstallPlan
     public const string UpdaterArguments = "--uninstall";
 
     /// <summary>Kullanıcı tercihleri ve içeriği: yalnız "ayarlarımı sakla" kapalıysa silinir.</summary>
-    public static readonly IReadOnlyList<string> SettingFiles = ["settings.json", "settings.json.tmp", "shelf.json"];
+    public static readonly IReadOnlyList<string> SettingFiles = ["settings.json", "settings.json.tmp", "shelf.json", "events.json", "events.json.tmp"];
 
     /// <summary>Çalışma durumu: yeniden kurulumda işe yaramaz, her kaldırmada silinir.</summary>
     public static readonly IReadOnlyList<string> StateFiles = ["taskbar-state.json"];

@@ -33,6 +33,7 @@
                       Width="236" Height="34"
                       CornerRadius="18" EarRadius="12"
                       Background="#0A0A0B"
+                      PreviewMouseLeftButtonDown="Notch_PreviewMouseLeftButtonDown"
                       MouseEnter="Notch_MouseEnter"
                       MouseLeave="Notch_MouseLeave"
                       MouseLeftButtonDown="Notch_MouseLeftButtonDown"

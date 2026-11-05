@@ -37,6 +37,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public StatusViewModel Status => _status;
     public CalendarViewModel Calendar => _calendar;
     public ShelfViewModel Shelf => _shelf;
+
+    /// <summary>Ana görünümün verisi (saat, tarih, ağ, hava, bildirim komutu). Arayüzü tasarım onayını bekliyor, henüz çizilmez.</summary>
+    public Koy.App.Features.Home.HomeViewModel Home { get; }
     public VisibilityController Visibility => _visibility;
     public OsdIndicatorViewModel Osd { get; }
 
@@ -140,8 +143,10 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         ShelfViewModel shelf,
         VisibilityController? visibility = null,
         OsdIndicatorViewModel? osd = null,
-        Dispatcher? dispatcher = null)
+        Dispatcher? dispatcher = null,
+        Koy.Core.Shell.IShellActionService? shellActions = null)
     {
+        Home = new Koy.App.Features.Home.HomeViewModel(music, status, calendar, shellActions);
         Settings = settings;
         _controller = controller;
         _music = music;
@@ -328,6 +333,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _music.SetActive(isExpanded && CurrentPanel == NotchPanel.Music);
         _status.SetActive(isExpanded && CurrentPanel == NotchPanel.Status);
         _controlCenter.SetActive(isExpanded && CurrentPanel == NotchPanel.ControlCenter);
+        // Takvim zamanlayıcıları yalnız takvim sekmesi görünürken ekranı tazeler; ana görünüm bağlanınca homeVisible olur.
+        _calendar.SetVisible(isExpanded && CurrentPanel == NotchPanel.Calendar, false);
     }
 
     private void OnVisibilityChanged(object? sender, VisibilityResult result)
@@ -361,7 +368,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
                 NotchState.Collapsed => (IsMusicPlaying ? 280 : 236, 34, 18),
                 NotchState.Peek => (300, 38, 20),
                 // +30 DIP: üstteki sekme satırı. Sabit tuval 260 DIP olduğu için en yüksek panel de sığar.
-                NotchState.Expanded => (420, CurrentPanel == NotchPanel.Music ? 142 : 170, 28),
+                NotchState.Expanded => (NotchLayout.ExpandedWidth, NotchLayout.ExpandedHeight(CurrentPanel), 28),
                 _ => (236, 34, 18)
             };
         }
@@ -432,5 +439,6 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _status.Dispose();
         _calendar.Dispose();
         _shelf.Dispose();
+        Home.Dispose();
     }
 }

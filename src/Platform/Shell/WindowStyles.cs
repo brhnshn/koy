@@ -29,6 +29,22 @@ public static class WindowStyles
     }
 
     /// <summary>
+    /// Odak çalmama (WS_EX_NOACTIVATE) stilini açar ya da kapatır. Çentikte yazı yazılacak bir alana tıklanınca
+    /// geçici olarak kapatılır (etkinliksiz pencere klavye girdisi alamaz), odak gidince yeniden açılır.
+    /// </summary>
+    public static void SetNoActivate(nint hwnd, bool noActivate)
+    {
+        var handle = new HWND(hwnd);
+        var exStyle = (WINDOW_EX_STYLE)PInvoke.GetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+        if (noActivate)
+            exStyle |= WINDOW_EX_STYLE.WS_EX_NOACTIVATE;
+        else
+            exStyle &= ~WINDOW_EX_STYLE.WS_EX_NOACTIVATE;
+
+        PInvoke.SetWindowLong(handle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, (int)exStyle);
+    }
+
+    /// <summary>
     /// Pencereyi tıklama geçirgen (WS_EX_TRANSPARENT) yapar ya da tık alabilir hale getirir.
     /// </summary>
     public static void SetClickThrough(nint hwnd, bool clickThrough)

@@ -141,6 +141,93 @@
   <data name="NetworkDisconnected" xml:space="preserve">
     <value>Bağlı değil</value>
   </data>
+  <data name="NetworkEthernetShort" xml:space="preserve">
+    <value>Ethernet</value>
+  </data>
+  <data name="NetworkCellularShort" xml:space="preserve">
+    <value>Hücresel</value>
+  </data>
+  <data name="NotificationsButton" xml:space="preserve">
+    <value>Bildirimler</value>
+  </data>
+  <data name="NotificationsTooltip" xml:space="preserve">
+    <value>Bildirim Merkezi'ni aç</value>
+  </data>
+  <data name="HomeTimerLabel" xml:space="preserve">
+    <value>Zamanlayıcı {0}</value>
+  </data>
+  <data name="HomeStopwatchLabel" xml:space="preserve">
+    <value>Kronometre {0}</value>
+  </data>
+  <data name="HomePomodoroLabel" xml:space="preserve">
+    <value>Pomodoro {0}</value>
+  </data>
+  <data name="PeekConnectionsTooltip" xml:space="preserve">
+    <value>Bağlantılar</value>
+  </data>
+  <data name="CalViewMonth" xml:space="preserve">
+    <value>Ay</value>
+  </data>
+  <data name="CalViewWeek" xml:space="preserve">
+    <value>Hafta</value>
+  </data>
+  <data name="CalViewDay" xml:space="preserve">
+    <value>Gün</value>
+  </data>
+  <data name="CalToolPomodoro" xml:space="preserve">
+    <value>Pomodoro</value>
+  </data>
+  <data name="CalToolTimer" xml:space="preserve">
+    <value>Zamanlayıcı</value>
+  </data>
+  <data name="CalToolStopwatch" xml:space="preserve">
+    <value>Kronometre</value>
+  </data>
+  <data name="CalAddEvent" xml:space="preserve">
+    <value>Ekle</value>
+  </data>
+  <data name="CalEventTitleHint" xml:space="preserve">
+    <value>Yeni etkinlik</value>
+  </data>
+  <data name="CalEventTimeHint" xml:space="preserve">
+    <value>SS:dd</value>
+  </data>
+  <data name="CalNoEvents" xml:space="preserve">
+    <value>Etkinlik yok</value>
+  </data>
+  <data name="CalDeleteEvent" xml:space="preserve">
+    <value>Etkinliği sil</value>
+  </data>
+  <data name="CalToday" xml:space="preserve">
+    <value>Bugün</value>
+  </data>
+  <data name="CalPrevious" xml:space="preserve">
+    <value>Önceki</value>
+  </data>
+  <data name="CalNext" xml:space="preserve">
+    <value>Sonraki</value>
+  </data>
+  <data name="TimerDecrease" xml:space="preserve">
+    <value>Azalt</value>
+  </data>
+  <data name="TimerIncrease" xml:space="preserve">
+    <value>Artır</value>
+  </data>
+  <data name="TimerPresetMinutes" xml:space="preserve">
+    <value>{0} dk</value>
+  </data>
+  <data name="TimerPause" xml:space="preserve">
+    <value>Duraklat</value>
+  </data>
+  <data name="TimerLap" xml:space="preserve">
+    <value>Tur</value>
+  </data>
+  <data name="TimerLapRow" xml:space="preserve">
+    <value>Tur {0}</value>
+  </data>
+  <data name="TimerDone" xml:space="preserve">
+    <value>Bitti</value>
+  </data>
   <data name="NavGeneral" xml:space="preserve">
     <value>Genel</value>
   </data>
