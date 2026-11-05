@@ -96,7 +96,8 @@
                        FontWeight="SemiBold"
                        VerticalAlignment="Center" />
 
-            <!-- Sağ: Pil Göstergesi (22x11 px dış gövde #F4F4F5, seviye #4ADE80, terminal uç 2x5) -->
+            <!-- Sağ: Pil Göstergesi (22x11 px dış gövde #F4F4F5, seviye #4ADE80, terminal uç 2x5).
+                 Masaüstü kasada pil yok; boş bir pil çizmek yanıltıcı olur (ShowIdleBattery HasBattery'yi de hesaba katar). -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
                         Visibility="{Binding ShowIdleBattery, Converter={StaticResource BoolToVis}}">
               <Border Width="22" Height="11" BorderThickness="1.5" BorderBrush="#F4F4F5" CornerRadius="3" Padding="1" Background="Transparent">

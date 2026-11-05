@@ -91,7 +91,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private bool _isCharging;
 
     [ObservableProperty]
-    private bool _hasBattery = true;
+    private bool _hasBattery;
 
     [ObservableProperty]
     private double _batteryFillWidth = 17;
