@@ -35,6 +35,9 @@ public sealed class SharedServices : IDisposable
         }
     }
 
+    /// <summary>Çalışan medya servisi (yoksa null); kısayol gibi tek seferlik işler yeni servis kurmasın diye.</summary>
+    public MediaService? RunningMediaService => _mediaService;
+
     public MediaService AcquireMediaService()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);

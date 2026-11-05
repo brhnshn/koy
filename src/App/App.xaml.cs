@@ -2,14 +2,18 @@ using System.IO;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Koy.App.Features;
 using Koy.App.Features.Dock;
 using Koy.App.Features.Menu;
 using Koy.App.Features.Notch;
 using Koy.App.Features.Settings;
+using Koy.App.Features.Shortcuts;
 using Koy.App.Features.Wizard;
 using Koy.Core.Diagnostics;
 using Koy.Core.Settings;
+using Koy.Core.Shortcuts;
+using Koy.Platform.Media;
 using Koy.Platform.Shell;
 using Velopack;
 
@@ -38,7 +42,17 @@ public partial class App : Application
 {
     private readonly List<IFeature> _features = [];
     private TrayIconManager? _trayIconManager;
+    private ShortcutController? _shortcuts;
     private readonly SharedServices _services = new();
+
+    private static readonly TimeSpan PauseDuration = TimeSpan.FromHours(1);
+    private DispatcherTimer? _pauseTimer;
+
+    /// <summary>Genel kısayollar; Kısayollar sayfası kayıt sonuçlarını buradan okur.</summary>
+    public ShortcutController? Shortcuts => _shortcuts;
+
+    /// <summary>"1 saat duraklat" etkin mi: çentik ve dock kapalı, Windows görev çubuğu geri gelmiş durumda.</summary>
+    public bool IsPaused { get; private set; }
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -92,10 +106,77 @@ public partial class App : Application
         foreach (var feature in _features)
             feature.Start();
 
+        // Güncellemeleri otomatik denetle ayarı: açılıştan sonra arka planda tek seferlik denetim.
+        _ = AutoUpdater.RunAsync(settings);
+
+        // Genel kısayollar: çentik/dock açık olmasa da çalışır.
+        _shortcuts = new ShortcutController();
+        _shortcuts.Triggered += OnShortcutTriggered;
+        _shortcuts.Start(settings);
+
         // İlk kurulumdan hemen sonra ana uygulama doğrudan ekrana çıksın
         if (isFirstRun)
         {
             KoyWindow.ShowInstance();
+        }
+    }
+
+    /// <summary>Kısayol ayarı değişti: diskteki ayarlarla yeniden kaydeder.</summary>
+    public void ApplyShortcuts()
+    {
+        _shortcuts?.Apply(new SettingsStore(SettingsStore.DefaultPath).Load());
+    }
+
+    private void OnShortcutTriggered(ShortcutAction action)
+    {
+        switch (action)
+        {
+            case ShortcutAction.ToggleNotch:
+                _features.OfType<NotchFeature>().FirstOrDefault()?.ToggleExpanded();
+                break;
+            case ShortcutAction.OpenShelf:
+                _features.OfType<NotchFeature>().FirstOrDefault()?.OpenShelf();
+                break;
+            case ShortcutAction.ToggleDock:
+                ToggleDockEnabled();
+                break;
+            case ShortcutAction.OpenMenu:
+                SagAltMenuWindow.Toggle();
+                break;
+            case ShortcutAction.PlayPause:
+                _ = PlayPauseAsync();
+                break;
+        }
+    }
+
+    /// <summary>Dock'u göster/gizle: sağ alt menüdeki anahtarla aynı etki (ayar da kaydedilir).</summary>
+    private void ToggleDockEnabled()
+    {
+        var store = new SettingsStore(SettingsStore.DefaultPath);
+        var current = store.Load();
+        var enabled = !current.DockEnabled;
+        store.Save(current with { DockEnabled = enabled });
+        UpdateDockState(enabled);
+    }
+
+    private async Task PlayPauseAsync()
+    {
+        try
+        {
+            if (_services.RunningMediaService is { } running)
+            {
+                await running.PlayPauseAsync();
+                return;
+            }
+
+            // Çentik ve dock kapalı: servisi yalnız bu iş için kur, sonra bırak (AGENTS.md #5).
+            using var temporary = new MediaService();
+            await temporary.StartAsync();
+            await temporary.PlayPauseAsync();
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("Kısayol: oynat/duraklat", ex);
         }
     }
 
@@ -148,6 +229,9 @@ public partial class App : Application
 
     public void UpdateNotchState(bool enabled)
     {
+        if (IsPaused)
+            return;
+
         var existingNotch = _features.OfType<NotchFeature>().FirstOrDefault();
         if (enabled && existingNotch is null)
         {
@@ -165,6 +249,9 @@ public partial class App : Application
 
     public void UpdateDockState(bool enabled)
     {
+        if (IsPaused)
+            return;
+
         var existingDock = _features.OfType<DockFeature>().FirstOrDefault();
         if (enabled && existingDock is null)
         {
@@ -181,42 +268,99 @@ public partial class App : Application
         }
     }
 
+    /// <summary>Çalışan dock'u durdurur, ayarlar açıksa yeni ayarlarla yeniden başlatır.</summary>
     public void ReloadDock()
     {
+        if (IsPaused)
+            return;
+
         var existingDock = _features.OfType<DockFeature>().FirstOrDefault();
         if (existingDock is not null)
         {
             existingDock.Stop();
             _features.Remove(existingDock);
-            var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            if (settings.DockEnabled)
-            {
-                var dock = new DockFeature(settings, _services);
-                _features.Add(dock);
-                dock.Start();
-            }
+        }
+
+        var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+        if (settings.DockEnabled)
+        {
+            var dock = new DockFeature(settings, _services);
+            _features.Add(dock);
+            dock.Start();
         }
     }
 
+    /// <summary>Çalışan çentiği durdurur, ayarlar açıksa yeni ayarlarla yeniden başlatır.</summary>
     public void ReloadNotch()
     {
+        if (IsPaused)
+            return;
+
         var existingNotch = _features.OfType<NotchFeature>().FirstOrDefault();
         if (existingNotch is not null)
         {
             existingNotch.Stop();
             _features.Remove(existingNotch);
-            var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            if (settings.NotchEnabled)
-            {
-                var notch = new NotchFeature(settings, _services);
-                _features.Add(notch);
-                notch.Start();
-            }
         }
+
+        var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+        if (settings.NotchEnabled)
+        {
+            var notch = new NotchFeature(settings, _services);
+            _features.Add(notch);
+            notch.Start();
+        }
+    }
+
+    /// <summary>
+    /// Duraklat: çentik ve dock durdurulur (dock Stop ile görev çubuğunu geri getirir), tepsi simgesi kalır.
+    /// Bir saat sonra ya da tekrar basılınca özellikler diskteki ayarlara göre yeniden başlar.
+    /// Ayar dosyasına dokunulmaz; duraklatma yalnız bu oturum için geçerlidir.
+    /// </summary>
+    public void SetPaused(bool paused)
+    {
+        if (IsPaused == paused)
+            return;
+
+        if (paused)
+        {
+            foreach (var feature in _features)
+                feature.Stop();
+            _features.Clear();
+            SafeRestoreTaskbar();
+
+            IsPaused = true;
+            _pauseTimer ??= new DispatcherTimer { Interval = PauseDuration };
+            _pauseTimer.Tick -= OnPauseTimerTick;
+            _pauseTimer.Tick += OnPauseTimerTick;
+            _pauseTimer.Stop();
+            _pauseTimer.Start();
+        }
+        else
+        {
+            IsPaused = false;
+            _pauseTimer?.Stop();
+            ReloadAllFeatures();
+        }
+    }
+
+    private void OnPauseTimerTick(object? sender, EventArgs e)
+    {
+        CrashLog.Guard("Duraklatma sona erdi", () => SetPaused(false));
+    }
+
+    /// <summary>Ayarlar sıfırlandığında iki özelliği de diskteki ayarlara göre yeniden kurar.</summary>
+    public void ReloadAllFeatures()
+    {
+        ReloadNotch();
+        ReloadDock();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _shortcuts?.Dispose();
+        _shortcuts = null;
+
         _trayIconManager?.Dispose();
         _trayIconManager = null;
 

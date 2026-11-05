@@ -50,7 +50,8 @@ public sealed partial class CalendarViewModel : ObservableObject, IDisposable
         _year = now.Year;
         _month = now.Month;
 
-        _pomodoro = new Pomodoro();
+        _pomodoro = new Pomodoro(PomodoroConfig.FromMinutes(
+            settings.PomodoroWorkMinutes, settings.PomodoroShortBreakMinutes, settings.PomodoroLongBreakMinutes));
         _pomodoro.Ticked += OnPomodoroTicked;
         _pomodoro.StateChanged += OnPomodoroStateChanged;
         _pomodoro.ModeChanged += OnPomodoroModeChanged;

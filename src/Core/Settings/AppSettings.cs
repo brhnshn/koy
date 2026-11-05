@@ -11,7 +11,7 @@ namespace Koy.Core.Settings;
 /// </summary>
 public sealed record AppSettings
 {
-    public int Version { get; set; } = 1;
+    public int Version { get; set; } = 2;
     public string Language { get; set; } = "tr";
     public bool NotchEnabled { get; set; } = true;
 
@@ -26,8 +26,8 @@ public sealed record AppSettings
     /// <summary>Dock yerleşim stili: Yüzen kapsül (FloatingCapsule) veya Tam Genişlik (FullWidth).</summary>
     public DockStyleMode DockStyle { get; set; } = DockStyleMode.FloatingCapsule;
 
-    /// <summary>Pencere yaklaşınca dock davranışı: Dodge (Akıllı Gizlenme - varsayılan), DockDown (Aşağı yapış), ReserveSpace (Yer ayır), AlwaysHidden (Hep gizli).</summary>
-    public DockProximityMode DockProximity { get; set; } = DockProximityMode.Dodge;
+    /// <summary>Pencere yaklaşınca dock davranışı: DockDown (Aşağı yapış - varsayılan), Dodge (Çekil), ReserveSpace (Yer ayır), AlwaysHidden (Hep gizli).</summary>
+    public DockProximityMode DockProximity { get; set; } = DockProximityMode.DockDown;
 
     /// <summary>Tam ekran bir uygulama veya oyun devredeyken dock'u otomatik gizle.</summary>
     public bool DockHideInFullscreen { get; set; } = true;
@@ -54,9 +54,7 @@ public sealed record AppSettings
     public bool AutoCheckUpdates { get; set; } = true;
     public string UpdateChannel { get; set; } = "Kararlı";
     public bool BatterySaverReduceMotion { get; set; } = true;
-    public bool BatterySaverStopWaveform { get; set; } = true;
     public string WeatherRefreshInterval { get; set; } = "30m";
-    public bool AudioVisualizerEnabled { get; set; }
     public double DockIconSize { get; set; } = 28.0;
     public int IdleDisplayMode { get; set; }
     public int NotchOpenBehavior { get; set; } = 1;
@@ -64,6 +62,30 @@ public sealed record AppSettings
     public int WheelAction { get; set; }
     public int MiddleClickAction { get; set; }
     public int DockIndicatorStyle { get; set; }
+
+    /// <summary>
+    /// Genel kısayollar, "Ctrl+Alt+N" biçiminde metin; boş metin = atanmamış.
+    /// Varsayılanlar Windows'un Win+... kısayollarıyla çakışmasın diye Ctrl+Alt+harf (bkz. ShortcutBindings).
+    /// </summary>
+    public string ShortcutToggleNotch { get; set; } = "Ctrl+Alt+N";
+    public string ShortcutOpenShelf { get; set; } = "Ctrl+Alt+R";
+    public string ShortcutToggleDock { get; set; } = "Ctrl+Alt+D";
+    public string ShortcutOpenMenu { get; set; } = "Ctrl+Alt+K";
+    public string ShortcutPlayPause { get; set; } = "Ctrl+Alt+Space";
+    /// <summary>Pomodoro uzun mola süresi (dakika).</summary>
+    public int PomodoroLongBreakMinutes { get; set; } = 15;
+    /// <summary>Pomodoro kısa mola süresi (dakika).</summary>
+    public int PomodoroShortBreakMinutes { get; set; } = 5;
+    /// <summary>Pomodoro çalışma süresi (dakika).</summary>
+    public int PomodoroWorkMinutes { get; set; } = 25;
+    /// <summary>Parlaklık değişince çentikte 1,5 sn parlaklık göstergesi çıksın.</summary>
+    public bool ShowBrightnessOsd { get; set; } = true;
+    /// <summary>Ses değişince çentikte 1,5 sn ses göstergesi çıksın.</summary>
+    public bool ShowVolumeOsd { get; set; } = true;
+    /// <summary>Müzik çalarken çentikte dalga simgesi görünsün.</summary>
+    public bool MusicShowWaveform { get; set; } = true;
+    /// <summary>Tam ekran uygulama ya da oyun varken çentik gizlensin.</summary>
+    public bool NotchHideInFullscreen { get; set; } = true;
 
     public List<string> ControlCenterLayout { get; set; } = ["wifi", "bluetooth", "donotdisturb"];
     public List<string> EnabledPanels { get; set; } = ["music", "controlcenter", "status", "calendar", "shelf"];
@@ -103,9 +125,7 @@ public sealed record AppSettings
                AutoCheckUpdates == other.AutoCheckUpdates &&
                UpdateChannel == other.UpdateChannel &&
                BatterySaverReduceMotion == other.BatterySaverReduceMotion &&
-               BatterySaverStopWaveform == other.BatterySaverStopWaveform &&
                WeatherRefreshInterval == other.WeatherRefreshInterval &&
-               AudioVisualizerEnabled == other.AudioVisualizerEnabled &&
                DockIconSize.Equals(other.DockIconSize) &&
                IdleDisplayMode == other.IdleDisplayMode &&
                NotchOpenBehavior == other.NotchOpenBehavior &&
@@ -113,6 +133,18 @@ public sealed record AppSettings
                WheelAction == other.WheelAction &&
                MiddleClickAction == other.MiddleClickAction &&
                DockIndicatorStyle == other.DockIndicatorStyle &&
+               ShortcutToggleNotch == other.ShortcutToggleNotch &&
+               ShortcutOpenShelf == other.ShortcutOpenShelf &&
+               ShortcutToggleDock == other.ShortcutToggleDock &&
+               ShortcutOpenMenu == other.ShortcutOpenMenu &&
+               ShortcutPlayPause == other.ShortcutPlayPause &&
+               PomodoroLongBreakMinutes == other.PomodoroLongBreakMinutes &&
+               PomodoroShortBreakMinutes == other.PomodoroShortBreakMinutes &&
+               PomodoroWorkMinutes == other.PomodoroWorkMinutes &&
+               ShowBrightnessOsd == other.ShowBrightnessOsd &&
+               ShowVolumeOsd == other.ShowVolumeOsd &&
+               MusicShowWaveform == other.MusicShowWaveform &&
+               NotchHideInFullscreen == other.NotchHideInFullscreen &&
                WeatherLatitude.Equals(other.WeatherLatitude) &&
                WeatherLongitude.Equals(other.WeatherLongitude) &&
                WeatherCity == other.WeatherCity &&
@@ -151,9 +183,7 @@ public sealed record AppSettings
         hash.Add(AutoCheckUpdates);
         hash.Add(UpdateChannel);
         hash.Add(BatterySaverReduceMotion);
-        hash.Add(BatterySaverStopWaveform);
         hash.Add(WeatherRefreshInterval);
-        hash.Add(AudioVisualizerEnabled);
         hash.Add(DockIconSize);
         hash.Add(IdleDisplayMode);
         hash.Add(NotchOpenBehavior);
@@ -161,6 +191,18 @@ public sealed record AppSettings
         hash.Add(WheelAction);
         hash.Add(MiddleClickAction);
         hash.Add(DockIndicatorStyle);
+        hash.Add(ShortcutToggleNotch);
+        hash.Add(ShortcutOpenShelf);
+        hash.Add(ShortcutToggleDock);
+        hash.Add(ShortcutOpenMenu);
+        hash.Add(ShortcutPlayPause);
+        hash.Add(PomodoroLongBreakMinutes);
+        hash.Add(PomodoroShortBreakMinutes);
+        hash.Add(PomodoroWorkMinutes);
+        hash.Add(ShowBrightnessOsd);
+        hash.Add(ShowVolumeOsd);
+        hash.Add(MusicShowWaveform);
+        hash.Add(NotchHideInFullscreen);
         hash.Add(WeatherLatitude);
         hash.Add(WeatherLongitude);
         hash.Add(WeatherCity);

@@ -11,6 +11,7 @@ using Koy.Core.Notch;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
 using Koy.Core.Visibility;
+using Koy.Core.Weather;
 using Koy.Platform.Audio;
 using Koy.Platform.Display;
 using Koy.Platform.Media;
@@ -55,6 +56,11 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     private MonitorService? _monitorService;
     private DispatcherTimer? _edgePeekTimer;
 
+    // Ses/parlaklık göstergeleri (OSD) için kendi servisleri; ilgili ayar kapalıysa hiç kurulmaz (AGENTS.md #5).
+    private AudioService? _osdAudio;
+    private BrightnessService? _osdBrightness;
+    private bool _stopped;
+
     public void Start()
     {
         if (_windows.Count > 0)
@@ -64,7 +70,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         _mediaService = services.AcquireMediaService();
 
         _powerService = new PowerService();
-        _weatherService = new WeatherService();
+        _weatherService = new WeatherService(cacheDuration: WeatherRefreshPolicy.CacheDuration(settings.WeatherRefreshInterval));
         _focusAssistService = new FocusAssistService();
         _shelfService = new ShelfService();
 
@@ -91,6 +97,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         };
         _edgePeekTimer.Tick += (_, _) => CheckEdgePeek();
 
+        StartOsdServices();
+
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
 
         // İzleyici paylaşımlı: Dock onu önceden başlattıysa ilk ön plan olayı bir daha gelmez, mevcut durumu elle uygula.
@@ -106,8 +114,12 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     {
         var controller = new NotchController();
         controller.SetEnabledPanels(ParseEnabledPanels(settings.EnabledPanels));
+        controller.OpenOnHover = settings.NotchOpenBehavior == 0;
 
-        var visibilityController = new VisibilityController(settings.NotchVisibility);
+        var visibilityController = new VisibilityController(settings.NotchVisibility)
+        {
+            HideInFullscreen = settings.NotchHideInFullscreen
+        };
 
         var musicVm = new MusicViewModel(_mediaService!);
         var controlCenterVm = new ControlCenterViewModel(
@@ -161,8 +173,47 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         _windowStates[monitor.Id] = state;
         _windows[monitor.Id] = window;
 
+        AttachOsd(viewModel);
+
         window.Show();
         UpdateNotchBounds(window, visibilityController, monitor);
+    }
+
+    private void StartOsdServices()
+    {
+        if (settings.ShowVolumeOsd)
+        {
+            _osdAudio = new AudioService();
+            foreach (var state in _windowStates.Values)
+                state.ViewModel.Osd.Attach(_osdAudio);
+        }
+
+        if (settings.ShowBrightnessOsd)
+            _ = StartBrightnessOsdAsync();
+    }
+
+    private async Task StartBrightnessOsdAsync()
+    {
+        // WMI sorgusu ve olay izleyicisi UI thread'ini bekletmesin.
+        var service = await Task.Run(() => new BrightnessService(watchExternalChanges: true));
+        if (_stopped || !service.IsSupported)
+        {
+            // Masaüstü bilgisayarda parlaklık yok: servis ve izleyici bırakılır.
+            service.Dispose();
+            return;
+        }
+
+        _osdBrightness = service;
+        foreach (var state in _windowStates.Values)
+            state.ViewModel.Osd.Attach(_osdBrightness);
+    }
+
+    private void AttachOsd(NotchViewModel viewModel)
+    {
+        if (_osdAudio is not null)
+            viewModel.Osd.Attach(_osdAudio);
+        if (_osdBrightness is not null)
+            viewModel.Osd.Attach(_osdBrightness);
     }
 
     private void OnMonitorsChanged(object? sender, EventArgs e)
@@ -242,7 +293,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             state.VisibilityController.SetFullscreen(isFullscreen);
             state.VisibilityController.UpdateForegroundWindow(info.Handle, info.Bounds);
 
-            if (!isFullscreen && state.Hwnd != 0 && info.Handle != state.Hwnd)
+            // Tam ekranda gizlenmiyorsa (ayar kapalı) çentik tam ekran pencerenin üstünde kalmaya çalışır.
+            if ((!isFullscreen || !settings.NotchHideInFullscreen) && state.Hwnd != 0 && info.Handle != state.Hwnd)
             {
                 if (!FullscreenDetector.IsScreenClippingHost(info.Handle))
                 {
@@ -319,8 +371,47 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         }
     }
 
+    /// <summary>Kısayol: fare hangi ekrandaysa onun çentiğini açar, açıksa kapatır.</summary>
+    public void ToggleExpanded()
+    {
+        var state = PickStateForShortcut();
+        if (state is null)
+            return;
+
+        var controller = state.Controller;
+        if (controller.State == NotchState.Expanded)
+            controller.OnClick();
+        else
+            controller.Expand();
+    }
+
+    /// <summary>Kısayol: Raf panelini açar (panel kapalıysa da).</summary>
+    public void OpenShelf()
+    {
+        PickStateForShortcut()?.ViewModel.ExpandToShelf();
+    }
+
+    private NotchWindowState? PickStateForShortcut()
+    {
+        if (_windowStates.Count == 0)
+            return null;
+
+        if (_windowTracker is not null && _windowTracker.GetCursorPosition(out var x, out var y))
+        {
+            foreach (var state in _windowStates.Values)
+            {
+                var b = state.Monitor.Bounds;
+                if (x >= b.Left && x < b.Right && y >= b.Top && y < b.Bottom)
+                    return state;
+            }
+        }
+
+        return _windowStates.Values.First();
+    }
+
     public void Stop()
     {
+        _stopped = true;
         _edgePeekTimer?.Stop();
         _edgePeekTimer = null;
 
@@ -343,6 +434,12 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         }
         _windowStates.Clear();
         _windows.Clear();
+
+        // Pencerelerin Osd görünüm modelleri yukarıda Dispose edildi (olay bağları çözüldü); servisler artık bırakılır.
+        _osdAudio?.Dispose();
+        _osdAudio = null;
+        _osdBrightness?.Dispose();
+        _osdBrightness = null;
 
         _monitorService?.Dispose();
         _monitorService = null;

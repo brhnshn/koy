@@ -14,6 +14,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 {
     private readonly SettingsStore _store;
 
+    /// <summary>Kısayollar sayfası: tuş yakalama, kayıt ve hata durumu.</summary>
+    public ShortcutsViewModel Shortcuts { get; }
+
     [ObservableProperty]
     private int _selectedPageIndex; // 0: Genel, 1: Çentik, 2: Dock, 3: Ekranlar, 4: Görünüm, 5: Kısayollar, 6: Performans, 7: Hakkında
 
@@ -59,9 +62,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _showBrightnessOsd = true;
 
     [ObservableProperty]
-    private bool _hideWindowsOsd;
-
-    [ObservableProperty]
     private bool _panelMusic = true;
 
     [ObservableProperty]
@@ -79,9 +79,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     [ObservableProperty]
     private int _notchOpenBehavior = 1; // 0: Üzerine gelince, 1: Tıklayınca
 
-    [ObservableProperty]
-    private string _notchSize = "Orta";
-
     // --- DOCK ---
     [ObservableProperty]
     private bool _dockEnabled = true;
@@ -90,7 +87,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private DockStyleMode _dockStyle = DockStyleMode.FloatingCapsule;
 
     [ObservableProperty]
-    private DockProximityMode _dockProximity = DockProximityMode.Dodge;
+    private DockProximityMode _dockProximity = DockProximityMode.DockDown;
 
     [ObservableProperty]
     private bool _dockHideInFullscreen = true;
@@ -108,9 +105,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private int _dockIndicatorStyle; // 0: Nokta, 1: Çizgi
 
     [ObservableProperty]
-    private bool _dockGroupWindows = true;
-
-    [ObservableProperty]
     private bool _dockShowBadges = true;
 
     [ObservableProperty]
@@ -121,9 +115,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _dockShowMinimized = true;
-
-    [ObservableProperty]
-    private bool _dockShowRecent;
 
     [ObservableProperty]
     private bool _dockThumbnailPreview = true;
@@ -190,13 +181,21 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _batterySaverReduceMotion = true;
 
     [ObservableProperty]
-    private bool _batterySaverStopWaveform = true;
+    private string _weatherRefreshInterval = "30m"; // 30m, 1h, startup
 
     [ObservableProperty]
-    private string _weatherRefreshInterval = "30 dakikada bir";
+    private int _pomodoroWorkMinutes = 25;
 
     [ObservableProperty]
-    private bool _audioVisualizerEnabled;
+    private int _pomodoroShortBreakMinutes = 5;
+
+    [ObservableProperty]
+    private int _pomodoroLongBreakMinutes = 15;
+
+    /// <summary>Pomodoro süre seçenekleri (dakika). Ayar dosyasına elle yazılan başka değerler de çalışır.</summary>
+    public int[] PomodoroWorkOptions { get; } = [15, 20, 25, 30, 45, 50, 60];
+    public int[] PomodoroShortBreakOptions { get; } = [3, 5, 10, 15];
+    public int[] PomodoroLongBreakOptions { get; } = [10, 15, 20, 30];
 
     // --- HAKKINDA ---
     [ObservableProperty]
@@ -212,6 +211,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     public KoyWindowViewModel(SettingsStore? store = null)
     {
         _store = store ?? new SettingsStore(SettingsStore.DefaultPath);
+        Shortcuts = new ShortcutsViewModel(_store);
         LoadFromSettings();
     }
 
@@ -245,6 +245,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockIconSize = s.DockIconSize > 0 ? s.DockIconSize : 28.0;
             DockIndicatorStyle = s.DockIndicatorStyle;
 
+            NotchHideInFullscreen = s.NotchHideInFullscreen;
+            ShowVolumeOsd = s.ShowVolumeOsd;
+            ShowBrightnessOsd = s.ShowBrightnessOsd;
+            MusicShowWaveform = s.MusicShowWaveform;
             IdleDisplayMode = s.IdleDisplayMode;
             NotchOpenBehavior = s.NotchOpenBehavior;
 
@@ -255,11 +259,14 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             AnimationSpeed = s.AnimationSpeed;
             RespectReduceMotion = s.RespectReduceMotion;
             BatterySaverReduceMotion = s.BatterySaverReduceMotion;
-            BatterySaverStopWaveform = s.BatterySaverStopWaveform;
-            AudioVisualizerEnabled = s.AudioVisualizerEnabled;
+            WeatherRefreshInterval = s.WeatherRefreshInterval;
+            PomodoroWorkMinutes = s.PomodoroWorkMinutes;
+            PomodoroShortBreakMinutes = s.PomodoroShortBreakMinutes;
+            PomodoroLongBreakMinutes = s.PomodoroLongBreakMinutes;
 
             WheelAction = s.WheelAction;
             MiddleClickAction = s.MiddleClickAction;
+            Shortcuts.Load(s);
 
             var panels = s.EnabledPanels ?? ["music", "calendar", "shelf", "controlcenter"];
             PanelMusic = panels.Contains("music", StringComparer.OrdinalIgnoreCase);
@@ -323,23 +330,39 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
         SaveSettings();
 
-        if (e.PropertyName == nameof(NotchEnabled) && Application.Current is App appNotch)
+        if (Application.Current is not App app)
+            return;
+
+        if (e.PropertyName == nameof(NotchEnabled))
         {
-            appNotch.UpdateNotchState(NotchEnabled);
+            app.UpdateNotchState(NotchEnabled);
         }
-        else if (e.PropertyName == nameof(DockEnabled) && Application.Current is App appDock)
+        else if (e.PropertyName == nameof(DockEnabled))
         {
-            appDock.UpdateDockState(DockEnabled);
+            app.UpdateDockState(DockEnabled);
         }
-        else if (e.PropertyName is (nameof(DockStyle) or nameof(DockProximity) or nameof(DockHideInFullscreen) or nameof(DockIconSize) or nameof(HideWindowsTaskbar)) && Application.Current is App appReload)
+        else
         {
-            appReload.ReloadDock();
-        }
-        else if (e.PropertyName is (nameof(NotchVisibility) or nameof(PanelMusic) or nameof(PanelCalendar) or nameof(PanelShelf) or nameof(PanelControlCenter) or nameof(PanelStatus)) && Application.Current is App appReloadNotch)
-        {
-            appReloadNotch.ReloadNotch();
+            // Özellikler ayarı kurulurken okur; seçenek değişince ilgili özellik yeni ayarla yeniden kurulur.
+            if (AffectsDock(e.PropertyName))
+                app.ReloadDock();
+            if (AffectsNotch(e.PropertyName))
+                app.ReloadNotch();
         }
     }
+
+    private static bool AffectsDock(string? name) =>
+        name is not null && name != nameof(DockEnabled) &&
+        (name.StartsWith("Dock", StringComparison.Ordinal) ||
+         name is nameof(HideWindowsTaskbar) or nameof(BatterySaverReduceMotion) or nameof(MiddleClickAction));
+
+    private static bool AffectsNotch(string? name) =>
+        name is nameof(NotchVisibility) or nameof(NotchHideInFullscreen) or nameof(MusicShowWaveform)
+            or nameof(ShowVolumeOsd) or nameof(ShowBrightnessOsd) or nameof(IdleDisplayMode)
+            or nameof(NotchOpenBehavior) or nameof(WheelAction) or nameof(BatterySaverReduceMotion)
+            or nameof(WeatherRefreshInterval) or nameof(PomodoroWorkMinutes) or nameof(PomodoroShortBreakMinutes) or nameof(PomodoroLongBreakMinutes)
+            or nameof(PanelMusic) or nameof(PanelCalendar) or nameof(PanelShelf)
+            or nameof(PanelControlCenter) or nameof(PanelStatus);
 
     partial void OnLanguageChanged(string value)
     {
@@ -394,6 +417,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockDodgeDelayMs = DockDodgeDelayMs,
             DockIconSize = DockIconSize,
             DockIndicatorStyle = DockIndicatorStyle,
+            NotchHideInFullscreen = NotchHideInFullscreen,
+            ShowVolumeOsd = ShowVolumeOsd,
+            ShowBrightnessOsd = ShowBrightnessOsd,
+            MusicShowWaveform = MusicShowWaveform,
             IdleDisplayMode = IdleDisplayMode,
             NotchOpenBehavior = NotchOpenBehavior,
             Theme = Theme,
@@ -403,8 +430,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             AnimationSpeed = AnimationSpeed,
             RespectReduceMotion = RespectReduceMotion,
             BatterySaverReduceMotion = BatterySaverReduceMotion,
-            BatterySaverStopWaveform = BatterySaverStopWaveform,
-            AudioVisualizerEnabled = AudioVisualizerEnabled,
+            WeatherRefreshInterval = WeatherRefreshInterval,
+            PomodoroWorkMinutes = PomodoroWorkMinutes,
+            PomodoroShortBreakMinutes = PomodoroShortBreakMinutes,
+            PomodoroLongBreakMinutes = PomodoroLongBreakMinutes,
             WheelAction = WheelAction,
             MiddleClickAction = MiddleClickAction,
             EnabledPanels = enabledPanels
@@ -429,10 +458,14 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     [RelayCommand]
     public void ResetSettings()
     {
-        var def = new AppSettings();
-        _store.Save(def);
+        // Kurulum sihirbazı tamamlandı bilgisi korunur; yoksa sıfırlama sihirbazı yeniden açardı.
+        _store.Save(FirstRunPolicy.CreateReset(_store.Load()));
         LoadFromSettings();
         SettingsSaved?.Invoke();
+
+        // Çalışan çentik ve dock yeni varsayılanlarla yeniden kurulur.
+        if (Application.Current is App app)
+            app.ReloadAllFeatures();
     }
 
     [RelayCommand]

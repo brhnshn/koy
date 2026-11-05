@@ -1,0 +1,55 @@
+using System.Reflection;
+using Koy.Core.Settings;
+
+namespace Koy.Core.Tests;
+
+/// <summary>
+/// AppSettings.Equals ve GetHashCode elle yazılı (listeler için). Yeni bir alan eklenip karşılaştırmaya
+/// eklenmezse ayarlar "değişmedi" sanılır; bu test her alanı tek tek değiştirerek bunu yakalar.
+/// </summary>
+public class AppSettingsEqualityTests
+{
+    public static IEnumerable<object[]> ScalarProperties() =>
+        typeof(AppSettings).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.CanWrite && p.PropertyType != typeof(List<string>))
+            .Select(p => new object[] { p.Name });
+
+    [Theory]
+    [MemberData(nameof(ScalarProperties))]
+    public void Changing_any_field_makes_settings_unequal_and_changes_the_hash(string propertyName)
+    {
+        var property = typeof(AppSettings).GetProperty(propertyName)!;
+        var original = new AppSettings();
+        var changed = new AppSettings();
+        property.SetValue(changed, Different(property.PropertyType, property.GetValue(changed)));
+
+        Assert.NotEqual(original, changed);
+        Assert.NotEqual(original.GetHashCode(), changed.GetHashCode());
+    }
+
+    [Theory]
+    [InlineData(nameof(AppSettings.EnabledPanels))]
+    [InlineData(nameof(AppSettings.ControlCenterLayout))]
+    public void Changing_a_list_field_makes_settings_unequal(string propertyName)
+    {
+        var property = typeof(AppSettings).GetProperty(propertyName)!;
+        var changed = new AppSettings();
+        property.SetValue(changed, new List<string> { "yeni" });
+
+        Assert.NotEqual(new AppSettings(), changed);
+    }
+
+    private static object? Different(Type type, object? value)
+    {
+        if (type == typeof(bool)) return !(bool)value!;
+        if (type == typeof(int)) return (int)value! + 1;
+        if (type == typeof(double)) return (double)value! + 1.0;
+        if (type == typeof(string)) return ((string?)value ?? "") + "x";
+        if (type.IsEnum)
+        {
+            var values = Enum.GetValues(type);
+            return values.GetValue((Array.IndexOf(values, value) + 1) % values.Length);
+        }
+        throw new NotSupportedException(type.Name);
+    }
+}

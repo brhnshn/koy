@@ -114,17 +114,6 @@
             </Grid>
         </Border>
 
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [HideWindowsOsdTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                    <TextBlock Text="{Binding [ExperimentalDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
-                </StackPanel>
-                <CheckBox IsChecked="{Binding HideWindowsOsd}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
-            </Grid>
-        </Border>
-
         <!-- PANELLER -->
         <TextBlock Text="{Binding [PanelsHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 
@@ -201,6 +190,42 @@
                                      Style="{StaticResource SegRadioStyle}" />
                     </StackPanel>
                 </Border>
+            </Grid>
+        </Border>
+
+        <!-- POMODORO -->
+        <TextBlock Text="{Binding [PomodoroHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
+
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding [PomodoroWorkTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                </StackPanel>
+                <ComboBox HorizontalAlignment="Right" Width="100" Height="32"
+                          ItemsSource="{Binding PomodoroWorkOptions}" SelectedItem="{Binding PomodoroWorkMinutes}"
+                          Style="{StaticResource SettingComboBoxStyle}" />
+            </Grid>
+        </Border>
+
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding [PomodoroShortBreakTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                </StackPanel>
+                <ComboBox HorizontalAlignment="Right" Width="100" Height="32"
+                          ItemsSource="{Binding PomodoroShortBreakOptions}" SelectedItem="{Binding PomodoroShortBreakMinutes}"
+                          Style="{StaticResource SettingComboBoxStyle}" />
+            </Grid>
+        </Border>
+
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding [PomodoroLongBreakTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                </StackPanel>
+                <ComboBox HorizontalAlignment="Right" Width="100" Height="32"
+                          ItemsSource="{Binding PomodoroLongBreakOptions}" SelectedItem="{Binding PomodoroLongBreakMinutes}"
+                          Style="{StaticResource SettingComboBoxStyle}" />
             </Grid>
         </Border>
     </StackPanel>

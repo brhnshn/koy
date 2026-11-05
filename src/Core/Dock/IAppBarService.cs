@@ -16,6 +16,11 @@ public interface IAppBarService : IDisposable
     void UpdatePosition(nint windowHandle, int heightDip, double dpiScale = 1.0);
 
     /// <summary>
+    /// Kaydı sıfırdan yapar. Explorer yeniden başlayınca eski kayıtlar kaybolur; çalışma alanı yeniden ayrılmalıdır.
+    /// </summary>
+    void Reregister(nint windowHandle, int heightDip, double dpiScale = 1.0);
+
+    /// <summary>
     /// AppBar kaydını kaldırır ve masaüstü çalışma alanını eski haline getirir.
     /// </summary>
     void Unregister(nint windowHandle);

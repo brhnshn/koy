@@ -9,15 +9,57 @@ namespace Koy.Platform.Display;
 public sealed class BrightnessService : IBrightnessService
 {
     private bool _isWmi;
+    private ManagementEventWatcher? _watcher;
+    private bool _disposed;
 
     public bool IsSupported { get; private set; }
     public int Brightness { get; private set; } = 50;
 
     public event EventHandler<int>? BrightnessChanged;
 
-    public BrightnessService()
+    /// <param name="watchExternalChanges">
+    /// true ise parlaklık Koy dışından (Fn tuşları, Windows ayarları) değişince de <see cref="BrightnessChanged"/> yükselir.
+    /// Yalnız dahili ekran (WMI) için; harici monitörlerde (DDC/CI) olay yoktur. Sürekli sorgulama yapılmaz, WMI olayı beklenir.
+    /// </param>
+    public BrightnessService(bool watchExternalChanges = false)
     {
         Initialize();
+        if (watchExternalChanges && _isWmi)
+            StartWatching();
+    }
+
+    private void StartWatching()
+    {
+        try
+        {
+            var query = new WqlEventQuery("SELECT * FROM WmiMonitorBrightnessEvent");
+            _watcher = new ManagementEventWatcher(new ManagementScope(@"root\wmi"), query);
+            _watcher.EventArrived += OnBrightnessEvent;
+            _watcher.Start();
+        }
+        catch
+        {
+            // WMI olayı kurulamazsa yalnız Koy içi değişiklikler bildirilir.
+            _watcher?.Dispose();
+            _watcher = null;
+        }
+    }
+
+    private void OnBrightnessEvent(object sender, EventArrivedEventArgs e)
+    {
+        try
+        {
+            var value = Convert.ToInt32(e.NewEvent["Brightness"]);
+            if (value == Brightness)
+                return;
+
+            Brightness = value;
+            BrightnessChanged?.Invoke(this, value);
+        }
+        catch
+        {
+            // Bozuk olay verisi göstergeyi düşürmesin.
+        }
     }
 
     private void Initialize()
@@ -138,5 +180,23 @@ public sealed class BrightnessService : IBrightnessService
 
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        if (_watcher is not null)
+        {
+            _watcher.EventArrived -= OnBrightnessEvent;
+            try
+            {
+                _watcher.Stop();
+            }
+            catch
+            {
+                // Zaten durmuş olabilir.
+            }
+            _watcher.Dispose();
+            _watcher = null;
+        }
     }
 }

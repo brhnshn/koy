@@ -15,60 +15,91 @@
         <!-- KLAVYE -->
         <TextBlock Text="{Binding [KeyboardHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <TextBlock Text="{Binding [ShortcutToggleNotch], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" VerticalAlignment="Center" />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Win" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Alt" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="N" /></Border>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <TextBlock Text="{Binding [ShortcutOpenShelf], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" VerticalAlignment="Center" />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Win" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Alt" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="R" /></Border>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <TextBlock Text="{Binding [ShortcutToggleDock], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" VerticalAlignment="Center" />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Win" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Alt" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="D" /></Border>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <TextBlock Text="{Binding [ShortcutOpenMenu], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" VerticalAlignment="Center" />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Win" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Alt" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="K" /></Border>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <TextBlock Text="{Binding [ShortcutPlayPause], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" VerticalAlignment="Center" />
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Win" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="Alt" /></Border>
-                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="{Binding [KeySpace], Source={x:Static res:Loc.Instance}}" /></Border>
-                </StackPanel>
-            </Grid>
-        </Border>
+        <ItemsControl ItemsSource="{Binding Shortcuts.Rows}" Focusable="False">
+            <ItemsControl.Resources>
+                <BooleanToVisibilityConverter x:Key="BoolToVis" />
+            </ItemsControl.Resources>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Style="{StaticResource SettingRowStyle}">
+                        <Grid>
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding Title}" Style="{StaticResource SettingTitleStyle}" />
+                                <TextBlock Text="{Binding ErrorText}" Foreground="#F87171" FontSize="12" Margin="0,4,0,0"
+                                           TextWrapping="Wrap" MaxWidth="360"
+                                           Visibility="{Binding HasError, Converter={StaticResource BoolToVis}}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <Button Style="{StaticResource SettingButtonStyle}" MinWidth="190"
+                                        Click="OnCaptureClick"
+                                        PreviewKeyDown="OnCapturePreviewKeyDown"
+                                        LostKeyboardFocus="OnCaptureLostFocus">
+                                    <Grid>
+                                        <ItemsControl ItemsSource="{Binding KeyTokens}" Focusable="False">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Style="{StaticResource KeyBadgeStyle}"><TextBlock Text="{Binding}" /></Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                            <ItemsControl.Style>
+                                                <Style TargetType="ItemsControl">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding HasShortcut}" Value="True" />
+                                                                <Condition Binding="{Binding IsCapturing}" Value="False" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ItemsControl.Style>
+                                        </ItemsControl>
+                                        <TextBlock Text="{Binding [ShortcutPressKeys], Source={x:Static res:Loc.Instance}}" Foreground="#93C5FD">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCapturing}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding [ShortcutNone], Source={x:Static res:Loc.Instance}}" Foreground="#A1A1AA">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding HasShortcut}" Value="False" />
+                                                                <Condition Binding="{Binding IsCapturing}" Value="False" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Button>
+                                <Button Content="{Binding [ShortcutReset], Source={x:Static res:Loc.Instance}}"
+                                        Command="{Binding ResetToDefaultCommand}"
+                                        Style="{StaticResource SettingButtonStyle}" Margin="8,0,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
 
         <!-- Bilgi Kutusu -->
         <Border Style="{StaticResource InfoNoticeStyle}">

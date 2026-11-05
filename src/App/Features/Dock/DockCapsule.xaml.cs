@@ -28,7 +28,11 @@ public partial class DockCapsule : UserControl
             sender is FrameworkElement { DataContext: DockItemViewModel item })
         {
             ViewModel?.ClosePreviewNow();
-            item.MiddleClickCommand.Execute(null);
+            // Ayar: 0 = yeni pencere, 1 = kapat
+            if (ViewModel?.Settings.MiddleClickAction == 1)
+                item.CloseCommand.Execute(null);
+            else
+                item.MiddleClickCommand.Execute(null);
             e.Handled = true;
         }
     }

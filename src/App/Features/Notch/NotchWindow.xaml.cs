@@ -23,6 +23,8 @@ public partial class NotchWindow : Window
     private bool _isNotchVisible = true;
     private nint _hwnd;
 
+    private const int WheelVolumeStepPercent = 2;
+
     private NotchViewModel? ViewModel => DataContext as NotchViewModel;
 
     private DisplayMonitor? _targetMonitor;
@@ -165,10 +167,17 @@ public partial class NotchWindow : Window
         if (ViewModel is null)
             return;
 
-        if (e.Delta < 0)
+        // Tekerlek eylemi ayardan: 0 = panel değiştir, 1 = sistem sesi (yukarı = yükselt).
+        if (ViewModel.Settings.WheelAction == 1)
+        {
+            if (e.Delta != 0)
+                ViewModel.ControlCenter.AdjustVolume(e.Delta > 0 ? WheelVolumeStepPercent : -WheelVolumeStepPercent);
+        }
+        else if (e.Delta < 0)
             ViewModel.NextPanelCommand.Execute(null);
         else if (e.Delta > 0)
             ViewModel.PreviousPanelCommand.Execute(null);
+        e.Handled = true;
     }
 
     private void Notch_DragEnter(object sender, DragEventArgs e)
@@ -270,12 +279,18 @@ public partial class NotchWindow : Window
                 WindowStyles.ReassertTopmost(_hwnd);
             }
 
-            _translateY.Target = 0;
+            if (ViewModel?.ReduceMotion == true)
+                _translateY.SnapTo(0);
+            else
+                _translateY.Target = 0;
         }
         else
         {
             var hideOffset = Notch.ActualHeight > 0 ? -(Notch.ActualHeight + 20) : -150;
-            _translateY.Target = hideOffset;
+            if (ViewModel?.ReduceMotion == true)
+                _translateY.SnapTo(hideOffset);
+            else
+                _translateY.Target = hideOffset;
         }
 
         WakeAnimation();
@@ -289,11 +304,21 @@ public partial class NotchWindow : Window
             return;
         }
 
-        _width.Target = width;
-        _height.Target = height;
-        if (ViewModel is not null)
+        if (ViewModel?.ReduceMotion == true)
         {
-            _cornerRadius.Target = ViewModel.TargetCornerRadius;
+            // Pil tasarrufu: yay animasyonu yok, şekil tek karede yeni boyuta geçer.
+            _width.SnapTo(width);
+            _height.SnapTo(height);
+            _cornerRadius.SnapTo(ViewModel.TargetCornerRadius);
+        }
+        else
+        {
+            _width.Target = width;
+            _height.Target = height;
+            if (ViewModel is not null)
+            {
+                _cornerRadius.Target = ViewModel.TargetCornerRadius;
+            }
         }
         WakeAnimation();
     }

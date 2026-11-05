@@ -160,16 +160,33 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
-    public void DockDown_migrates_to_Dodge()
+    public void Default_dock_proximity_is_DockDown()
+    {
+        Assert.Equal(Koy.Core.Dock.DockProximityMode.DockDown, new AppSettings().DockProximity);
+        Assert.Equal(Koy.Core.Dock.DockProximityMode.DockDown, NewStore().Load().DockProximity);
+    }
+
+    [Fact]
+    public void DockDown_is_kept_on_load_and_file_is_untouched()
     {
         var store = NewStore();
         Directory.CreateDirectory(_dir);
-        File.WriteAllText(store.Path, """{ "DockProximity": "DockDown" }""");
+        const string json = """{ "DockProximity": "DockDown" }""";
+        File.WriteAllText(store.Path, json);
 
         var loaded = store.Load();
 
-        Assert.Equal(Koy.Core.Dock.DockProximityMode.Dodge, loaded.DockProximity);
-        Assert.Contains("\"Dodge\"", File.ReadAllText(store.Path));
+        Assert.Equal(Koy.Core.Dock.DockProximityMode.DockDown, loaded.DockProximity);
+        Assert.Equal(json, File.ReadAllText(store.Path));
+    }
+
+    [Fact]
+    public void Dodge_stays_selectable()
+    {
+        var store = NewStore();
+        store.Save(new AppSettings { DockProximity = Koy.Core.Dock.DockProximityMode.Dodge });
+
+        Assert.Equal(Koy.Core.Dock.DockProximityMode.Dodge, store.Load().DockProximity);
     }
 
     public void Dispose()

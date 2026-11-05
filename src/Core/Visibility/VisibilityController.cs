@@ -14,6 +14,7 @@ public sealed class VisibilityController : IDisposable
     private bool _isMediaPeekActive;
     private VisibilityMode _mode;
     private WindowRect _notchBounds;
+    private bool _hideInFullscreen = true;
     private bool _disposed;
 
     public event EventHandler<VisibilityResult>? Changed;
@@ -43,6 +44,19 @@ public sealed class VisibilityController : IDisposable
     }
 
     public nint NotchHandle { get; set; }
+
+    /// <summary>Tam ekran uygulamada gizlen (varsayılan). Kapalıysa tam ekranda da moda göre görünür kalır.</summary>
+    public bool HideInFullscreen
+    {
+        get => _hideInFullscreen;
+        set
+        {
+            if (_hideInFullscreen == value)
+                return;
+            _hideInFullscreen = value;
+            Evaluate();
+        }
+    }
 
     public bool IsFullscreen { get; private set; }
     public bool IsWindowOverlapping { get; private set; }
@@ -145,8 +159,8 @@ public sealed class VisibilityController : IDisposable
 
     private bool ComputeVisibility()
     {
-        // 1. Tam ekran uygulamada her zaman gizli (oyun ve video izleme konforu).
-        if (IsFullscreen)
+        // 1. Tam ekran uygulamada gizli (oyun ve video izleme konforu); kullanıcı kapatabilir.
+        if (IsFullscreen && _hideInFullscreen)
             return false;
 
         // 2. Fare çentiğin üstünde, kenarda veya çentik genişletilmiş durumdaysa görünür.

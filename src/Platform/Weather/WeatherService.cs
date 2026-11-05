@@ -12,8 +12,7 @@ public sealed class WeatherService : IWeatherService
         Timeout = TimeSpan.FromSeconds(10)
     };
 
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(30);
-
+    private readonly TimeSpan _cacheDuration;
     private readonly HttpClient _httpClient;
     private readonly TimeProvider _timeProvider;
 
@@ -26,8 +25,10 @@ public sealed class WeatherService : IWeatherService
 
     public event EventHandler<WeatherInfo?>? WeatherChanged;
 
-    public WeatherService(HttpClient? httpClient = null, TimeProvider? timeProvider = null)
+    /// <param name="cacheDuration">Önbellek süresi (ayar: hava durumunu yenileme sıklığı); verilmezse 30 dakika.</param>
+    public WeatherService(HttpClient? httpClient = null, TimeProvider? timeProvider = null, TimeSpan? cacheDuration = null)
     {
+        _cacheDuration = cacheDuration ?? TimeSpan.FromMinutes(30);
         _httpClient = httpClient ?? SharedHttpClient;
         _timeProvider = timeProvider ?? TimeProvider.System;
     }
@@ -40,7 +41,7 @@ public sealed class WeatherService : IWeatherService
                              Math.Abs(_cachedLatitude.Value - latitude) < 0.001 &&
                              Math.Abs(_cachedLongitude.Value - longitude) < 0.001;
 
-        if (_cachedWeather is not null && isSameLocation && now - _lastFetchTime < CacheDuration)
+        if (_cachedWeather is not null && isSameLocation && now - _lastFetchTime < _cacheDuration)
         {
             return _cachedWeather;
         }

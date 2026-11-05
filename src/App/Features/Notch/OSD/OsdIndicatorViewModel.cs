@@ -24,6 +24,12 @@ public sealed partial class OsdIndicatorViewModel : ObservableObject, IDisposabl
     private IBrightnessService? _attachedBrightness;
     private bool _disposed;
 
+    /// <summary>
+    /// Göstergenin şimdi çıkıp çıkamayacağını söyler (ör. çentik açıkken panel yerine gösterge çıkmasın).
+    /// Atanmamışsa her zaman çıkar.
+    /// </summary>
+    public Func<bool>? CanShow { get; set; }
+
     [ObservableProperty]
     private bool _isActive;
 
@@ -115,27 +121,30 @@ public sealed partial class OsdIndicatorViewModel : ObservableObject, IDisposabl
 
     private void OnAudioStateChanged(object? sender, AudioStateChangedEventArgs e)
     {
-        var disp = _autoDismissTimer.Dispatcher;
-        if (disp.CheckAccess())
-        {
-            ShowVolume(e.Volume, e.IsMuted);
-        }
-        else
-        {
-            disp.InvokeAsync(() => ShowVolume(e.Volume, e.IsMuted));
-        }
+        RunOnUi(() => ShowVolume(e.Volume, e.IsMuted));
     }
 
     private void OnBrightnessChanged(object? sender, int e)
     {
+        RunOnUi(() => ShowBrightness(e));
+    }
+
+    // Servis olayları ses ve WMI iş parçacıklarından gelir; durum ve görünüm yalnız UI thread'inde değişir.
+    private void RunOnUi(Action show)
+    {
         var disp = _autoDismissTimer.Dispatcher;
         if (disp.CheckAccess())
         {
-            ShowBrightness(e);
+            if (!_disposed && (CanShow?.Invoke() ?? true))
+                show();
         }
         else
         {
-            disp.InvokeAsync(() => ShowBrightness(e));
+            disp.InvokeAsync(() =>
+            {
+                if (!_disposed && (CanShow?.Invoke() ?? true))
+                    show();
+            });
         }
     }
 

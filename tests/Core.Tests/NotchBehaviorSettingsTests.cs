@@ -1,0 +1,115 @@
+using Koy.Core.Notch;
+using Koy.Core.Settings;
+using Koy.Core.Visibility;
+
+namespace Koy.Core.Tests;
+
+public class NotchBehaviorSettingsTests
+{
+    [Theory]
+    [InlineData(0, true, true)]
+    [InlineData(1, true, false)]
+    [InlineData(2, false, false)]
+    [InlineData(99, true, true)] // bilinmeyen değer varsayılana düşer
+    public void IdleDisplay_maps_mode_to_clock_and_battery(int mode, bool clock, bool battery)
+    {
+        Assert.Equal(clock, IdleDisplay.ShowClock(mode));
+        Assert.Equal(battery, IdleDisplay.ShowBattery(mode));
+    }
+
+    [Fact]
+    public void Hover_open_behavior_expands_immediately_on_mouse_enter()
+    {
+        using var controller = new NotchController { OpenOnHover = true };
+
+        controller.OnMouseEnter();
+
+        Assert.Equal(NotchState.Expanded, controller.State);
+    }
+
+    [Fact]
+    public void Hover_open_behavior_collapses_after_mouse_leave_timeout()
+    {
+        using var controller = new NotchController { OpenOnHover = true };
+        controller.OnMouseEnter();
+
+        controller.OnMouseLeave();
+        controller.OnMouseLeaveTimeout();
+
+        Assert.Equal(NotchState.Collapsed, controller.State);
+    }
+
+    [Fact]
+    public void Click_open_behavior_only_peeks_on_hover()
+    {
+        using var controller = new NotchController { OpenOnHover = false };
+
+        controller.OnMouseEnter();
+        Assert.Equal(NotchState.Peek, controller.State);
+
+        controller.OnClick();
+        Assert.Equal(NotchState.Expanded, controller.State);
+    }
+
+    [Fact]
+    public void Default_open_behavior_setting_is_click()
+    {
+        Assert.Equal(1, new AppSettings().NotchOpenBehavior);
+    }
+
+    [Fact]
+    public void Fullscreen_hides_by_default()
+    {
+        using var visibility = new VisibilityController(VisibilityMode.Fixed);
+
+        visibility.SetFullscreen(true);
+
+        Assert.False(visibility.IsVisible);
+    }
+
+    [Fact]
+    public void Fullscreen_keeps_notch_visible_when_hiding_is_turned_off()
+    {
+        using var visibility = new VisibilityController(VisibilityMode.Fixed) { HideInFullscreen = false };
+
+        visibility.SetFullscreen(true);
+
+        Assert.True(visibility.IsVisible);
+    }
+
+    [Fact]
+    public void Turning_hiding_off_while_fullscreen_shows_the_notch_again()
+    {
+        using var visibility = new VisibilityController(VisibilityMode.Fixed);
+        visibility.SetFullscreen(true);
+        Assert.False(visibility.IsVisible);
+
+        visibility.HideInFullscreen = false;
+
+        Assert.True(visibility.IsVisible);
+    }
+
+    [Fact]
+    public void Behavior_settings_round_trip_through_the_store()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "koy-notch-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var store = new SettingsStore(Path.Combine(dir, "settings.json"));
+            var settings = new AppSettings { NotchHideInFullscreen = false, MusicShowWaveform = false, IdleDisplayMode = 2 };
+
+            store.Save(settings);
+            var loaded = store.Load();
+
+            Assert.False(loaded.NotchHideInFullscreen);
+            Assert.False(loaded.MusicShowWaveform);
+            Assert.Equal(2, loaded.IdleDisplayMode);
+            Assert.Equal(settings, loaded);
+        }
+        finally
+        {
+            if (Directory.Exists(dir))
+                Directory.Delete(dir, recursive: true);
+        }
+    }
+}

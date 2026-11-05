@@ -2,12 +2,14 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using Koy.Core.Display;
+using Koy.Core.Power;
 using Koy.Core.Dock;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
 using Koy.Core.Visibility;
 using Koy.Platform.Display;
 using Koy.Platform.Media;
+using Koy.Platform.Power;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Dock;
@@ -46,6 +48,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     private AppBarService? _appBarService;
     private MonitorService? _monitorService;
     private MediaService? _mediaService;
+    private PowerService? _powerService;
     private DockController? _controller;
     private DispatcherTimer? _edgePeekTimer;
 
@@ -54,8 +57,9 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         if (_windows.Count > 0)
             return;
 
-        // Görev çubuğunu gizle (ve durumunu diske kaydet)
-        TaskbarService.Hide();
+        // Görev çubuğunu gizle (ve durumunu diske kaydet); kullanıcı "Windows görev çubuğunu gizle"yi kapattıysa dokunulmaz.
+        if (settings.HideWindowsTaskbar)
+            TaskbarService.Hide();
 
         // Platform servislerini başlat
         _pinnedAppsService = new PinnedAppsService();
@@ -83,6 +87,14 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         // Medya servisi (Tam genişlik Now Playing hapı için); Notch ile paylaşılan tek örnek
         _mediaService = services.AcquireMediaService();
 
+        // Pil tasarrufu için güç durumu; ayar kapalıysa servis kurulmaz.
+        if (settings.BatterySaverReduceMotion)
+        {
+            _powerService = new PowerService();
+            _powerService.PowerChanged += OnPowerChanged;
+            ApplyReduceMotion();
+        }
+
         var monitors = _monitorService.GetMonitors();
         var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(monitors, settings.MonitorTarget);
 
@@ -108,7 +120,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             OnForegroundWindowChanged(this, currentForeground);
 
         // Hide() sonrası Gezgin görev çubuğunu bir kez daha gösterebiliyor; açılışta hemen yakala.
-        TaskbarService.EnsureHidden();
+        EnsureTaskbarHidden();
         _controller.Start();
 
         UpdateEdgeTimer();
@@ -117,13 +129,34 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     /// <summary>
     /// Explorer yeniden başlayınca yeni görev çubuğu görünür ve varsayılan durumda gelir; gizlemeyi yeniden uygular.
     /// TaskbarService.Hide idempotent olduğundan kullanıcının asıl görev çubuğu durumu korunur.
+    /// Yer ayır modunda AppBar kayıtları da Explorer'la birlikte yok olur; çalışma alanı yeniden ayrılır.
     /// </summary>
     public void ReapplyTaskbarHiding()
     {
         if (_windowStates.Count == 0)
             return;
 
-        TaskbarService.Hide();
+        if (settings.HideWindowsTaskbar)
+            TaskbarService.Hide();
+
+        if (_appBarService is null)
+            return;
+
+        foreach (var (_, state) in _windowStates)
+        {
+            if (state.Hwnd == 0)
+                continue;
+
+            var source = PresentationSource.FromVisual(state.Window);
+            var dpiScale = source?.CompositionTarget?.TransformToDevice.M22 ?? state.Monitor.DpiScaleY;
+            _appBarService.Reregister(state.Hwnd, (int)Math.Ceiling(state.Window.ReservedHeight), dpiScale);
+        }
+    }
+
+    private void EnsureTaskbarHidden()
+    {
+        if (settings.HideWindowsTaskbar)
+            TaskbarService.EnsureHidden();
     }
 
     private void CreateDockWindow(DisplayMonitor monitor)
@@ -136,6 +169,8 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             visibilityController,
             status: null,
             mediaService: _mediaService);
+
+        viewModel.ReduceMotion = _reduceMotion;
 
         var window = new DockWindow { DataContext = viewModel };
         window.SetTargetMonitor(monitor);
@@ -205,6 +240,25 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         window.Show();
     }
 
+    private bool _reduceMotion;
+
+    private void OnPowerChanged(object? sender, PowerChangedEventArgs e)
+    {
+        // WinRT güç olayları UI dışı thread'den gelir; durum ve pencere nesnelerine UI thread'inde dokunulur.
+        Application.Current?.Dispatcher.InvokeAsync(ApplyReduceMotion);
+    }
+
+    private void ApplyReduceMotion()
+    {
+        if (_powerService is null)
+            return;
+
+        _reduceMotion = BatterySaverPolicy.ShouldReduceMotion(
+            settings.BatterySaverReduceMotion, _powerService.HasBattery, _powerService.Status);
+        foreach (var state in _windowStates.Values)
+            state.ViewModel.ReduceMotion = _reduceMotion;
+    }
+
     private void OnMonitorsChanged(object? sender, EventArgs e)
     {
         if (Application.Current is not null && !Application.Current.Dispatcher.CheckAccess())
@@ -252,14 +306,14 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         }
 
         // Windows Explorer yeni monitör için ikincil görev çubuğu oluşturmuş olabilir (Shell_SecondaryTrayWnd)
-        TaskbarService.EnsureHidden();
+        EnsureTaskbarHidden();
         UpdateEdgeTimer();
     }
 
     private void OnWindowsChanged(object? sender, EventArgs e)
     {
         // Bir pencere gösterildiğinde (görev çubuğu dahil) tetiklenir; görev çubuğu yeniden göründüyse gizle.
-        TaskbarService.EnsureHidden();
+        EnsureTaskbarHidden();
 
         if (_windowTracker?.CurrentForeground is { } fg && fg.Handle != 0)
         {
@@ -445,6 +499,13 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
         _monitorService?.Dispose();
         _monitorService = null;
+
+        if (_powerService is not null)
+        {
+            _powerService.PowerChanged -= OnPowerChanged;
+            _powerService.Dispose();
+            _powerService = null;
+        }
 
         _controller?.Dispose();
         _controller = null;

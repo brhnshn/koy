@@ -45,9 +45,6 @@
   <data name="Settings" xml:space="preserve">
     <value>Ayarlar</value>
   </data>
-  <data name="Exit" xml:space="preserve">
-    <value>Çıkış</value>
-  </data>
   <data name="Music" xml:space="preserve">
     <value>Müzik</value>
   </data>
@@ -274,7 +271,7 @@
     <value>Tema, vurgu rengi ve animasyonlar</value>
   </data>
   <data name="ShortcutsSubtitle" xml:space="preserve">
-    <value>Fare ve tekerlek eylemleri</value>
+    <value>Klavye, fare ve tekerlek eylemleri</value>
   </data>
   <data name="PerformanceSubtitle" xml:space="preserve">
     <value>Bellek kullanımı ve güç tasarrufu</value>
@@ -471,12 +468,6 @@
   <data name="BrightnessOsdTitle" xml:space="preserve">
     <value>Parlaklık göstergesi</value>
   </data>
-  <data name="HideWindowsOsdTitle" xml:space="preserve">
-    <value>Windows'un kendi göstergesini gizle</value>
-  </data>
-  <data name="ExperimentalDesc" xml:space="preserve">
-    <value>Deneysel</value>
-  </data>
   <data name="SectionsHeader" xml:space="preserve">
     <value>BÖLÜMLER</value>
   </data>
@@ -589,7 +580,7 @@
     <value>Boşluk</value>
   </data>
   <data name="ShortcutsNotice" xml:space="preserve">
-    <value>Kısayollar örnektir. Windows ya da başka bir uygulamayla çakışan kısayol kırmızıyla gösterilir.</value>
+    <value>Değiştirmek için kutuya tıklayıp yeni kombinasyona basın. Esc iptal eder, Backspace kısayolu kaldırır. Başka bir uygulamanın tuttuğu kısayol satırda hata olarak görünür.</value>
   </data>
   <data name="MouseHeader" xml:space="preserve">
     <value>FARE</value>
@@ -624,9 +615,6 @@
   <data name="BatteryReduceMotion" xml:space="preserve">
     <value>Pil tasarrufunda animasyonları azalt</value>
   </data>
-  <data name="BatteryStopWaveform" xml:space="preserve">
-    <value>Pil tasarrufunda müzik dalgasını durdur</value>
-  </data>
   <data name="DataHeader" xml:space="preserve">
     <value>VERİ</value>
   </data>
@@ -641,12 +629,6 @@
   </data>
   <data name="IntervalStartupOnly" xml:space="preserve">
     <value>Yalnız açılışta</value>
-  </data>
-  <data name="AudioVisualizerTitle" xml:space="preserve">
-    <value>Ses görselleştirici</value>
-  </data>
-  <data name="AudioVisualizerDesc" xml:space="preserve">
-    <value>Deneysel, fazladan bellek kullanır</value>
   </data>
   <data name="IdleNotice" xml:space="preserve">
     <value>Koy boştayken işlemci kullanmaz. Zamanlayıcılar yalnız ilgili panel açıkken çalışır.</value>
@@ -695,5 +677,41 @@
   </data>
   <data name="ExitKoyAction" xml:space="preserve">
     <value>Koy'dan çık</value>
+  </data>
+  <data name="ShortcutPressKeys" xml:space="preserve">
+    <value>Kombinasyona basın…</value>
+  </data>
+  <data name="ShortcutNone" xml:space="preserve">
+    <value>Atanmamış</value>
+  </data>
+  <data name="ShortcutReset" xml:space="preserve">
+    <value>Varsayılana dön</value>
+  </data>
+  <data name="ShortcutErrInvalid" xml:space="preserve">
+    <value>En az Ctrl, Alt ya da Win ile birlikte bir tuşa basın.</value>
+  </data>
+  <data name="ShortcutErrReserved" xml:space="preserve">
+    <value>Windows bu kısayolu kendine ayırmış, başka bir kombinasyon seçin.</value>
+  </data>
+  <data name="ShortcutErrDuplicate" xml:space="preserve">
+    <value>"{0}" için zaten kullanılıyor.</value>
+  </data>
+  <data name="ShortcutErrInUse" xml:space="preserve">
+    <value>Başka bir uygulama bu kısayolu kullanıyor, kayıt edilemedi.</value>
+  </data>
+  <data name="ShortcutErrFailed" xml:space="preserve">
+    <value>Kısayol kaydedilemedi.</value>
+  </data>
+  <data name="PomodoroHeader" xml:space="preserve">
+    <value>POMODORO</value>
+  </data>
+  <data name="PomodoroWorkTitle" xml:space="preserve">
+    <value>Çalışma süresi (dk)</value>
+  </data>
+  <data name="PomodoroShortBreakTitle" xml:space="preserve">
+    <value>Kısa mola (dk)</value>
+  </data>
+  <data name="PomodoroLongBreakTitle" xml:space="preserve">
+    <value>Uzun mola (dk)</value>
   </data>
 </root>

@@ -60,6 +60,9 @@ public sealed partial class DockItemViewModel : ObservableObject
     [ObservableProperty]
     private double _itemSize = 38.0;
 
+    /// <summary>Çalışan göstergesi stili "Çizgi" mi (ayar: 0 = nokta, 1 = çizgi). Öğe oluşturulurken verilir.</summary>
+    public bool UseLineIndicator { get; init; }
+
     public bool HasOpenWindows => Windows.Count > 0;
     public DockWindowEntry? SingleWindow => Windows.Count == 1 ? Windows[0] : null;
 

@@ -20,6 +20,12 @@ public sealed class NotchController : IDisposable
     public bool IsMouseOver { get; private set; }
     public IReadOnlyList<NotchPanel> EnabledPanels => _enabledPanels;
 
+    /// <summary>
+    /// Açılma davranışı: true ise fare üzerine gelince çentik doğrudan açılır; false ise önce küçük bir ipucu
+    /// (Peek) görünür, tıklayınca açılır (ayar: 0 = üzerine gelince, 1 = tıklayınca).
+    /// </summary>
+    public bool OpenOnHover { get; set; }
+
     public NotchController(TimeProvider? timeProvider = null)
     {
         _timeProvider = timeProvider ?? TimeProvider.System;
@@ -91,8 +97,15 @@ public sealed class NotchController : IDisposable
         IsMouseOver = true;
         _mouseLeaveTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
-        if (State == NotchState.Collapsed)
+        if (OpenOnHover && State != NotchState.Expanded)
+        {
+            _autoPeekTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            SetState(NotchState.Expanded);
+        }
+        else if (State == NotchState.Collapsed)
+        {
             SetState(NotchStateTransitions.Transition(State, NotchTrigger.MouseEnter));
+        }
     }
 
     public void OnMouseLeave()

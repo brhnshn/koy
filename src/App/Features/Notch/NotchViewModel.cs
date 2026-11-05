@@ -38,6 +38,18 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public VisibilityController Visibility => _visibility;
     public OsdIndicatorViewModel Osd { get; }
 
+    /// <summary>Boşta saat gösterilsin mi (ayar: Saat ve pil / Yalnız saat / Hiçbiri).</summary>
+    public bool ShowIdleClock => IdleDisplay.ShowClock(Settings.IdleDisplayMode);
+
+    /// <summary>Boşta pil gösterilsin mi.</summary>
+    public bool ShowIdleBattery => IdleDisplay.ShowBattery(Settings.IdleDisplayMode);
+
+    /// <summary>Pil tasarrufu: pille çalışırken çentik animasyonsuz (anında) geçer.</summary>
+    public bool ReduceMotion => Settings.BatterySaverReduceMotion && _status.IsOnBattery;
+
+    /// <summary>Müzik çalarken dalga simgesi gösterilsin mi.</summary>
+    public bool ShowMusicWaveform => Settings.MusicShowWaveform;
+
     public ObservableObject CurrentPanelContent => CurrentPanel switch
     {
         NotchPanel.Music => Music,
@@ -124,7 +136,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _music.PropertyChanged += OnMusicPropertyChanged;
         _calendar.TimerFinished += OnCalendarTimerFinished;
         _status.PropertyChanged += OnStatusPropertyChanged;
-        Osd.Activated += OnOsdStateChanged;
+        Osd.CanShow = () => !_disposed && State != NotchState.Expanded;
+        Osd.Activated += OnOsdActivated;
         Osd.Dismissed += OnOsdStateChanged;
 
         UpdateClock();
@@ -135,6 +148,13 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         {
             StartClockTimer();
         }
+    }
+
+    private void OnOsdActivated(object? sender, EventArgs e)
+    {
+        // Akıllı/Fareyle modunda çentik gizli olabilir; gösterge süresince (3 sn) görünür kalsın.
+        _visibility.OnMediaActivity();
+        UpdateTargetSize();
     }
 
     private void OnOsdStateChanged(object? sender, EventArgs e)
@@ -319,9 +339,6 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         KoyWindow.ShowInstance(1);
     }
 
-    [RelayCommand]
-    private void Quit() => System.Windows.Application.Current.Shutdown();
-
     public void Dispose()
     {
         if (_disposed)
@@ -337,7 +354,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _music.PropertyChanged -= OnMusicPropertyChanged;
         _calendar.TimerFinished -= OnCalendarTimerFinished;
         _status.PropertyChanged -= OnStatusPropertyChanged;
-        Osd.Activated -= OnOsdStateChanged;
+        Osd.Activated -= OnOsdActivated;
         Osd.Dismissed -= OnOsdStateChanged;
         Osd.Dispose();
         _controller.Dispose();
