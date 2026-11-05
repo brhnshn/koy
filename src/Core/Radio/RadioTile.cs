@@ -25,6 +25,12 @@ public sealed record RadioTileState(RadioTileStatus Status, bool IsOn, RadioTile
 {
     /// <summary>Radyo yazılımdan değiştirilemiyor; döşeme soluk gösterilir ve ayarlara yönlendirir.</summary>
     public bool IsUnavailable => Status is RadioTileStatus.NotFound or RadioTileStatus.NoAccess or RadioTileStatus.HardwareOff;
+
+    /// <summary>
+    /// Kapalı çentikte durum simgesi gösterilir mi: radyo var ve durumu biliniyor. Adaptör yoksa, izin yoksa ya da
+    /// tarama sürüyorsa simge çıkmaz (masaüstünde Bluetooth'suz kasada boş bir simge yanıltıcı olur).
+    /// </summary>
+    public bool IsPresent => Status is RadioTileStatus.On or RadioTileStatus.Off or RadioTileStatus.HardwareOff or RadioTileStatus.Failed;
 }
 
 /// <summary>

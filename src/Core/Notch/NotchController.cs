@@ -58,6 +58,19 @@ public sealed class NotchController : IDisposable
         SelectPanel(_enabledPanels[prevIndex]);
     }
 
+    /// <summary>
+    /// Sekmeden doğrudan bir panele geçer; kayma yönü panellerin sırasına göre seçilir (sağdaki sekme sağdan gelir).
+    /// </summary>
+    public void GoToPanel(NotchPanel panel)
+    {
+        if (!_enabledPanels.Contains(panel) || CurrentPanel == panel)
+            return;
+
+        var direction = _enabledPanels.IndexOf(panel) > _enabledPanels.IndexOf(CurrentPanel) ? 1 : -1;
+        PanelTransitionTriggered?.Invoke(direction);
+        SelectPanel(panel);
+    }
+
     public void SelectPanel(NotchPanel panel)
     {
         if (!_enabledPanels.Contains(panel) || CurrentPanel == panel)
