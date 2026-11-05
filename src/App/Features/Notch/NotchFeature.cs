@@ -55,6 +55,11 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     private MonitorService? _monitorService;
     private DispatcherTimer? _edgePeekTimer;
 
+    // Ses/parlaklık göstergeleri (OSD) için kendi servisleri; ilgili ayar kapalıysa hiç kurulmaz (AGENTS.md #5).
+    private AudioService? _osdAudio;
+    private BrightnessService? _osdBrightness;
+    private bool _stopped;
+
     public void Start()
     {
         if (_windows.Count > 0)
@@ -90,6 +95,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             Interval = TimeSpan.FromMilliseconds(100)
         };
         _edgePeekTimer.Tick += (_, _) => CheckEdgePeek();
+
+        StartOsdServices();
 
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
 
@@ -165,8 +172,47 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         _windowStates[monitor.Id] = state;
         _windows[monitor.Id] = window;
 
+        AttachOsd(viewModel);
+
         window.Show();
         UpdateNotchBounds(window, visibilityController, monitor);
+    }
+
+    private void StartOsdServices()
+    {
+        if (settings.ShowVolumeOsd)
+        {
+            _osdAudio = new AudioService();
+            foreach (var state in _windowStates.Values)
+                state.ViewModel.Osd.Attach(_osdAudio);
+        }
+
+        if (settings.ShowBrightnessOsd)
+            _ = StartBrightnessOsdAsync();
+    }
+
+    private async Task StartBrightnessOsdAsync()
+    {
+        // WMI sorgusu ve olay izleyicisi UI thread'ini bekletmesin.
+        var service = await Task.Run(() => new BrightnessService(watchExternalChanges: true));
+        if (_stopped || !service.IsSupported)
+        {
+            // Masaüstü bilgisayarda parlaklık yok: servis ve izleyici bırakılır.
+            service.Dispose();
+            return;
+        }
+
+        _osdBrightness = service;
+        foreach (var state in _windowStates.Values)
+            state.ViewModel.Osd.Attach(_osdBrightness);
+    }
+
+    private void AttachOsd(NotchViewModel viewModel)
+    {
+        if (_osdAudio is not null)
+            viewModel.Osd.Attach(_osdAudio);
+        if (_osdBrightness is not null)
+            viewModel.Osd.Attach(_osdBrightness);
     }
 
     private void OnMonitorsChanged(object? sender, EventArgs e)
@@ -364,6 +410,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
     public void Stop()
     {
+        _stopped = true;
         _edgePeekTimer?.Stop();
         _edgePeekTimer = null;
 
@@ -386,6 +433,12 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         }
         _windowStates.Clear();
         _windows.Clear();
+
+        // Pencerelerin Osd görünüm modelleri yukarıda Dispose edildi (olay bağları çözüldü); servisler artık bırakılır.
+        _osdAudio?.Dispose();
+        _osdAudio = null;
+        _osdBrightness?.Dispose();
+        _osdBrightness = null;
 
         _monitorService?.Dispose();
         _monitorService = null;

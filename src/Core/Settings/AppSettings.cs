@@ -74,6 +74,10 @@ public sealed record AppSettings
     public string ShortcutToggleDock { get; set; } = "Ctrl+Alt+D";
     public string ShortcutOpenMenu { get; set; } = "Ctrl+Alt+K";
     public string ShortcutPlayPause { get; set; } = "Ctrl+Alt+Space";
+    /// <summary>Parlaklık değişince çentikte 1,5 sn parlaklık göstergesi çıksın.</summary>
+    public bool ShowBrightnessOsd { get; set; } = true;
+    /// <summary>Ses değişince çentikte 1,5 sn ses göstergesi çıksın.</summary>
+    public bool ShowVolumeOsd { get; set; } = true;
     /// <summary>Müzik çalarken çentikte dalga simgesi görünsün.</summary>
     public bool MusicShowWaveform { get; set; } = true;
     /// <summary>Tam ekran uygulama ya da oyun varken çentik gizlensin.</summary>
@@ -132,6 +136,8 @@ public sealed record AppSettings
                ShortcutToggleDock == other.ShortcutToggleDock &&
                ShortcutOpenMenu == other.ShortcutOpenMenu &&
                ShortcutPlayPause == other.ShortcutPlayPause &&
+               ShowBrightnessOsd == other.ShowBrightnessOsd &&
+               ShowVolumeOsd == other.ShowVolumeOsd &&
                MusicShowWaveform == other.MusicShowWaveform &&
                NotchHideInFullscreen == other.NotchHideInFullscreen &&
                WeatherLatitude.Equals(other.WeatherLatitude) &&
@@ -187,6 +193,8 @@ public sealed record AppSettings
         hash.Add(ShortcutToggleDock);
         hash.Add(ShortcutOpenMenu);
         hash.Add(ShortcutPlayPause);
+        hash.Add(ShowBrightnessOsd);
+        hash.Add(ShowVolumeOsd);
         hash.Add(MusicShowWaveform);
         hash.Add(NotchHideInFullscreen);
         hash.Add(WeatherLatitude);
