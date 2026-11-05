@@ -30,23 +30,7 @@ public sealed class SettingsStore(string path)
             return new AppSettings();
         }
 
-        settings ??= new AppSettings();
-
-        // Eski "DockDown" zıplama modunu "Dodge" (Akıllı Gizlenme) moduna otomatik geçir
-        if (settings.DockProximity == Dock.DockProximityMode.DockDown)
-        {
-            settings.DockProximity = Dock.DockProximityMode.Dodge;
-            try
-            {
-                Save(settings);
-            }
-            catch
-            {
-                // Salt okunur ortamda sessizce devam et
-            }
-        }
-
-        return settings;
+        return settings ?? new AppSettings();
     }
 
     /// <summary>Önce geçici dosyaya yazar, sonra yerine taşır; yazma yarıda kesilirse eski dosya bozulmaz.</summary>

@@ -90,7 +90,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private DockStyleMode _dockStyle = DockStyleMode.FloatingCapsule;
 
     [ObservableProperty]
-    private DockProximityMode _dockProximity = DockProximityMode.Dodge;
+    private DockProximityMode _dockProximity = DockProximityMode.DockDown;
 
     [ObservableProperty]
     private bool _dockHideInFullscreen = true;
