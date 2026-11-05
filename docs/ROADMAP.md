@@ -204,6 +204,7 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 - [x] **Dock'ta son kullanılanlar** (6.3).
 - [x] **Çoklu ekran varsayılanı:** yeni ekran varsayılanı çentik ve dock açık (`MonitorPolicy.DefaultNewScreenMode`), testli.
 - [x] **Belgeler:** bellek bütçesi kararı, ölçüm kaydı, CHANGELOG.
+- [x] **Tepsi düğmesi kaybolması düzeltildi:** ilk kurulum hatası kalıcı bayrağa dönüşüyordu (`_trayAcquireFailed`) ve ölen tepsi penceresi yalnız bir sonraki pencere olayında fark ediliyordu. Karar `Core/Tray/TrayHostRecovery` (üstel beklemeli yeniden deneme), sayaç `TrayHostLease`; `TrayHostService.Exited` beklenmedik kapanışı bildirir ve `crash.log`'a yazar. Testli.
 - [ ] **Elle sınama** (proje sahibi): Görev Yöneticisi'nden Koy'u öldür → görev çubuğu birkaç sn içinde kendiliğinden gelmeli; Koy'dan çık / dock'u kapat → gözcü kalmamalı (Görev Yöneticisi'nde `Koy.Watchdog.exe`); simge sürükleyerek sırala, yeniden başlatınca sıra korunmalı; büyütülmüş pencerede alt kenara git (tuş basılı değilken ~300 ms sonra çıkar), oyun / F11 / tam ekran videoda çıkmasın; tepsi simgesine sağ tık → pencere açık kalsın, menüden seçince / dışarı tıklayınca kapansın; dock açıkken bildirim alanında Koy simgesi olmasın, dock kapanınca gelsin; son kullanılanlar yığını; ikinci ekran takınca çentik ve dock açılsın.
 - [ ] Gözcü AOT paketinin gerçek CI/`pack.ps1` çıktısından boyut ve bellek ölçümü; paket sonrası Koy belleğinin yeniden ölçümü (`docs/MEMORY.md`).
 
