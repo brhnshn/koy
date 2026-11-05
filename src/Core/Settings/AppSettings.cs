@@ -36,6 +36,12 @@ public sealed record AppSettings
     /// <summary>Tam ekran bir uygulama veya oyun devredeyken dock'u otomatik gizle.</summary>
     public bool DockHideInFullscreen { get; set; } = true;
 
+    /// <summary>
+    /// Büyütülmüş pencere dock'u gizlediğinde fare alt kenara (~300 ms, fare tuşu basılı değilken) gelince dock çıkar.
+    /// Kapalıysa dock büyütülmüş pencerede gizli kalır. Gerçek tam ekranda (oyun, F11, tam ekran video) hiçbir zaman çıkmaz.
+    /// </summary>
+    public bool DockEdgeReveal { get; set; } = true;
+
     public bool DockShowStartButton { get; set; } = true;
     public bool DockShowFolders { get; set; } = true;
     public bool DockShowMinimized { get; set; } = true;
@@ -134,6 +140,7 @@ public sealed record AppSettings
                DockStyle == other.DockStyle &&
                DockProximity == other.DockProximity &&
                DockHideInFullscreen == other.DockHideInFullscreen &&
+               DockEdgeReveal == other.DockEdgeReveal &&
                DockShowStartButton == other.DockShowStartButton &&
                DockShowFolders == other.DockShowFolders &&
                DockShowMinimized == other.DockShowMinimized &&
@@ -197,6 +204,7 @@ public sealed record AppSettings
         hash.Add(DockStyle);
         hash.Add(DockProximity);
         hash.Add(DockHideInFullscreen);
+        hash.Add(DockEdgeReveal);
         hash.Add(DockShowStartButton);
         hash.Add(DockShowFolders);
         hash.Add(DockShowMinimized);

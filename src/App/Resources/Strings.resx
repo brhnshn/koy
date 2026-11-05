@@ -900,4 +900,10 @@
   <data name="TrayEmpty" xml:space="preserve">
     <value>No tray icons</value>
   </data>
+  <data name="DockEdgeRevealTitle" xml:space="preserve">
+    <value>Open from the bottom edge</value>
+  </data>
+  <data name="DockEdgeRevealDesc" xml:space="preserve">
+    <value>When a maximized window hides the dock, moving the pointer to the bottom edge brings it back. Never in games or full-screen video.</value>
+  </data>
 </root>

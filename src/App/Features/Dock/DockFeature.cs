@@ -29,6 +29,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         public required DockWindow Window { get; init; }
         public required DockViewModel ViewModel { get; init; }
         public required VisibilityController VisibilityController { get; init; }
+        public required EdgeRevealTracker EdgeTracker { get; init; }
         public nint Hwnd { get; set; }
 
         public void Dispose()
@@ -113,10 +114,10 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         // Görev çubuğu yalnız en az bir dock penceresi varken gizlenir (aksi halde hiçbir ekranda görev çubuğu kalmazdı).
         ApplyTaskbarPolicy();
 
-        // 50 ms kenar gözetleme (peek) zamanlayıcısı (yalnız gizliyken UI thread'de çalışır)
+        // 100 ms kenar gözetleme (peek) zamanlayıcısı (yalnız dock gizliyken UI thread'de çalışır)
         _edgePeekTimer = new DispatcherTimer(DispatcherPriority.Background)
         {
-            Interval = TimeSpan.FromMilliseconds(50)
+            Interval = TimeSpan.FromMilliseconds(100)
         };
         _edgePeekTimer.Tick += (_, _) => CheckEdgePeek();
 
@@ -300,8 +301,14 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             Monitor = monitor,
             Window = window,
             ViewModel = viewModel,
-            VisibilityController = visibilityController
+            VisibilityController = visibilityController,
+            // Çekil modunun kendi gecikmesi (DockDodgeDelayMs) ViewModel'de işler; çifte beklemesin.
+            EdgeTracker = new EdgeRevealTracker(
+                settings.DockProximity == DockProximityMode.Dodge ? TimeSpan.Zero : EdgeRevealTracker.DefaultDelay)
         };
+
+        // Dock gizlenince / görününce kenar zamanlayıcısı açılıp kapanır (gizli değilken fare izlenmez).
+        viewModel.EdgeWatchChanged += (_, _) => UpdateEdgeTimer();
 
         window.SourceInitialized += (s, e) =>
         {
@@ -534,10 +541,13 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         if (_edgePeekTimer is null || _windowStates.Count == 0)
             return;
 
+        // Dodge/AlwaysHidden/akıllı görünürlük kenarı hep izler; büyütülmüş pencere dock'u gizlediyse
+        // (NeedsEdgeWatch) ve kenardan açma açıksa yalnız o sürede izlenir.
         var shouldRun = _windowStates.Values.Any(s =>
-            (settings.DockProximity is DockProximityMode.Dodge or DockProximityMode.AlwaysHidden ||
-             settings.DockVisibility != VisibilityMode.Fixed) &&
-            settings.DockProximity != DockProximityMode.ReserveSpace);
+            ((settings.DockProximity is DockProximityMode.Dodge or DockProximityMode.AlwaysHidden ||
+              settings.DockVisibility != VisibilityMode.Fixed) &&
+             settings.DockProximity != DockProximityMode.ReserveSpace) ||
+            (settings.DockEdgeReveal && s.ViewModel.NeedsEdgeWatch));
 
         if (shouldRun)
         {
@@ -565,18 +575,26 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
         if (_windowTracker.GetCursorPosition(out var x, out var y))
         {
+            var buttonDown = CursorHelper.IsAnyMouseButtonDown();
+            var now = TimeSpan.FromMilliseconds(Environment.TickCount64);
+
             foreach (var (_, state) in _windowStates)
             {
+                // Tam ekranda (oyun, F11, tam ekran video) kenar tetiği yoktur; bu monitörün bayrağı da temizlenir.
                 if (state.VisibilityController.IsFullscreen)
+                {
+                    state.EdgeTracker.Reset();
+                    state.ViewModel.SetMouseAtBottom(false);
                     continue;
+                }
 
+                // Monitör başına: yalnız imlecin bulunduğu ekran. Fare kenarda ~300 ms durunca ve tuş basılı değilken açılır.
                 var monitor = state.Monitor;
-                var bottom = monitor.Bounds.Bottom;
-                var left = monitor.Bounds.Left;
-                var right = monitor.Bounds.Right;
+                var inZone = EdgeRevealTracker.IsInZone(
+                    x, y, monitor.Bounds.Left, monitor.Bounds.Right, monitor.Bounds.Bottom,
+                    revealed: state.ViewModel.IsVisible, dpiScaleY: monitor.DpiScaleY);
 
-                var isAtBottomEdge = y >= bottom - 4 && x >= left && x <= right;
-                state.ViewModel.SetMouseAtBottom(isAtBottomEdge);
+                state.ViewModel.SetMouseAtBottom(state.EdgeTracker.Update(inZone, buttonDown, now));
             }
         }
     }

@@ -80,6 +80,17 @@
             </Grid>
         </Border>
 
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center" Margin="0,0,60,0">
+                    <TextBlock Text="{Binding [DockEdgeRevealTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [DockEdgeRevealDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
+                </StackPanel>
+                <CheckBox AutomationProperties.Name="{Binding [DockEdgeRevealTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding DockEdgeReveal}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                          Style="{StaticResource ToggleSwitchStyle}" />
+            </Grid>
+        </Border>
+
         <!-- SİMGELER -->
         <TextBlock Text="{Binding [DockSizeHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 

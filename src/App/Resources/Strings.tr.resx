@@ -900,4 +900,10 @@
   <data name="TrayEmpty" xml:space="preserve">
     <value>Tepsi simgesi yok</value>
   </data>
+  <data name="DockEdgeRevealTitle" xml:space="preserve">
+    <value>Alt kenardan aç</value>
+  </data>
+  <data name="DockEdgeRevealDesc" xml:space="preserve">
+    <value>Büyütülmüş pencere dock'u gizlediğinde fareyi alt kenara götürünce dock geri gelir. Oyunda ve tam ekran videoda asla çıkmaz.</value>
+  </data>
 </root>

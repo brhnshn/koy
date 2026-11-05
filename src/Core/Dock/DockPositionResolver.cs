@@ -64,8 +64,12 @@ public static class DockPositionResolver
         bool isMouseAtBottomEdge = false,
         bool isMouseOverDock = false,
         bool isWindowFullscreen = false,
-        bool hideInFullscreen = true)
+        bool hideInFullscreen = true,
+        bool edgeRevealEnabled = true)
     {
+        // Gerçek tam ekran (oyun, F11, tam ekran video): dock HİÇBİR koşulda çıkmaz, kenar tetiği de yoktur
+        // (hideInFullscreen kapalıysa kullanıcı dock'u tam ekranda da istiyor demektir, o zaman normal akış sürer).
+        // Büyütülmüş pencerede ise dock gizlenir ama fare alt kenara gelince (edgeRevealEnabled) geri çıkar.
         var monitorLeft = monitor?.LeftDip ?? 0.0;
         var monitorTop = monitor?.TopDip ?? 0.0;
         var monitorWidth = monitor?.WidthDip > 0 ? monitor.WidthDip : 1920.0;
@@ -111,7 +115,7 @@ public static class DockPositionResolver
 
             if (isWindowMaximized && hideInFullscreen && proximityMode != DockProximityMode.ReserveSpace)
             {
-                var isHovered = isMouseAtBottomEdge || isMouseOverDock;
+                var isHovered = (edgeRevealEnabled && isMouseAtBottomEdge) || isMouseOverDock;
                 return new DockResolvedState(
                     LeftDip: monitorLeft,
                     TopDip: top,
@@ -244,7 +248,7 @@ public static class DockPositionResolver
         if (isWindowMaximized && hideInFullscreen && proximityMode != DockProximityMode.ReserveSpace)
         {
             var top = monitorBottom - FloatingHeightDip - FloatingBottomMarginDip;
-            var isHovered = isMouseAtBottomEdge || isMouseOverDock;
+            var isHovered = (edgeRevealEnabled && isMouseAtBottomEdge) || isMouseOverDock;
             return new DockResolvedState(
                 LeftDip: capsuleLeft,
                 TopDip: top,

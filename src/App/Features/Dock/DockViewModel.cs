@@ -153,6 +153,10 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<DockItemViewModel> Items { get; } = [];
 
+    /// <summary>Dock gizli ve kenardan açılabilir: kenar zamanlayıcısı çalışmalı.</summary>
+    public bool NeedsEdgeWatch { get; private set; }
+
+    public event EventHandler? EdgeWatchChanged;
     public event EventHandler? AnimationNeeded;
     public event EventHandler? AnimationStopped;
     public event Action? RequestReposition;
@@ -516,7 +520,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
             _isMouseAtBottomEdge,
             effectiveMouseOver,
             _isForegroundWindowFullscreen,
-            _settings.DockHideInFullscreen);
+            _settings.DockHideInFullscreen,
+            _settings.DockEdgeReveal);
 
         IsFullWidthMode = resolved.IsFullWidth;
         IsSnapped = resolved.IsSnapped;
@@ -543,7 +548,9 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
             CapsuleCornerRadius = new CornerRadius(18);
         }
 
-        var isBlockedByFullscreen = _settings.DockHideInFullscreen && (_controller.IsHiddenByFullscreen || _isForegroundWindowFullscreen);
+        // Tam ekran bu monitör için hesaplanır (yan ekrandaki oyun bu ekrandaki dock'u gizlemez; denetleyicinin
+        // sistem geneli bayrağı bilerek kullanılmaz).
+        var isBlockedByFullscreen = _settings.DockHideInFullscreen && _isForegroundWindowFullscreen;
         var shouldShow = !resolved.IsHidden && !isBlockedByFullscreen;
         if (_visibilityController is not null && _settings.DockProximity != DockProximityMode.ReserveSpace)
         {
@@ -552,6 +559,15 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
         IsVisible = shouldShow;
         Status?.SetActive(shouldShow);
+
+        // Fare izleme yalnız dock gizliyken (ya da kenardan açıldıysa, kapanışını görmek için) ve tam ekranda değilken
+        // gerekir; tam ekranda kenardan açılma yok.
+        var needsEdgeWatch = (!shouldShow || _isMouseAtBottomEdge) && !isBlockedByFullscreen && !_isForegroundWindowFullscreen;
+        if (needsEdgeWatch != NeedsEdgeWatch)
+        {
+            NeedsEdgeWatch = needsEdgeWatch;
+            EdgeWatchChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         var targetY = shouldShow ? resolved.TranslationY : (resolved.IsFullWidth ? (DockPositionResolver.FullWidthHeightDip + 10.0) : 80.0);
         var targetOpacity = shouldShow ? resolved.Opacity : 0.0;

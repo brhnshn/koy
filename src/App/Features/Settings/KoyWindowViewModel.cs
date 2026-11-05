@@ -123,6 +123,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _dockHideInFullscreen = true;
 
     [ObservableProperty]
+    private bool _dockEdgeReveal = true;
+
+    [ObservableProperty]
     private int _dockDodgeDelayMs = 150;
 
     [ObservableProperty]
@@ -282,6 +285,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockStyle = s.DockStyle;
             DockProximity = s.DockProximity;
             DockHideInFullscreen = s.DockHideInFullscreen;
+            DockEdgeReveal = s.DockEdgeReveal;
             DockHoverMagnify = s.DockHoverMagnify;
             DockShowStartButton = s.DockShowStartButton;
             DockShowFolders = s.DockShowFolders;
@@ -465,6 +469,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockStyle = DockStyle,
             DockProximity = DockProximity,
             DockHideInFullscreen = DockHideInFullscreen,
+            DockEdgeReveal = DockEdgeReveal,
             DockHoverMagnify = DockHoverMagnify,
             DockShowStartButton = DockShowStartButton,
             DockShowFolders = DockShowFolders,
