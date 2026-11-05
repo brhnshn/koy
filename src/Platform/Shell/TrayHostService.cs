@@ -73,6 +73,15 @@ public sealed class TrayHostService : ITrayService
 
     public event EventHandler? IconsChanged;
 
+    /// <summary>
+    /// Pencere biz istemeden kapandı (iş parçacığı çıktı, dışarıdan WM_CLOSE/WM_DESTROY, mesaj döngüsü hatası).
+    /// Tepsi iş parçacığından gelir; dinleyen arayüze kendisi döner. Stop / RequestClose / Dispose ile kapanışta gelmez.
+    /// </summary>
+    public event EventHandler? Exited;
+
+    // Kapanış bizden mi geldi (Exited yalnız beklenmedik kapanışta tetiklenir).
+    private int _closeRequested;
+
     public TrayHostService()
     {
         // Geri çağrı delegeleri alanda tutulur; aksi halde Windows çağırırken GC toplayabilir.
@@ -109,6 +118,7 @@ public sealed class TrayHostService : ITrayService
     /// </summary>
     public void RequestClose()
     {
+        Volatile.Write(ref _closeRequested, 1);
         var hwnd = Hwnd;
         if (!hwnd.IsNull)
             PInvoke.PostMessage(hwnd, WmClose, default, default);
@@ -120,6 +130,7 @@ public sealed class TrayHostService : ITrayService
         if (thread is null)
             return;
 
+        Volatile.Write(ref _closeRequested, 1);
         var hwnd = Hwnd;
         if (!hwnd.IsNull)
             PInvoke.PostMessage(hwnd, WmClose, default, default);
@@ -266,12 +277,24 @@ public sealed class TrayHostService : ITrayService
         // Gezgin durulunca bir kez daha öne geçip yayın yapılır; kaçan kayıtlar böylece gelir.
         PInvoke.SetTimer(Hwnd, CatchUpTimerId, CatchUpDelayMs, null);
 
-        while (PInvoke.GetMessage(out var msg, HWND.Null, 0, 0) > 0)
+        try
         {
-            PInvoke.TranslateMessage(msg);
-            PInvoke.DispatchMessage(msg);
+            int got;
+            while ((got = (int)PInvoke.GetMessage(out var msg, HWND.Null, 0, 0)) > 0)
+            {
+                PInvoke.TranslateMessage(msg);
+                PInvoke.DispatchMessage(msg);
+            }
+
+            if (got < 0)
+                CrashLog.Write("TrayHostService.Run (GetMessage hata döndü)", new InvalidOperationException($"GetMessage={got}"));
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("TrayHostService.Run (mesaj döngüsü)", ex);
         }
 
+        var unexpected = Volatile.Read(ref _closeRequested) == 0;
         Hwnd = HWND.Null;
         lock (_gate)
             DestroyIcons(_store.Clear());
@@ -282,6 +305,13 @@ public sealed class TrayHostService : ITrayService
 
         // Koy artık Shell_TrayWnd sahibi değil: uygulamalar simgelerini Windows'un tepsisine yeniden eklesin.
         BroadcastTaskbarCreated();
+
+        if (unexpected)
+        {
+            // Düğmenin "bilinmeyen nedenle" kaybolmasının izi: sebep sonradan okunabilsin.
+            CrashLog.Write("TrayHostService.Run (pencere beklenmedik kapandı)", new InvalidOperationException("Tepsi penceresi dışarıdan kapatıldı ya da mesaj döngüsü bitti."));
+            Exited?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     private unsafe bool CreateWindows(HINSTANCE instance)

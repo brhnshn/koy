@@ -1,3 +1,4 @@
+using Koy.Core.Tray;
 using Koy.Platform.Media;
 using Koy.Platform.Network;
 using Koy.Platform.Radio;
@@ -21,7 +22,7 @@ public sealed class SharedServices : IDisposable
     private NetworkService? _networkService;
     private int _networkServiceUsers;
     private TrayHostService? _trayHost;
-    private int _trayHostUsers;
+    private readonly TrayHostLease _trayHostLease = new();
     private bool _disposed;
 
     public WindowTracker AcquireWindowTracker()
@@ -145,16 +146,13 @@ public sealed class SharedServices : IDisposable
             _trayHost = host;
         }
 
-        _trayHostUsers++;
+        _trayHostLease.Acquire();
         return _trayHost;
     }
 
     public void ReleaseTrayHost()
     {
-        if (_trayHostUsers == 0)
-            return;
-
-        if (--_trayHostUsers == 0)
+        if (_trayHostLease.Release())
         {
             _trayHost?.Dispose();
             _trayHost = null;
@@ -184,7 +182,7 @@ public sealed class SharedServices : IDisposable
         _networkServiceUsers = 0;
         _trayHost?.Dispose();
         _trayHost = null;
-        _trayHostUsers = 0;
+        _trayHostLease.Reset();
         _windowTrackerUsers = 0;
         _mediaServiceUsers = 0;
         _radioServiceUsers = 0;

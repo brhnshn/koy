@@ -251,28 +251,57 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         var shouldHost = !_trayReleasedByUser
             && TrayHostPolicy.ShouldHost(settings.HideWindowsTaskbar, settings.DockShowTray, _windowStates.Count);
 
-        // Tepsi iş parçacığı beklenmedik biçimde öldüyse (pencere kurulumu sonrası kapandı) tutamaç ölüdür: bırakılıp yeniden alınır.
-        if (shouldHost && _trayService is { IsRunning: false })
+        var now = DateTime.UtcNow;
+        var action = _trayRecovery.Decide(shouldHost, _trayService is not null, _trayService is { IsRunning: true }, now);
+
+        // Ölü tutamaç (tepsi iş parçacığı beklenmedik kapandı) bırakılır: düğme ölü pencereye bağlı görünmez, sayaç dengelenir.
+        if (action is TrayHostAction.Release or TrayHostAction.Reacquire)
             ReleaseTray();
 
-        // Kurulum başarısızsa pencere olaylarında her seferinde yeni iş parçacığı denenmez; ekran değişince yeniden denenir.
-        if (shouldHost && _trayService is null && !_trayAcquireFailed)
+        if (action is TrayHostAction.Acquire or TrayHostAction.Reacquire)
         {
             _trayService = services.AcquireTrayHost();
-            _trayAcquireFailed = _trayService is null;
+            _trayRecovery.ReportAcquire(_trayService is not null, now);
             if (_trayService is not null)
             {
+                _trayService.Exited += OnTrayHostExited;
                 foreach (var state in _windowStates.Values)
                     state.ViewModel.SetTrayService(_trayService);
             }
         }
-        else if (!shouldHost && _trayService is not null)
-        {
-            ReleaseTray();
-        }
+
+        // Kurulum başarısız ya da bekleme sürüyor: yeni pencere olayı beklemeden bir kez yeniden denenir (zamanlayıcı tek atımlık).
+        if (shouldHost && _trayService is null && _trayRecovery.Failures > 0 && _trayRetryTimer is null)
+            ScheduleTrayRetry();
     }
 
-    private bool _trayAcquireFailed;
+    private readonly TrayHostRecovery _trayRecovery = new();
+    private DispatcherTimer? _trayRetryTimer;
+
+    // Tepsi iş parçacığı pencereyi biz istemeden kapattı: arayüz iş parçacığında yeniden kurulur (düğme geri gelir).
+    private void OnTrayHostExited(object? sender, EventArgs e)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        dispatcher?.BeginInvoke(() =>
+        {
+            if (ReferenceEquals(sender, _trayService))
+                ApplyTrayPolicy();
+        }, DispatcherPriority.Background);
+    }
+
+    // Başarısız kurulumdan sonra tek atımlık yeniden deneme (bekleme süresi TrayHostRecovery'den); boşta zamanlayıcı yok.
+    private void ScheduleTrayRetry()
+    {
+        var delay = TrayHostRecovery.FirstRetryDelay * Math.Pow(2, Math.Min(_trayRecovery.Failures - 1, 4)) + TimeSpan.FromMilliseconds(100);
+        _trayRetryTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = delay };
+        _trayRetryTimer.Tick += (_, _) =>
+        {
+            _trayRetryTimer?.Stop();
+            _trayRetryTimer = null;
+            ApplyTrayPolicy();
+        };
+        _trayRetryTimer.Start();
+    }
 
     private void ReleaseTray()
     {
@@ -280,6 +309,11 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         foreach (var state in _windowStates.Values)
             state.ViewModel.SetTrayService(null);
 
+        if (_trayService is not null)
+            _trayService.Exited -= OnTrayHostExited;
+
+        _trayRetryTimer?.Stop();
+        _trayRetryTimer = null;
         _trayService = null;
         services.ReleaseTrayHost();
     }
@@ -449,7 +483,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         // Windows Explorer yeni monitör için ikincil görev çubuğu oluşturmuş olabilir (Shell_SecondaryTrayWnd);
         // Hide() ikincil çubukları da kapsar. Son dock penceresi kapandıysa görev çubuğu geri gelir
         // ve (tepsi önce bırakılır) Koy'un tepsi penceresi de kapanır.
-        _trayAcquireFailed = false;
+        _trayRecovery.ResetFailures();
         ApplyTrayPolicy();
         ApplyTaskbarPolicy();
         UpdateEdgeTimer();
@@ -536,7 +570,9 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
             if (!isFullscreen && !monitorMaximized && state.Hwnd != 0 && info.Handle != state.Hwnd)
             {
-                if (!FullscreenDetector.IsScreenClippingHost(info.Handle))
+                // Uygulamanın bağlam menüsü açıkken dock kendini öne almaz: menü dock'un arkasında kalırdı
+                // (menü kapanınca ön plan yine değişir ve dock öne alınır).
+                if (!FullscreenDetector.IsScreenClippingHost(info.Handle) && !PopupMenuProbe.AnyVisibleMenu())
                 {
                     WindowStyles.ReassertTopmost(state.Hwnd);
                 }
@@ -626,6 +662,8 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     {
         _edgePeekTimer?.Stop();
         _edgePeekTimer = null;
+        _trayRetryTimer?.Stop();
+        _trayRetryTimer = null;
 
         // Paylaşılan servisleri yalnız bırak; son kullanıcı bırakınca SharedServices Dispose eder.
         if (_mediaService is not null)

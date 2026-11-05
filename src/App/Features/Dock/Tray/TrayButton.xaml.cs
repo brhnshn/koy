@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Koy.App.Resources;
 using Koy.Core.Animation;
+using Koy.Core.Shell;
 using Koy.Core.Tray;
 using Koy.Platform.Shell;
 
@@ -226,7 +227,7 @@ public partial class TrayButton : UserControl
         IReadOnlyList<Koy.Core.Shell.WindowRect> menus = [];
 
         if (pressed || _menuMayBeOpen)
-            menus = PopupMenuProbe.GetVisibleMenuRects();
+            menus = PopupMenuProbe.GetVisibleMenuRects(bringToFront: true);
 
         if (pressed && CursorHelper.GetPosition(out var x, out var y))
         {
@@ -254,6 +255,15 @@ public partial class TrayButton : UserControl
 
     // ---- Simge tıklamaları ----
 
+    // Menü çıpası dock'un üzerine düşmesin diye dock penceresinin ekran dikdörtgeni (fiziksel piksel).
+    private WindowRect GetDockRect()
+    {
+        var window = Window.GetWindow(this);
+        return window is not null && PopupMenuProbe.TryGetWindowRect(new WindowInteropHelper(window).Handle, out var rect)
+            ? rect
+            : WindowRect.Empty;
+    }
+
     private void OnIconLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         // Çift tıklama bırakmada gönderilir: Windows görev çubuğu da DBLCLK ardından LBUTTONUP yollar.
@@ -264,7 +274,7 @@ public partial class TrayButton : UserControl
     private void OnIconLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: TrayIconViewModel icon })
-            ViewModel?.SendTrayMouse(icon, _isDoubleClick ? TrayMouseAction.LeftDoubleClick : TrayMouseAction.LeftClick);
+            ViewModel?.SendTrayMouse(icon, _isDoubleClick ? TrayMouseAction.LeftDoubleClick : TrayMouseAction.LeftClick, GetDockRect());
 
         _isDoubleClick = false;
         e.Handled = true;
@@ -274,7 +284,7 @@ public partial class TrayButton : UserControl
     {
         if (sender is FrameworkElement { DataContext: TrayIconViewModel icon })
         {
-            ViewModel?.SendTrayMouse(icon, TrayMouseAction.RightClick);
+            ViewModel?.SendTrayMouse(icon, TrayMouseAction.RightClick, GetDockRect());
 
             // Pencere açık kalır; uygulamanın menüsü belirince ve kapanınca karar verilir.
             _dismiss.OnIconRightClicked(TimeSpan.FromMilliseconds(Environment.TickCount64));
