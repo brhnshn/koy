@@ -42,7 +42,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     private readonly Dictionary<string, DockWindow> _windows = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, DockWindowState> _windowStates = new(StringComparer.OrdinalIgnoreCase);
 
-    private PinnedAppsService? _pinnedAppsService;
+    private OrderedPinnedAppsService? _pinnedAppsService;
     private WindowTracker? _windowTracker;
     private ShellActionService? _shellActionService;
     private FullscreenDetector? _fullscreenDetector;
@@ -61,7 +61,11 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             return;
 
         // Platform servislerini başlat
-        _pinnedAppsService = new PinnedAppsService();
+        _pinnedAppsService = new OrderedPinnedAppsService(
+            new PinnedAppsService(),
+            () => settings.DockPinnedOrder,
+            SavePinnedOrder,
+            TaskbandFavoritesReader.Read);
         _windowTracker = services.AcquireWindowTracker();
         _shellActionService = new ShellActionService();
         _fullscreenDetector = new FullscreenDetector();
@@ -130,6 +134,17 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         _controller.Start();
 
         UpdateEdgeTimer();
+    }
+
+    /// <summary>
+    /// Sabitli uygulama sırasını ayar dosyasına yazar. Dosya baştan okunup yalnız bu alan değiştirilir; Koy penceresinin
+    /// kaydettiği öteki ayarlar ezilmez. SettingsSaved tetiklenmez (özellikler yeniden başlamasın).
+    /// </summary>
+    private void SavePinnedOrder(IReadOnlyList<string> order)
+    {
+        var store = new SettingsStore(SettingsStore.DefaultPath);
+        store.Save(store.Load() with { DockPinnedOrder = [.. order] });
+        settings.DockPinnedOrder = [.. order];
     }
 
     /// <summary>

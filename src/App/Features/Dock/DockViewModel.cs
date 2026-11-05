@@ -687,6 +687,93 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         AnimationNeeded?.Invoke(this, EventArgs.Empty);
     }
 
+    // Sabitli uygulamaları sürükleyerek sıralama: görsel kayma yaylarla, bırakınca sıra Core'da kalıcı yazılır.
+    private bool _isReordering;
+
+    /// <summary>Sürükleme sürüyor: büyütme ve önizleme susar, imleç öğeyi izler.</summary>
+    public bool IsReordering => _isReordering;
+
+    /// <summary>Öğe sürüklenebilir mi: sabitli, sıralama destekleniyor ve en az iki sabitli var.</summary>
+    public bool CanStartReorder(DockItemViewModel item)
+        => item.Model.IsPinned && _controller.CanReorderPinned && Items.Count(i => i.Model.IsPinned) > 1;
+
+    public int PinnedCount => Items.Count(i => i.Model.IsPinned);
+
+    public void BeginReorder()
+    {
+        _isReordering = true;
+        ClosePreviewNow();
+        OnHoverEnded();
+    }
+
+    /// <summary>Sürükleme sırasında: öğe imleci izler, aradakiler hedef yuvaya göre bir yuva kayar.</summary>
+    public void UpdateReorder(DockItemViewModel dragged, int originalIndex, double dragOffset, double slotWidth)
+    {
+        var count = PinnedCount;
+        var target = DockReorderMath.TargetIndex(count, originalIndex, dragOffset, slotWidth);
+        dragged.SnapOffset(dragOffset);
+
+        for (var i = 0; i < count && i < Items.Count; i++)
+        {
+            if (i != originalIndex)
+                Items[i].SetTargetOffset(DockReorderMath.ShiftFor(i, originalIndex, target, slotWidth));
+        }
+
+        _isAnimating = true;
+        AnimationNeeded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Bırakıldı. Sıra değiştiyse koleksiyon hemen yeni sıraya taşınır ve her öğenin ekrandaki konumu korunacak biçimde
+    /// kayması ayarlanır; sonra yay sıfıra çeker (zıplama olmaz). Sıra kalıcı yazılır.
+    /// </summary>
+    public void CommitReorder(DockItemViewModel dragged, int originalIndex, double dragOffset, double slotWidth)
+    {
+        _isReordering = false;
+        var count = PinnedCount;
+        var target = DockReorderMath.TargetIndex(count, originalIndex, dragOffset, slotWidth);
+
+        if (target == originalIndex)
+        {
+            foreach (var item in Items)
+                item.SetTargetOffset(0);
+        }
+        else
+        {
+            // Bırakma anındaki ekran konumları: yuva dizini × genişlik + o anki kayma.
+            var visual = new Dictionary<DockItemViewModel, double>();
+            for (var i = 0; i < Items.Count; i++)
+                visual[Items[i]] = i * slotWidth + Items[i].OffsetX;
+
+            Items.Move(originalIndex, target);
+
+            for (var i = 0; i < Items.Count; i++)
+            {
+                Items[i].SnapOffset(visual[Items[i]] - i * slotWidth);
+                Items[i].SetTargetOffset(0);
+            }
+
+            _controller.MovePinned(dragged.Model.Id, target);
+        }
+
+        _isAnimating = true;
+        AnimationNeeded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Sürükleme yarıda kesildi (yakalama kaybı, Esc): her şey yerine döner.</summary>
+    public void CancelReorder()
+    {
+        if (!_isReordering)
+            return;
+
+        _isReordering = false;
+        foreach (var item in Items)
+            item.SetTargetOffset(0);
+
+        _isAnimating = true;
+        AnimationNeeded?.Invoke(this, EventArgs.Empty);
+    }
+
     public void OnHoverEnded()
     {
         for (var i = 0; i < Items.Count; i++)
@@ -713,6 +800,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         foreach (var item in Items)
         {
             if (item.StepScale(deltaSeconds))
+                scaleMoving = true;
+            if (item.StepOffset(deltaSeconds))
                 scaleMoving = true;
         }
 

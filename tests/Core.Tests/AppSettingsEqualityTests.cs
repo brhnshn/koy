@@ -32,6 +32,7 @@ public class AppSettingsEqualityTests
     [Theory]
     [InlineData(nameof(AppSettings.EnabledPanels))]
     [InlineData(nameof(AppSettings.ControlCenterLayout))]
+    [InlineData(nameof(AppSettings.DockPinnedOrder))]
     public void Changing_a_list_field_makes_settings_unequal(string propertyName)
     {
         var property = typeof(AppSettings).GetProperty(propertyName)!;

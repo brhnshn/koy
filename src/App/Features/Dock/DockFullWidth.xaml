@@ -113,6 +113,9 @@
                                 Cursor="Hand"
                                 ToolTip="{Binding Title}"
                                 ToolTipService.IsEnabled="{Binding HasOpenWindows, Converter={x:Static local:DockConverters.InverseBoolConverter}}"
+                                MouseLeftButtonDown="OnItemLeftDown"
+                                MouseMove="OnItemMouseMove"
+                                LostMouseCapture="OnItemLostCapture"
                                 MouseLeftButtonUp="OnItemLeftClick"
                                 MouseRightButtonUp="OnItemRightClick"
                                 MouseDown="OnItemMouseDown"
@@ -135,6 +138,10 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
+
+                            <Border.RenderTransform>
+                                <TranslateTransform X="{Binding OffsetX}"/>
+                            </Border.RenderTransform>
 
                             <Border.ContextMenu>
                                 <ContextMenu>
