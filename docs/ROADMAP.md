@@ -173,11 +173,12 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 - [ ] Mikrofon / kamera kullanım göstergesi (çentikte nokta).
 - [ ] Bluetooth cihaz HUD'u (kulaklık bağlandı / pil seviyesi).
 - [ ] Pil HUD'u tamamlama (düşük pil, şarj tamamlandı uyarıları).
+- [ ] **RAM optimizasyonu:** #14 radyo servisini açılışta kuruyor (önceden Kontrol paneli ilk açılınca); boşta bellek farkını ölç, gerekirse radyo izlemesini ilk ihtiyaca ertele ya da simge işi için yükü azalt.
 - [ ] **Bellek bütçesi kararı:** son ölçüm 82,7 MB, revizyon sonrası yeniden ölçülmedi. Karar çıkmadan E paketi başlamaz (`docs/MEMORY.md`).
 
 **Katkıcı PR'ları (xdaxer):**
 - [x] #8 pilsiz makinede pil gizleme, #10 dock pencere önizlemesi, #12 Kontrol Merkezi Wi-Fi/Bluetooth yönetimi, #13 açılış zemini: `main`'e alındı (bizim düzeltmelerimizle).
-- [ ] #14: bellek ölçümü ve bütçe kararı bekliyor.
+- [x] #14 çentik sekmeleri ve Wi-Fi/Bluetooth durum simgeleri: `main`'e alındı (bizim düzeltmelerimizle: "Hiçbiri" modu, token/ikonlar, hareket politikası, paylaşımlı radyo servisi). Bellek ölçümü yapılmadı, aşağıdaki RAM optimizasyonu işine bırakıldı.
 - [ ] #11: kapsam kararı bekliyor (bu ROADMAP v1 dışı demişti).
 - #9: `main`'de farklı bir yapıyla (Ekranlar sayfası, D2) çözüldü; kapatılacak.
 
