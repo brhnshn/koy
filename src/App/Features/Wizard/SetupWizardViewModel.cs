@@ -62,12 +62,6 @@ public sealed partial class SetupWizardViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SelectLayout(int index)
-    {
-        SelectedLayoutIndex = index;
-    }
-
-    [RelayCommand]
     private void Complete()
     {
         var settings = _store.Load();

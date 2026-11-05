@@ -280,7 +280,7 @@
     <value>Version and license details</value>
   </data>
   <data name="StartupHeader" xml:space="preserve">
-    <value>STARTUP</value>
+    <value>Startup</value>
   </data>
   <data name="RunAtStartupTitle" xml:space="preserve">
     <value>Launch Koy on Windows startup</value>
@@ -292,13 +292,13 @@
     <value>Single dock bar on screen when Dock is active</value>
   </data>
   <data name="LanguageHeader" xml:space="preserve">
-    <value>LANGUAGE</value>
+    <value>Language</value>
   </data>
   <data name="InterfaceLanguageTitle" xml:space="preserve">
     <value>Interface language</value>
   </data>
   <data name="UpdatesHeader" xml:space="preserve">
-    <value>UPDATES</value>
+    <value>Updates</value>
   </data>
   <data name="AutoCheckUpdatesTitle" xml:space="preserve">
     <value>Automatically check for updates</value>
@@ -313,7 +313,7 @@
     <value>Closing this window hides settings. Koy keeps running. To exit completely, use Exit Koy.</value>
   </data>
   <data name="NotchHeader" xml:space="preserve">
-    <value>GENERAL</value>
+    <value>General</value>
   </data>
   <data name="NotchEnabledTitle" xml:space="preserve">
     <value>Enable Notch</value>
@@ -355,7 +355,7 @@
     <value>On click</value>
   </data>
   <data name="PanelsHeader" xml:space="preserve">
-    <value>ACTIVE PANELS</value>
+    <value>Active panels</value>
   </data>
   <data name="PanelMusicTitle" xml:space="preserve">
     <value>Music</value>
@@ -373,13 +373,13 @@
     <value>Status (Battery, weather)</value>
   </data>
   <data name="DockGeneralHeader" xml:space="preserve">
-    <value>GENERAL</value>
+    <value>General</value>
   </data>
   <data name="DockEnabledTitle" xml:space="preserve">
     <value>Enable Dock</value>
   </data>
   <data name="DockLayoutHeader" xml:space="preserve">
-    <value>LAYOUT AND BEHAVIOR</value>
+    <value>Layout and behavior</value>
   </data>
   <data name="DockStyleTitle" xml:space="preserve">
     <value>Dock style</value>
@@ -406,7 +406,7 @@
     <value>Always hidden</value>
   </data>
   <data name="DockSizeHeader" xml:space="preserve">
-    <value>DIMENSIONS</value>
+    <value>Dimensions</value>
   </data>
   <data name="DockIconSizeTitle" xml:space="preserve">
     <value>Icon size</value>
@@ -439,7 +439,7 @@
     <value>Folders section (Downloads)</value>
   </data>
   <data name="TaskbarRecoveryHeader" xml:space="preserve">
-    <value>TASKBAR RECOVERY</value>
+    <value>Taskbar recovery</value>
   </data>
   <data name="RestoreTaskbarTitle" xml:space="preserve">
     <value>Restore Windows taskbar</value>
@@ -457,7 +457,7 @@
     <value>Show album art and waveform when playing</value>
   </data>
   <data name="IndicatorsHeader" xml:space="preserve">
-    <value>INDICATORS</value>
+    <value>Indicators</value>
   </data>
   <data name="VolumeOsdTitle" xml:space="preserve">
     <value>Volume indicator</value>
@@ -469,10 +469,10 @@
     <value>Brightness indicator</value>
   </data>
   <data name="SectionsHeader" xml:space="preserve">
-    <value>SECTIONS</value>
+    <value>Sections</value>
   </data>
   <data name="PrimaryScreenHeader" xml:space="preserve">
-    <value>DISPLAY 1 · PRIMARY · 1920×1080</value>
+    <value>Display 1 · primary · 1920×1080</value>
   </data>
   <data name="ScreenNotchTitle" xml:space="preserve">
     <value>Notch</value>
@@ -484,7 +484,7 @@
     <value>Show only windows from this display in dock</value>
   </data>
   <data name="NewDisplaysHeader" xml:space="preserve">
-    <value>NEW DISPLAYS</value>
+    <value>New displays</value>
   </data>
   <data name="NewDisplayActionTitle" xml:space="preserve">
     <value>On newly connected display</value>
@@ -502,7 +502,7 @@
     <value>When an app goes fullscreen on one display, Koy is hidden only on that display. Other displays remain unaffected.</value>
   </data>
   <data name="ThemeHeader" xml:space="preserve">
-    <value>THEME</value>
+    <value>Theme</value>
   </data>
   <data name="ThemeTitle" xml:space="preserve">
     <value>Theme</value>
@@ -526,7 +526,7 @@
     <value>Material</value>
   </data>
   <data name="MaterialDesc" xml:space="preserve">
-    <value>Translucent uses slightly more resources</value>
+    <value>Translucent makes window surfaces 88% opaque so the desktop shows through slightly.</value>
   </data>
   <data name="MaterialSolid" xml:space="preserve">
     <value>Solid</value>
@@ -538,7 +538,7 @@
     <value>Corner radius</value>
   </data>
   <data name="MotionHeader" xml:space="preserve">
-    <value>MOTION</value>
+    <value>Motion</value>
   </data>
   <data name="AnimationTitle" xml:space="preserve">
     <value>Animation speed</value>
@@ -559,7 +559,7 @@
     <value>Respect Windows "reduce motion" setting</value>
   </data>
   <data name="KeyboardHeader" xml:space="preserve">
-    <value>KEYBOARD</value>
+    <value>Keyboard</value>
   </data>
   <data name="ShortcutToggleNotch" xml:space="preserve">
     <value>Toggle Notch</value>
@@ -583,7 +583,7 @@
     <value>Click a box and press the new combination to change it. Esc cancels, Backspace removes the shortcut. A shortcut held by another app is shown as an error on its row.</value>
   </data>
   <data name="MouseHeader" xml:space="preserve">
-    <value>MOUSE</value>
+    <value>Mouse</value>
   </data>
   <data name="WheelActionTitle" xml:space="preserve">
     <value>Mouse wheel on Notch</value>
@@ -610,13 +610,13 @@
     <value>Budget 60 MB</value>
   </data>
   <data name="BatteryHeader" xml:space="preserve">
-    <value>BATTERY</value>
+    <value>Battery</value>
   </data>
   <data name="BatteryReduceMotion" xml:space="preserve">
     <value>Reduce animations on battery saver</value>
   </data>
   <data name="DataHeader" xml:space="preserve">
-    <value>DATA</value>
+    <value>Data</value>
   </data>
   <data name="WeatherRefreshTitle" xml:space="preserve">
     <value>Weather refresh rate</value>
@@ -643,7 +643,7 @@
     <value>Copy diagnostics</value>
   </data>
   <data name="TroubleshootingHeader" xml:space="preserve">
-    <value>TROUBLESHOOTING</value>
+    <value>Troubleshooting</value>
   </data>
   <data name="RestoreTaskbarDesc2" xml:space="preserve">
     <value>If taskbar went missing</value>
@@ -658,7 +658,7 @@
     <value>Reset</value>
   </data>
   <data name="LinksHeader" xml:space="preserve">
-    <value>LINKS</value>
+    <value>Links</value>
   </data>
   <data name="SourceCodeTitle" xml:space="preserve">
     <value>Source code</value>
@@ -703,7 +703,7 @@
     <value>The shortcut could not be registered.</value>
   </data>
   <data name="PomodoroHeader" xml:space="preserve">
-    <value>POMODORO</value>
+    <value>Pomodoro</value>
   </data>
   <data name="PomodoroWorkTitle" xml:space="preserve">
     <value>Work duration (min)</value>
@@ -722,5 +722,98 @@
   </data>
   <data name="WindowHideTip" xml:space="preserve">
     <value>Hide window (Koy keeps running)</value>
+  </data>
+  <data name="ThemeDesc" xml:space="preserve">
+    <value>System follows the Windows app theme and updates as soon as it changes.</value>
+  </data>
+  <data name="AccentColorDesc2" xml:space="preserve">
+    <value>Used on switches, selected items and primary buttons.</value>
+  </data>
+  <data name="UseWindowsAccentDesc" xml:space="preserve">
+    <value>Uses the Windows accent color; the color choice above is disabled.</value>
+  </data>
+  <data name="SurfaceHeader" xml:space="preserve">
+    <value>Surface</value>
+  </data>
+  <data name="CornerRadiusDesc" xml:space="preserve">
+    <value>Corners of the Koy window, setup wizard and menu. The notch and dock are not affected.</value>
+  </data>
+  <data name="CornerSharp" xml:space="preserve">
+    <value>Sharp</value>
+  </data>
+  <data name="CornerStandard" xml:space="preserve">
+    <value>Standard</value>
+  </data>
+  <data name="CornerRound" xml:space="preserve">
+    <value>Round</value>
+  </data>
+  <data name="AnimationDesc" xml:space="preserve">
+    <value>Page transitions, hover and switch motion. When off, everything is instant.</value>
+  </data>
+  <data name="ReduceMotionDesc" xml:space="preserve">
+    <value>If animations are off in Windows, Koy turns motion off too.</value>
+  </data>
+  <data name="AccentBlue" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="AccentPurple" xml:space="preserve">
+    <value>Purple</value>
+  </data>
+  <data name="AccentPink" xml:space="preserve">
+    <value>Pink</value>
+  </data>
+  <data name="AccentOrange" xml:space="preserve">
+    <value>Orange</value>
+  </data>
+  <data name="AccentGreen" xml:space="preserve">
+    <value>Green</value>
+  </data>
+  <data name="AccentTeal" xml:space="preserve">
+    <value>Teal</value>
+  </data>
+  <data name="UpdateChecking" xml:space="preserve">
+    <value>Checking…</value>
+  </data>
+  <data name="UpdateCheckFailed" xml:space="preserve">
+    <value>The check failed. Check your connection and try again.</value>
+  </data>
+  <data name="UpdateNotInstalled" xml:space="preserve">
+    <value>Update checks only work in an installed build.</value>
+  </data>
+  <data name="UpdateLastCheck" xml:space="preserve">
+    <value>Last check: {0}</value>
+  </data>
+  <data name="UpdateNeverChecked" xml:space="preserve">
+    <value>Not checked yet</value>
+  </data>
+  <data name="UpdateToday" xml:space="preserve">
+    <value>today {0}</value>
+  </data>
+  <data name="AboutVersionLine" xml:space="preserve">
+    <value>Version {0} · GPLv3</value>
+  </data>
+  <data name="UpdateStateUpToDate" xml:space="preserve">
+    <value>up to date</value>
+  </data>
+  <data name="UpdateStateFailed" xml:space="preserve">
+    <value>check failed</value>
+  </data>
+  <data name="UpdateStateUnknown" xml:space="preserve">
+    <value>updates not checked</value>
+  </data>
+  <data name="LastCheckTitle" xml:space="preserve">
+    <value>Update check</value>
+  </data>
+  <data name="ResetSettingsDesc" xml:space="preserve">
+    <value>Settings return to defaults. The Windows startup entry and taskbar state are not changed.</value>
+  </data>
+  <data name="ResetConfirmButton" xml:space="preserve">
+    <value>Confirm reset</value>
+  </data>
+  <data name="IdleDisplayRowTitle" xml:space="preserve">
+    <value>What to show</value>
+  </data>
+  <data name="OpenBehaviorRowTitle" xml:space="preserve">
+    <value>How the notch opens</value>
   </data>
 </root>

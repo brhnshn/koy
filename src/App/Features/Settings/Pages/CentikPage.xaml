@@ -9,8 +9,8 @@
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
 
     <StackPanel Margin="0,0,16,24">
-        <TextBlock Text="{Binding [NavNotch], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-        <TextBlock Text="{Binding [NotchSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [NavNotch], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="{Binding [NotchSubtitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageSubtitleStyle}" Margin="0,4,0,8" />
 
         <!-- GÖRÜNÜRLÜK -->
         <TextBlock Text="{Binding [NotchHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
@@ -20,7 +20,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [NotchEnabledTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding NotchEnabled}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [NotchEnabledTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding NotchEnabled}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -30,7 +30,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [VisibilityTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [VisFixed], Source={x:Static res:Loc.Instance}}" GroupName="NotchVis"
                                      IsChecked="{Binding NotchVisibility, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Fixed}"
@@ -51,7 +51,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [HideInFullscreenTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding NotchHideInFullscreen}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [HideInFullscreenTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding NotchHideInFullscreen}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -62,9 +62,9 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [IdleDisplayTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [IdleDisplayRowTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [IdleClockBattery], Source={x:Static res:Loc.Instance}}" GroupName="IdleMode"
                                      IsChecked="{Binding IdleDisplayMode, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=0}"
@@ -85,7 +85,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [MusicWaveformTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding MusicShowWaveform}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [MusicWaveformTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding MusicShowWaveform}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -99,7 +99,7 @@
                     <TextBlock Text="{Binding [VolumeOsdTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                     <TextBlock Text="{Binding [VolumeOsdDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding ShowVolumeOsd}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [VolumeOsdTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding ShowVolumeOsd}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -109,7 +109,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [BrightnessOsdTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding ShowBrightnessOsd}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [BrightnessOsdTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding ShowBrightnessOsd}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -120,10 +120,9 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="⠿" FontSize="16" Foreground="{DynamicResource KoyTextMuted}" Margin="0,0,12,0" />
                     <TextBlock Text="{Binding [PanelMusicTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding PanelMusic}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [PanelMusicTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelMusic}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -131,10 +130,9 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="⠿" FontSize="16" Foreground="{DynamicResource KoyTextMuted}" Margin="0,0,12,0" />
                     <TextBlock Text="{Binding [PanelCalendarTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding PanelCalendar}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [PanelCalendarTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelCalendar}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -142,10 +140,9 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="⠿" FontSize="16" Foreground="{DynamicResource KoyTextMuted}" Margin="0,0,12,0" />
                     <TextBlock Text="{Binding [PanelShelfTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding PanelShelf}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [PanelShelfTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelShelf}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -153,10 +150,9 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="⠿" FontSize="16" Foreground="{DynamicResource KoyTextMuted}" Margin="0,0,12,0" />
                     <TextBlock Text="{Binding [PanelControlCenterTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding PanelControlCenter}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [PanelControlCenterTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelControlCenter}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -164,10 +160,9 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="⠿" FontSize="16" Foreground="{DynamicResource KoyTextMuted}" Margin="0,0,12,0" />
                     <TextBlock Text="{Binding [PanelStatusTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding PanelStatus}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [PanelStatusTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelStatus}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -178,9 +173,9 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [OpenBehaviorTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [OpenBehaviorRowTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [OpenOnHover], Source={x:Static res:Loc.Instance}}" GroupName="OpenBeh"
                                      IsChecked="{Binding NotchOpenBehavior, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=0}"
@@ -201,7 +196,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [PomodoroWorkTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <ComboBox HorizontalAlignment="Right" Width="100" Height="32"
+                <ComboBox AutomationProperties.Name="{Binding [PomodoroWorkTitle], Source={x:Static res:Loc.Instance}}" HorizontalAlignment="Right" Width="100" Height="32"
                           ItemsSource="{Binding PomodoroWorkOptions}" SelectedItem="{Binding PomodoroWorkMinutes}"
                           Style="{StaticResource SettingComboBoxStyle}" />
             </Grid>
@@ -212,7 +207,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [PomodoroShortBreakTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <ComboBox HorizontalAlignment="Right" Width="100" Height="32"
+                <ComboBox AutomationProperties.Name="{Binding [PomodoroShortBreakTitle], Source={x:Static res:Loc.Instance}}" HorizontalAlignment="Right" Width="100" Height="32"
                           ItemsSource="{Binding PomodoroShortBreakOptions}" SelectedItem="{Binding PomodoroShortBreakMinutes}"
                           Style="{StaticResource SettingComboBoxStyle}" />
             </Grid>
@@ -223,7 +218,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [PomodoroLongBreakTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <ComboBox HorizontalAlignment="Right" Width="100" Height="32"
+                <ComboBox AutomationProperties.Name="{Binding [PomodoroLongBreakTitle], Source={x:Static res:Loc.Instance}}" HorizontalAlignment="Right" Width="100" Height="32"
                           ItemsSource="{Binding PomodoroLongBreakOptions}" SelectedItem="{Binding PomodoroLongBreakMinutes}"
                           Style="{StaticResource SettingComboBoxStyle}" />
             </Grid>

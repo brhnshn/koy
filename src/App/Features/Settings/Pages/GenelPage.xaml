@@ -10,8 +10,8 @@
 
     <StackPanel Margin="0,0,16,24">
         <!-- Başlık -->
-        <TextBlock Text="{Binding [General], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-        <TextBlock Text="{Binding [GeneralSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [General], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="{Binding [GeneralSubtitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageSubtitleStyle}" Margin="0,4,0,8" />
 
         <!-- BAŞLANGIÇ -->
         <TextBlock Text="{Binding [StartupHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
@@ -21,7 +21,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [RunAtStartupTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding RunAtStartup}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [RunAtStartupTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding RunAtStartup}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -32,7 +32,7 @@
                     <TextBlock Text="{Binding [HideWindowsTaskbarTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                     <TextBlock Text="{Binding [HideWindowsTaskbarDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding HideWindowsTaskbar}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [HideWindowsTaskbarTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding HideWindowsTaskbar}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -45,7 +45,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [InterfaceLanguageTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <ComboBox HorizontalAlignment="Right" Width="180" Height="32" SelectedValuePath="Tag"
+                <ComboBox AutomationProperties.Name="{Binding [InterfaceLanguageTitle], Source={x:Static res:Loc.Instance}}" HorizontalAlignment="Right" Width="180" SelectedValuePath="Tag"
                           SelectedValue="{Binding Language}" Style="{StaticResource SettingComboBoxStyle}">
                     <ComboBoxItem Content="Türkçe (TR)" Tag="tr" />
                     <ComboBoxItem Content="English (EN)" Tag="en" />
@@ -61,7 +61,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [AutoCheckUpdatesTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding AutoCheckUpdates}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [AutoCheckUpdatesTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding AutoCheckUpdates}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -71,7 +71,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [ChannelTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [ChannelStable], Source={x:Static res:Loc.Instance}}" GroupName="UpdateChan"
                                      IsChecked="{Binding UpdateChannel, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Kararlı}"
@@ -87,19 +87,21 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding LastCheckText}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [LastCheckTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding LastCheckText}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <Button Content="{Binding [CheckNow], Source={x:Static res:Loc.Instance}}" Command="{Binding CheckUpdatesCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}" />
+                <Button Content="{Binding CheckButtonText}" Command="{Binding CheckUpdatesCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}" />
             </Grid>
         </Border>
 
         <!-- Bilgi Kutusu -->
         <Border Style="{StaticResource InfoNoticeStyle}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="ℹ" FontSize="14" Foreground="{DynamicResource KoyFgInfo}" Margin="0,0,10,0" VerticalAlignment="Top" />
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <res:KoyIcon Data="{StaticResource IconInfo}" Size="16" Foreground="{DynamicResource KoyFgInfo}" Margin="0,1,10,0" VerticalAlignment="Top" />
                 <TextBlock Text="{Binding [WindowCloseNotice], Source={x:Static res:Loc.Instance}}"
-                           Foreground="{DynamicResource KoyFgInfo}" FontSize="13" TextWrapping="Wrap" LineHeight="18" />
-            </StackPanel>
+                           Grid.Column="1" Foreground="{DynamicResource KoyFgInfo}" FontSize="12.5" TextWrapping="Wrap" />
+            </Grid>
         </Border>
     </StackPanel>
 </UserControl>

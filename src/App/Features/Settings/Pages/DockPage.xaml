@@ -9,8 +9,8 @@
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
 
     <StackPanel Margin="0,0,16,24">
-        <TextBlock Text="{Binding [NavDock], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-        <TextBlock Text="{Binding [DockSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [NavDock], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="{Binding [DockSubtitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageSubtitleStyle}" Margin="0,4,0,8" />
 
         <!-- DOCK -->
         <TextBlock Text="{Binding [DockGeneralHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
@@ -20,7 +20,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [DockEnabledTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding DockEnabled}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [DockEnabledTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding DockEnabled}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -30,7 +30,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [DockStyleTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [StyleCapsule], Source={x:Static res:Loc.Instance}}" GroupName="DockStyle"
                                      IsChecked="{Binding DockStyle, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=FloatingCapsule}"
@@ -51,7 +51,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [DockProximityTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [ProxReserve], Source={x:Static res:Loc.Instance}}" GroupName="DockProximity"
                                      IsChecked="{Binding DockProximity, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=ReserveSpace}"
@@ -75,7 +75,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [HideInFullscreenTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding DockHideInFullscreen}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [HideInFullscreenTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding DockHideInFullscreen}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -88,7 +88,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [DockIconSizeTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [SizeSmall], Source={x:Static res:Loc.Instance}}" GroupName="IconSize"
                                      IsChecked="{Binding DockIconSize, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=24}"
@@ -109,7 +109,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [HoverMagnifyTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding DockHoverMagnify}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [HoverMagnifyTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding DockHoverMagnify}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -119,7 +119,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [IndicatorStyleTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
+                <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [IndicatorDot], Source={x:Static res:Loc.Instance}}" GroupName="IndStyle"
                                      IsChecked="{Binding DockIndicatorStyle, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=0}"
@@ -140,7 +140,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [StartButtonTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding DockShowStartButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [StartButtonTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding DockShowStartButton}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -150,7 +150,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [FoldersSectionTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding DockShowFolders}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [FoldersSectionTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding DockShowFolders}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Koy.App.Features.Wizard"
+        xmlns:res="clr-namespace:Koy.App.Resources"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:SetupWizardViewModel}"
         Title="Koy İlk Kurulum"
@@ -14,7 +15,7 @@
         AllowsTransparency="True"
         Background="Transparent"
         ResizeMode="NoResize"
-        FontFamily="Segoe UI Variable Text, Segoe UI, sans-serif"
+        FontFamily="{DynamicResource KoyFont}"
         Foreground="{DynamicResource KoyTextPrimary}">
 
     <Window.Resources>
@@ -36,7 +37,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource KoyRadiusControl}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
@@ -53,14 +54,14 @@
         <Style x:Key="WizardPrimaryButton" TargetType="Button" BasedOn="{StaticResource WizardNavButton}">
             <Setter Property="Background" Value="{DynamicResource KoyAccent}" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+            <Setter Property="Foreground" Value="{DynamicResource KoyOnAccent}" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="b"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource KoyRadiusControl}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
@@ -79,7 +80,7 @@
     <Border Background="{DynamicResource KoyBgWindow}"
             BorderBrush="{DynamicResource KoyBorderHairline}"
             BorderThickness="1"
-            CornerRadius="12">
+            CornerRadius="{DynamicResource KoyRadiusWindow}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="36" /> <!-- Başlık çubuğu / sürükleme alanı -->
@@ -95,7 +96,7 @@
                 </StackPanel>
                 <Button HorizontalAlignment="Right" VerticalAlignment="Center" Width="28" Height="28"
                         Background="Transparent" BorderThickness="0" Foreground="{DynamicResource KoyTextSecondary}" Cursor="Hand" Click="Close_Click">
-                    <TextBlock Text="✕" FontSize="12" />
+                    <res:KoyIcon Data="{StaticResource IconX}" Size="14" />
                 </Button>
             </Grid>
 
@@ -108,7 +109,7 @@
                                FontSize="15" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
 
                     <!-- Dil Seçimi Bölümü -->
-                    <Border Background="{DynamicResource KoyBgRow}" CornerRadius="12" Padding="20" Margin="0,0,0,16">
+                    <Border Background="{DynamicResource KoyBgRow}" CornerRadius="{DynamicResource KoyRadiusRow}" Padding="20" Margin="0,0,0,16">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -168,7 +169,7 @@
                                 <Border Grid.Row="0" Background="{DynamicResource KoyBorderHairline}" CornerRadius="12,12,0,0">
                                     <Grid>
                                         <!-- Mini Çentik -->
-                                        <Border Width="64" Height="12" Background="{DynamicResource KoyOnAccent}" CornerRadius="0,0,7,7"
+                                        <Border Width="64" Height="12" Background="#0A0A0B" CornerRadius="0,0,7,7"
                                                 HorizontalAlignment="Center" VerticalAlignment="Top" />
                                         <!-- Mini Dock -->
                                         <Border Width="120" Height="18" Background="{DynamicResource KoyBgWindow}" CornerRadius="7"
@@ -205,7 +206,7 @@
                                 <Border Grid.Row="0" Background="{DynamicResource KoyBorderHairline}" CornerRadius="12,12,0,0">
                                     <Grid>
                                         <!-- Mini Çentik -->
-                                        <Border Width="64" Height="12" Background="{DynamicResource KoyOnAccent}" CornerRadius="0,0,7,7"
+                                        <Border Width="64" Height="12" Background="#0A0A0B" CornerRadius="0,0,7,7"
                                                 HorizontalAlignment="Center" VerticalAlignment="Top" />
                                     </Grid>
                                 </Border>
@@ -262,7 +263,7 @@
                                FontSize="15" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
 
                     <!-- Başlangıç Seçeneği -->
-                    <Border Background="{DynamicResource KoyBgRow}" CornerRadius="12" Padding="20">
+                    <Border Background="{DynamicResource KoyBgRow}" CornerRadius="{DynamicResource KoyRadiusRow}" Padding="20">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />

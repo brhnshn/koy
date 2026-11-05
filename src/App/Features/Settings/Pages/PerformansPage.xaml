@@ -8,9 +8,34 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
 
+    <UserControl.Resources>
+        <!-- Bellek çubuğu: bütçe içinde vurgu, %80'den sonra uyarı, aşımda tehlike rengi -->
+        <Style x:Key="MemoryBarStyle" TargetType="ProgressBar">
+            <Setter Property="Foreground" Value="{DynamicResource KoyAccent}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid>
+                            <Border x:Name="PART_Track" CornerRadius="3" Background="{DynamicResource KoyBorderStrong}" />
+                            <Border x:Name="PART_Indicator" CornerRadius="3" HorizontalAlignment="Left" Background="{TemplateBinding Foreground}" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding MemoryLevel}" Value="1">
+                    <Setter Property="Foreground" Value="{DynamicResource KoyStatusWarn}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding MemoryLevel}" Value="2">
+                    <Setter Property="Foreground" Value="{DynamicResource KoyDangerText}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
     <StackPanel Margin="0,0,16,24">
-        <TextBlock Text="{Binding [NavPerformance], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-        <TextBlock Text="{Binding [PerformanceSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [NavPerformance], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="{Binding [PerformanceSubtitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageSubtitleStyle}" Margin="0,4,0,8" />
 
         <!-- Bellek Durumu -->
         <Border Style="{StaticResource SettingRowStyle}">
@@ -21,10 +46,8 @@
                 </StackPanel>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Width="220">
                     <TextBlock Text="{Binding MemoryUsageText}" HorizontalAlignment="Right" Foreground="{DynamicResource KoyTextSecondary}" FontSize="13" Margin="0,0,0,6" />
-                    <!-- Özel Çizilen Bellek Çubuğu -->
-                    <Border Height="6" CornerRadius="3" Background="{DynamicResource KoyBorderStrong}">
-                        <ProgressBar Value="{Binding MemoryPct}" Maximum="100" Height="6" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource KoyStatusOk}" />
-                    </Border>
+                    <ProgressBar Value="{Binding MemoryPct}" Maximum="100" Height="6" Style="{StaticResource MemoryBarStyle}"
+                                 AutomationProperties.Name="{Binding [MemoryUsageTitle], Source={x:Static res:Loc.Instance}}" />
                 </StackPanel>
             </Grid>
         </Border>
@@ -37,7 +60,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [BatteryReduceMotion], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding BatterySaverReduceMotion}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [BatteryReduceMotion], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding BatterySaverReduceMotion}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -50,7 +73,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [WeatherRefreshTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <ComboBox HorizontalAlignment="Right" Width="180" Height="32" SelectedValuePath="Tag"
+                <ComboBox AutomationProperties.Name="{Binding [WeatherRefreshTitle], Source={x:Static res:Loc.Instance}}" HorizontalAlignment="Right" Width="180" SelectedValuePath="Tag"
                           SelectedValue="{Binding WeatherRefreshInterval}" Style="{StaticResource SettingComboBoxStyle}">
                     <ComboBoxItem Content="{Binding [Interval30m], Source={x:Static res:Loc.Instance}}" Tag="30m" />
                     <ComboBoxItem Content="{Binding [Interval1h], Source={x:Static res:Loc.Instance}}" Tag="1h" />
@@ -61,11 +84,12 @@
 
         <!-- Bilgi Kutusu -->
         <Border Style="{StaticResource InfoNoticeStyle}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="ℹ" FontSize="14" Foreground="{DynamicResource KoyFgInfo}" Margin="0,0,10,0" VerticalAlignment="Top" />
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <res:KoyIcon Data="{StaticResource IconInfo}" Size="16" Foreground="{DynamicResource KoyFgInfo}" Margin="0,1,10,0" VerticalAlignment="Top" />
                 <TextBlock Text="{Binding [IdleNotice], Source={x:Static res:Loc.Instance}}"
-                           Foreground="{DynamicResource KoyFgInfo}" FontSize="13" TextWrapping="Wrap" LineHeight="18" />
-            </StackPanel>
+                           Grid.Column="1" Foreground="{DynamicResource KoyFgInfo}" FontSize="12.5" TextWrapping="Wrap" />
+            </Grid>
         </Border>
     </StackPanel>
 </UserControl>

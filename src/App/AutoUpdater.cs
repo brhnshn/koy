@@ -31,6 +31,7 @@ internal static class AutoUpdater
                 return;
 
             var update = await manager.CheckForUpdatesAsync();
+            UpdateStatus.Record(UpdateCheckResult.UpToDate);
             if (update is null)
                 return;
 
@@ -40,6 +41,7 @@ internal static class AutoUpdater
         catch (Exception ex)
         {
             // Ağ yoksa ya da GitHub yanıt vermiyorsa sessizce vazgeç; iz kalsın.
+            UpdateStatus.Record(UpdateCheckResult.Failed);
             CrashLog.Write("Otomatik güncelleme denetimi", ex);
         }
     }

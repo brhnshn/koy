@@ -9,56 +9,89 @@
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
 
     <StackPanel Margin="0,0,16,24">
-        <TextBlock Text="{Binding [NavAbout], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-        <TextBlock Text="{Binding [AboutSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [NavAbout], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageTitleStyle}" />
+        <TextBlock Text="{Binding [AboutSubtitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageSubtitleStyle}" Margin="0,4,0,16" />
 
-        <!-- Kimlik Kartı -->
-        <Border Background="{DynamicResource KoyBgShell}" CornerRadius="12" Padding="20" Margin="0,0,0,16">
+        <!-- Kimlik kartı: sürüm ve lisans gerçek değerlerden -->
+        <Border Style="{StaticResource SettingRowStyle}" Padding="16">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Border Width="56" Height="56" CornerRadius="14" Background="{DynamicResource KoyBgWindow}" BorderBrush="{DynamicResource KoyBgControl}" BorderThickness="1" Margin="0,0,16,0">
+                <Border Width="56" Height="56" CornerRadius="{DynamicResource KoyRadiusRow}" Background="{DynamicResource KoyBgWindow}"
+                        BorderBrush="{DynamicResource KoyBorderHairline}" BorderThickness="1" Margin="0,0,16,0">
                     <Path Fill="{DynamicResource KoyAccent}" Data="{StaticResource KoyLogoGeometry}" Width="32" Height="32" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="Koy" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource KoyTextPrimary}" />
-                    <TextBlock Text="{Binding AboutStatusText}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,0" />
+                    <TextBlock Text="{Binding AboutStatusText}" FontSize="12.5" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,0" />
                 </StackPanel>
             </StackPanel>
         </Border>
 
-        <!-- Eylemler -->
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <TextBlock Text="{Binding [UpdatesTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" VerticalAlignment="Center" />
-                <Button Content="{Binding [CheckNow], Source={x:Static res:Loc.Instance}}" Command="{Binding CheckUpdatesCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}" />
-            </Grid>
-        </Border>
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <TextBlock Text="{Binding [DiagnosticInfoTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" VerticalAlignment="Center" />
-                <Button Content="{Binding [CopyDiagnosticsAction], Source={x:Static res:Loc.Instance}}" Command="{Binding CopyDiagnosticsCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}" />
-            </Grid>
-        </Border>
-
-        <!-- SORUN GİDERME (Acil Durum Butonu Dahil) -->
+        <!-- SORUN GİDERME -->
         <TextBlock Text="{Binding [TroubleshootingHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [RestoreTaskbarTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                    <TextBlock Text="{Binding [RestoreTaskbarDesc2], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="470">
+                    <TextBlock Text="{Binding [DiagnosticInfoTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Button Content="{Binding [RestoreButton], Source={x:Static res:Loc.Instance}}" Command="{Binding RestoreTaskbarCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}" />
+                <Button Command="{Binding CopyDiagnosticsCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <res:KoyIcon Data="{StaticResource IconCopy}" Size="14" Margin="0,0,8,0" />
+                        <TextBlock Text="{Binding [CopyDiagnosticsAction], Source={x:Static res:Loc.Instance}}" />
+                    </StackPanel>
+                </Button>
             </Grid>
         </Border>
 
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [ResetSettingsTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="470">
+                    <TextBlock Text="{Binding [RestoreTaskbarTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [RestoreTaskbarDesc2], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <Button Content="{Binding [ResetButton], Source={x:Static res:Loc.Instance}}" Command="{Binding ResetSettingsCommand}" HorizontalAlignment="Right" Style="{StaticResource DangerButtonStyle}" />
+                <Button Command="{Binding RestoreTaskbarCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <res:KoyIcon Data="{StaticResource IconRotateCcw}" Size="14" Margin="0,0,8,0" />
+                        <TextBlock Text="{Binding [RestoreButton], Source={x:Static res:Loc.Instance}}" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Ayarları sıfırla: iki adımlı onay -->
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="400">
+                    <TextBlock Text="{Binding [ResetSettingsTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [ResetSettingsDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsResetConfirming}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Button Content="{Binding [ResetButton], Source={x:Static res:Loc.Instance}}" Command="{Binding RequestResetCommand}" Style="{StaticResource DangerButtonStyle}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsResetConfirming}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Button Content="{Binding [Cancel], Source={x:Static res:Loc.Instance}}" Command="{Binding CancelResetCommand}" Style="{StaticResource SettingButtonStyle}" Margin="0,0,8,0" />
+                    <Button Content="{Binding [ResetConfirmButton], Source={x:Static res:Loc.Instance}}" Command="{Binding ResetSettingsCommand}" Style="{StaticResource DangerButtonStyle}" />
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -68,7 +101,12 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <TextBlock Text="{Binding [SourceCodeTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" VerticalAlignment="Center" />
-                <Button Content="{Binding [OpenGitHubAction], Source={x:Static res:Loc.Instance}}" Command="{Binding OpenGitHubCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}" />
+                <Button Command="{Binding OpenGitHubCommand}" HorizontalAlignment="Right" Style="{StaticResource SettingButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding [OpenGitHubAction], Source={x:Static res:Loc.Instance}}" />
+                        <res:KoyIcon Data="{StaticResource IconExternalLink}" Size="14" Margin="8,0,0,0" />
+                    </StackPanel>
+                </Button>
             </Grid>
         </Border>
     </StackPanel>
