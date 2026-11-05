@@ -18,6 +18,13 @@ public static class TrayHostPolicy
         hideWindowsTaskbar && showTray && dockWindowCount > 0;
 
     /// <summary>
+    /// Koy'un kendi bildirim alanı simgesi yalnız dock yokken gösterilir: dock açıkken Koy simgesi zaten dock'un
+    /// sağ ucunda durur ve iki simge çıkmasın (ROADMAP 6.5). Dock kapanınca ya da duraklatılınca simge geri gelir.
+    /// </summary>
+    /// <param name="dockWindowCount">Şu an açık dock penceresi sayısı (dock yalnız pencereleri varken Koy düğmesini gösterir).</param>
+    public static bool ShouldShowNotificationAreaIcon(int dockWindowCount) => dockWindowCount <= 0;
+
+    /// <summary>
     /// Simgenin sahibi Koy'un kendisiyse (dock kapalıyken menüye erişim için kurduğu tepsi simgesi) dock'un
     /// tepsi penceresinde gösterilmez; kayıt yine de Windows'a iletilir. Sahip penceresi bilinmiyorsa (0) süzülmez.
     /// </summary>

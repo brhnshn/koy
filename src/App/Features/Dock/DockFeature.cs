@@ -56,6 +56,12 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     private DockController? _controller;
     private DispatcherTimer? _edgePeekTimer;
 
+    /// <summary>Açık dock penceresi sayısı. Dock'ta Koy düğmesi göründüğü için bildirim alanı simgesi buna bakar.</summary>
+    public int WindowCount => _windowStates.Count;
+
+    /// <summary>Dock pencere sayısı değişti (açıldı, ekran eklendi/çıkarıldı, durdu).</summary>
+    public event Action? WindowCountChanged;
+
     public void Start()
     {
         if (_windows.Count > 0)
@@ -135,6 +141,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         _controller.Start();
 
         UpdateEdgeTimer();
+        WindowCountChanged?.Invoke();
     }
 
     /// <summary>
@@ -444,6 +451,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         ApplyTrayPolicy();
         ApplyTaskbarPolicy();
         UpdateEdgeTimer();
+        WindowCountChanged?.Invoke();
     }
 
     private void OnWindowsChanged(object? sender, EventArgs e)
@@ -665,6 +673,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         }
         _windowStates.Clear();
         _windows.Clear();
+        WindowCountChanged?.Invoke();
 
         _displayEvents?.Dispose();
         _displayEvents = null;
