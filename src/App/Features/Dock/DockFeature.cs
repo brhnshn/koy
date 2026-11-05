@@ -54,8 +54,9 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         if (_windows.Count > 0)
             return;
 
-        // Görev çubuğunu gizle (ve durumunu diske kaydet)
-        TaskbarService.Hide();
+        // Görev çubuğunu gizle (ve durumunu diske kaydet); kullanıcı "Windows görev çubuğunu gizle"yi kapattıysa dokunulmaz.
+        if (settings.HideWindowsTaskbar)
+            TaskbarService.Hide();
 
         // Platform servislerini başlat
         _pinnedAppsService = new PinnedAppsService();
@@ -108,7 +109,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             OnForegroundWindowChanged(this, currentForeground);
 
         // Hide() sonrası Gezgin görev çubuğunu bir kez daha gösterebiliyor; açılışta hemen yakala.
-        TaskbarService.EnsureHidden();
+        EnsureTaskbarHidden();
         _controller.Start();
 
         UpdateEdgeTimer();
@@ -120,10 +121,16 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     /// </summary>
     public void ReapplyTaskbarHiding()
     {
-        if (_windowStates.Count == 0)
+        if (_windowStates.Count == 0 || !settings.HideWindowsTaskbar)
             return;
 
         TaskbarService.Hide();
+    }
+
+    private void EnsureTaskbarHidden()
+    {
+        if (settings.HideWindowsTaskbar)
+            TaskbarService.EnsureHidden();
     }
 
     private void CreateDockWindow(DisplayMonitor monitor)
@@ -252,14 +259,14 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         }
 
         // Windows Explorer yeni monitör için ikincil görev çubuğu oluşturmuş olabilir (Shell_SecondaryTrayWnd)
-        TaskbarService.EnsureHidden();
+        EnsureTaskbarHidden();
         UpdateEdgeTimer();
     }
 
     private void OnWindowsChanged(object? sender, EventArgs e)
     {
         // Bir pencere gösterildiğinde (görev çubuğu dahil) tetiklenir; görev çubuğu yeniden göründüyse gizle.
-        TaskbarService.EnsureHidden();
+        EnsureTaskbarHidden();
 
         if (_windowTracker?.CurrentForeground is { } fg && fg.Handle != 0)
         {
