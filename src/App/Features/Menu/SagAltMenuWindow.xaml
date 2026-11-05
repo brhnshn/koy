@@ -209,7 +209,7 @@
                 <Button Style="{StaticResource DangerActionButtonStyle}" Command="{Binding ExitCommand}">
                     <StackPanel Orientation="Horizontal">
                         <res:KoyIcon Data="{DynamicResource IconPower}" Size="16" Margin="0,0,12,0" />
-                        <TextBlock Text="{Binding [ExitKoyAction], Source={x:Static res:Loc.Instance}}" />
+                        <TextBlock Text="{Binding ExitText}" />
                     </StackPanel>
                 </Button>
             </StackPanel>

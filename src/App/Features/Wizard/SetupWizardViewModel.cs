@@ -30,7 +30,7 @@ public sealed partial class SetupWizardViewModel : ObservableObject
     public bool IsStep2 => CurrentStep == 2;
     public bool IsStep3 => CurrentStep == 3;
     public bool CanGoBack => CurrentStep > 1;
-    public string NextButtonText => CurrentStep == 3 ? "Başla" : "Devam";
+    public string NextButtonText => Koy.App.Resources.Strings.Get(CurrentStep == 3 ? "WizStart" : "WizContinue");
 
     public event Action? Completed;
 

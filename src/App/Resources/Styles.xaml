@@ -285,7 +285,6 @@
     <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource SettingButtonStyle}">
         <Setter Property="Foreground" Value="{DynamicResource KoyDangerText}" />
         <Setter Property="BorderBrush" Value="{DynamicResource KoyDangerBorder}" />
-        <Setter Property="Background" Value="{DynamicResource KoyDangerBg}" />
     </Style>
 
     <!-- Başlık çubuğu düğmesi: Tag = ikon geometrisi, Foreground ikon rengi -->

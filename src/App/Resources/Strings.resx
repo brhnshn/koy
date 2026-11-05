@@ -735,4 +735,79 @@
   <data name="DisplaysIdentify" xml:space="preserve">
     <value>Identify displays</value>
   </data>
+  <data name="WizTitle" xml:space="preserve">
+    <value>Koy Setup</value>
+  </data>
+  <data name="WizStep1" xml:space="preserve">
+    <value>Step 1 / 3</value>
+  </data>
+  <data name="WizWelcomeTitle" xml:space="preserve">
+    <value>Welcome to Koy</value>
+  </data>
+  <data name="WizWelcomeBody" xml:space="preserve">
+    <value>A smart notch and a minimal floating dock for Windows 11. Let's set your preferences before you start.</value>
+  </data>
+  <data name="WizLangTitle" xml:space="preserve">
+    <value>Interface language</value>
+  </data>
+  <data name="WizLangDesc" xml:space="preserve">
+    <value>Choose the language used in the app.</value>
+  </data>
+  <data name="WizStep2" xml:space="preserve">
+    <value>Step 2 / 3</value>
+  </data>
+  <data name="WizLayoutTitle" xml:space="preserve">
+    <value>What should Koy show on screen?</value>
+  </data>
+  <data name="WizLayoutSub" xml:space="preserve">
+    <value>You can change this later from the Koy window.</value>
+  </data>
+  <data name="WizBothTitle" xml:space="preserve">
+    <value>Notch and dock</value>
+  </data>
+  <data name="WizBothDesc" xml:space="preserve">
+    <value>The Windows taskbar is hidden and the Koy dock takes its place.</value>
+  </data>
+  <data name="WizNotchTitle" xml:space="preserve">
+    <value>Notch only</value>
+  </data>
+  <data name="WizNotchDesc" xml:space="preserve">
+    <value>The Windows taskbar stays as it is.</value>
+  </data>
+  <data name="WizDockTitle" xml:space="preserve">
+    <value>Dock only</value>
+  </data>
+  <data name="WizDockDesc" xml:space="preserve">
+    <value>The notch is off; clock and battery sit at the right end of the dock.</value>
+  </data>
+  <data name="WizStep3" xml:space="preserve">
+    <value>Step 3 / 3</value>
+  </data>
+  <data name="WizDoneTitle" xml:space="preserve">
+    <value>All set!</value>
+  </data>
+  <data name="WizDoneBody" xml:space="preserve">
+    <value>Your choices have been applied. You can change settings anytime from the menu at the bottom right or the Koy window.</value>
+  </data>
+  <data name="WizStartupTitle" xml:space="preserve">
+    <value>Start Koy when Windows starts</value>
+  </data>
+  <data name="WizStartupDesc" xml:space="preserve">
+    <value>Run automatically in the background when your computer starts.</value>
+  </data>
+  <data name="WizBack" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="WizContinue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="WizStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="VisibilityDesc" xml:space="preserve">
+    <value>Fixed: always visible. Smart: hides when a window covers it and returns when the mouse comes. Peek: stays hidden until the mouse reaches the screen edge or a media event happens.</value>
+  </data>
+  <data name="ExitKoyConfirm" xml:space="preserve">
+    <value>Confirm exit</value>
+  </data>
 </root>

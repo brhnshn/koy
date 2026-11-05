@@ -92,7 +92,7 @@
             <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Background="Transparent" Margin="16,4,12,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Path Fill="{DynamicResource KoyAccent}" Data="{StaticResource KoyLogoGeometry}" Width="16" Height="16" Stretch="Uniform" />
-                    <TextBlock Text="Koy Kurulum" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding [WizTitle], Source={x:Static res:Loc.Instance}}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="8,0,0,0" VerticalAlignment="Center" />
                 </StackPanel>
                 <Button HorizontalAlignment="Right" VerticalAlignment="Center" Width="28" Height="28"
                         Background="Transparent" BorderThickness="0" Foreground="{DynamicResource KoyTextSecondary}" Cursor="Hand" Click="Close_Click">
@@ -103,9 +103,9 @@
             <!-- ADIM 1: Hoş Geldiniz ve Dil Seçimi -->
             <Grid Grid.Row="1" Margin="56,20,56,0" Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}">
                 <StackPanel VerticalAlignment="Center" MaxWidth="560" HorizontalAlignment="Center">
-                    <TextBlock Text="Adım 1 / 3" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
-                    <TextBlock Text="Koy'a Hoş Geldiniz" FontSize="32" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,10" />
-                    <TextBlock Text="Windows 11 için akıllı çentik ve minimalist yüzen dock. Başlamadan önce tercihlerinizi belirleyelim."
+                    <TextBlock Text="{Binding [WizStep1], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding [WizWelcomeTitle], Source={x:Static res:Loc.Instance}}" FontSize="32" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,10" />
+                    <TextBlock Text="{Binding [WizWelcomeBody], Source={x:Static res:Loc.Instance}}"
                                FontSize="15" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
 
                     <!-- Dil Seçimi Bölümü -->
@@ -116,8 +116,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Arayüz Dili" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-                                <TextBlock Text="Uygulama içinde kullanılacak dili seçin." FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,4,0,0" />
+                                <TextBlock Text="{Binding [WizLangTitle], Source={x:Static res:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+                                <TextBlock Text="{Binding [WizLangDesc], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,4,0,0" />
                             </StackPanel>
                             <ComboBox Grid.Column="1" Width="140" Height="36" VerticalAlignment="Center"
                                       SelectedValuePath="Tag" SelectedValue="{Binding SelectedLanguage}"
@@ -133,9 +133,9 @@
             <!-- ADIM 2: Koy ekranında ne olsun? (3 Kartlı Seçim) -->
             <Grid Grid.Row="1" Margin="56,16,56,0" Visibility="{Binding IsStep2, Converter={StaticResource BoolToVis}}">
                 <StackPanel>
-                    <TextBlock Text="Adım 2 / 3" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
-                    <TextBlock Text="Koy ekranında ne olsun?" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,6" />
-                    <TextBlock Text="Sonra Koy penceresinden istediğin zaman değiştirebilirsin." FontSize="14" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,24" />
+                    <TextBlock Text="{Binding [WizStep2], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding [WizLayoutTitle], Source={x:Static res:Loc.Instance}}" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,6" />
+                    <TextBlock Text="{Binding [WizLayoutSub], Source={x:Static res:Loc.Instance}}" FontSize="14" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,24" />
 
                     <!-- 3 Kartlı Izgara -->
                     <Grid>
@@ -178,8 +178,8 @@
                                 </Border>
                                 <!-- Alt Açıklama -->
                                 <StackPanel Grid.Row="1" Margin="14,12">
-                                    <TextBlock Text="Çentik ve dock" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-                                    <TextBlock Text="Windows görev çubuğu gizlenir, yerine Koy dock'u gelir."
+                                    <TextBlock Text="{Binding [WizBothTitle], Source={x:Static res:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+                                    <TextBlock Text="{Binding [WizBothDesc], Source={x:Static res:Loc.Instance}}"
                                                FontSize="12" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
                                 </StackPanel>
                             </Grid>
@@ -211,8 +211,8 @@
                                     </Grid>
                                 </Border>
                                 <StackPanel Grid.Row="1" Margin="14,12">
-                                    <TextBlock Text="Yalnız çentik" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-                                    <TextBlock Text="Windows görev çubuğu olduğu gibi kalır."
+                                    <TextBlock Text="{Binding [WizNotchTitle], Source={x:Static res:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+                                    <TextBlock Text="{Binding [WizNotchDesc], Source={x:Static res:Loc.Instance}}"
                                                FontSize="12" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
                                 </StackPanel>
                             </Grid>
@@ -244,8 +244,8 @@
                                     </Grid>
                                 </Border>
                                 <StackPanel Grid.Row="1" Margin="14,12">
-                                    <TextBlock Text="Yalnız dock" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-                                    <TextBlock Text="Çentik kapalı; saat ve pil dock'un sağ ucunda."
+                                    <TextBlock Text="{Binding [WizDockTitle], Source={x:Static res:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+                                    <TextBlock Text="{Binding [WizDockDesc], Source={x:Static res:Loc.Instance}}"
                                                FontSize="12" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
                                 </StackPanel>
                             </Grid>
@@ -257,9 +257,9 @@
             <!-- ADIM 3: Başlangıç ve İzinler / Tamamlandı -->
             <Grid Grid.Row="1" Margin="56,20,56,0" Visibility="{Binding IsStep3, Converter={StaticResource BoolToVis}}">
                 <StackPanel VerticalAlignment="Center" MaxWidth="560" HorizontalAlignment="Center">
-                    <TextBlock Text="Adım 3 / 3" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
-                    <TextBlock Text="Her şey hazır!" FontSize="32" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,10" />
-                    <TextBlock Text="Seçimleriniz uygulandı. İstediğiniz zaman sağ alttaki menüden veya Koy penceresinden ayarları güncelleyebilirsiniz."
+                    <TextBlock Text="{Binding [WizStep3], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding [WizDoneTitle], Source={x:Static res:Loc.Instance}}" FontSize="32" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,10" />
+                    <TextBlock Text="{Binding [WizDoneBody], Source={x:Static res:Loc.Instance}}"
                                FontSize="15" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
 
                     <!-- Başlangıç Seçeneği -->
@@ -270,8 +270,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Windows açılınca Koy'u başlat" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
-                                <TextBlock Text="Bilgisayarınız açıldığında otomatik olarak arka planda çalışsın."
+                                <TextBlock Text="{Binding [WizStartupTitle], Source={x:Static res:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+                                <TextBlock Text="{Binding [WizStartupDesc], Source={x:Static res:Loc.Instance}}"
                                            FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,4,0,0" />
                             </StackPanel>
                             <CheckBox Grid.Column="1"
@@ -339,7 +339,7 @@
 
                     <!-- Sağ: Geri ve Devam Düğmeleri -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <Button Content="Geri"
+                        <Button Content="{Binding [WizBack], Source={x:Static res:Loc.Instance}}"
                                 Style="{StaticResource WizardNavButton}"
                                 Command="{Binding BackCommand}"
                                 Margin="0,0,10,0"

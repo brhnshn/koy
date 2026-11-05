@@ -735,4 +735,79 @@
   <data name="DisplaysIdentify" xml:space="preserve">
     <value>Ekranları tanımla</value>
   </data>
+  <data name="WizTitle" xml:space="preserve">
+    <value>Koy Kurulum</value>
+  </data>
+  <data name="WizStep1" xml:space="preserve">
+    <value>Adım 1 / 3</value>
+  </data>
+  <data name="WizWelcomeTitle" xml:space="preserve">
+    <value>Koy'a Hoş Geldiniz</value>
+  </data>
+  <data name="WizWelcomeBody" xml:space="preserve">
+    <value>Windows 11 için akıllı çentik ve minimalist yüzen dock. Başlamadan önce tercihlerinizi belirleyelim.</value>
+  </data>
+  <data name="WizLangTitle" xml:space="preserve">
+    <value>Arayüz Dili</value>
+  </data>
+  <data name="WizLangDesc" xml:space="preserve">
+    <value>Uygulama içinde kullanılacak dili seçin.</value>
+  </data>
+  <data name="WizStep2" xml:space="preserve">
+    <value>Adım 2 / 3</value>
+  </data>
+  <data name="WizLayoutTitle" xml:space="preserve">
+    <value>Koy ekranında ne olsun?</value>
+  </data>
+  <data name="WizLayoutSub" xml:space="preserve">
+    <value>Sonra Koy penceresinden istediğin zaman değiştirebilirsin.</value>
+  </data>
+  <data name="WizBothTitle" xml:space="preserve">
+    <value>Çentik ve dock</value>
+  </data>
+  <data name="WizBothDesc" xml:space="preserve">
+    <value>Windows görev çubuğu gizlenir, yerine Koy dock'u gelir.</value>
+  </data>
+  <data name="WizNotchTitle" xml:space="preserve">
+    <value>Yalnız çentik</value>
+  </data>
+  <data name="WizNotchDesc" xml:space="preserve">
+    <value>Windows görev çubuğu olduğu gibi kalır.</value>
+  </data>
+  <data name="WizDockTitle" xml:space="preserve">
+    <value>Yalnız dock</value>
+  </data>
+  <data name="WizDockDesc" xml:space="preserve">
+    <value>Çentik kapalı; saat ve pil dock'un sağ ucunda.</value>
+  </data>
+  <data name="WizStep3" xml:space="preserve">
+    <value>Adım 3 / 3</value>
+  </data>
+  <data name="WizDoneTitle" xml:space="preserve">
+    <value>Her şey hazır!</value>
+  </data>
+  <data name="WizDoneBody" xml:space="preserve">
+    <value>Seçimleriniz uygulandı. İstediğiniz zaman sağ alttaki menüden veya Koy penceresinden ayarları güncelleyebilirsiniz.</value>
+  </data>
+  <data name="WizStartupTitle" xml:space="preserve">
+    <value>Windows açılınca Koy'u başlat</value>
+  </data>
+  <data name="WizStartupDesc" xml:space="preserve">
+    <value>Bilgisayarınız açıldığında otomatik olarak arka planda çalışsın.</value>
+  </data>
+  <data name="WizBack" xml:space="preserve">
+    <value>Geri</value>
+  </data>
+  <data name="WizContinue" xml:space="preserve">
+    <value>Devam</value>
+  </data>
+  <data name="WizStart" xml:space="preserve">
+    <value>Başla</value>
+  </data>
+  <data name="VisibilityDesc" xml:space="preserve">
+    <value>Sabit: her zaman görünür. Akıllı: üstüne pencere gelince gizlenir, fare gelince çıkar. Gözetleme: fare ekran kenarına gelene ya da bir medya olayına kadar gizli kalır.</value>
+  </data>
+  <data name="ExitKoyConfirm" xml:space="preserve">
+    <value>Çıkışı onayla</value>
+  </data>
 </root>

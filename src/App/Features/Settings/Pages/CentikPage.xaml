@@ -29,6 +29,7 @@
             <Grid>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [VisibilityTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [VisibilityDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" MaxWidth="420" HorizontalAlignment="Left" />
                 </StackPanel>
                 <Border Style="{StaticResource SegmentContainerStyle}">
                     <StackPanel Orientation="Horizontal">

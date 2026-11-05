@@ -35,7 +35,7 @@
 
     <StackPanel Margin="0,0,16,24">
         <TextBlock Text="{Binding [NavPerformance], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageTitleStyle}" />
-        <TextBlock Text="{Binding [PerformanceSubtitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageSubtitleStyle}" Margin="0,4,0,8" />
+        <TextBlock Text="{Binding [PerformanceSubtitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource PageSubtitleStyle}" Margin="0,4,0,16" />
 
         <!-- Bellek Durumu -->
         <Border Style="{StaticResource SettingRowStyle}">
