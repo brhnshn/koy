@@ -19,4 +19,9 @@ public static class IdleDisplay
     /// "Yalnız saat" ve "Hiçbiri" seçimi kullanıcının çentikte başka bir şey istemediği anlamına gelir.
     /// </summary>
     public static bool ShowRadio(int mode) => mode is not (ClockOnly or Nothing);
+
+    /// <summary>
+    /// Üzerine gelince görünen tarih ve ağ simgesi de "ek bilgi"dir: yalnız "saat, pil ve bağlantılar" modunda çıkar.
+    /// </summary>
+    public static bool ShowPeekDetails(int mode) => mode is not (ClockOnly or Nothing);
 }

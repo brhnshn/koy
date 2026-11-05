@@ -22,6 +22,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     /// <summary>Ekranlar sayfası: monitör şeması ve ekran başına ayarlar.</summary>
     public DisplaysViewModel Displays { get; }
 
+    /// <summary>Çentik sayfası › Hava durumu: konum anahtarı ve şehir arama.</summary>
+    public WeatherLocationViewModel Weather { get; }
+
     [ObservableProperty]
     private int _selectedPageIndex; // 0: Genel, 1: Çentik, 2: Dock, 3: Ekranlar, 4: Görünüm, 5: Kısayollar, 6: Performans, 7: Hakkında
 
@@ -271,6 +274,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         _store = store ?? new SettingsStore(SettingsStore.DefaultPath);
         Shortcuts = new ShortcutsViewModel(_store);
         Displays = new DisplaysViewModel(_store);
+        Weather = new WeatherLocationViewModel(_store);
         LoadFromSettings();
     }
 
@@ -331,6 +335,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             WheelAction = s.WheelAction;
             MiddleClickAction = s.MiddleClickAction;
             Shortcuts.Load(s);
+            Weather.Load(s);
 
             var panels = s.EnabledPanels ?? ["music", "calendar", "shelf", "controlcenter"];
             PanelMusic = panels.Contains("music", StringComparer.OrdinalIgnoreCase);
@@ -663,6 +668,23 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             Process.Start(new ProcessStartInfo
             {
                 FileName = "https://github.com/brhnshn/koy",
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+        }
+    }
+
+    /// <summary>Hava durumu verisinin kaynağı (Open-Meteo, CC BY 4.0 atfı).</summary>
+    [RelayCommand]
+    public void OpenOpenMeteo()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://open-meteo.com/",
                 UseShellExecute = true
             });
         }

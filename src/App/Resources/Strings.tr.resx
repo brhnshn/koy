@@ -141,6 +141,93 @@
   <data name="NetworkDisconnected" xml:space="preserve">
     <value>Bağlı değil</value>
   </data>
+  <data name="NetworkEthernetShort" xml:space="preserve">
+    <value>Ethernet</value>
+  </data>
+  <data name="NetworkCellularShort" xml:space="preserve">
+    <value>Hücresel</value>
+  </data>
+  <data name="NotificationsButton" xml:space="preserve">
+    <value>Bildirimler</value>
+  </data>
+  <data name="NotificationsTooltip" xml:space="preserve">
+    <value>Bildirim Merkezi'ni aç</value>
+  </data>
+  <data name="HomeTimerLabel" xml:space="preserve">
+    <value>Zamanlayıcı {0}</value>
+  </data>
+  <data name="HomeStopwatchLabel" xml:space="preserve">
+    <value>Kronometre {0}</value>
+  </data>
+  <data name="HomePomodoroLabel" xml:space="preserve">
+    <value>Pomodoro {0}</value>
+  </data>
+  <data name="PeekConnectionsTooltip" xml:space="preserve">
+    <value>Bağlantılar</value>
+  </data>
+  <data name="CalViewMonth" xml:space="preserve">
+    <value>Ay</value>
+  </data>
+  <data name="CalViewWeek" xml:space="preserve">
+    <value>Hafta</value>
+  </data>
+  <data name="CalViewDay" xml:space="preserve">
+    <value>Gün</value>
+  </data>
+  <data name="CalToolPomodoro" xml:space="preserve">
+    <value>Pomodoro</value>
+  </data>
+  <data name="CalToolTimer" xml:space="preserve">
+    <value>Zamanlayıcı</value>
+  </data>
+  <data name="CalToolStopwatch" xml:space="preserve">
+    <value>Kronometre</value>
+  </data>
+  <data name="CalAddEvent" xml:space="preserve">
+    <value>Ekle</value>
+  </data>
+  <data name="CalEventTitleHint" xml:space="preserve">
+    <value>Yeni etkinlik</value>
+  </data>
+  <data name="CalEventTimeHint" xml:space="preserve">
+    <value>SS:dd</value>
+  </data>
+  <data name="CalNoEvents" xml:space="preserve">
+    <value>Etkinlik yok</value>
+  </data>
+  <data name="CalDeleteEvent" xml:space="preserve">
+    <value>Etkinliği sil</value>
+  </data>
+  <data name="CalToday" xml:space="preserve">
+    <value>Bugün</value>
+  </data>
+  <data name="CalPrevious" xml:space="preserve">
+    <value>Önceki</value>
+  </data>
+  <data name="CalNext" xml:space="preserve">
+    <value>Sonraki</value>
+  </data>
+  <data name="TimerDecrease" xml:space="preserve">
+    <value>Azalt</value>
+  </data>
+  <data name="TimerIncrease" xml:space="preserve">
+    <value>Artır</value>
+  </data>
+  <data name="TimerPresetMinutes" xml:space="preserve">
+    <value>{0} dk</value>
+  </data>
+  <data name="TimerPause" xml:space="preserve">
+    <value>Duraklat</value>
+  </data>
+  <data name="TimerLap" xml:space="preserve">
+    <value>Tur</value>
+  </data>
+  <data name="TimerLapRow" xml:space="preserve">
+    <value>Tur {0}</value>
+  </data>
+  <data name="TimerDone" xml:space="preserve">
+    <value>Bitti</value>
+  </data>
   <data name="NavGeneral" xml:space="preserve">
     <value>Genel</value>
   </data>
@@ -742,7 +829,7 @@
     <value>Koy Kurulum</value>
   </data>
   <data name="WizStep1" xml:space="preserve">
-    <value>Adım 1 / 3</value>
+    <value>Adım 1 / 4</value>
   </data>
   <data name="WizWelcomeTitle" xml:space="preserve">
     <value>Koy'a Hoş Geldiniz</value>
@@ -757,7 +844,7 @@
     <value>Uygulama içinde kullanılacak dili seçin.</value>
   </data>
   <data name="WizStep2" xml:space="preserve">
-    <value>Adım 2 / 3</value>
+    <value>Adım 2 / 4</value>
   </data>
   <data name="WizLayoutTitle" xml:space="preserve">
     <value>Koy ekranında ne olsun?</value>
@@ -784,7 +871,91 @@
     <value>Çentik kapalı; saat ve pil dock'un sağ ucunda.</value>
   </data>
   <data name="WizStep3" xml:space="preserve">
-    <value>Adım 3 / 3</value>
+    <value>Adım 3 / 4</value>
+  </data>
+  <data name="WizStep4" xml:space="preserve">
+    <value>Adım 4 / 4</value>
+  </data>
+  <data name="WizLocationTitle" xml:space="preserve">
+    <value>Hava durumu için konumunu kullanalım mı?</value>
+  </data>
+  <data name="WizLocationBody" xml:space="preserve">
+    <value>Çentik hava durumunu gösterebilir. Konumun Koy açılırken bir kez (günde en fazla) okunur ve bu bilgisayarda kalır; tahmin için Open-Meteo'ya yalnız koordinat gönderilir. Bunu sonra Ayarlar'dan değiştirebilirsin.</value>
+  </data>
+  <data name="WizLocationYes" xml:space="preserve">
+    <value>Evet, konumumu kullan</value>
+  </data>
+  <data name="WizLocationYesDesc" xml:space="preserve">
+    <value>Windows izin isteyebilir.</value>
+  </data>
+  <data name="WizLocationNo" xml:space="preserve">
+    <value>Şimdi değil</value>
+  </data>
+  <data name="WizLocationNoDesc" xml:space="preserve">
+    <value>Hava durumu, Ayarlar'dan bir şehir seçene ya da konumu açana kadar gizli kalır.</value>
+  </data>
+  <data name="WizLocating" xml:space="preserve">
+    <value>Konum alınıyor…</value>
+  </data>
+  <data name="WeatherHeader" xml:space="preserve">
+    <value>Hava durumu</value>
+  </data>
+  <data name="WeatherUseLocationTitle" xml:space="preserve">
+    <value>Hava durumu için konumu kullan</value>
+  </data>
+  <data name="WeatherUseLocationDesc" xml:space="preserve">
+    <value>Koy açılırken bir kez, günde en fazla bir kez okunur. Windows izin isteyebilir.</value>
+  </data>
+  <data name="WeatherCityTitle" xml:space="preserve">
+    <value>Şehir</value>
+  </data>
+  <data name="WeatherCityDesc" xml:space="preserve">
+    <value>Konum kapalıysa ya da alınamazsa kullanılır. Arayıp birini seç.</value>
+  </data>
+  <data name="WeatherSearchHint" xml:space="preserve">
+    <value>Şehir adı</value>
+  </data>
+  <data name="WeatherSearchButton" xml:space="preserve">
+    <value>Ara</value>
+  </data>
+  <data name="WeatherNoResults" xml:space="preserve">
+    <value>Sonuç bulunamadı</value>
+  </data>
+  <data name="WeatherSearching" xml:space="preserve">
+    <value>Aranıyor…</value>
+  </data>
+  <data name="WeatherStatusNone" xml:space="preserve">
+    <value>Konum seçilmedi: hava durumu çentikte gösterilmez.</value>
+  </data>
+  <data name="WeatherStatusDevice" xml:space="preserve">
+    <value>Cihaz konumu kullanılıyor.</value>
+  </data>
+  <data name="WeatherStatusCity" xml:space="preserve">
+    <value>{0} için hava durumu gösteriliyor.</value>
+  </data>
+  <data name="WeatherStatusWorking" xml:space="preserve">
+    <value>Konum alınıyor…</value>
+  </data>
+  <data name="WeatherStatusDenied" xml:space="preserve">
+    <value>Windows'ta konum erişimi kapalı. Bir şehir seç ya da Windows Ayarları'ndan izin ver.</value>
+  </data>
+  <data name="WeatherStatusFailed" xml:space="preserve">
+    <value>Konum alınamadı. Bir şehir seçebilirsin.</value>
+  </data>
+  <data name="WeatherClear" xml:space="preserve">
+    <value>Konumu kaldır</value>
+  </data>
+  <data name="WeatherOpenLocationSettings" xml:space="preserve">
+    <value>Windows konum ayarları</value>
+  </data>
+  <data name="AboutWeatherTitle" xml:space="preserve">
+    <value>Hava durumu verisi</value>
+  </data>
+  <data name="AboutWeatherLink" xml:space="preserve">
+    <value>Weather data by Open-Meteo.com</value>
+  </data>
+  <data name="AboutWeatherLicense" xml:space="preserve">
+    <value>CC BY 4.0 lisansıyla</value>
   </data>
   <data name="WizDoneTitle" xml:space="preserve">
     <value>Her şey hazır!</value>

@@ -161,17 +161,16 @@
     </Grid.RowDefinitions>
 
     <!-- Üst Satır: 3 Döşeme (Wi-Fi, Bluetooth, Rahatsız Etme) -->
-    <Grid Grid.Row="0">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="8" />
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="8" />
-        <ColumnDefinition Width="*" />
-      </Grid.ColumnDefinitions>
+    <!-- Döşemeler sürüklenerek yeniden sıralanır (sıra ControlCenterLayout'a yazılır); konumları kod arkasında yayla kayar. -->
+    <Grid Grid.Row="0" x:Name="TilesHost" Height="46" Background="Transparent"
+          SizeChanged="TilesHost_SizeChanged"
+          PreviewMouseLeftButtonDown="TilesHost_PreviewMouseLeftButtonDown"
+          PreviewMouseMove="TilesHost_PreviewMouseMove"
+          PreviewMouseLeftButtonUp="TilesHost_PreviewMouseLeftButtonUp"
+          LostMouseCapture="TilesHost_LostMouseCapture">
 
       <!-- 1. Wi-Fi Döşemesi: tıklayınca açar/kapatır; ok, Windows'taki ağ listesini açar -->
-      <Grid Grid.Column="0">
+      <Grid x:Name="TileWifi" Tag="wifi" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Button Style="{StaticResource TileButtonStyle}" Height="46"
                 CommandParameter="{x:Static radio:RadioKind.WiFi}"
                 Command="{Binding ActivateRadioCommand}"
@@ -185,7 +184,7 @@
       </Grid>
 
       <!-- 2. Bluetooth Döşemesi: tıklayınca açar/kapatır; ok, Windows'taki cihaz listesini açar -->
-      <Grid Grid.Column="2">
+      <Grid x:Name="TileBluetooth" Tag="bluetooth" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Button Style="{StaticResource TileButtonStyle}" Height="46"
                 CommandParameter="{x:Static radio:RadioKind.Bluetooth}"
                 Command="{Binding ActivateRadioCommand}"
@@ -200,7 +199,8 @@
 
       <!-- 3. Rahatsız Etme: resmi açma/kapama ya da güvenilir okuma API'si yok; uydurma durum yerine
            Windows'taki ayarı açan kısayol olarak gösterilir. -->
-      <Button Grid.Column="4" Style="{StaticResource TileButtonStyle}" Height="46"
+      <Button x:Name="TileDoNotDisturb" Tag="donotdisturb" HorizontalAlignment="Left" VerticalAlignment="Top"
+              Style="{StaticResource TileButtonStyle}" Height="46"
               Command="{Binding OpenDoNotDisturbSettingsCommand}"
               ToolTip="{x:Static res:Strings.OpenInSettings}">
         <Grid>

@@ -254,10 +254,61 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ADIM 3: Başlangıç ve İzinler / Tamamlandı -->
+            <!-- ADIM 3: Hava durumu için konum (Evet / Şimdi değil) -->
             <Grid Grid.Row="1" Margin="56,20,56,0" Visibility="{Binding IsStep3, Converter={StaticResource BoolToVis}}">
                 <StackPanel VerticalAlignment="Center" MaxWidth="560" HorizontalAlignment="Center">
                     <TextBlock Text="{Binding [WizStep3], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding [WizLocationTitle], Source={x:Static res:Loc.Instance}}" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,10" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding [WizLocationBody], Source={x:Static res:Loc.Instance}}"
+                               FontSize="14" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,22" LineHeight="21" />
+
+                    <!-- Evet -->
+                    <Border CornerRadius="{DynamicResource KoyRadiusRow}" Background="{DynamicResource KoyBgRow}" Padding="20,16" Margin="0,0,0,10" Cursor="Hand" MouseLeftButtonDown="LocationYes_Click">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderThickness" Value="2" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderHairline}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UseLocation}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource KoyAccent}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <TextBlock Text="{Binding [WizLocationYes], Source={x:Static res:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+                            <TextBlock Text="{Binding [WizLocationYesDesc], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Şimdi değil -->
+                    <Border CornerRadius="{DynamicResource KoyRadiusRow}" Background="{DynamicResource KoyBgRow}" Padding="20,16" Cursor="Hand" MouseLeftButtonDown="LocationNo_Click">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderThickness" Value="2" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource KoyAccent}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UseLocation}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderHairline}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <TextBlock Text="{Binding [WizLocationNo], Source={x:Static res:Loc.Instance}}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+                            <TextBlock Text="{Binding [WizLocationNoDesc], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock Text="{Binding [WizLocating], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,14,0,0"
+                               Visibility="{Binding IsLocating, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- ADIM 4: Başlangıç ve İzinler / Tamamlandı -->
+            <Grid Grid.Row="1" Margin="56,20,56,0" Visibility="{Binding IsStep4, Converter={StaticResource BoolToVis}}">
+                <StackPanel VerticalAlignment="Center" MaxWidth="560" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding [WizStep4], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
                     <TextBlock Text="{Binding [WizDoneTitle], Source={x:Static res:Loc.Instance}}" FontSize="32" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,10" />
                     <TextBlock Text="{Binding [WizDoneBody], Source={x:Static res:Loc.Instance}}"
                                FontSize="15" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
@@ -321,13 +372,29 @@
                         </Border>
 
                         <!-- Nokta 3 -->
-                        <Border x:Name="dot3" CornerRadius="4" Height="8">
+                        <Border x:Name="dot3" CornerRadius="4" Height="8" Margin="0,0,6,0">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Width" Value="8" />
                                     <Setter Property="Background" Value="{DynamicResource KoyBorderControl}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                            <Setter Property="Width" Value="24" />
+                                            <Setter Property="Background" Value="{DynamicResource KoyAccent}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                        </Border>
+
+                        <!-- Nokta 4 -->
+                        <Border x:Name="dot4" CornerRadius="4" Height="8">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Width" Value="8" />
+                                    <Setter Property="Background" Value="{DynamicResource KoyBorderControl}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStep}" Value="4">
                                             <Setter Property="Width" Value="24" />
                                             <Setter Property="Background" Value="{DynamicResource KoyAccent}" />
                                         </DataTrigger>

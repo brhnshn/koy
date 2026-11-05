@@ -79,7 +79,10 @@ Koy penceresi, sihirbaz ve sağ alt menü renk, ölçü ve hareketi koda gömmez
 - **Boşta:** 236×34 px. Solda saat, sağda pil görünür.
 - **Müzik çalarken:** solda albüm kapağı, sağda hareketsiz bir dalga simgesi.
 - **Göstergeler:** ses ya da parlaklık değişince çentik 260×40 px olur ve gösterge 1,5 sn görünür. Ses göstergesi beyaz, parlaklık göstergesi sarı (`#FACC15`).
-- **Açık çentik sekmeleri:** Müzik, Takvim (Pomodoro ile), Raf, Kontrol ve Durum. Raf, çentiğe dosya bırakılınca kendiliğinden açılır.
+- **Açık çentik sekmeleri:** Müzik, Takvim, Raf, Kontrol ve Durum. Raf, çentiğe dosya bırakılınca kendiliğinden açılır.
+- **Ana görünüm (ilk sekme, Müzik'in yerini alır; arayüzü tasarım onayını bekliyor, ölçüler onaydan sonra eklenir):** iki sütun. Sol: müzik (küçük kapak, başlık, sanatçı, önceki/oynat/sonraki, ilerleme çubuğu); müzik yoksa büyük saat, tam tarih ve bugünün sıradaki yerel etkinliği ya da çalışan zamanlayıcısı (ikisi de yoksa yalnız saat ve tarih). Sağ: durum sütunu; tarih, ağ (Wi-Fi adı / Ethernet / bağlı değil), pil (varsa), hava durumu (konum ve şehir yoksa hiç çizilmez, boş yer kalmaz) ve Windows Bildirim Merkezi'ni açan düğme (Win+N). Pencere 500×260 sabit tuvalde kalır. Durum sekmesi ana görünümle örtüştüğü için varsayılan paneller arasından çıkarılması önerilir (ayrıntılı hali olarak kalabilir).
+- **Kapalı ve Peek:** kapalı çentikte yalnız saat ve pil durur; üzerine gelince (Peek) tarih ve ağ simgesi (ve Bluetooth) de görünür, kapalı çentik kalabalıklaşmaz.
+- **Takvim sekmesi (420×184 içerik):** solda Ay / Hafta / Gün görünümü (ok düğmeleriyle gezinme, "bugün" düğmesi; ay hücresine ya da hafta satırına tıklayınca gün açılır; gün görünümünde yerel etkinlik eklenir ve silinir), sağda araç seçici: Pomodoro, Zamanlayıcı (süre ‹ › ile ya da 1/5/10/25 dk düğmeleriyle seçilir, başlat/duraklat, sıfırla; bitince Peek ve titreme), Kronometre (başlat/duraklat, tur, sıfırla). Zamanlayıcı ekranı yalnız bu sekme görünürken tazelenir. Çentik yüksekliği bu sekmede 214 DIP.
 - **Kısa bildirimler (Peek):** "Pomodoro bitti", "Şarj tamamlandı", "Kulaklık bağlandı" gibi.
 
 ## Koy penceresi

@@ -46,4 +46,14 @@ public partial class SetupWizardWindow : Window
     {
         ViewModel.SelectedLayoutIndex = 2;
     }
+
+    private void LocationYes_Click(object sender, MouseButtonEventArgs e)
+    {
+        ViewModel.UseLocation = true;
+    }
+
+    private void LocationNo_Click(object sender, MouseButtonEventArgs e)
+    {
+        ViewModel.UseLocation = false;
+    }
 }

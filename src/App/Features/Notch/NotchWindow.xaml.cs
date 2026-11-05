@@ -148,6 +148,24 @@ public partial class NotchWindow : Window
         }
     }
 
+    // Çentik odak çalmaz (WS_EX_NOACTIVATE); bu yüzden yazı alanına tıklanınca pencere geçici olarak etkinleştirilir
+    // ki klavye çalışsın (takvimde etkinlik eklemek için). Odak gidince yine odak çalmaz hale gelir.
+    private void Notch_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (_hwnd == 0 || e.OriginalSource is not DependencyObject source || FindParent<TextBox>(source) is null)
+            return;
+
+        WindowStyles.SetNoActivate(_hwnd, false);
+        Activate();
+    }
+
+    protected override void OnDeactivated(EventArgs e)
+    {
+        base.OnDeactivated(e);
+        if (_hwnd != 0)
+            WindowStyles.SetNoActivate(_hwnd, true);
+    }
+
     private void Notch_MouseEnter(object sender, MouseEventArgs e)
     {
         ViewModel?.Controller.OnMouseEnter();
@@ -169,7 +187,8 @@ public partial class NotchWindow : Window
             var button = FindParent<Button>(dep);
             var progress = FindParent<ProgressBar>(dep);
             var slider = FindParent<Slider>(dep);
-            if (button is not null || progress is not null || slider is not null)
+            var textBox = FindParent<TextBox>(dep);
+            if (button is not null || progress is not null || slider is not null || textBox is not null)
                 return;
         }
 

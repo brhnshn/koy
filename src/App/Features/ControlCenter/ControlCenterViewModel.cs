@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Koy.Core.Audio;
 using Koy.Core.Diagnostics;
 using Koy.Core.Display;
+using Koy.Core.Notch;
 using Koy.Core.Radio;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
@@ -27,6 +28,30 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
     // Son açma/kapama denemesi reddedildiyse döşeme bunu yazar; radyo durumu değişince silinir.
     private readonly Dictionary<RadioKind, bool> _toggleFailed = new() { [RadioKind.WiFi] = false, [RadioKind.Bluetooth] = false };
+
+    private readonly SettingsStore? _store;
+
+    /// <summary>Döşeme sırası (ayardaki <c>ControlCenterLayout</c>; eksik ya da bozuksa varsayılana tamamlanır).</summary>
+    public IReadOnlyList<string> TileOrder { get; private set; }
+
+    /// <summary>Sürükleme bitince yeni sırayı ayara yazar. Disk hatası sırayı bozmaz: bu oturumda geçerli kalır.</summary>
+    public void SaveTileOrder(IReadOnlyList<string> order)
+    {
+        if (ControlCenterTiles.SameOrder(order, TileOrder))
+            return;
+
+        TileOrder = order.ToList();
+        _settings.ControlCenterLayout = order.ToList();
+        try
+        {
+            var store = _store ?? new SettingsStore(SettingsStore.DefaultPath);
+            store.Save(store.Load() with { ControlCenterLayout = order.ToList() });
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("Kontrol merkezi sırası kaydedilemedi", ex);
+        }
+    }
 
     public RadioTileViewModel WiFi { get; } = new(RadioKind.WiFi);
 
@@ -59,8 +84,11 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         Func<IBrightnessService> brightnessFactory,
         IFocusAssistService focusAssistService,
         AppSettings settings,
-        Dispatcher? dispatcher = null)
+        Dispatcher? dispatcher = null,
+        SettingsStore? store = null)
     {
+        _store = store;
+        TileOrder = ControlCenterTiles.Resolve(settings.ControlCenterLayout);
         _audioFactory = audioFactory;
         _radioFactory = radioFactory;
         _radioRelease = radioRelease;

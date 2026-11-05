@@ -46,4 +46,24 @@
     <Geometry x:Key="IconGithub">M 18 16 l 4 -4 l -4 -4M 6 8 l -4 4 l 4 4M 14.5 4 l -5 16</Geometry>
     <Geometry x:Key="IconWifi">M 12 20 h 0.01M 2 8.82 a 15 15 0 0 1 20 0M 5 12.859 a 10 10 0 0 1 14 0M 8.5 16.429 a 5 5 0 0 1 7 0</Geometry>
     <Geometry x:Key="IconBluetooth">M 7 7 l 10 10 l -5 5 V 2 l 5 5 L 7 17</Geometry>
+    <Geometry x:Key="IconBell">M10.268 21 a2 2 0 0 0 3.464 0 M3.262 15.326 A1 1 0 0 0 4 17 h16 a1 1 0 0 0 .74 -1.673 C19.41 13.956 18 12.499 18 8 A6 6 0 0 0 6 8 c0 4.499 -1.411 5.956 -2.738 7.326</Geometry>
+    <Geometry x:Key="IconMapPin">M20 10 c0 4.993 -5.539 10.193 -7.399 11.799 a1 1 0 0 1 -1.202 0 C9.539 20.193 4 14.993 4 10 a8 8 0 0 1 16 0 M15 10 a3 3 0 1 1 -6 0 a3 3 0 1 1 6 0 z</Geometry>
+    <Geometry x:Key="IconPlus">M5 12 h14 M12 5 v14</Geometry>
+    <Geometry x:Key="IconTrash2">M3 6 h18 M19 6 v14 c0 1 -1 2 -2 2 H7 c-1 0 -2 -1 -2 -2 V6 M8 6 V4 c0 -1 1 -2 2 -2 h4 c1 0 2 1 2 2 v2 M10 11 v6 M14 11 v6</Geometry>
+    <Geometry x:Key="IconSearch">M21 21 l-4.34 -4.34 M19 11 a8 8 0 1 1 -16 0 a8 8 0 0 1 16 0 z</Geometry>
+    <Geometry x:Key="IconTimer">M10 2 h4 M12 14 l3 -3 M20 14 a8 8 0 1 1 -16 0 a8 8 0 0 1 16 0 z</Geometry>
+    <Geometry x:Key="IconFlag">M4 15 s1 -1 4 -1 5 2 8 2 4 -1 4 -1 V3 s-1 1 -4 1 -5 -2 -8 -2 -4 1 -4 1 z M4 22 v-7</Geometry>
+    <Geometry x:Key="IconCloud">M17.5 19 H9 a7 7 0 1 1 6.71 -9 h1.79 a4.5 4.5 0 1 1 0 9 z</Geometry>
+    <Geometry x:Key="IconCloudSun">M12 2 v2 M4.93 4.93 l1.41 1.41 M20 12 h2 M19.07 4.93 l-1.41 1.41 M15.947 12.65 a4 4 0 0 0 -5.925 -4.128 M13 22 H7 a5 5 0 1 1 4.9 -6 H13 a3 3 0 0 1 0 6 z</Geometry>
+    <Geometry x:Key="IconCloudFog">M4 14.899 A7 7 0 1 1 15.71 8 h1.79 a4.5 4.5 0 0 1 2.5 8.242 M16 17 H7 M17 21 H9</Geometry>
+    <Geometry x:Key="IconCloudDrizzle">M4 14.899 A7 7 0 1 1 15.71 8 h1.79 a4.5 4.5 0 0 1 2.5 8.242 M8 19 v1 M8 14 v1 M16 19 v1 M16 14 v1 M12 21 v1 M12 16 v1</Geometry>
+    <Geometry x:Key="IconCloudRain">M4 14.899 A7 7 0 1 1 15.71 8 h1.79 a4.5 4.5 0 0 1 2.5 8.242 M16 14 v6 M8 14 v6 M12 16 v6</Geometry>
+    <Geometry x:Key="IconCloudSnow">M4 14.899 A7 7 0 1 1 15.71 8 h1.79 a4.5 4.5 0 0 1 2.5 8.242 M8 15 h.01 M8 19 h.01 M12 17 h.01 M12 21 h.01 M16 15 h.01 M16 19 h.01</Geometry>
+    <Geometry x:Key="IconCloudLightning">M6 16.326 A7 7 0 1 1 15.71 8 h1.79 a4.5 4.5 0 0 1 .5 8.973 M13 12 l-3 5 h4 l-3 5</Geometry>
+    <Geometry x:Key="IconEthernetPort">M15 20 l3 -3 h2 a2 2 0 0 0 2 -2 V6 a2 2 0 0 0 -2 -2 H4 a2 2 0 0 0 -2 2 v9 a2 2 0 0 0 2 2 h2 l3 3 z M6 8 v1 M10 8 v1 M14 8 v1 M18 8 v1</Geometry>
+    <Geometry x:Key="IconWifiOff">M12 20 h.01 M8.5 16.429 a5 5 0 0 1 7 0 M5 12.859 a10 10 0 0 1 5.17 -2.69 M19 12.859 a10 10 0 0 0 -2.007 -1.523 M2 8.82 a15 15 0 0 1 4.177 -2.643 M22 8.82 a15 15 0 0 0 -11.288 -3.764 M2 2 L22 22</Geometry>
+    <Geometry x:Key="IconBatteryCharging">M11 7 l-3 5 h4 l-3 5 M14.856 6 H16 a2 2 0 0 1 2 2 v8 a2 2 0 0 1 -2 2 h-2.935 M22 14 v-4 M5.14 18 H4 a2 2 0 0 1 -2 -2 V8 a2 2 0 0 1 2 -2 h2.936</Geometry>
+    <Geometry x:Key="IconCalendar">M8 2 v4 M16 2 v4 M5 4 h14 a2 2 0 0 1 2 2 v14 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 V6 a2 2 0 0 1 2 -2 z M3 10 h18</Geometry>
+    <Geometry x:Key="IconChevronLeft">M15 18 l-6 -6 l6 -6</Geometry>
+    <Geometry x:Key="IconChevronRight">M9 18 l6 -6 l-6 -6</Geometry>
 </ResourceDictionary>
