@@ -38,6 +38,7 @@ public partial class App : Application
 {
     private readonly List<IFeature> _features = [];
     private TrayIconManager? _trayIconManager;
+    private readonly SharedServices _services = new();
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -83,10 +84,10 @@ public partial class App : Application
 
         // Yalnız açık özellikler başlatılır. Dock kapalıyken görev çubuğuna hiç dokunulmaz.
         if (settings.NotchEnabled)
-            _features.Add(new NotchFeature(settings));
+            _features.Add(new NotchFeature(settings, _services));
 
         if (settings.DockEnabled)
-            _features.Add(new DockFeature(settings));
+            _features.Add(new DockFeature(settings, _services));
 
         foreach (var feature in _features)
             feature.Start();
@@ -151,7 +152,7 @@ public partial class App : Application
         if (enabled && existingNotch is null)
         {
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            var notch = new NotchFeature(settings);
+            var notch = new NotchFeature(settings, _services);
             _features.Add(notch);
             notch.Start();
         }
@@ -168,7 +169,7 @@ public partial class App : Application
         if (enabled && existingDock is null)
         {
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            var dock = new DockFeature(settings);
+            var dock = new DockFeature(settings, _services);
             _features.Add(dock);
             dock.Start();
         }
@@ -190,7 +191,7 @@ public partial class App : Application
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
             if (settings.DockEnabled)
             {
-                var dock = new DockFeature(settings);
+                var dock = new DockFeature(settings, _services);
                 _features.Add(dock);
                 dock.Start();
             }
@@ -207,7 +208,7 @@ public partial class App : Application
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
             if (settings.NotchEnabled)
             {
-                var notch = new NotchFeature(settings);
+                var notch = new NotchFeature(settings, _services);
                 _features.Add(notch);
                 notch.Start();
             }
@@ -221,6 +222,8 @@ public partial class App : Application
 
         foreach (var feature in _features)
             feature.Stop();
+
+        _services.Dispose();
 
         TaskbarService.Restore();
         base.OnExit(e);

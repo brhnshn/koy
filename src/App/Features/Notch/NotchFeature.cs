@@ -22,7 +22,7 @@ using Koy.Platform.Weather;
 
 namespace Koy.App.Features.Notch;
 
-public sealed class NotchFeature(AppSettings settings) : IFeature
+public sealed class NotchFeature(AppSettings settings, SharedServices services) : IFeature
 {
     private sealed class NotchWindowState : IDisposable
     {
@@ -61,15 +61,14 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             return;
 
         // Platform servisleri başlatılır (paylaşılan tekil servisler)
-        _mediaService = new MediaService();
-        _ = _mediaService.StartAsync();
+        _mediaService = services.AcquireMediaService();
 
         _powerService = new PowerService();
         _weatherService = new WeatherService();
         _focusAssistService = new FocusAssistService();
         _shelfService = new ShelfService();
 
-        _windowTracker = new WindowTracker();
+        _windowTracker = services.AcquireWindowTracker();
         _fullscreenDetector = new FullscreenDetector();
         _monitorService = new MonitorService();
         _monitorService.Start();
@@ -93,7 +92,12 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         _edgePeekTimer.Tick += (_, _) => CheckEdgePeek();
 
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
+
+        // İzleyici paylaşımlı: Dock onu önceden başlattıysa ilk ön plan olayı bir daha gelmez, mevcut durumu elle uygula.
+        var trackerWasRunning = _windowTracker.IsStarted;
         _windowTracker.Start();
+        if (trackerWasRunning && _windowTracker.CurrentForeground is { } currentForeground)
+            OnForegroundWindowChanged(this, currentForeground);
 
         UpdateEdgeTimer();
     }
@@ -328,8 +332,8 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
         if (_windowTracker is not null)
         {
             _windowTracker.ForegroundWindowChanged -= OnForegroundWindowChanged;
-            _windowTracker.Dispose();
             _windowTracker = null;
+            services.ReleaseWindowTracker();
         }
 
         foreach (var (_, state) in _windowStates)
@@ -345,8 +349,12 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         _fullscreenDetector = null;
 
-        _mediaService?.Dispose();
-        _mediaService = null;
+        // Paylaşılan medya servisi: yalnız bırak (Dock hâlâ kullanıyor olabilir).
+        if (_mediaService is not null)
+        {
+            services.ReleaseMediaService();
+            _mediaService = null;
+        }
 
         _powerService?.Dispose();
         _powerService = null;

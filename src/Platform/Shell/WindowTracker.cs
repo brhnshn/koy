@@ -33,6 +33,9 @@ public sealed class WindowTracker : IWindowTracker
 
     public WindowInfo? CurrentForeground { get; private set; }
 
+    /// <summary>İzleyici çalışıyor mu (paylaşımlı kullanımda ikinci özellik mevcut durumu elle okumalı).</summary>
+    public bool IsStarted => _started;
+
     public WindowTracker()
     {
         // Delegasyon alan olarak tutulur; aksi halde Win32 geri çağrısı sırasında GC toplayabilir.
