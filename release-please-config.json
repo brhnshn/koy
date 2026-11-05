@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "changelog-path": "CHANGELOG.md",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "pull-request-title-pattern": "chore: v${version} sürümünü hazırla",
+  "changelog-sections": [
+    { "type": "feat", "section": "Eklenenler" },
+    { "type": "fix", "section": "Düzeltmeler" },
+    { "type": "perf", "section": "Performans" },
+    { "type": "refactor", "section": "Yeniden düzenleme", "hidden": true },
+    { "type": "docs", "section": "Belgeler", "hidden": true },
+    { "type": "test", "section": "Testler", "hidden": true },
+    { "type": "build", "section": "Derleme", "hidden": true },
+    { "type": "ci", "section": "CI", "hidden": true },
+    { "type": "chore", "section": "Bakım", "hidden": true },
+    { "type": "style", "section": "Biçim", "hidden": true }
+  ],
+  "extra-files": [
+    "Directory.Build.props"
+  ],
+  "packages": {
+    ".": {}
+  }
+}
