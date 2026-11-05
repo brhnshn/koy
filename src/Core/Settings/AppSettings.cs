@@ -65,6 +65,16 @@ public sealed record AppSettings
     public int MiddleClickAction { get; set; }
     public int DockIndicatorStyle { get; set; }
 
+    /// <summary>
+    /// Genel kısayollar, "Ctrl+Alt+N" biçiminde metin; boş metin = atanmamış.
+    /// Varsayılanlar Windows'un Win+... kısayollarıyla çakışmasın diye Ctrl+Alt+harf (bkz. ShortcutBindings).
+    /// </summary>
+    public string ShortcutToggleNotch { get; set; } = "Ctrl+Alt+N";
+    public string ShortcutOpenShelf { get; set; } = "Ctrl+Alt+R";
+    public string ShortcutToggleDock { get; set; } = "Ctrl+Alt+D";
+    public string ShortcutOpenMenu { get; set; } = "Ctrl+Alt+K";
+    public string ShortcutPlayPause { get; set; } = "Ctrl+Alt+Space";
+
     public List<string> ControlCenterLayout { get; set; } = ["wifi", "bluetooth", "donotdisturb"];
     public List<string> EnabledPanels { get; set; } = ["music", "controlcenter", "status", "calendar", "shelf"];
     public double WeatherLatitude { get; set; } = 41.01;
@@ -113,6 +123,11 @@ public sealed record AppSettings
                WheelAction == other.WheelAction &&
                MiddleClickAction == other.MiddleClickAction &&
                DockIndicatorStyle == other.DockIndicatorStyle &&
+               ShortcutToggleNotch == other.ShortcutToggleNotch &&
+               ShortcutOpenShelf == other.ShortcutOpenShelf &&
+               ShortcutToggleDock == other.ShortcutToggleDock &&
+               ShortcutOpenMenu == other.ShortcutOpenMenu &&
+               ShortcutPlayPause == other.ShortcutPlayPause &&
                WeatherLatitude.Equals(other.WeatherLatitude) &&
                WeatherLongitude.Equals(other.WeatherLongitude) &&
                WeatherCity == other.WeatherCity &&
@@ -161,6 +176,11 @@ public sealed record AppSettings
         hash.Add(WheelAction);
         hash.Add(MiddleClickAction);
         hash.Add(DockIndicatorStyle);
+        hash.Add(ShortcutToggleNotch);
+        hash.Add(ShortcutOpenShelf);
+        hash.Add(ShortcutToggleDock);
+        hash.Add(ShortcutOpenMenu);
+        hash.Add(ShortcutPlayPause);
         hash.Add(WeatherLatitude);
         hash.Add(WeatherLongitude);
         hash.Add(WeatherCity);
