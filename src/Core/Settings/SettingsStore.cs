@@ -30,7 +30,7 @@ public sealed class SettingsStore(string path)
             return new AppSettings();
         }
 
-        return settings ?? new AppSettings();
+        return settings is null ? new AppSettings() : SettingsMigration.Migrate(settings);
     }
 
     /// <summary>Önce geçici dosyaya yazar, sonra yerine taşır; yazma yarıda kesilirse eski dosya bozulmaz.</summary>

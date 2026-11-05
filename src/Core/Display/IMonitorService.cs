@@ -4,6 +4,8 @@ namespace Koy.Core.Display;
 
 /// <summary>
 /// Bir ekranın fiziksel ve DIP boyutlarını, DPI ölçeğini ve birincil durumunu temsil eden model.
+/// <see cref="Id"/> kararlı kimliktir (DisplayConfig monitorDevicePath; çözünürlük ya da sıra değişince değişmez),
+/// <see cref="Name"/> dostça addır, <see cref="DeviceName"/> Windows'un geçici aygıt adıdır (örn. DISPLAY2).
 /// </summary>
 public sealed record DisplayMonitor(
     string Id,
@@ -13,7 +15,8 @@ public sealed record DisplayMonitor(
     bool IsPrimary,
     double DpiScaleX = 1.0,
     double DpiScaleY = 1.0,
-    nint Handle = 0)
+    nint Handle = 0,
+    string DeviceName = "")
 {
     /// <summary>DIP cinsinden genişlik.</summary>
     public double WidthDip => (Bounds.Right - Bounds.Left) / DpiScaleX;
