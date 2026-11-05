@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Görsel doğrulama aracı: Koy'u çalıştırmadan pencereleri ekran dışı çizip PNG'ye çevirir. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>Koy.UiSnapshots</RootNamespace>
+    <AssemblyName>Koy.UiSnapshots</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\App\Koy.App.csproj" />
+  </ItemGroup>
+</Project>
