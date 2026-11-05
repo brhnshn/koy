@@ -153,6 +153,24 @@ public static class Program
             vm.ToggleStopwatchCommand.Execute(null);
             vm.Dispose();
 
+            // Kontrol merkezi: varsayılan sıra ve kayıtlı özel sıra (servisler kurulmaz, yalnız döşeme düzeni çizilir)
+            foreach (var (label, layout) in new[] { ("varsayilan", new List<string>()), ("ozel-sira", new List<string> { "donotdisturb", "wifi", "bluetooth" }) })
+            {
+                var ccVm = new Koy.App.Features.ControlCenter.ControlCenterViewModel(
+                    () => throw new NotSupportedException(), () => throw new NotSupportedException(), null,
+                    () => throw new NotSupportedException(), new Koy.Platform.Shell.FocusAssistService(),
+                    new AppSettings { ControlCenterLayout = layout }, store: store);
+                var ccHost = new System.Windows.Controls.Border
+                {
+                    Width = 420,
+                    Height = 140,
+                    Background = new SolidColorBrush(Color.FromRgb(0x0A, 0x0A, 0x0B)),
+                    CornerRadius = new CornerRadius(0, 0, 28, 28),
+                    Child = new Koy.App.Features.ControlCenter.ControlCenterPanel { DataContext = ccVm }
+                };
+                RenderElement(ccHost, 420, 0, Name("kontrol-" + label));
+            }
+
             // Ayarlar › Çentik › Hava durumu (örnek arama sonuçlarıyla)
             var kvm = new KoyWindowViewModel(store);
             var win = new KoyWindow(kvm);
