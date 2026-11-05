@@ -70,8 +70,7 @@ public sealed partial class SagAltMenuViewModel : ObservableObject
             MonitorCount = 1;
         }
 
-        var isEn = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "en";
-        MonitorSummary = isEn ? $"Running on {MonitorCount} displays" : $"{MonitorCount} ekranda çalışıyor";
+        MonitorSummary = string.Format(System.Globalization.CultureInfo.CurrentCulture, Koy.App.Resources.Strings.MonitorSummary, MonitorCount);
         PauseText = IsPaused ? Koy.App.Resources.Loc.Instance["ResumePauseAction"] : Koy.App.Resources.Loc.Instance["PauseOneHourAction"];
     }
 

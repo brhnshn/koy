@@ -39,6 +39,7 @@ public static class Strings
     public static string EndTask => Get(nameof(EndTask));
     public static string StartMenu => Get(nameof(StartMenu));
     public static string VolumeLevel => Get(nameof(VolumeLevel));
+    public static string MonitorSummary => Get(nameof(MonitorSummary));
     public static string VolumeMuted => Get(nameof(VolumeMuted));
     public static string BatteryLevel => Get(nameof(BatteryLevel));
     public static string BatteryCharging => Get(nameof(BatteryCharging));

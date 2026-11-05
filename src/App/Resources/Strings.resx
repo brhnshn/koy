@@ -576,6 +576,9 @@
   <data name="OpenKoyWindowAction" xml:space="preserve">
     <value>Open Koy window</value>
   </data>
+  <data name="MonitorSummary" xml:space="preserve">
+    <value>Running on {0} displays</value>
+  </data>
   <data name="PauseOneHourAction" xml:space="preserve">
     <value>Pause for 1 hour</value>
   </data>

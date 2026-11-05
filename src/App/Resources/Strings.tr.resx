@@ -576,6 +576,9 @@
   <data name="OpenKoyWindowAction" xml:space="preserve">
     <value>Koy penceresini aç</value>
   </data>
+  <data name="MonitorSummary" xml:space="preserve">
+    <value>{0} ekranda çalışıyor</value>
+  </data>
   <data name="PauseOneHourAction" xml:space="preserve">
     <value>1 saat duraklat</value>
   </data>
