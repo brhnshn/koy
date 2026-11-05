@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:Koy.App.Features.Calendar"
              xmlns:cal="clr-namespace:Koy.Core.Calendar;assembly=Koy.Core"
              xmlns:res="clr-namespace:Koy.App.Resources"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:CalendarViewModel}"
              Foreground="{DynamicResource KoyNotchText}"
@@ -13,6 +14,7 @@
 
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    <local:PillTagConverter x:Key="PillTag" />
 
     <!-- Çentik koyu yüzeyde sabit kalır: renkler KoyNotch* token'larından gelir. -->
     <Style x:Key="MiniIconBtn" TargetType="Button">
@@ -58,7 +60,7 @@
               <Trigger Property="IsMouseOver" Value="True">
                 <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchHover}" />
               </Trigger>
-              <Trigger Property="Tag" Value="True">
+              <Trigger Property="Tag" Value="Selected">
                 <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchText}" />
                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource KoyNotchTextOnLight}" />
               </Trigger>
@@ -103,9 +105,17 @@
         <Setter.Value>
           <ControlTemplate TargetType="TextBox">
             <Border x:Name="Box" Height="22" CornerRadius="6" Background="{DynamicResource KoyNotchHover}" BorderThickness="1" BorderBrush="Transparent" Padding="6,0">
-              <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+              <Grid>
+                <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                <!-- Yer tutucu: Tag'deki ipucu, kutu boşken görünür -->
+                <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" FontSize="10.5" IsHitTestVisible="False"
+                           Foreground="{DynamicResource KoyNotchTextMuted}" VerticalAlignment="Center" Visibility="Collapsed" />
+              </Grid>
             </Border>
             <ControlTemplate.Triggers>
+              <Trigger Property="Text" Value="">
+                <Setter TargetName="Hint" Property="Visibility" Value="Visible" />
+              </Trigger>
               <Trigger Property="IsKeyboardFocused" Value="True">
                 <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource KoyAccent}" />
               </Trigger>
@@ -178,11 +188,11 @@
 
       <!-- Görünüm seçici -->
       <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,3">
-        <Button Style="{StaticResource PillBtn}" Tag="{Binding IsMonthView}" Command="{Binding SetViewCommand}"
+        <Button Tag="{Binding IsMonthView, Converter={StaticResource PillTag}}" Style="{StaticResource PillBtn}" Command="{Binding SetViewCommand}"
                 CommandParameter="{x:Static cal:CalendarViewMode.Month}" Content="{Binding [CalViewMonth], Source={x:Static res:Loc.Instance}}" />
-        <Button Style="{StaticResource PillBtn}" Tag="{Binding IsWeekView}" Command="{Binding SetViewCommand}" Margin="2,0"
+        <Button Tag="{Binding IsWeekView, Converter={StaticResource PillTag}}" Style="{StaticResource PillBtn}" Command="{Binding SetViewCommand}" Margin="2,0"
                 CommandParameter="{x:Static cal:CalendarViewMode.Week}" Content="{Binding [CalViewWeek], Source={x:Static res:Loc.Instance}}" />
-        <Button Style="{StaticResource PillBtn}" Tag="{Binding IsDayView}" Command="{Binding SetViewCommand}"
+        <Button Tag="{Binding IsDayView, Converter={StaticResource PillTag}}" Style="{StaticResource PillBtn}" Command="{Binding SetViewCommand}"
                 CommandParameter="{x:Static cal:CalendarViewMode.Day}" Content="{Binding [CalViewDay], Source={x:Static res:Loc.Instance}}" />
       </StackPanel>
 
@@ -344,6 +354,7 @@
               <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBox Style="{StaticResource NotchTextBox}" Text="{Binding NewEventTitle, UpdateSourceTrigger=PropertyChanged}"
+                     Tag="{Binding [CalEventTitleHint], Source={x:Static res:Loc.Instance}}"
                      AutomationProperties.Name="{Binding [CalEventTitleHint], Source={x:Static res:Loc.Instance}}"
                      ToolTip="{Binding [CalEventTitleHint], Source={x:Static res:Loc.Instance}}">
               <TextBox.InputBindings>
@@ -351,6 +362,7 @@
               </TextBox.InputBindings>
             </TextBox>
             <TextBox Grid.Column="1" Margin="3,0,0,0" MaxLength="5" Text="{Binding NewEventTime, UpdateSourceTrigger=PropertyChanged}"
+                     Tag="{Binding [CalEventTimeHint], Source={x:Static res:Loc.Instance}}"
                      AutomationProperties.Name="{Binding [CalEventTimeHint], Source={x:Static res:Loc.Instance}}"
                      ToolTip="{Binding [CalEventTimeHint], Source={x:Static res:Loc.Instance}}">
               <TextBox.Style>
@@ -501,7 +513,7 @@
               <res:KoyIcon Data="{DynamicResource IconChevronRight}" Size="12" StrokeWidth="2.4" />
             </Button>
           </Grid>
-          <ItemsControl ItemsSource="{Binding CountdownPresetMinutes}" HorizontalAlignment="Center" Margin="0,4,0,5" Focusable="False">
+          <ItemsControl ItemsSource="{Binding CountdownPresetChips}" HorizontalAlignment="Center" Margin="0,4,0,5" Focusable="False">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
                 <StackPanel Orientation="Horizontal" />
@@ -510,9 +522,9 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <Button Style="{StaticResource ChipBtn}" Margin="2,0"
-                        Content="{Binding}"
+                        Content="{Binding Label}"
                         Command="{Binding DataContext.SetCountdownMinutesCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                        CommandParameter="{Binding}"
+                        CommandParameter="{Binding Minutes}"
                         IsEnabled="{Binding DataContext.CanEditCountdown, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
               </DataTemplate>
             </ItemsControl.ItemTemplate>

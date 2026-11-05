@@ -1,6 +1,7 @@
 using Koy.Core.Display;
 using Koy.Core.Dock;
 using Koy.Core.Visibility;
+using Koy.Core.Weather;
 
 namespace Koy.Core.Settings;
 
@@ -110,9 +111,20 @@ public sealed record AppSettings
 
     public List<string> ControlCenterLayout { get; set; } = ["wifi", "bluetooth", "donotdisturb"];
     public List<string> EnabledPanels { get; set; } = ["music", "controlcenter", "status", "calendar", "shelf"];
-    public double WeatherLatitude { get; set; } = 41.01;
-    public double WeatherLongitude { get; set; } = 28.97;
-    public string WeatherCity { get; set; } = "İstanbul";
+    /// <summary>
+    /// Hava durumu koordinatı. Yalnız <see cref="WeatherLocationSource"/> "Yok" değilse geçerlidir; eski sürümlerde
+    /// burada sabit İstanbul vardı, kaynak "Yok" olduğu için artık okunmaz.
+    /// </summary>
+    public double WeatherLatitude { get; set; }
+    public double WeatherLongitude { get; set; }
+    /// <summary>Seçilen şehrin adı; cihaz konumunda boş.</summary>
+    public string WeatherCity { get; set; } = "";
+    /// <summary>Koordinatın kaynağı: Yok (hava durumu gösterilmez), Cihaz konumu, Şehir araması.</summary>
+    public WeatherLocationSource WeatherLocationSource { get; set; } = WeatherLocationSource.None;
+    /// <summary>Kullanıcı hava durumu için cihaz konumunu kullanmayı kabul etti (sihirbaz ya da ayarlar).</summary>
+    public bool WeatherUseLocation { get; set; }
+    /// <summary>Koordinatın son güncellendiği an (Unix saniyesi, UTC); günde en fazla bir yenileme için.</summary>
+    public long WeatherLocationUpdatedUnix { get; set; }
 
     public bool Equals(AppSettings? other)
     {
@@ -173,6 +185,9 @@ public sealed record AppSettings
                WeatherLatitude.Equals(other.WeatherLatitude) &&
                WeatherLongitude.Equals(other.WeatherLongitude) &&
                WeatherCity == other.WeatherCity &&
+               WeatherLocationSource == other.WeatherLocationSource &&
+               WeatherUseLocation == other.WeatherUseLocation &&
+               WeatherLocationUpdatedUnix == other.WeatherLocationUpdatedUnix &&
                (ControlCenterLayout == other.ControlCenterLayout || (ControlCenterLayout is not null && other.ControlCenterLayout is not null && ControlCenterLayout.SequenceEqual(other.ControlCenterLayout))) &&
                (EnabledPanels == other.EnabledPanels || (EnabledPanels is not null && other.EnabledPanels is not null && EnabledPanels.SequenceEqual(other.EnabledPanels)));
     }
@@ -235,6 +250,9 @@ public sealed record AppSettings
         hash.Add(WeatherLatitude);
         hash.Add(WeatherLongitude);
         hash.Add(WeatherCity);
+        hash.Add(WeatherLocationSource);
+        hash.Add(WeatherUseLocation);
+        hash.Add(WeatherLocationUpdatedUnix);
         if (ControlCenterLayout is not null)
         {
             foreach (var item in ControlCenterLayout)

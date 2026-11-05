@@ -57,6 +57,7 @@ public class AppSettingsEqualityTests
     {
         if (type == typeof(bool)) return !(bool)value!;
         if (type == typeof(int)) return (int)value! + 1;
+        if (type == typeof(long)) return (long)value! + 1;
         if (type == typeof(double)) return (double)value! + 1.0;
         if (type == typeof(string)) return ((string?)value ?? "") + "x";
         if (type.IsEnum)

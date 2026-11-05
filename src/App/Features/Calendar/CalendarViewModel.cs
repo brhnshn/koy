@@ -24,6 +24,9 @@ public sealed record WeekDayRow(DateOnly Date, string Label, bool IsToday, strin
 /// <summary>Gün görünümündeki bir etkinlik satırı.</summary>
 public sealed record EventRow(string Id, string TimeText, string Title);
 
+/// <summary>Zamanlayıcının hazır süre düğmesi ("5 dk").</summary>
+public sealed record PresetChip(int Minutes, string Label);
+
 /// <summary>Kronometre tur satırı.</summary>
 public sealed record LapRow(string Label, string Total, string Split);
 
@@ -130,7 +133,8 @@ public sealed partial class CalendarViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _canEditCountdown = true;
 
-    public IReadOnlyList<int> CountdownPresetMinutes => CountdownPresets.Minutes;
+    public IReadOnlyList<PresetChip> CountdownPresetChips { get; } =
+        CountdownPresets.Minutes.Select(m => new PresetChip(m, string.Format(Strings.Get("TimerPresetMinutes"), m))).ToList();
 
     // Kronometre
     [ObservableProperty]
@@ -353,16 +357,11 @@ public sealed partial class CalendarViewModel : ObservableObject, IDisposable
 
     private static IReadOnlyList<string> BuildWeekdayHeaders(CultureInfo culture)
     {
-        // Pazartesi'den başlar (MonthGrid ile aynı sıra). Kısa adın ilk iki harfi: "Pt", "Sa", "Ça".
-        var names = culture.DateTimeFormat.AbbreviatedDayNames;
-        var list = new List<string>(7);
-        for (var i = 1; i <= 7; i++)
-        {
-            var name = names[i % 7];
-            list.Add(name.Length > 2 ? name[..2] : name);
-        }
-
-        return list;
+        // Pazartesi'den başlar (MonthGrid ile aynı sıra). Kültürün "en kısa" adları Türkçede tek harf (P, S, Ç, P…)
+        // olup belirsiz kaldığı için iki harfli adlar sabit tutulur.
+        return culture.Name.StartsWith("tr", StringComparison.OrdinalIgnoreCase)
+            ? ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"]
+            : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
     }
 
     partial void OnViewModeChanged(CalendarViewMode value) => RefreshNavigation();

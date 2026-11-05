@@ -21,7 +21,7 @@ dotnet build Koy.slnx                       # derle
 dotnet test Koy.slnx                        # testler
 dotnet run --project src/App                # çalıştır (çıkış: Koy penceresinde "Koy'dan çık" ya da sağ alt menü)
 powershell -ExecutionPolicy Bypass -File scripts\measure-memory.ps1   # bellek ölç
-dotnet run --project tools/Koy.UiSnapshots -- --out <klasör> --prefix <ad> [--theme dark|light|both] [--scene all|uninstall]
+dotnet run --project tools/Koy.UiSnapshots -- --out <klasör> --prefix <ad> [--theme dark|light|both] [--scene all|uninstall|centik]
 python scripts/generate-icons.py            # marka simgelerini (ICO/PNG) assets/branding'den üretir
 ```
 `tools/Koy.UiSnapshots`: Koy penceresinin sayfalarını, sihirbazı ve sağ alt menüyü ekrana çıkarmadan PNG'ye çizer

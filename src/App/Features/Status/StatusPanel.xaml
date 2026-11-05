@@ -48,7 +48,9 @@
       </Grid.RowDefinitions>
 
       <!-- Üst: Hava Durumu Kartı -->
-      <Button Grid.Row="0" Command="{Binding RefreshWeatherCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0" HorizontalContentAlignment="Stretch">
+      <!-- Konum yoksa (izin verilmedi, şehir seçilmedi) hava durumu hiç çizilmez; boş yer kalmaz. -->
+      <Button Grid.Row="0" Command="{Binding RefreshWeatherCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0" HorizontalContentAlignment="Stretch"
+              Visibility="{Binding HasWeatherLocation, Converter={StaticResource BoolToVis}}">
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />

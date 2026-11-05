@@ -1,17 +1,12 @@
 using System.Globalization;
 using System.Net.Http;
-using System.Text.Json;
 using Koy.Core.Weather;
+using Koy.Platform.Net;
 
 namespace Koy.Platform.Weather;
 
 public sealed class WeatherService : IWeatherService
 {
-    private static readonly HttpClient SharedHttpClient = new()
-    {
-        Timeout = TimeSpan.FromSeconds(10)
-    };
-
     private readonly TimeSpan _cacheDuration;
     private readonly HttpClient _httpClient;
     private readonly TimeProvider _timeProvider;
@@ -29,7 +24,7 @@ public sealed class WeatherService : IWeatherService
     public WeatherService(HttpClient? httpClient = null, TimeProvider? timeProvider = null, TimeSpan? cacheDuration = null)
     {
         _cacheDuration = cacheDuration ?? TimeSpan.FromMinutes(30);
-        _httpClient = httpClient ?? SharedHttpClient;
+        _httpClient = httpClient ?? AppHttp.Client;
         _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
@@ -46,6 +41,13 @@ public sealed class WeatherService : IWeatherService
             return _cachedWeather;
         }
 
+        // Konum değiştiyse eski konumun havası yeni konum gibi gösterilmesin.
+        if (!isSameLocation && _cachedWeather is not null)
+        {
+            _cachedWeather = null;
+            WeatherChanged?.Invoke(this, null);
+        }
+
         try
         {
             var latStr = latitude.ToString("F4", CultureInfo.InvariantCulture);
@@ -56,18 +58,15 @@ public sealed class WeatherService : IWeatherService
             if (!response.IsSuccessStatusCode)
                 return _cachedWeather;
 
-            using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-            using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
-
-            if (doc.RootElement.TryGetProperty("current", out var currentElement))
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (OpenMeteoParser.ParseCurrent(json) is { } current)
             {
-                var temp = currentElement.GetProperty("temperature_2m").GetDouble();
-                var code = currentElement.GetProperty("weather_code").GetInt32();
-                var description = WeatherCodeMapper.ToDescription(code);
-                var iconKind = WeatherCodeMapper.ToIconKind(code);
-
-                var weather = new WeatherInfo(temp, code, description, iconKind, now);
-                _cachedWeather = weather;
+                _cachedWeather = new WeatherInfo(
+                    current.Temperature,
+                    current.WeatherCode,
+                    WeatherCodeMapper.ToDescription(current.WeatherCode),
+                    WeatherCodeMapper.ToIconKind(current.WeatherCode),
+                    now);
                 _cachedLatitude = latitude;
                 _cachedLongitude = longitude;
                 _lastFetchTime = now;

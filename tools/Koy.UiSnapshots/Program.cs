@@ -40,6 +40,8 @@ public static class Program
             SnapshotTheme.Apply(app, theme);
             if (scene == "uninstall")
                 RenderUninstall(outDir, prefix, theme);
+            else if (scene == "centik")
+                RenderCentik(outDir, prefix, theme);
             else
                 RenderAll(outDir, prefix, theme);
         }
@@ -73,7 +75,7 @@ public static class Program
 
             var wizardVm = new SetupWizardViewModel(store);
             var wizard = new SetupWizardWindow(wizardVm);
-            for (var step = 1; step <= 3; step++)
+            for (var step = 1; step <= SetupWizardViewModel.LastStep; step++)
             {
                 wizardVm.CurrentStep = step;
                 RenderElement((FrameworkElement)wizard.Content, 880, 600, Path.Combine(outDir, $"{prefix}-{theme}-sihirbaz-{step}.png"));
@@ -85,6 +87,96 @@ public static class Program
         finally
         {
             try { File.Delete(tempSettings); } catch { }
+        }
+    }
+
+    /// <summary>
+    /// Çentik panelleri (takvim: ay / hafta / gün / zamanlayıcı / kronometre) ve ayarlardaki hava durumu bölümü.
+    /// Etkinlikler geçici dosyada, ağ ve konum servisleri sahte; gerçek veriye dokunulmaz.
+    /// </summary>
+    private static void RenderCentik(string outDir, string prefix, string theme)
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), "koy-uisnap-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        var store = new SettingsStore(Path.Combine(tempDir, "settings.json"));
+        store.Save(new AppSettings { FirstRunCompleted = true });
+
+        try
+        {
+            var shared = new Koy.App.Features.Calendar.SharedEvents(new Koy.Core.Calendar.EventStore(Path.Combine(tempDir, "events.json")));
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            shared.Book.Add("Diş randevusu", today, new TimeOnly(10, 30), 45);
+            shared.Book.Add("Takım toplantısı", today, new TimeOnly(15, 0), 60);
+            shared.Book.Add("Spor", today, new TimeOnly(19, 30), 60);
+            shared.Book.Add("Rapor teslimi", today.AddDays(2), new TimeOnly(9, 0), 0);
+            shared.Book.Add("Yürüyüş", today.AddDays(-1), new TimeOnly(8, 0), 30);
+
+            var vm = new Koy.App.Features.Calendar.CalendarViewModel(new AppSettings(), shared);
+            vm.SetVisible(true, false);
+
+            string Name(string n) => Path.Combine(outDir, $"{prefix}-{theme}-{n}.png");
+            void Flush() => System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+
+            FrameworkElement Host() => new System.Windows.Controls.Border
+            {
+                Width = 420,
+                Height = NotchHeight(),
+                Background = new SolidColorBrush(Color.FromRgb(0x0A, 0x0A, 0x0B)),
+                CornerRadius = new CornerRadius(0, 0, 28, 28),
+                Child = new Koy.App.Features.Calendar.CalendarPanel { DataContext = vm }
+            };
+
+            static double NotchHeight() => Koy.Core.Notch.NotchLayout.ExpandedHeight(Koy.Core.Notch.NotchPanel.Calendar) - 30;
+
+            RenderElement(Host(), 420, 0, Name("takvim-ay"));
+            vm.SetViewCommand.Execute(Koy.Core.Calendar.CalendarViewMode.Week);
+            RenderElement(Host(), 420, 0, Name("takvim-hafta"));
+            vm.SetViewCommand.Execute(Koy.Core.Calendar.CalendarViewMode.Day);
+            RenderElement(Host(), 420, 0, Name("takvim-gun"));
+
+            vm.NextToolCommand.Execute(null);
+            Flush();
+            RenderElement(Host(), 420, 0, Name("takvim-zamanlayici"));
+            vm.ToggleCountdownCommand.Execute(null);
+            Flush();
+            RenderElement(Host(), 420, 0, Name("takvim-zamanlayici-calisiyor"));
+            vm.ToggleCountdownCommand.Execute(null);
+
+            vm.NextToolCommand.Execute(null);
+            vm.ToggleStopwatchCommand.Execute(null);
+            Thread.Sleep(1300);
+            vm.LapStopwatchCommand.Execute(null);
+            Thread.Sleep(700);
+            vm.LapStopwatchCommand.Execute(null);
+            Flush();
+            RenderElement(Host(), 420, 0, Name("takvim-kronometre"));
+            vm.ToggleStopwatchCommand.Execute(null);
+            vm.Dispose();
+
+            // Ayarlar › Çentik › Hava durumu (örnek arama sonuçlarıyla)
+            var kvm = new KoyWindowViewModel(store);
+            var win = new KoyWindow(kvm);
+            if (win.FindName("ContentScrollViewer") is System.Windows.Controls.ScrollViewer sv)
+                sv.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Disabled;
+            var root = (FrameworkElement)win.Content;
+            root.Measure(new Size(880, double.PositiveInfinity));
+            kvm.SelectPage(1);
+            RenderElement(root, 880, 680, Name("ayar-centik-hava-bos"));
+
+            kvm.Weather.Query = "Ankara";
+            kvm.Weather.Results.Add(new Koy.Core.Weather.GeoPlace("Ankara", "Ankara", "Türkiye", 39.92, 32.85));
+            kvm.Weather.Results.Add(new Koy.Core.Weather.GeoPlace("Ankara", null, "Gabon", -1.5, 10.5));
+            RenderElement(root, 880, 680, Name("ayar-centik-hava-sonuc"));
+
+            kvm.Weather.SelectPlaceCommand.Execute(kvm.Weather.Results[0]);
+            RenderElement(root, 880, 680, Name("ayar-centik-hava-secili"));
+
+            kvm.SelectPage(7);
+            RenderElement(root, 880, 680, Name("ayar-hakkinda-atif"));
+        }
+        finally
+        {
+            try { Directory.Delete(tempDir, true); } catch { }
         }
     }
 

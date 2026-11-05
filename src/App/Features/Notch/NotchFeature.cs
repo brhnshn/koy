@@ -6,6 +6,7 @@ using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
 using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
+using Koy.Core.Diagnostics;
 using Koy.Core.Display;
 using Koy.Core.Notch;
 using Koy.Core.Settings;
@@ -15,6 +16,7 @@ using Koy.Core.Weather;
 using Koy.Platform.Audio;
 using Koy.Platform.Display;
 using Koy.Platform.Media;
+using Koy.Platform.Network;
 using Koy.Platform.Power;
 using Koy.Platform.Radio;
 using Koy.Platform.Shelf;
@@ -46,8 +48,17 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     private readonly Dictionary<string, NotchWindow> _windows = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, NotchWindowState> _windowStates = new(StringComparer.OrdinalIgnoreCase);
 
+    // Cihaz konumu "yalnız açılışta, günde en fazla bir kez" sorulur: çentik ayar değişince yeniden kurulsa da
+    // süreç başına tek deneme yapılır.
+    private static bool _deviceLocationAttempted;
+
+    // Bütün monitörlerdeki takvimler aynı yerel etkinlik defterini paylaşır.
+    private readonly SharedEvents _sharedEvents = new();
+    private readonly ShellActionService _shellActions = new();
+
     private MediaService? _mediaService;
     private PowerService? _powerService;
+    private NetworkService? _networkService;
     private WeatherService? _weatherService;
     private FocusAssistService? _focusAssistService;
     private ShelfService? _shelfService;
@@ -71,6 +82,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         _mediaService = services.AcquireMediaService();
 
         _powerService = new PowerService();
+        _networkService = services.AcquireNetworkService();
         _weatherService = new WeatherService(cacheDuration: WeatherRefreshPolicy.CacheDuration(settings.WeatherRefreshInterval));
         _focusAssistService = new FocusAssistService();
         _shelfService = new ShelfService();
@@ -110,6 +122,44 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             OnForegroundWindowChanged(this, currentForeground);
 
         UpdateEdgeTimer();
+
+        if (!_deviceLocationAttempted && WeatherLocationPolicy.ShouldRefreshDeviceLocation(settings, DateTimeOffset.UtcNow))
+        {
+            _deviceLocationAttempted = true;
+            _ = RefreshDeviceLocationAsync();
+        }
+    }
+
+    /// <summary>
+    /// Hava durumu için cihaz konumunu bir kez alır ve ayarlara yazar (en çok günde bir kez, yalnız kullanıcı izin
+    /// verdiyse). Ret, zaman aşımı ve hata sessizce geçilir: hava durumu önceki koordinatla ya da hiç gösterilmez.
+    /// </summary>
+    private async Task RefreshDeviceLocationAsync()
+    {
+        try
+        {
+            var result = await new LocationService().GetLocationAsync();
+            if (_stopped || !result.IsSuccess)
+                return;
+
+            // Diskteki güncel ayara yalnız konum alanları işlenir; sırada başka bir ayar değişikliği olmuş olabilir.
+            var store = new SettingsStore(SettingsStore.DefaultPath);
+            var updated = WeatherLocationPolicy.ApplyDeviceLocation(store.Load(), result, DateTimeOffset.UtcNow);
+            store.Save(updated);
+
+            settings.WeatherLocationSource = updated.WeatherLocationSource;
+            settings.WeatherLatitude = updated.WeatherLatitude;
+            settings.WeatherLongitude = updated.WeatherLongitude;
+            settings.WeatherCity = updated.WeatherCity;
+            settings.WeatherLocationUpdatedUnix = updated.WeatherLocationUpdatedUnix;
+
+            foreach (var state in _windowStates.Values)
+                state.ViewModel.Status.OnLocationChanged();
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("Hava durumu: cihaz konumu", ex);
+        }
     }
 
     private IReadOnlyList<DisplayMonitor> ResolveTargetMonitors(IReadOnlyList<DisplayMonitor> monitors) =>
@@ -134,8 +184,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             () => new BrightnessService(),
             _focusAssistService!,
             settings);
-        var statusVm = new StatusViewModel(_powerService!, _weatherService!, settings);
-        var calendarVm = new CalendarViewModel(settings);
+        var statusVm = new StatusViewModel(_powerService!, _weatherService!, settings, networkService: _networkService);
+        var calendarVm = new CalendarViewModel(settings, _sharedEvents);
         var shelfVm = new ShelfViewModel(_shelfService!);
 
         var viewModel = new NotchViewModel(
@@ -146,7 +196,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             statusVm,
             calendarVm,
             shelfVm,
-            visibilityController);
+            visibilityController,
+            shellActions: _shellActions);
 
         var window = new NotchWindow { DataContext = viewModel };
         window.SetTargetMonitor(monitor);
@@ -462,6 +513,12 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
         _powerService?.Dispose();
         _powerService = null;
+
+        if (_networkService is not null)
+        {
+            _networkService = null;
+            services.ReleaseNetworkService();
+        }
 
         _weatherService?.Dispose();
         _weatherService = null;
