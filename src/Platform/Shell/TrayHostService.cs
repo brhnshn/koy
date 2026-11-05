@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using Koy.Core.Diagnostics;
 using Koy.Core.Tray;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -52,7 +53,8 @@ public sealed class TrayHostService : ITrayService
     private readonly Dictionary<uint, string> _appNames = [];
 
     private Thread? _thread;
-    private HWND _hwnd;
+    // Pencere tanıtıcısını tepsi iş parçacığı yazar, arayüz iş parçacığı okur (IsRunning, EnsureFirst, Stop).
+    private nint _hwndValue;
     private uint _taskbarCreatedMessage;
     private DateTime _lastBroadcastUtc = DateTime.MinValue;
     private bool _disposed;
@@ -66,7 +68,14 @@ public sealed class TrayHostService : ITrayService
         _notifyProc = (hwnd, msg, wParam, lParam) => PInvoke.DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
-    public bool IsRunning => !_hwnd.IsNull;
+    private HWND Hwnd
+    {
+        get => new(Volatile.Read(ref _hwndValue));
+        set => Volatile.Write(ref _hwndValue, value.Value);
+    }
+
+    /// <summary>Tepsi penceresi gerçekten kuruldu ve çalışıyor (başlatma başarısızsa ya da kapandıysa false).</summary>
+    public bool IsRunning => !Hwnd.IsNull;
 
     public void Start()
     {
@@ -85,7 +94,7 @@ public sealed class TrayHostService : ITrayService
         if (thread is null)
             return;
 
-        var hwnd = _hwnd;
+        var hwnd = Hwnd;
         if (!hwnd.IsNull)
             PInvoke.PostMessage(hwnd, WmClose, default, default);
 
@@ -99,7 +108,7 @@ public sealed class TrayHostService : ITrayService
     /// </summary>
     public void EnsureFirst()
     {
-        var hwnd = _hwnd;
+        var hwnd = Hwnd;
         if (hwnd.IsNull)
             return;
 
@@ -125,11 +134,28 @@ public sealed class TrayHostService : ITrayService
 
     public byte[]? GetIconImage(TrayIconKey key)
     {
-        // Simge kopyası tepsi iş parçacığında değiştirilip yok edilebilir; okuma aynı kilit altında yapılır.
+        // Simge kopyası tepsi iş parçacığında değiştirilip yok edilebilir: kilit altında yalnız kopyası alınır,
+        // GDI okuması ve PNG kodlaması kilit dışında yapılır (uygulamaların Shell_NotifyIcon çağrıları beklemesin).
+        nint copy;
         lock (_gate)
         {
             var icon = Find(key);
-            return icon is null ? null : IconHelper.HIconToPng(icon.IconHandle);
+            if (icon is null || icon.IconHandle == 0)
+                return null;
+
+            copy = PInvoke.CopyIcon(new HICON(icon.IconHandle)).Value;
+        }
+
+        if (copy == 0)
+            return null;
+
+        try
+        {
+            return IconHelper.HIconToPng(copy);
+        }
+        finally
+        {
+            PInvoke.DestroyIcon(new HICON(copy));
         }
     }
 
@@ -164,6 +190,13 @@ public sealed class TrayHostService : ITrayService
         }
 
         if (changed)
+        {
+            // Süreç numaraları yeniden kullanılabilir; ölen uygulamanın adı yenisine yapışmasın.
+            lock (_appNames)
+                _appNames.Clear();
+        }
+
+        if (changed)
             IconsChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -186,8 +219,9 @@ public sealed class TrayHostService : ITrayService
             if (!CreateWindows(instance))
                 return;
         }
-        catch
+        catch (Exception ex)
         {
+            CrashLog.Write("TrayHostService.Run (pencere kurulumu)", ex);
             return;
         }
         finally
@@ -200,7 +234,7 @@ public sealed class TrayHostService : ITrayService
         // Koy açılırken görev çubuğunu geri getirip hemen gizler; Gezgin buna tepki olarak kendi penceresini
         // birkaç ms sonra yeniden öne alır ve ilk yayına cevap veren uygulamalar kaydı Windows'a yollar.
         // Gezgin durulunca bir kez daha öne geçip yayın yapılır; kaçan kayıtlar böylece gelir.
-        PInvoke.SetTimer(_hwnd, CatchUpTimerId, CatchUpDelayMs, null);
+        PInvoke.SetTimer(Hwnd, CatchUpTimerId, CatchUpDelayMs, null);
 
         while (PInvoke.GetMessage(out var msg, HWND.Null, 0, 0) > 0)
         {
@@ -208,7 +242,7 @@ public sealed class TrayHostService : ITrayService
             PInvoke.DispatchMessage(msg);
         }
 
-        _hwnd = HWND.Null;
+        Hwnd = HWND.Null;
         lock (_gate)
             DestroyIcons(_store.Clear());
 
@@ -267,7 +301,7 @@ public sealed class TrayHostService : ITrayService
             // Bazı uygulamalar simge konumunu bulmak için görev çubuğunun altında bu alt pencereyi arar.
             PInvoke.CreateWindowEx(0, notifyClass, null, WINDOW_STYLE.WS_CHILD, 0, 0, 0, 0, hwnd, HMENU.Null, instance, null);
 
-            _hwnd = hwnd;
+            Hwnd = hwnd;
         }
 
         MakeTopmost();
@@ -313,9 +347,10 @@ public sealed class TrayHostService : ITrayService
             if (msg is WmCommand or WmActivateApp || msg >= WmUser)
                 return Forward(msg, wParam, lParam);
         }
-        catch
+        catch (Exception ex)
         {
-            // Yerel geri çağrıdan istisna sızarsa süreç çöker; tepsi mesajı kaybolsun, Koy ayakta kalsın.
+            // Yerel geri çağrıdan istisna sızarsa süreç çöker; tepsi mesajı kaybolsun, Koy ayakta kalsın. İz bırakılır.
+            CrashLog.Write("TrayHostService.TrayWndProc", ex);
         }
 
         return PInvoke.DefWindowProc(hwnd, msg, wParam, lParam);
@@ -399,12 +434,12 @@ public sealed class TrayHostService : ITrayService
         }
 
         var wait = MinResyncInterval - sinceLast;
-        PInvoke.SetTimer(_hwnd, ResyncTimerId, (uint)Math.Ceiling(wait.TotalMilliseconds) + 50, null);
+        PInvoke.SetTimer(Hwnd, ResyncTimerId, (uint)Math.Ceiling(wait.TotalMilliseconds) + 50, null);
     }
 
     private void MakeTopmost()
     {
-        if (_hwnd.IsNull)
+        if (Hwnd.IsNull)
             return;
 
         // Görev çubuğu yer değiştirmiş olabilir (ekran değişimi); konum da eşitlenir. Pencere gösterilmez.
@@ -414,7 +449,7 @@ public sealed class TrayHostService : ITrayService
             flags |= SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE;
 
         PInvoke.SetWindowPos(
-            _hwnd,
+            Hwnd,
             new HWND(-1), // HWND_TOPMOST
             bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top,
             flags);

@@ -21,6 +21,9 @@ public interface ITrayService : IDisposable
     /// <summary>Sahibi kapanmış simgeleri temizler.</summary>
     void RemoveDeadIcons();
 
+    /// <summary>Tepsi gerçekten çalışıyor mu. <see cref="Start"/> başarısız olduysa ya da kapandıysa false.</summary>
+    bool IsRunning { get; }
+
     void Start();
 
     void Stop();
