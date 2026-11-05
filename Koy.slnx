@@ -9,6 +9,9 @@
   <Folder Name="/src/Platform/">
     <Project Path="src/Platform/Koy.Platform.csproj" />
   </Folder>
+  <Folder Name="/src/Watchdog/">
+    <Project Path="src/Watchdog/Koy.Watchdog.csproj" />
+  </Folder>
   <Folder Name="/tools/Koy.UiSnapshots/">
     <Project Path="tools/Koy.UiSnapshots/Koy.UiSnapshots.csproj" />
   </Folder>

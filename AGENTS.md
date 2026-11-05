@@ -59,6 +59,11 @@ src/App/        WPF. Yalnız görseller ve ince ViewModel'ler, özellik klasörl
                 Features/Menu/, Wizard/        sağ alt menü ve tepsi simgesi, ilk açılış sihirbazı
                 Resources/                     Theme.Dark/Light.xaml (renkler), Tokens.xaml (ölçü, yazı), Icons.xaml,
                                                Styles.xaml, Motion.cs (hareket), ThemeManager, Strings.resx
+src/Watchdog/   Gözcü süreç (Koy.Watchdog.exe, WinExe, Native AOT). Platform'daki TaskbarService.cs ve ShellTrayLocator.cs
+                dosyalarını bağlayarak derler (görev çubuğu mantığı tek yerde); karar mantığı Core/Shell/WatchdogPolicy.cs.
+                Koy tarafı: Platform/Shell/TaskbarService.Watchdog.cs (başlat/durdur). Exe'yi yalnız `dotnet publish`
+                üretir (C++ derleme araçları gerekir); scripts/pack.ps1 ve release.yml Koy'un klasörüne kopyalar.
+                Geliştirme çalıştırmasında exe yoksa gözcü sessizce atlanır.
 tests/Core.Tests/  xUnit, yalnız Core. Ayrı App.Tests yok: mantık Core'da, ViewModel ince kalır.
 tools/Koy.UiSnapshots/  Arayüzü PNG'ye çizen yardımcı (bkz. Komutlar). Çözüme dahildir, sürümle yayımlanmaz.
 docs/           PLAN, DESIGN, ROADMAP, MEMORY, NAMING.
@@ -71,10 +76,13 @@ Bağımlılık yönü: `App → Platform → Core` ve `App → Core`. Core hiçb
 1. **Bellek bütçesi: tek monitör, boşta < 60 MB private.** Her aşama sonunda `scripts/measure-memory.ps1` çalıştır, sonucu `docs/MEMORY.md` tablosuna yaz. Bütçeyi aşan değişiklik birleştirilmez; önce sebebi bul.
 2. **Tarayıcı yok.** WebView2, CefSharp, Electron, Blazor Hybrid kullanılmaz.
 3. **Yazılımla çizim varsayılan.** GPU ile çizim ~135 MB ekliyor (bkz. `docs/MEMORY.md`). `App.xaml.cs` içindeki `RenderMode.SoftwareOnly` satırını ölçmeden kaldırma.
-4. **Tek süreç.** Bütün pencereler (her monitör için notch + dock, ayarlar) aynı süreçte. Koy penceresi (`KoyWindow`) ilk açılışta oluşturulur ve tek örnek olarak kalır; kapatınca yok edilmez, gizlenir (`OnClosing` iptal edilir, ayarlar kaydedilir). Açılmamışsa hiç oluşturulmaz. Koy'u gerçekten kapatan yalnız "Koy'dan çık" düğmesi ve sağ alt menüdür; çentik ve dock bağlam menülerinde Çıkış yoktur.
+4. **Tek süreç; tek istisna görev çubuğunu geri getiren gözcü.** Bütün pencereler (her monitör için notch + dock, ayarlar) aynı süreçte. Koy penceresi (`KoyWindow`) ilk açılışta oluşturulur ve tek örnek olarak kalır; kapatınca yok edilmez, gizlenir (`OnClosing` iptal edilir, ayarlar kaydedilir). Açılmamışsa hiç oluşturulmaz. Koy'u gerçekten kapatan yalnız "Koy'dan çık" düğmesi ve sağ alt menüdür; çentik ve dock bağlam menülerinde Çıkış yoktur.
+   Gözcü (`src/Watchdog/`, `Koy.Watchdog.exe`, Native AOT, pencere yok) yalnız dock Windows görev çubuğunu gizlediği sürece
+   çalışır, Koy'un PID'ini bekler; Koy öldürülürse görev çubuğunu geri getirir, temiz çıkışta (dock durdu, `Restore()`)
+   hiçbir şey yapmaz. Aynı anda tek gözcü. Başka yardımcı süreç eklenmez.
 5. **Servisler yalnız gerektiğinde çalışır.** Notch gizliyken görselleştirici, fare takibi, küçük resim üretimi durur. Zamanlayıcılar (`DispatcherTimer`) görünür değilken durdurulur.
 6. **Animasyon yalnız hareket varken kare çizer.** `CompositionTarget.Rendering` animasyon başlarken bağlanır, `Spring` durunca çözülür (örnek: `NotchWindow.xaml.cs`). WPF `Storyboard` yerine `Core/Animation/Spring` kullanılır.
-7. **Görev çubuğu güvenliği.** Uygulama nasıl kapanırsa kapansın (normal çıkış, istisna, süreç öldürülmesi) Windows görev çubuğu geri gelmeli. Açılışta `TaskbarService.Restore()` çağrısı kalır. Dock'la ilgili her değişiklikte elle test: Görev Yöneticisi'nden süreci öldür → uygulamayı yeniden aç → görev çubuğu görünüyor mu? Koy'un tepsi penceresi (`TrayHostService`) yalnız görev çubuğu gizliyken kurulur, her kaydı Windows'a da iletir ve dock kapanırken / duraklatırken / çökme işleyicilerinde görev çubuğundan önce kapatılır; görev çubuğunu gizleyen/geri getiren kod `ShellTrayLocator.FindExplorerTray` kullanır (Koy'un kendi `Shell_TrayWnd` penceresini atlar). `FindWindow("Shell_TrayWnd")` yalnız `TrayHostService.EnsureFirst` içinde bilinçli kalır: Koy'un penceresinin z-sırasında ilk olup olmadığına bakar.
+7. **Görev çubuğu güvenliği.** Uygulama nasıl kapanırsa kapansın (normal çıkış, istisna, süreç öldürülmesi) Windows görev çubuğu geri gelmeli. Açılışta `TaskbarService.Restore()` çağrısı kalır. Dock'la ilgili her değişiklikte elle test: Görev Yöneticisi'nden süreci öldür → görev çubuğu gözcü sayesinde birkaç saniye içinde kendiliğinden geri gelmeli (gözcü yoksa uygulamayı yeniden aç → geri gelmeli). Koy'un tepsi penceresi (`TrayHostService`) yalnız görev çubuğu gizliyken kurulur, her kaydı Windows'a da iletir ve dock kapanırken / duraklatırken / çökme işleyicilerinde görev çubuğundan önce kapatılır; görev çubuğunu gizleyen/geri getiren kod `ShellTrayLocator.FindExplorerTray` kullanır (Koy'un kendi `Shell_TrayWnd` penceresini atlar). `FindWindow("Shell_TrayWnd")` yalnız `TrayHostService.EnsureFirst` içinde bilinçli kalır: Koy'un penceresinin z-sırasında ilk olup olmadığına bakar.
 8. **Ağır kütüphane yok.** Serilog, Autofac, ReactiveUI, MahApps, büyük UI kütleri eklenmez. Yeni NuGet paketi eklemeden önce proje sahibine sor ve bellek etkisini ölç.
 9. **Görseller:** Albüm kapağı gibi resimler gösterilecek boyutta çözülür (`BitmapImage.DecodePixelWidth`), sonra `Freeze()` edilir.
 10. **Ayarlar** `%AppData%\Koy\settings.json`. Yeni alan → `AppSettings` içine varsayılan değerle eklenir; kaynak üreticili `SettingsJsonContext` kullanılır, yansımalı `JsonSerializer` çağrısı yazılmaz.
