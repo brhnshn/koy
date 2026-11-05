@@ -18,6 +18,12 @@ public sealed record TrayApplyResult(bool Success, IReadOnlyList<nint> ReleasedI
 /// </summary>
 public sealed class TrayIconStore
 {
+    /// <summary>
+    /// Aynı anda tutulan en çok simge. Her kayıt bir simge kopyası (GDI nesnesi) tutar; hatalı ya da kötü niyetli
+    /// bir uygulama sınırsız kayıt ekleyip belleği büyütemesin. Gerçek kullanımda simge sayısı onlarla ölçülür.
+    /// </summary>
+    public const int MaxIcons = 256;
+
     private const uint StateHidden = 0x1;
     private const uint DefaultVersion = 0;
 
@@ -43,6 +49,9 @@ public sealed class TrayIconStore
                     // zaten bilinen simgeyi güncelleme gibi ele almak, uygulamaya boşuna hata döndürmekten iyidir.
                     return Update(index, data, incomingIcon);
                 }
+
+                if (_icons.Count >= MaxIcons)
+                    return TrayApplyResult.Fail(incomingIcon);
 
                 _icons.Add(new TrayIcon(
                     Key: key,

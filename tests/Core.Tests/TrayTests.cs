@@ -83,6 +83,60 @@ public class TrayMessageParserTests
         Assert.Equal(0u, data.Version);
         Assert.Equal(Guid.Empty, data.Guid);
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(TrayMessageParser.MinimumLength - 1)]
+    [InlineData(TrayMessageParser.MaximumLength + 1)]
+    [InlineData((long)int.MaxValue + 1)]   // cbData işaretsiz 32 bit: (int)'e çevrilince negatif olurdu
+    [InlineData(uint.MaxValue)]
+    public void IsAcceptableLength_RejectsOutOfRangeSizes(long length) =>
+        Assert.False(TrayMessageParser.IsAcceptableLength(length));
+
+    [Theory]
+    [InlineData(TrayMessageParser.MinimumLength)]
+    [InlineData(964)]
+    [InlineData(TrayMessageParser.MaximumLength)]
+    public void IsAcceptableLength_AcceptsRealBlockSizes(long length) =>
+        Assert.True(TrayMessageParser.IsAcceptableLength(length));
+
+    [Fact]
+    public void TryParse_RejectsOversizedBlockEvenWithValidSignature()
+    {
+        var bytes = BuildShellTrayData(message: 0, hwnd: 1, id: 1, flags: 0, length: TrayMessageParser.MaximumLength + 1);
+
+        Assert.False(TrayMessageParser.TryParse(bytes, out _));
+    }
+
+    [Fact]
+    public void TryParse_NeverThrowsOnTruncatedOrGarbageBlocks()
+    {
+        // Başka süreçler Koy'un penceresine her türlü veriyi gönderebilir: hiçbir uzunluk istisna fırlatmamalı.
+        var valid = BuildShellTrayData(message: 0, hwnd: 1, id: 1, flags: 0x2F, tip: "X");
+        for (var length = 0; length <= valid.Length; length++)
+            TrayMessageParser.TryParse(valid.AsSpan(0, length), out _);
+
+        var random = new Random(1234);
+        var garbage = new byte[2048];
+        for (var round = 0; round < 200; round++)
+        {
+            random.NextBytes(garbage);
+            if (round % 2 == 0)
+                BinaryPrimitives.WriteInt32LittleEndian(garbage, TrayMessageParser.Signature);
+            TrayMessageParser.TryParse(garbage, out _);
+        }
+    }
+
+    [Fact]
+    public void TryParse_TooltipWithoutTerminatorIsTruncatedToFieldSize()
+    {
+        var bytes = BuildShellTrayData(message: 0, hwnd: 1, id: 1, flags: 0x4, tip: new string('A', 127));
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(32 + 127 * 2), 'B');   // sonlandırıcı yok: alan tam dolu
+
+        Assert.True(TrayMessageParser.TryParse(bytes, out var data));
+        Assert.Equal(128, data.Tooltip.Length);
+    }
 }
 
 public class TrayIconStoreTests
@@ -101,6 +155,32 @@ public class TrayIconStoreTests
         store.Apply(Msg(TrayMessage.Add, hwnd: 3, icon: 33, tip: "C"));
 
         Assert.Equal(["A", "B", "C"], store.Visible.Select(i => i.Tooltip));
+    }
+
+    [Fact]
+    public void Add_BeyondLimit_RejectsNewIconAndReturnsItsHandle()
+    {
+        var store = new TrayIconStore();
+        for (var i = 1; i <= TrayIconStore.MaxIcons; i++)
+            Assert.True(store.Apply(Msg(TrayMessage.Add, hwnd: i, icon: 1000 + i)).Success);
+
+        var result = store.Apply(Msg(TrayMessage.Add, hwnd: TrayIconStore.MaxIcons + 1, icon: 99999));
+
+        Assert.False(result.Success);
+        Assert.Equal([(nint)99999], result.ReleasedIcons);   // çağıran kopyayı yok edebilsin (sızıntı olmasın)
+        Assert.Equal(TrayIconStore.MaxIcons, store.All.Count);
+    }
+
+    [Fact]
+    public void Add_AtLimit_StillAllowsUpdatingAndRemovingExistingIcons()
+    {
+        var store = new TrayIconStore();
+        for (var i = 1; i <= TrayIconStore.MaxIcons; i++)
+            store.Apply(Msg(TrayMessage.Add, hwnd: i, icon: 1000 + i));
+
+        Assert.True(store.Apply(Msg(TrayMessage.Add, hwnd: 5, icon: 7777, tip: "Yeni")).Success);
+        Assert.True(store.Apply(Msg(TrayMessage.Delete, hwnd: 6, fields: TrayIconFields.None)).Success);
+        Assert.True(store.Apply(Msg(TrayMessage.Add, hwnd: 9000, icon: 8888)).Success);
     }
 
     [Fact]

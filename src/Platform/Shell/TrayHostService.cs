@@ -324,10 +324,12 @@ public sealed class TrayHostService : ITrayService
     private unsafe LRESULT OnCopyData(uint msg, WPARAM wParam, LPARAM lParam)
     {
         var copyData = (COPYDATASTRUCT*)lParam.Value;
+        // Pencereye herhangi bir süreç WM_COPYDATA gönderebilir: boyut Core'daki sınırlarla denetlenir, bozuk
+        // ya da devasa blok span kurulmadan (cbData işaretsiz, int'e çevrilince negatif olabilir) reddedilir.
         if (copyData is not null
             && copyData->dwData == TrayMessageParser.CopyDataTrayMessage
             && copyData->lpData is not null
-            && copyData->cbData > 0
+            && TrayMessageParser.IsAcceptableLength(copyData->cbData)
             && TrayMessageParser.TryParse(new ReadOnlySpan<byte>(copyData->lpData, (int)copyData->cbData), out var data))
         {
             var handled = HandleTrayMessage(data);
@@ -346,7 +348,7 @@ public sealed class TrayHostService : ITrayService
             uint processId = 0;
             PInvoke.GetWindowThreadProcessId(new HWND(data.OwnerHwnd), &processId);
             // Koy'un kendi simgesi (dock kapalıyken menüye erişim için) dock'un tepsisinde gösterilmez.
-            if (processId == _ownProcessId)
+            if (TrayHostPolicy.IsOwnIcon(processId, _ownProcessId))
                 return true;
         }
 

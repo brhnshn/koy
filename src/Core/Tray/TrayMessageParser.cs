@@ -33,10 +33,22 @@ public static class TrayMessageParser
     /// <summary>İpucu alanının sonuna kadar olan en küçük geçerli blok.</summary>
     public const int MinimumLength = OffTip + TipChars * 2;
 
+    /// <summary>
+    /// Kabul edilen en büyük blok. Gerçek SHELLTRAYDATA ~1 KB'tır; başka bir süreç Koy'un penceresine
+    /// WM_COPYDATA ile keyfi boyutta veri gönderebilir, bu yüzden üst sınır konur.
+    /// </summary>
+    public const int MaximumLength = 4096;
+
+    /// <summary>
+    /// WM_COPYDATA'daki <c>cbData</c> bu çözümleyiciye verilebilir mi? Platform işaretsiz 32 bit değeri
+    /// <c>int</c>'e çevirip span kurmadan önce bunu sorar (devasa değer negatif <c>int</c> olup çökertirdi).
+    /// </summary>
+    public static bool IsAcceptableLength(long byteCount) => byteCount is >= MinimumLength and <= MaximumLength;
+
     public static bool TryParse(ReadOnlySpan<byte> data, out TrayNotifyData result)
     {
         result = null!;
-        if (data.Length < MinimumLength)
+        if (!IsAcceptableLength(data.Length))
             return false;
 
         if (BinaryPrimitives.ReadInt32LittleEndian(data) != Signature)
