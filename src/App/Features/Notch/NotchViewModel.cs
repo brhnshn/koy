@@ -319,9 +319,6 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         KoyWindow.ShowInstance(1);
     }
 
-    [RelayCommand]
-    private void Quit() => System.Windows.Application.Current.Shutdown();
-
     public void Dispose()
     {
         if (_disposed)

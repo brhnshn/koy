@@ -15,7 +15,6 @@ public static class Strings
 
     public static string AppTitle => Get(nameof(AppTitle));
     public static string Settings => Get(nameof(Settings));
-    public static string Exit => Get(nameof(Exit));
     public static string Music => Get(nameof(Music));
     public static string ControlCenter => Get(nameof(ControlCenter));
     public static string Status => Get(nameof(Status));

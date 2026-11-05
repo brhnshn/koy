@@ -48,8 +48,6 @@
       <local:NotchShape.ContextMenu>
         <ContextMenu>
           <MenuItem Header="{x:Static res:Strings.Settings}" Command="{Binding OpenSettingsCommand}" />
-          <Separator />
-          <MenuItem Header="{x:Static res:Strings.Exit}" Command="{Binding QuitCommand}" />
         </ContextMenu>
       </local:NotchShape.ContextMenu>
 

@@ -262,12 +262,6 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         KoyWindow.ShowInstance(2);
     }
 
-    [RelayCommand]
-    private void Exit()
-    {
-        Application.Current?.Shutdown();
-    }
-
     public void SetMonitor(DisplayMonitor? monitor)
     {
         _currentMonitor = monitor;
