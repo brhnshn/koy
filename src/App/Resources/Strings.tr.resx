@@ -714,4 +714,16 @@
   <data name="PomodoroLongBreakTitle" xml:space="preserve">
     <value>Uzun mola (dk)</value>
   </data>
+  <data name="DisplayHeaderFormat" xml:space="preserve">
+    <value>EKRAN {0} · {1}</value>
+  </data>
+  <data name="DisplayDetailsFormat" xml:space="preserve">
+    <value>{0}×{1} · ölçek %{2}</value>
+  </data>
+  <data name="DisplayPrimaryBadge" xml:space="preserve">
+    <value>Ana ekran</value>
+  </data>
+  <data name="DisplaysIdentify" xml:space="preserve">
+    <value>Ekranları tanımla</value>
+  </data>
 </root>

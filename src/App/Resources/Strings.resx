@@ -714,4 +714,16 @@
   <data name="PomodoroLongBreakTitle" xml:space="preserve">
     <value>Long break (min)</value>
   </data>
+  <data name="DisplayHeaderFormat" xml:space="preserve">
+    <value>DISPLAY {0} · {1}</value>
+  </data>
+  <data name="DisplayDetailsFormat" xml:space="preserve">
+    <value>{0}×{1} · scale {2}%</value>
+  </data>
+  <data name="DisplayPrimaryBadge" xml:space="preserve">
+    <value>Primary</value>
+  </data>
+  <data name="DisplaysIdentify" xml:space="preserve">
+    <value>Identify displays</value>
+  </data>
 </root>

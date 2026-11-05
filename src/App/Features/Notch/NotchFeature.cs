@@ -54,6 +54,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     private WindowTracker? _windowTracker;
     private FullscreenDetector? _fullscreenDetector;
     private MonitorService? _monitorService;
+    private DisplayEvents? _displayEvents;
     private DispatcherTimer? _edgePeekTimer;
 
     // Ses/parlaklık göstergeleri (OSD) için kendi servisleri; ilgili ayar kapalıysa hiç kurulmaz (AGENTS.md #5).
@@ -79,9 +80,10 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         _monitorService = new MonitorService();
         _monitorService.Start();
         _monitorService.MonitorsChanged += OnMonitorsChanged;
+        _displayEvents = new DisplayEvents(_monitorService);
 
-        var monitors = _monitorService.GetMonitors();
-        var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(monitors, settings.MonitorTarget);
+        // Çentik, ayarlarda "çentik açık" olan her monitörde ayrı bir pencere olarak kurulur.
+        var targetMonitors = ResolveTargetMonitors(_monitorService.GetMonitors());
 
         foreach (var monitor in targetMonitors)
         {
@@ -109,6 +111,9 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
         UpdateEdgeTimer();
     }
+
+    private IReadOnlyList<DisplayMonitor> ResolveTargetMonitors(IReadOnlyList<DisplayMonitor> monitors) =>
+        MonitorPolicy.NotchMonitors(MonitorPolicy.Resolve(settings.Monitors, settings.NewScreenDefault, monitors));
 
     private void CreateNotchWindow(DisplayMonitor monitor)
     {
@@ -226,8 +231,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
         if (_monitorService is null) return;
 
-        var currentMonitors = _monitorService.GetMonitors();
-        var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(currentMonitors, settings.MonitorTarget);
+        var targetMonitors = ResolveTargetMonitors(_monitorService.GetMonitors());
         var targetKeys = new HashSet<string>(targetMonitors.Select(m => m.Id), StringComparer.OrdinalIgnoreCase);
 
         // 1. Hedefte olmayan veya bağlantısı kesilen monitörlerin pencerelerini kapat
@@ -441,6 +445,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         _osdBrightness?.Dispose();
         _osdBrightness = null;
 
+        _displayEvents?.Dispose();
+        _displayEvents = null;
         _monitorService?.Dispose();
         _monitorService = null;
 
