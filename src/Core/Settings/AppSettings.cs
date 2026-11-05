@@ -71,8 +71,11 @@ public sealed record AppSettings
     /// </summary>
     public Dictionary<string, MonitorSettings> Monitors { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>Daha önce hiç görülmemiş yeni bir ekran bağlanınca çentik/dock durumu.</summary>
-    public NewScreenMode NewScreenDefault { get; set; } = NewScreenMode.NotchAndDock;
+    /// <summary>
+    /// Daha önce hiç görülmemiş yeni bir ekran bağlanınca çentik/dock durumu. Varsayılan AÇIK
+    /// (<see cref="MonitorPolicy.DefaultNewScreenMode"/>): yeni ekran ayrı kurulum istemez.
+    /// </summary>
+    public NewScreenMode NewScreenDefault { get; set; } = MonitorPolicy.DefaultNewScreenMode;
     public string? AccentColor { get; set; }
 
     /// <summary>Açıksa vurgu rengi Windows vurgu renginden gelir, AccentColor yok sayılır.</summary>
