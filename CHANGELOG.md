@@ -5,7 +5,57 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 
 ---
 
+## [Unreleased]
+
+<!-- release-please sürüm girdisini kendisi üretir. Bu bölüm elle yazılmış ayrıntılı özettir: sürüm PR'ında bu bölümün içeriği yeni sürüm başlığının altına taşınır ve [Unreleased] başlığı silinir (bkz. CONTRIBUTING.md, "Sürüm Nasıl Çıkar"). -->
+
+0.1.0'dan sonraki revizyon: kod incelemesinden çıkan çökmelerin giderilmesi, etkisiz ayarların gerçekten bağlanması, çoklu ekran, kısayollar, Koyu/Açık tema ve kaldırma ekranı.
+
+### Düzeltmeler (Fixed)
+- **0.1.0'da çalışmayan, artık çalışanlar:**
+  - Kısayollar sayfası yalnızca görüntüydü; artık `RegisterHotKey` ile gerçekten kayıtlı ve değiştirilebilir.
+  - Ses ve parlaklık göstergesi (OSD HUD) çentiğe hiç bağlı değildi; artık sistem ses ve parlaklık değişimlerinde açılıyor.
+  - Çoklu ekran kullanıcı tarafından açılamıyordu (yalnız birincil ekran); artık Ekranlar sayfasından ekran başına seçiliyor.
+  - "1 saat duraklat" yalnızca bir bayrağı değiştiriyordu; artık çentik ve dock'u durduruyor, görev çubuğunu geri getiriyor ve süre bitince devam ediyor.
+  - Dock'un varsayılanı "Aşağı yapış" olarak belgelenmişti ama her açılışta "Çekil"e çevriliyordu; artık Aşağı yapış varsayılan ve seçilebilir.
+  - "Güncellemeleri otomatik denetle", Pomodoro süreleri, hava durumu yenileme sıklığı, dock orta tık eylemi ve çalışan göstergesi (nokta/çizgi), pil tasarrufunda animasyon azaltma, çentikte tam ekranda gizleme, boşta gösterim, açılma davranışı ve tekerlek eylemi ayarları davranışa bağlandı.
+  - "Windows görev çubuğunu gizle" anahtarı kapalıyken dock görev çubuğuna dokunmuyor.
+- **Çökmeler:** sağ alt menü ilk tıklamada kapanıyordu (`FailFast`); dock ve çentik kenar zamanlayıcılarındaki başka iş parçacığı erişimi çökmesi giderildi; `crash.log` artık gerçekten yazılıyor ve gözlenmeyen görev hataları süreci düşürmüyor.
+- **Görev çubuğu güvenliği:** dock görev çubuğunu iki kez gizleyince "otomatik gizle" kalıntısı kalıyordu; Explorer yeniden başlayınca tepsi simgesi kayboluyor ve görev çubuğu yeniden görünüyordu; "Yer ayır" modunda AppBar kaydı yenilenmiyordu; ilk açılış sihirbazı X ile kapatılınca dock açılıp görev çubuğu gizleniyordu; güncelleme ve kaldırma kancalarında görev çubuğu hata toleranslı biçimde geri getiriliyor.
+- UWP pencerelerinde "Sonlandır" `ApplicationFrameHost`'u değil gerçek uygulamayı sonlandırıyor.
+- Tam ekran algısı odak başka ekrandayken de her monitörün kendi en üst penceresine bakıyor.
+- Ayarlar sıfırlanınca kurulum sihirbazı tekrar açılmıyor; çalışan özellikler yeni varsayılanla yeniden kuruluyor.
+- Sabitli uygulama kısayolları çözülürken sızan COM nesnesi serbest bırakılıyor.
+
+### Eklenenler (Added)
+- **Genel kısayollar:** çentik, raf, dock, Koy menüsü ve oynat/duraklat için `Ctrl+Alt+N/R/D/K/Space`; tuş yakalama kutusuyla değiştirilir, Windows'un ayırdığı ya da başka uygulamanın tuttuğu kombinasyonlar satırda bildirilir.
+- **Ekranlar sayfası:** monitör haritası, ekran başına çentik ve dock, yeni bağlanan ekran için seçenek, "Tanımla" düğmesiyle ekran numarası. Ayarlar kararlı monitör kimliğine bağlıdır; ekran çıkarılıp takılınca geri gelir.
+- **Koyu / Açık tema** (ve "Sistem"), yarı saydam malzeme seçeneği, köşe yuvarlaklığı, animasyon hızı; Windows "animasyonları azalt" ve pil tasarrufuna uyum. Emojiler yerine tutarlı çizgi ikonlar, erişilebilirlik adları ve klavye odağı.
+- **Koy'u kaldır:** Hakkında sayfasında, onay kartıyla ("Ayarlarımı sakla" varsayılan işaretli). Windows'un "Yüklü uygulamalar" sayfasından kaldırınca da görev çubuğu geri gelir, Windows ile başlatma kaydı silinir ve ayarlarınız korunur. Kurulu olmayan sürümde düğme kapalıdır.
+- Hakkında sayfasında gerçek sürüm ve son güncelleme denetimi durumu.
+- Geliştirici aracı: `tools/Koy.UiSnapshots` (arayüzü ekrana çıkarmadan PNG'ye çizer).
+
+### Değişenler (Changed)
+- Dock ve çentik tek bir pencere izleyici ve tek bir medya servisini paylaşıyor; pencere olaylarında dock yenilemesi birleştiriliyor (daha az iş).
+- Koy penceresi, sihirbaz ve sağ alt menü ortak tema ve ölçü sözlüklerinden besleniyor; sabit renk ve emoji kalmadı.
+- Derleme tekrarlanabilir: yerel yollar PDB'ye gömülmüyor.
+- Sürüm ve CI: release-please ile otomatik sürüm PR'ı, GitHub Actions adımları commit SHA'sına sabit, `vpk` sürümü Velopack paket sürümüne bağlı.
+
+### Kaldırılanlar (Removed)
+- Çentik ve dock sağ tık menülerindeki "Çıkış". Çıkış yalnız Koy penceresindeki "Koy'dan çık" düğmesi ve sağ alt menüden yapılır.
+- Hiçbir davranışa bağlı olmayan ayarlar: ses görselleştirici, "müzik dalgasını durdur", "Windows'un kendi göstergesini gizle", çentik boyutu, dock'ta pencere gruplama ve "son kullanılanlar".
+- Eski Ayarlar penceresi ve kullanılmayan kod, marka konseptleri ve sunum dosyaları.
+
+### Güvenlik (Security)
+- Yayımlanan ikili dosyalara geliştirici makinesinin yerel yolları artık gömülmüyor.
+- GitHub Actions adımları commit SHA'sına sabitlendi (tedarik zinciri sertleştirmesi).
+
+### Bilinen eksikler
+Takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi; kontrol merkezi döşemelerini sürükleyerek sıralama; gerçek çok monitörlü ve karışık DPI donanımda doğrulama; bellek ölçümü (son ölçüm 82,7 MB, hedef 60 MB). Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
 ## [0.1.0] - 2026-11-04
+
+> **Not (sonradan eklendi):** Aşağıdaki listede bu sürümde bile eksik ya da bağlı olmayan şeyler vardı: ekran seçimi arayüzü olmadığı için çoklu ekran kullanıcıya açık değildi, OSD HUD çentiğe bağlı değildi, kısayollar ve ayarların çoğu davranışa bağlı değildi, "Aşağı yapış" seçilemiyordu, "1 saat duraklat" duraklatmıyordu, takvimde kronometre ve serbest zamanlayıcı hiç yoktu (hâlâ yok). Düzeltmeler için [Unreleased](#unreleased) bölümüne bakın.
 
 **Koy**'un ilk halka açık sürümü! Windows 11 için sıfır tarayıcı (WebView2/Electron içermeyen), tek süreçte çalışan, yay fiziği animasyonlu **Notch (Çentik)** ve Seelen UI modelinde **Dock**.
 
@@ -36,4 +86,5 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
   - **Marka Kimliği:** Konsept C "Koy Rozeti" (Windows 11 Fluent Squircle + Oyulmuş Çentik + K Monogramı) vektör logosu ve çok katmanlı `.ico` varlık kiti.
   - **Dağıtım & CI/CD:** Velopack kurulum paketi (`Koy-win-Setup.exe`), taşınabilir paket (`Koy-win-Portable.zip`), `SHA256SUMS.txt` doğrulaması ve GitHub Actions otomatik derleme/yayın iş akışları.
 
+[Unreleased]: https://github.com/brhnshn/koy/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/brhnshn/koy/releases/tag/v0.1.0

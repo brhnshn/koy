@@ -119,4 +119,4 @@ Sürümler [release-please](https://github.com/googleapis/release-please) ile ot
 3. Yayınlamaya hazır olunca bu PR'ı birleştirin. Başka bir şey yapmayın.
 4. Birleştirmeden sonra otomatik olarak etiket (`vX.Y.Z`) ve GitHub release'i oluşur, aynı iş akışı kurulum dosyasını, taşınabilir zip'i ve `SHA256SUMS.txt` dosyasını release'e ekler.
 
-Sürüm PR'ının metnini (`CHANGELOG.md`) birleştirmeden önce düzenleyebilirsiniz. Bir etiketi yeniden paketlemek gerekirse Actions sekmesinden **Release** iş akışını elle (`workflow_dispatch`) etiket adıyla çalıştırın.
+Sürüm PR'ının metnini (`CHANGELOG.md`) birleştirmeden önce düzenleyebilirsiniz. `CHANGELOG.md` içindeki elle yazılmış `[Unreleased]` bölümü release-please'in ürettiği girdiyle aynı değişiklikleri anlatır: sürüm PR'ında `[Unreleased]` başlığını silin ve içeriğini yeni sürüm başlığının altına taşıyın (release-please yalnız `fix:`/`perf:` satırlarını listeler, `refactor:` önekli kullanıcıya dönük işler günlüğe girmez). Bir etiketi yeniden paketlemek gerekirse Actions sekmesinden **Release** iş akışını elle (`workflow_dispatch`) etiket adıyla çalıştırın.
