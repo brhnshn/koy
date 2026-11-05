@@ -22,6 +22,17 @@ public class WindowPlacementMathTests
     }
 
     [Fact]
+    public void Center_places_the_window_in_the_middle_of_its_own_monitor()
+    {
+        var rect = WindowPlacementMath.Center(Side, 200, 100);
+
+        Assert.Equal(300, rect.Width);
+        Assert.Equal(150, rect.Height);
+        Assert.Equal(1920 + (3840 - 300) / 2, rect.Left);
+        Assert.Equal(-200 + (2160 - 150) / 2, rect.Top);
+    }
+
+    [Fact]
     public void Notch_on_main_monitor_uses_scale_one()
     {
         var rect = WindowPlacementMath.TopCenter(Main, 500, 260);

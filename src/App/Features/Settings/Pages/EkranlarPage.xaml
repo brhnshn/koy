@@ -8,71 +8,159 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
 
-    <StackPanel Margin="0,0,16,24">
-        <TextBlock Text="{Binding [NavDisplays], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="#F4F4F5" />
-        <TextBlock Text="{Binding [DisplaysSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,16" />
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
-        <!-- Monitör Harita Alanı -->
-        <Border Background="#111113" CornerRadius="12" Height="180" Margin="0,0,0,12">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <!-- Ekran 1 (Ana Ekran) -->
-                <Border Width="200" Height="118" Background="#27272A" BorderBrush="#3B82F6" BorderThickness="2" CornerRadius="8" Margin="0,0,14,0">
-                    <Grid>
-                        <!-- Mini Çentik -->
-                        <Border Width="40" Height="7" Background="#0A0A0B" CornerRadius="0,0,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" />
-                        <!-- Sayı 1 -->
-                        <TextBlock Text="1" FontSize="22" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <!-- Mini Dock -->
-                        <Border Width="64" Height="8" Background="#52525B" CornerRadius="4" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,6" />
-                    </Grid>
-                </Border>
+        <!-- Sayfaya özel renkler. Tema sistemi gelince yalnız bu anahtarlar eşlenecek. -->
+        <Color x:Key="CardFillColor">#27272A</Color>
+        <Color x:Key="CardFillSelectedColor">#1E2A44</Color>
+        <Color x:Key="CardBorderColor">#3F3F46</Color>
+        <Color x:Key="CardBorderSelectedColor">#3B82F6</Color>
+        <SolidColorBrush x:Key="SchemaBackgroundBrush" Color="#111113" />
+        <SolidColorBrush x:Key="MiniNotchBrush" Color="#0A0A0B" />
+        <SolidColorBrush x:Key="MiniDockBrush" Color="#52525B" />
+        <SolidColorBrush x:Key="CardNumberBrush" Color="#F4F4F5" />
+        <SolidColorBrush x:Key="PrimaryBadgeBackgroundBrush" Color="#1E2A44" />
+        <SolidColorBrush x:Key="PrimaryBadgeForegroundBrush" Color="#93C5FD" />
 
-                <!-- Ekran 2 -->
-                <Border Width="230" Height="132" Background="#27272A" BorderBrush="#3F3F46" BorderThickness="2" CornerRadius="8">
-                    <Grid>
-                        <!-- Mini Çentik -->
-                        <Border Width="40" Height="7" Background="#0A0A0B" CornerRadius="0,0,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" />
-                        <!-- Sayı 2 -->
-                        <TextBlock Text="2" FontSize="22" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <!-- Mini Dock -->
-                        <Border Width="64" Height="8" Background="#52525B" CornerRadius="4" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,6" />
-                    </Grid>
+        <!-- Kart düğmesi: yalnız tıklanabilir yüzey, görünümü içindeki kartta. -->
+        <Style x:Key="MonitorCardButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Margin="0,0,16,24" DataContext="{Binding Displays}" d:DataContext="{d:DesignInstance local:DisplaysViewModel}">
+
+        <Grid>
+            <StackPanel>
+                <TextBlock Text="{Binding [NavDisplays], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="#F4F4F5" />
+                <TextBlock Text="{Binding [DisplaysSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,16" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Monitör şeması: gerçek yerleşim, ölçekli. Karta tıklayınca o ekranın ayarları aşağıda açılır. -->
+        <Border Background="{StaticResource SchemaBackgroundBrush}" CornerRadius="12" Height="180" Margin="0,0,0,12">
+            <ItemsControl x:Name="SchemaItems"
+                          ItemsSource="{Binding Cards}"
+                          Width="{Binding SchemaWidth}"
+                          Height="{Binding SchemaHeight}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:MonitorCardViewModel}">
+                        <Button Style="{StaticResource MonitorCardButtonStyle}"
+                                Command="{Binding DataContext.SelectCardCommand, ElementName=SchemaItems}"
+                                CommandParameter="{Binding}"
+                                ToolTip="{Binding Monitor.Name}">
+                            <Border x:Name="card" Width="{Binding Width}" Height="{Binding Height}"
+                                    BorderThickness="2" CornerRadius="8">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{StaticResource CardFillColor}" />
+                                </Border.Background>
+                                <Border.BorderBrush>
+                                    <SolidColorBrush Color="{StaticResource CardBorderColor}" />
+                                </Border.BorderBrush>
+                                <Grid>
+                                    <!-- Mini çentik: bu ekranda çentik açıksa -->
+                                    <Border Width="40" Height="7" Background="{StaticResource MiniNotchBrush}" CornerRadius="0,0,5,5"
+                                            HorizontalAlignment="Center" VerticalAlignment="Top"
+                                            Visibility="{Binding ShowsNotch, Converter={StaticResource BoolToVis}}" />
+                                    <TextBlock Text="{Binding Number}" FontSize="22" FontWeight="Bold" Foreground="{StaticResource CardNumberBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <!-- Mini dock: bu ekranda dock açıksa -->
+                                    <Border Width="64" Height="8" Background="{StaticResource MiniDockBrush}" CornerRadius="4"
+                                            HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,6"
+                                            Visibility="{Binding ShowsDock, Converter={StaticResource BoolToVis}}" />
+                                </Grid>
+                            </Border>
+                        </Button>
+                        <DataTemplate.Triggers>
+                            <!-- Seçim vurgusu: ~150 ms yumuşak geçiş -->
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="card" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                            To="{StaticResource CardBorderSelectedColor}" Duration="0:0:0.15" />
+                                            <ColorAnimation Storyboard.TargetName="card" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            To="{StaticResource CardFillSelectedColor}" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="card" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                            To="{StaticResource CardBorderColor}" Duration="0:0:0.15" />
+                                            <ColorAnimation Storyboard.TargetName="card" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                            To="{StaticResource CardFillColor}" Duration="0:0:0.15" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+
+        <!-- Seçili ekran -->
+        <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVis}}">
+            <StackPanel Orientation="Horizontal" Margin="0,18,0,6">
+                <TextBlock Text="{Binding SelectedHeader}" FontSize="12" FontWeight="SemiBold" Foreground="#71717A" VerticalAlignment="Center" />
+                <Border Background="{StaticResource PrimaryBadgeBackgroundBrush}" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center"
+                        Visibility="{Binding SelectedIsPrimary, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="{Binding [DisplayPrimaryBadge], Source={x:Static res:Loc.Instance}}" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource PrimaryBadgeForegroundBrush}" />
                 </Border>
             </StackPanel>
-        </Border>
 
-        <!-- EKRAN 1 -->
-        <TextBlock Text="{Binding [PrimaryScreenHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
+            <Border Style="{StaticResource SettingRowStyle}">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [ScreenNotchTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding SelectedName}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding SelectedDetails}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <CheckBox IsChecked="{Binding Screen1Notch}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
-            </Grid>
-        </Border>
+            </Border>
 
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [ScreenDockTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                </StackPanel>
-                <CheckBox IsChecked="{Binding Screen1Dock}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
-            </Grid>
-        </Border>
+            <Border Style="{StaticResource SettingRowStyle}">
+                <Grid>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding [ScreenNotchTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    </StackPanel>
+                    <CheckBox IsChecked="{Binding NotchOn}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                              Style="{StaticResource ToggleSwitchStyle}" />
+                </Grid>
+            </Border>
 
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [ScreenDockWindowsOnlyTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                </StackPanel>
-                <CheckBox IsChecked="{Binding Screen1WindowsOnly}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
-            </Grid>
-        </Border>
+            <Border Style="{StaticResource SettingRowStyle}">
+                <Grid>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding [ScreenDockTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    </StackPanel>
+                    <CheckBox IsChecked="{Binding DockOn}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                              Style="{StaticResource ToggleSwitchStyle}" />
+                </Grid>
+            </Border>
+        </StackPanel>
 
         <!-- YENİ EKRANLAR -->
         <TextBlock Text="{Binding [NewDisplaysHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
@@ -84,9 +172,12 @@
                 </StackPanel>
                 <Border HorizontalAlignment="Right" Background="#27272A" CornerRadius="8" Padding="3">
                     <StackPanel Orientation="Horizontal">
-                        <RadioButton Content="{Binding [NewDisplayBoth], Source={x:Static res:Loc.Instance}}" GroupName="NewScreenMode" IsChecked="True" Style="{StaticResource SegRadioStyle}" />
-                        <RadioButton Content="{Binding [NewDisplayNotchOnly], Source={x:Static res:Loc.Instance}}" GroupName="NewScreenMode" Style="{StaticResource SegRadioStyle}" />
-                        <RadioButton Content="{Binding [NewDisplayNone], Source={x:Static res:Loc.Instance}}" GroupName="NewScreenMode" Style="{StaticResource SegRadioStyle}" />
+                        <RadioButton Content="{Binding [NewDisplayBoth], Source={x:Static res:Loc.Instance}}" GroupName="NewScreenMode"
+                                     IsChecked="{Binding NewScreenBoth, Mode=TwoWay}" Style="{StaticResource SegRadioStyle}" />
+                        <RadioButton Content="{Binding [NewDisplayNotchOnly], Source={x:Static res:Loc.Instance}}" GroupName="NewScreenMode"
+                                     IsChecked="{Binding NewScreenNotchOnly, Mode=TwoWay}" Style="{StaticResource SegRadioStyle}" />
+                        <RadioButton Content="{Binding [NewDisplayNone], Source={x:Static res:Loc.Instance}}" GroupName="NewScreenMode"
+                                     IsChecked="{Binding NewScreenNone, Mode=TwoWay}" Style="{StaticResource SegRadioStyle}" />
                     </StackPanel>
                 </Border>
             </Grid>
@@ -94,11 +185,8 @@
 
         <!-- Bilgi Kutusu -->
         <Border Style="{StaticResource InfoNoticeStyle}">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="ℹ" FontSize="14" Foreground="#BFDBFE" Margin="0,0,10,0" VerticalAlignment="Top" />
-                <TextBlock Text="{Binding [MultiMonitorNotice], Source={x:Static res:Loc.Instance}}"
-                           Foreground="#BFDBFE" FontSize="13" TextWrapping="Wrap" LineHeight="18" />
-            </StackPanel>
+            <TextBlock Text="{Binding [MultiMonitorNotice], Source={x:Static res:Loc.Instance}}"
+                       Foreground="#BFDBFE" FontSize="13" TextWrapping="Wrap" LineHeight="18" />
         </Border>
     </StackPanel>
 </UserControl>

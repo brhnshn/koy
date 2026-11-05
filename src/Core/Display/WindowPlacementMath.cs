@@ -29,6 +29,16 @@ public static class WindowPlacementMath
         return new WindowRect(left, bottom - height, left + width, bottom);
     }
 
+    /// <summary>Monitörün tam ortasında pencere ("Ekranları tanımla" numarası).</summary>
+    public static WindowRect Center(DisplayMonitor monitor, double widthDip, double heightDip)
+    {
+        var width = ToPixels(widthDip, monitor.DpiScaleX);
+        var height = ToPixels(heightDip, monitor.DpiScaleY);
+        var left = monitor.Bounds.Left + (monitor.Bounds.Width - width) / 2;
+        var top = monitor.Bounds.Top + (monitor.Bounds.Height - height) / 2;
+        return new WindowRect(left, top, left + width, top + height);
+    }
+
     /// <summary>Monitörün tam genişliğinde, alt kenara yaslı pencere (tam genişlik dock).</summary>
     public static WindowRect BottomFullWidth(DisplayMonitor monitor, double heightDip)
     {
