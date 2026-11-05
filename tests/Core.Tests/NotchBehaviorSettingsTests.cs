@@ -17,6 +17,16 @@ public class NotchBehaviorSettingsTests
         Assert.Equal(battery, IdleDisplay.ShowBattery(mode));
     }
 
+    [Theory]
+    [InlineData(0, true)]
+    [InlineData(1, false)]
+    [InlineData(2, false)]
+    [InlineData(99, true)] // bilinmeyen değer varsayılana düşer
+    public void IdleDisplay_shows_radio_icons_only_in_clock_and_battery_mode(int mode, bool radio)
+    {
+        Assert.Equal(radio, IdleDisplay.ShowRadio(mode));
+    }
+
     [Fact]
     public void Hover_open_behavior_expands_immediately_on_mouse_enter()
     {

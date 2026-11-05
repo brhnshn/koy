@@ -250,7 +250,7 @@
     <value>Boştayken</value>
   </data>
   <data name="IdleClockBattery" xml:space="preserve">
-    <value>Saat ve pil</value>
+    <value>Saat, pil ve bağlantılar</value>
   </data>
   <data name="IdleClockOnly" xml:space="preserve">
     <value>Yalnız saat</value>

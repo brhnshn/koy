@@ -96,7 +96,7 @@
                     Cursor="Hand"
                     FocusVisualStyle="{x:Null}"
                     Command="{Binding OpenControlCenterCommand}"
-                    Visibility="{Binding ShowRadioStatus, Converter={StaticResource BoolToVis}}">
+                    Visibility="{Binding ShowIdleRadio, Converter={StaticResource BoolToVis}}">
               <Button.Template>
                 <ControlTemplate TargetType="Button">
                   <Border Background="Transparent" Padding="2,0">

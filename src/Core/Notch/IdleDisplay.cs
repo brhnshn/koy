@@ -13,4 +13,10 @@ public static class IdleDisplay
     public static bool ShowClock(int mode) => mode is not Nothing;
 
     public static bool ShowBattery(int mode) => mode is not (ClockOnly or Nothing);
+
+    /// <summary>
+    /// Wi-Fi / Bluetooth durum simgeleri pil gibi "ek bilgi"dir: yalnız "saat, pil ve bağlantılar" modunda görünür.
+    /// "Yalnız saat" ve "Hiçbiri" seçimi kullanıcının çentikte başka bir şey istemediği anlamına gelir.
+    /// </summary>
+    public static bool ShowRadio(int mode) => mode is not (ClockOnly or Nothing);
 }

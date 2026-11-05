@@ -55,8 +55,11 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     /// <summary>Açık çentiğin üstündeki sekmeler; ayarlarda açık paneller, ayardaki sırayla.</summary>
     public ObservableCollection<NotchTabViewModel> Tabs { get; } = [];
 
-    /// <summary>Kontrol paneli açıksa kapalı çentikte Wi-Fi / Bluetooth simgeleri gösterilir.</summary>
+    /// <summary>Kontrol paneli açıksa Wi-Fi / Bluetooth izlenir ve kapalı çentikte simgeleri gösterilebilir.</summary>
     public bool ShowRadioStatus { get; }
+
+    /// <summary>Boşta Wi-Fi / Bluetooth simgeleri gösterilsin mi (Kontrol paneli açık ve boşta görünüm "saat, pil ve bağlantılar").</summary>
+    public bool ShowIdleRadio => ShowRadioStatus && IdleDisplay.ShowRadio(Settings.IdleDisplayMode);
 
     public ObservableObject CurrentPanelContent => CurrentPanel switch
     {

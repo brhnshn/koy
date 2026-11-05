@@ -250,7 +250,7 @@
     <value>Idle display</value>
   </data>
   <data name="IdleClockBattery" xml:space="preserve">
-    <value>Clock &amp; battery</value>
+    <value>Clock, battery &amp; connections</value>
   </data>
   <data name="IdleClockOnly" xml:space="preserve">
     <value>Clock only</value>
