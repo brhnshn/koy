@@ -28,6 +28,7 @@ ICONS = [
     ("Minus", "minus"),
     ("X", "x"),
     ("ChevronDown", "chevron-down"),
+    ("ChevronUp", "chevron-up"),
     ("Check", "check"),
     ("ExternalLink", "external-link"),
     ("RotateCcw", "rotate-ccw"),

@@ -25,26 +25,22 @@
                     <Border x:Name="border"
                             Background="Transparent"
                             CornerRadius="10">
-                        <Path Data="M 1,7 L 6,2 L 11,7"
-                              Width="12"
-                              Height="9"
-                              Stroke="#E4E4E7"
-                              StrokeThickness="1.8"
-                              StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round"
-                              StrokeLineJoin="Round"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
+                        <res:KoyIcon Data="{DynamicResource IconChevronUp}"
+                                     Size="16"
+                                     StrokeWidth="2.2"
+                                     Foreground="{DynamicResource KoyNotchTextSecondary}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#1AFFFFFF"/>
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource KoyNotchHover}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#33FFFFFF"/>
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource KoyNotchPressed}"/>
                         </Trigger>
                         <DataTrigger Binding="{Binding IsTrayPopupOpen}" Value="True">
-                            <Setter TargetName="border" Property="Background" Value="#26FFFFFF"/>
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource KoyNotchActive}"/>
                         </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -60,8 +56,8 @@
                AllowsTransparency="True"
                StaysOpen="False"
                PopupAnimation="None">
-            <Border Background="#F51C1C1E"
-                    BorderBrush="#1AFFFFFF"
+            <Border Background="{DynamicResource KoyMenuBg}"
+                    BorderBrush="{DynamicResource KoyMenuBorder}"
                     BorderThickness="1"
                     CornerRadius="14"
                     Padding="8"
@@ -72,13 +68,13 @@
                                       ShadowDepth="4"
                                       Opacity="0.45"
                                       Direction="270"
-                                      Color="#000000"/>
+                                      Color="Black"/>
                 </Border.Effect>
 
                 <StackPanel>
                     <TextBlock Text="{Binding [SystemTray], Source={x:Static res:Loc.Instance}}"
                                FontSize="11"
-                               Foreground="#A1A1AA"
+                               Foreground="{DynamicResource KoyMenuTextMuted}"
                                Margin="4,0,4,6"/>
 
                     <ItemsControl ItemsSource="{Binding TrayIcons}"
@@ -104,7 +100,7 @@
                                             <Setter Property="Background" Value="Transparent"/>
                                             <Style.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="#1AFFFFFF"/>
+                                                    <Setter Property="Background" Value="{DynamicResource KoyMenuHover}"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
@@ -123,7 +119,7 @@
 
                     <TextBlock Text="{Binding [TrayEmpty], Source={x:Static res:Loc.Instance}}"
                                FontSize="12"
-                               Foreground="#A1A1AA"
+                               Foreground="{DynamicResource KoyMenuTextMuted}"
                                Margin="4,2,4,2"
                                Visibility="{Binding HasTrayIcons, Converter={x:Static dock:DockConverters.InverseBoolToVisibilityConverter}}"/>
                 </StackPanel>

@@ -61,6 +61,9 @@
     <SolidColorBrush x:Key="KoyNotchTextOnLight" Color="#0A0A0B" />
     <!-- Beyazın %10'u: koyu yüzeyde fare üstü katmanı (yarı saydam olduğu için token karşılığı yok) -->
     <SolidColorBrush x:Key="KoyNotchHover" Color="#1AFFFFFF" />
+    <!-- Beyazın %20'si ve %15'i: koyu yüzeyde basılı ve açık (seçili) düğme katmanı (dock tepsi düğmesi) -->
+    <SolidColorBrush x:Key="KoyNotchPressed" Color="#33FFFFFF" />
+    <SolidColorBrush x:Key="KoyNotchActive" Color="#26FFFFFF" />
 
     <!-- Yarı saydam gri: hem koyu hem açık yüzeyde okunur. -->
     <SolidColorBrush x:Key="KoyScrollThumb" Color="#66808088" />
