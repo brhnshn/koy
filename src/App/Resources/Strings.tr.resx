@@ -889,10 +889,10 @@
     <value>Raf</value>
   </data>
   <data name="DockShowTrayTitle" xml:space="preserve">
-    <value>Sistem tepsisi</value>
+    <value>Sistem tepsisini dock'ta göster</value>
   </data>
   <data name="DockShowTrayDesc" xml:space="preserve">
-    <value>Arka plan uygulamalarının simgeleri (Discord, Steam…) dock'ta bir pencerede</value>
+    <value>Windows görev çubuğu gizliyken arka plan uygulamalarının simgeleri (Discord, OneDrive…) dock'taki düğmeden açılır</value>
   </data>
   <data name="TrayEmpty" xml:space="preserve">
     <value>Tepsi simgesi yok</value>
