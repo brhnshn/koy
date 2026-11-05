@@ -62,6 +62,9 @@ public partial class App : Application
             settings = store.Load();
         }
 
+        // Sihirbaz X ile kapatıldıysa (tamamlanmadıysa) dock açılıp görev çubuğu gizlenmesin.
+        settings = FirstRunPolicy.ApplySafeDefaultsIfIncomplete(settings);
+
         var culture = new System.Globalization.CultureInfo(settings.Language == "en" ? "en-US" : "tr-TR");
         System.Globalization.CultureInfo.CurrentUICulture = culture;
         System.Globalization.CultureInfo.CurrentCulture = culture;
