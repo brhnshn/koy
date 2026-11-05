@@ -26,7 +26,7 @@ public static class TaskbarService
 
     public static unsafe void Hide()
     {
-        var primary = PInvoke.FindWindow("Shell_TrayWnd", null);
+        var primary = ShellTrayLocator.FindExplorerTray();
         var prevState = ABS_ALWAYSONTOP;
 
         if (primary != HWND.Null)
@@ -51,7 +51,7 @@ public static class TaskbarService
         SetVisible(true);
 
         var prevState = ReadSavedState();
-        var primary = PInvoke.FindWindow("Shell_TrayWnd", null);
+        var primary = ShellTrayLocator.FindExplorerTray();
         if (primary != HWND.Null)
         {
             var data = new APPBARDATA
@@ -73,7 +73,7 @@ public static class TaskbarService
     /// </summary>
     public static void EnsureHidden()
     {
-        var primary = PInvoke.FindWindow("Shell_TrayWnd", null);
+        var primary = ShellTrayLocator.FindExplorerTray();
         if (primary != HWND.Null && PInvoke.IsWindowVisible(primary))
         {
             SetVisible(false);
@@ -95,7 +95,7 @@ public static class TaskbarService
     {
         var command = visible ? SHOW_WINDOW_CMD.SW_SHOW : SHOW_WINDOW_CMD.SW_HIDE;
 
-        var primary = PInvoke.FindWindow("Shell_TrayWnd", null);
+        var primary = ShellTrayLocator.FindExplorerTray();
         if (primary != HWND.Null)
             PInvoke.ShowWindow(primary, command);
 

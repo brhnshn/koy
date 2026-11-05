@@ -20,4 +20,7 @@ public static class CursorHelper
         y = 0;
         return false;
     }
+
+    /// <summary>Kullanıcının Windows'ta ayarladığı çift tıklama süresi (ms).</summary>
+    public static uint DoubleClickTimeMs => PInvoke.GetDoubleClickTime();
 }

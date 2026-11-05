@@ -347,7 +347,7 @@ public sealed class WindowTracker : IWindowTracker
         ForegroundWindowChanged?.Invoke(this, info);
     }
 
-    private static unsafe string? GetProcessPath(uint pid)
+    internal static unsafe string? GetProcessPath(uint pid)
     {
         if (pid == 0)
             return null;

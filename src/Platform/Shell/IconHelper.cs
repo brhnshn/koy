@@ -29,6 +29,46 @@ public static class IconHelper
         return Cache.GetOrAdd(path, ExtractIconInternal);
     }
 
+    /// <summary>
+    /// Başka bir sürecin de olabilecek simge tanıtıcısını kendi boyutunda PNG'ye çevirir (tepsi simgeleri 16–32 px).
+    /// Alfa kanalı olmayan eski simgelerde saydamlık maskeden alınır.
+    /// </summary>
+    public static unsafe byte[]? HIconToPng(nint hIcon)
+    {
+        if (hIcon == 0)
+            return null;
+
+        using var safeHandle = new IconSafeHandle(new HICON(hIcon));
+        if (!PInvoke.GetIconInfo(safeHandle, out var iconInfo))
+            return null;
+
+        try
+        {
+            if (iconInfo.hbmColor.IsNull)
+                return null;
+
+            BITMAP bitmap;
+            if (PInvoke.GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bitmap) == 0 || bitmap.bmWidth <= 0 || bitmap.bmHeight <= 0)
+                return null;
+
+            var width = bitmap.bmWidth;
+            var height = bitmap.bmHeight;
+            var color = ReadBgra(iconInfo.hbmColor, width, height);
+            if (color is null)
+                return null;
+
+            var mask = iconInfo.hbmMask.IsNull ? null : ReadBgra(iconInfo.hbmMask, width, height);
+            return PngEncoder.Encode(ToStraightRgba(color, mask), width, height);
+        }
+        finally
+        {
+            if (!iconInfo.hbmColor.IsNull)
+                PInvoke.DeleteObject(iconInfo.hbmColor);
+            if (!iconInfo.hbmMask.IsNull)
+                PInvoke.DeleteObject(iconInfo.hbmMask);
+        }
+    }
+
     private static byte[]? ExtractIconInternal(string path)
     {
         // Önce kabuğun resim fabrikası: .lnk için kısayol okunu eklemez ve "shell:AppsFolder\<AUMID>"
@@ -122,7 +162,14 @@ public static class IconHelper
         }
     }
 
-    private static unsafe byte[]? ConvertHBitmapToPng(HBITMAP hBitmap, int size)
+    private static byte[]? ConvertHBitmapToPng(HBITMAP hBitmap, int size)
+    {
+        var bgra = ReadBgra(hBitmap, size, size);
+        return bgra is null ? null : PngEncoder.Encode(ToStraightRgba(bgra), size, size);
+    }
+
+    /// <summary>Bit eşlemi 32 bit, yukarıdan aşağı BGRA olarak okur.</summary>
+    private static unsafe byte[]? ReadBgra(HBITMAP hBitmap, int width, int height)
     {
         if (hBitmap.IsNull)
             return null;
@@ -135,23 +182,23 @@ public static class IconHelper
                 bmiHeader = new BITMAPINFOHEADER
                 {
                     biSize = (uint)sizeof(BITMAPINFOHEADER),
-                    biWidth = size,
-                    biHeight = -size, // yukarıdan aşağı satır sırası (PNG ile aynı)
+                    biWidth = width,
+                    biHeight = -height, // yukarıdan aşağı satır sırası (PNG ile aynı)
                     biPlanes = 1,
                     biBitCount = 32,
                     biCompression = 0 // BI_RGB
                 }
             };
 
-            var bgra = new byte[size * size * 4];
+            var bgra = new byte[width * height * 4];
             using var bmpHandle = new BitmapSafeHandle(hBitmap);
             fixed (byte* pPixels = bgra)
             {
-                if (PInvoke.GetDIBits(hdc, bmpHandle, 0, (uint)size, pPixels, &bi, DIB_USAGE.DIB_RGB_COLORS) == 0)
+                if (PInvoke.GetDIBits(hdc, bmpHandle, 0, (uint)height, pPixels, &bi, DIB_USAGE.DIB_RGB_COLORS) == 0)
                     return null;
             }
 
-            return PngEncoder.Encode(ToStraightRgba(bgra), size, size);
+            return bgra;
         }
         finally
         {
@@ -165,7 +212,8 @@ public static class IconHelper
     /// Kabuk resim fabrikası premultiplied alfa verir; eski simgelerde alfa hiç yoktur (hepsi 0).
     /// BMP ile WPF'e verildiğinde alfa kayboluyor ve simge siyah kare üstünde görünüyordu.
     /// </summary>
-    private static byte[] ToStraightRgba(byte[] bgra)
+    /// <param name="maskBgra">Simgenin AND maskesi (32 bite açılmış): beyaz piksel saydamdır. Yalnız alfa yoksa kullanılır.</param>
+    private static byte[] ToStraightRgba(byte[] bgra, byte[]? maskBgra = null)
     {
         var hasAlpha = false;
         var premultiplied = true;
@@ -184,7 +232,7 @@ public static class IconHelper
             int b = bgra[i], g = bgra[i + 1], r = bgra[i + 2], a = bgra[i + 3];
             if (!hasAlpha)
             {
-                a = 255;
+                a = maskBgra is not null && maskBgra.Length == bgra.Length && maskBgra[i] != 0 ? 0 : 255;
             }
             else if (premultiplied && a is > 0 and < 255)
             {

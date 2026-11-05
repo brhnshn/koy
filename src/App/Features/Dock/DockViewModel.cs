@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.App.Features.Dock.Tray;
 using Koy.App.Features.Settings;
 using Koy.Core.Animation;
 using Koy.Core.Display;
@@ -14,7 +15,9 @@ using Koy.Core.Dock;
 using Koy.Core.Media;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
+using Koy.Core.Tray;
 using Koy.Core.Visibility;
+using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Dock;
 
@@ -30,6 +33,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     private readonly IShellActionService _shellActionService;
     private readonly VisibilityController? _visibilityController;
     private readonly IMediaService? _mediaService;
+    private readonly ITrayService? _trayService;
+    private DispatcherTimer? _trayCloseTimer;
 
     private readonly Spring _translateSpring;
     private readonly Spring _opacitySpring;
@@ -96,6 +101,20 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _showBadges = true;
 
+    // Sistem tepsisi: simgeler yalnız pencere açıkken eşitlenir ve çözülür (boştayken iş yok).
+    [ObservableProperty]
+    private bool _isTrayPopupOpen;
+
+    [ObservableProperty]
+    private bool _hasTrayIcons;
+
+    public bool HasTray => _trayService is not null;
+
+    /// <summary>Ayırıcının sağında bir şey varsa (klasörler ya da tepsi) ayırıcı görünür.</summary>
+    public bool ShowRightSection => ShowFolders || HasTray;
+
+    public ObservableCollection<TrayIconViewModel> TrayIcons { get; } = [];
+
     // Tam Genişlik Modu: Çalan müzik hapı (Sol bölüm)
     [ObservableProperty]
     private string _nowPlayingTitle = "Şarkı çalınmıyor";
@@ -141,7 +160,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         IShellActionService shellActionService,
         VisibilityController? visibilityController = null,
         DockStatusViewModel? status = null,
-        IMediaService? mediaService = null)
+        IMediaService? mediaService = null,
+        ITrayService? trayService = null)
     {
         _settings = settings;
         Status = status;
@@ -149,6 +169,7 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         _shellActionService = shellActionService;
         _visibilityController = visibilityController;
         _mediaService = mediaService;
+        _trayService = trayService;
 
         _iconSize = settings.DockIconSize > 0 ? settings.DockIconSize : 28.0;
         _itemSize = _iconSize + 10.0;
@@ -199,7 +220,132 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
         DockContextMenuManager.ActiveMenuChanged += OnActiveMenuChanged;
 
+        if (_trayService is not null)
+        {
+            _trayService.IconsChanged += OnTrayIconsChanged;
+        }
+
         UpdateItems();
+    }
+
+    [RelayCommand]
+    private void ToggleTray()
+    {
+        if (_trayService is null)
+            return;
+
+        if (IsTrayPopupOpen)
+        {
+            IsTrayPopupOpen = false;
+            return;
+        }
+
+        ClosePreviewNow();
+        _trayService.RemoveDeadIcons();
+        SyncTrayIcons();
+        IsTrayPopupOpen = true;
+    }
+
+    /// <summary>Tepsi simgesine tıklandı: uygulamaya Windows görev çubuğunun göndereceği mesajları iletir.</summary>
+    public void SendTrayMouse(TrayIconViewModel icon, TrayMouseAction action)
+    {
+        if (_trayService is null)
+            return;
+
+        CursorHelper.GetPosition(out var x, out var y);
+        _trayService.SendMouse(icon.Key, action, x, y);
+
+        if (action == TrayMouseAction.LeftClick)
+        {
+            // Bazı uygulamalar çift tıklama bekler; pencere çift tıklama süresi kadar açık kalır.
+            _trayCloseTimer ??= CreateTrayCloseTimer();
+            _trayCloseTimer.Stop();
+            _trayCloseTimer.Start();
+        }
+        else
+        {
+            // Uygulamanın menüsü ya da penceresi açılıyor; tepsi penceresi önünü kapatmasın.
+            IsTrayPopupOpen = false;
+        }
+    }
+
+    private DispatcherTimer CreateTrayCloseTimer()
+    {
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(CursorHelper.DoubleClickTimeMs) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            IsTrayPopupOpen = false;
+        };
+        return timer;
+    }
+
+    partial void OnIsTrayPopupOpenChanged(bool value)
+    {
+        if (!value)
+        {
+            _trayCloseTimer?.Stop();
+            // Kapalıyken görüntüler bellekte tutulmaz.
+            TrayIcons.Clear();
+        }
+
+        EvaluatePosition(_lastContentWidth);
+    }
+
+    private void OnTrayIconsChanged(object? sender, EventArgs e)
+    {
+        // Tepsi iş parçacığından gelir; pencere kapalıyken hiçbir şey yapılmaz.
+        Application.Current?.Dispatcher.InvokeAsync(() =>
+        {
+            if (IsTrayPopupOpen)
+                SyncTrayIcons();
+        });
+    }
+
+    private void SyncTrayIcons()
+    {
+        if (_trayService is null)
+            return;
+
+        var models = _trayService.GetVisibleIcons();
+
+        for (var i = TrayIcons.Count - 1; i >= 0; i--)
+        {
+            var key = TrayIcons[i].Key;
+            if (!models.Any(m => m.Key == key))
+                TrayIcons.RemoveAt(i);
+        }
+
+        for (var targetIndex = 0; targetIndex < models.Count; targetIndex++)
+        {
+            var model = models[targetIndex];
+            var existingIndex = -1;
+            for (var j = 0; j < TrayIcons.Count; j++)
+            {
+                if (TrayIcons[j].Key == model.Key)
+                {
+                    existingIndex = j;
+                    break;
+                }
+            }
+
+            TrayIconViewModel vm;
+            if (existingIndex >= 0)
+            {
+                vm = TrayIcons[existingIndex];
+                if (existingIndex != targetIndex)
+                    TrayIcons.Move(existingIndex, targetIndex);
+            }
+            else
+            {
+                vm = new TrayIconViewModel(model);
+                TrayIcons.Insert(targetIndex, vm);
+            }
+
+            vm.Update(model, _trayService.GetIconImage);
+        }
+
+        HasTrayIcons = TrayIcons.Count > 0;
     }
 
     [RelayCommand]
@@ -317,7 +463,7 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         if (contentWidth > 0)
             _lastContentWidth = contentWidth;
 
-        var effectiveMouseOver = _isMouseOverDock || _isMouseOverPopup || IsPreviewPopupOpen || DockContextMenuManager.HasActiveMenu;
+        var effectiveMouseOver = _isMouseOverDock || _isMouseOverPopup || IsPreviewPopupOpen || IsTrayPopupOpen || DockContextMenuManager.HasActiveMenu;
 
         var resolved = DockPositionResolver.Resolve(
             _currentMonitor,
@@ -659,5 +805,12 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         {
             _mediaService.Changed -= OnMediaChanged;
         }
+
+        if (_trayService is not null)
+        {
+            _trayService.IconsChanged -= OnTrayIconsChanged;
+        }
+
+        _trayCloseTimer?.Stop();
     }
 }

@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:res="clr-namespace:Koy.App.Resources"
-             xmlns:local="clr-namespace:Koy.App.Features.Dock">
+             xmlns:local="clr-namespace:Koy.App.Features.Dock"
+             xmlns:tray="clr-namespace:Koy.App.Features.Dock.Tray">
 
     <!-- Seelen UI Yüzen Kapsül Tabanı: 60 px yükseklik (aşağı yapışınca 46 px), 18 px köşe yuvarlama (yapışınca 14,14,0,0) -->
     <Border Background="#E618181B"
@@ -227,7 +228,7 @@
                        Height="24"
                        Fill="#29FFFFFF"
                        Margin="4,0"
-                       Visibility="{Binding ShowFolders, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}"/>
+                       Visibility="{Binding ShowRightSection, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}"/>
 
             <!-- 4. Klasörler ve Küçültülmüş Pencereler Bölümü -->
             <StackPanel Orientation="Horizontal"
@@ -297,6 +298,9 @@
                     </Button.Template>
                 </Button>
             </StackPanel>
+
+            <!-- 4b. Sistem Tepsisi: Windows görev çubuğu gizli olduğu için arka plan uygulamalarının simgeleri burada -->
+            <tray:TrayButton/>
 
             <!-- 5. Dikey Ayırıcı 2: 1×24 px, rgba(255,255,255,0.16) -->
             <Rectangle Width="1"

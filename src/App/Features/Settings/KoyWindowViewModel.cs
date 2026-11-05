@@ -123,6 +123,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _dockShowMinimized = true;
 
     [ObservableProperty]
+    private bool _dockShowTray = true;
+
+    [ObservableProperty]
     private bool _dockShowRecent;
 
     [ObservableProperty]
@@ -238,6 +241,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockShowStartButton = s.DockShowStartButton;
             DockShowFolders = s.DockShowFolders;
             DockShowMinimized = s.DockShowMinimized;
+            DockShowTray = s.DockShowTray;
             DockShowBadges = s.DockShowBadges;
             DockThumbnailPreview = s.DockThumbnailPreview;
             DockThumbnailDelayMs = s.DockThumbnailDelayMs;
@@ -331,7 +335,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         {
             appDock.UpdateDockState(DockEnabled);
         }
-        else if (e.PropertyName is (nameof(DockStyle) or nameof(DockProximity) or nameof(DockHideInFullscreen) or nameof(DockIconSize) or nameof(HideWindowsTaskbar)) && Application.Current is App appReload)
+        else if (e.PropertyName is (nameof(DockStyle) or nameof(DockProximity) or nameof(DockHideInFullscreen) or nameof(DockIconSize) or nameof(HideWindowsTaskbar) or nameof(DockShowTray)) && Application.Current is App appReload)
         {
             appReload.ReloadDock();
         }
@@ -388,6 +392,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockShowStartButton = DockShowStartButton,
             DockShowFolders = DockShowFolders,
             DockShowMinimized = DockShowMinimized,
+            DockShowTray = DockShowTray,
             DockShowBadges = DockShowBadges,
             DockThumbnailPreview = DockThumbnailPreview,
             DockThumbnailDelayMs = DockThumbnailDelayMs,

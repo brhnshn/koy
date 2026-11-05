@@ -46,6 +46,7 @@ public sealed class DockFeature(AppSettings settings) : IFeature
     private AppBarService? _appBarService;
     private MonitorService? _monitorService;
     private MediaService? _mediaService;
+    private TrayHostService? _trayService;
     private DockController? _controller;
     private DispatcherTimer? _edgePeekTimer;
 
@@ -76,6 +77,13 @@ public sealed class DockFeature(AppSettings settings) : IFeature
         if (settings.DockProximity == DockProximityMode.ReserveSpace)
         {
             _appBarService = new AppBarService();
+        }
+
+        // Görev çubuğu gizliyken tepsi simgelerine ulaşmanın tek yolu Koy'un kendi tepsisi (ayardan kapatılabilir).
+        if (settings.DockShowTray)
+        {
+            _trayService = new TrayHostService();
+            _trayService.Start();
         }
 
         // Medya servisi (Tam genişlik Now Playing hapı için)
@@ -117,7 +125,8 @@ public sealed class DockFeature(AppSettings settings) : IFeature
             _shellActionService!,
             visibilityController,
             status: null,
-            mediaService: _mediaService);
+            mediaService: _mediaService,
+            trayService: _trayService);
 
         var window = new DockWindow { DataContext = viewModel };
         window.SetTargetMonitor(monitor);
@@ -276,6 +285,9 @@ public sealed class DockFeature(AppSettings settings) : IFeature
             DockContextMenuManager.CloseActive();
         }
 
+        // Gezgin kendi görev çubuğunu öne alırsa yeni tepsi kayıtları Koy'a gelmez; olay anında yoklanır, zamanlayıcı yok.
+        _trayService?.EnsureFirst();
+
         // Koy'un kendi pencereleri (ayarlar, dock vb.) ön plana geldiğinde
         // mevcut tam ekran / maksimize durumunu sıfırlayıp dock'u zıplatma
         if (pid == (uint)Environment.ProcessId)
@@ -377,6 +389,11 @@ public sealed class DockFeature(AppSettings settings) : IFeature
 
         _mediaService?.Dispose();
         _mediaService = null;
+
+        // Koy'un Shell_TrayWnd penceresi kapanır; uygulamalar yeniden doğrudan Windows tepsisine yazar.
+        // Bütün kayıtlar zaten Windows'a da iletildiği için tepside eksik simge kalmaz.
+        _trayService?.Dispose();
+        _trayService = null;
 
         if (_monitorService is not null)
         {
