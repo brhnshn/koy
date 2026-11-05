@@ -25,10 +25,28 @@ Galerideki beş sayfa:
 6. Her ekranın kendi çentiği ve dock'u vardır. Tam ekran yalnız kendi ekranındaki Koy'u gizler.
 
 ## Görsel dil
-- **Zemin:** koyu. Çentiğin dolgusu `#0A0A0B`. Pencere ve dock zemini `#18181B`; dock'ta bu renk %88–96 opaklıkla kullanılır. Kenarlık `rgba(255,255,255,0.10)`.
+- **Zemin (koyu tema):** çentiğin dolgusu `#0A0A0B`. Pencere ve dock zemini `#18181B`; dock'ta bu renk %88–96 opaklıkla kullanılır. Kenarlık `rgba(255,255,255,0.10)`. Açık tema aynı rolleri açık renklerle karşılar (aşağıda "Tema ve token sistemi").
 - **Vurgu:** `#3B82F6`. Ayarlardan başka renk seçilebilir.
 - **Yazı:** metin `#F4F4F5`, ikincil metin `#A1A1AA`. Yazı tipi Segoe UI Variable.
 - **Köşeler:** yüzen dock 18 px, Koy penceresi 12 px, çentiğin alt köşeleri 18 px.
+
+## Tema ve token sistemi
+Koy penceresi, sihirbaz ve sağ alt menü renk, ölçü ve hareketi koda gömmez; üç kaynaktan alır (`src/App/Resources`):
+- **Renkler:** `Theme.Dark.xaml` ve `Theme.Light.xaml` aynı anahtarları (`KoyBgWindow`, `KoyBgRow`, `KoyTextPrimary`, `KoyDangerText`, `KoyScrim` vb.) farklı değerlerle tanımlar. Anahtarlar `DynamicResource` ile okunur, bu yüzden tema değişince açık pencereler yeniden açılmadan güncellenir. Sabit hex kullanılmaz; çentik ve dock'un kendi koyu yüzeyleri (`KoyMenu*`) tema dışında kalır.
+- **Ölçüler:** `Tokens.xaml`: yazı boyları (`KoyFontPageTitle` 20, `KoyFontRowTitle` 13.5, `KoyFontBody` 13, `KoyFontCaption` 12), boşluk (`KoySpace1..6`: 4, 8, 12, 16, 24, 32), köşe (`KoyRadiusWindow` 12, `KoyRadiusRow` 8, `KoyRadiusControl` 6, `KoyRadiusSmall` 4), kontrol yüksekliği 28, ikon 16 ve çizgi kalınlığı 2.
+- **İkonlar:** `Icons.xaml` içinde Lucide tabanlı çizgi geometrileri, `KoyIcon` denetimiyle çizilir. Emoji ve bitmap ikon yoktur.
+- **Stiller:** `Styles.xaml` (başlıklar, satır, düğmeler: ikincil, `PrimaryButtonStyle`, `DangerButtonStyle`; anahtar, onay kutusu, segment, açılır liste, kaydırma çubuğu).
+- **Tema seçimi:** Sistem / Koyu / Açık. "Sistem"de Windows uygulama teması (`AppsUseLightTheme`) izlenir. Vurgu rengi varsayılan `#3B82F6`; kullanıcı rengi ya da Windows vurgusu `ThemeManager` tarafından üstüne yazılır. Malzeme Katı ya da Yarı saydam (DWM acrylic istenir; saydam pencerede etkisi sistemde sınırlı kalabilir).
+- **Doğrulama:** `tools/Koy.UiSnapshots` sayfaları iki temada PNG'ye çizer; arayüz değişikliğinde öncesi/sonrası buradan bakılır.
+
+## Hareket ilkeleri
+`Motion.cs` Koy penceresinin bütün geçişlerini tek yerden yönetir. Şablonlar süre yazmaz; tetikleyiciler `Motion.FadeTo`, `Motion.ScaleTo`, `Motion.KnobOn` ekli özelliklerini değiştirir.
+- **Süreler (taban, Normal hızda):** hover katmanı 140 ms; basılınca küçülme (0,97) 110 ms; anahtar yayı 260 ms (`BackEase`, genlik 0,45, 18 DIP); sayfa girişi 170 ms solma + 200 ms ile 8 DIP yukarı kayma; sayfadaki satırlar 30 ms + 22 ms × sıra gecikmesiyle (en çok 12 satır) 200 ms solma ve 6 DIP kayma; kaldırma onay kartı sayfa girişiyle aynı.
+- **Eğri:** `CubicEase` EaseOut; yalnız anahtar düğmesi yaylanır. Göz yoran, sürekli ya da dikkat dağıtan animasyon yoktur.
+- **Tek çarpan:** hız ayarı (Sakin 1,5×, Normal 1×, Hızlı 0,65×, Kapalı 0) süreleri ölçekler. Çarpan 0 ise değerler anında atanır.
+- **Azaltılmış hareket:** Windows "animasyonları azalt" (`SystemParameters.ClientAreaAnimation` kapalı) ve "uyum" ayarı açıksa, ya da pil tasarrufu hareketi azaltıyorsa çarpan 0 olur.
+- **Boşta sıfır iş:** animasyon yalnız tetiklenince çalışır, biten animasyon saat bırakmaz (`FillBehavior.Stop`).
+- Çentik ve dock yay fiziğini (`Core/Animation/Spring`) kullanır; bu belgedeki süreler yalnız Koy penceresi içindir.
 
 ## Dock
 - **Yüzen (varsayılan):**
@@ -70,12 +88,13 @@ Galerideki beş sayfa:
 | Genel | Windows açılınca başlat; Windows görev çubuğunu gizle; arayüz dili; güncellemeleri otomatik denetle; kanal (Kararlı / Önizleme); Şimdi denetle |
 | Çentik | Çentiği göster; ne zaman görünsün (Her zaman / Akıllı / Fareyle); tam ekranda gizle; boştayken ne gösterilsin (Saat ve pil / Yalnız saat / Hiçbiri); müzik çalarken kapak ve dalga; ses göstergesi; parlaklık göstergesi; Windows'un kendi göstergesini gizle (deneysel); paneller (sürükleyerek sıralanır, tek tek kapatılır); açılma (Üzerine gelince / Tıklayınca); boyut |
 | Dock | Dock'u göster; biçim (Yüzen / Tam genişlik); pencere yaklaşınca (Yer ayır / Aşağı yapış / Çekil / Hep gizli); tam ekranda gizle; geri çıkma gecikmesi; simge boyutu; büyütme efekti; çalışan göstergesi (Nokta / Çizgi); pencereleri grupla; bildirim rozetleri; Başlat düğmesi; klasörler; küçültülmüş pencereler; son kullanılanlar; pencere önizlemesi ve gecikmesi |
-| Ekranlar | Monitör haritası (seçilen ekranın ayarları açılır); ekran başına çentik ve dock; dock'ta yalnız o ekrandaki pencereler; yeni bağlanan ekranda ne gösterilsin (Çentik ve dock / Yalnız çentik / Hiçbiri) |
+| Ekranlar | Bağlı monitörler gerçek yerleşimiyle bir haritada kartlar olarak görünür; karta tıklayınca o ekranın ayarları açılır ("Tanımla" ekranın üstünde numarasını kısa süre gösterir). Ekran başına: çentik ve dock açık/kapalı, dock'ta yalnız o ekrandaki pencereler. Yeni bağlanan ekranda ne gösterilsin (Çentik ve dock / Yalnız çentik / Hiçbiri). Ayarlar kararlı bir monitör kimliğine bağlıdır; ekran çıkarılıp takılınca ayarı geri gelir. Gerçek çok monitörlü ve karışık DPI'lı donanımda henüz elle denenmedi. |
 | Görünüm | Tema (Sistem / Koyu / Açık); vurgu rengi; Windows vurgu rengini kullan; malzeme (Katı / Yarı saydam); köşe yuvarlaklığı; animasyon (Sakin / Normal / Hızlı / Kapalı); Windows'un "animasyonları azalt" ayarına uy |
-| Kısayollar | Çentik, Raf, Dock, Koy menüsü ve müzik için klavye kısayolları (çakışan kısayol kırmızıyla gösterilir); çentikte tekerlek (Panel değiştir / Ses); dock'ta orta tık (Yeni pencere / Kapat) |
+| Kısayollar | Çentik, Raf, Dock, Koy menüsü ve oynat/duraklat için genel kısayollar; satıra tıklayıp tuşlara basarak değiştirilir. Varsayılanlar `Ctrl+Alt+N`, `R`, `D`, `K`, `Space`. Windows'un ayırdığı (Alt+Tab, Win+harf vb.) ya da başka uygulamanın tuttuğu bir kombinasyon kaydedilmez ve sebebi satırda gösterilir. Çentikte tekerlek (Panel değiştir / Ses); dock'ta orta tık (Yeni pencere / Kapat) |
 | Performans | Bellek göstergesi (60 MB bütçesine karşı); pil tasarrufunda animasyonları azalt; pil tasarrufunda müzik dalgasını durdur; hava durumunu yenileme sıklığı; ses görselleştirici (deneysel) |
-| Hakkında | Sürüm ve lisans (GPLv3); güncellemeleri denetle; tanılama bilgisini kopyala; **Windows görev çubuğunu geri getir** (acil durum düğmesi); ayarları sıfırla; kaynak kodu |
+| Hakkında | Sürüm ve lisans (GPLv3); güncellemeleri denetle; tanılama bilgisini kopyala; **Windows görev çubuğunu geri getir** (acil durum düğmesi); ayarları sıfırla; kaynak kodu; **Koy'u kaldır** (yalnız kurulu sürümde etkin) |
 
+- **Koy'u kaldır:** Hakkında'daki düğme pencerenin üstünde bir onay kartı açar: neyin silineceği, "Ayarlarımı sakla" kutusu (varsayılan işaretli; kapatılırsa ayar ve raf da silineceği kırmızıyla yazılır), görev çubuğunun hemen geri geleceği bilgisi, İptal / Kaldır. Kaldır; görev çubuğunu geri getirir, gerekirse verileri siler, Velopack kaldırıcısını başlatır ve Koy'u kapatır. Kurulu olmayan (geliştirme ya da taşınabilir) sürümde düğme kapalıdır ve "Yalnız kurulu sürümde kullanılabilir" yazar. Windows'un "Yüklü uygulamalar" sayfasından kaldırmada onay ekranı yoktur (Velopack bunu iptal edilemez ve süre sınırlı bir kancayla çağırır); orada ayarlar silinmez.
 - **Sağ alt menü:** Koy simgesi dock açıkken dock'un sağ ucunda, dock kapalıyken Windows bildirim alanında durur. Menüde şunlar var:
   - Çentik ve Dock için aç/kapa düğmeleri
   - Koy penceresini aç
@@ -86,4 +105,4 @@ Galerideki beş sayfa:
 ## Açık sorular
 - Dock'taki ayırıcı ve klasörler kesin değil. Ayardan kapatılabilir olacak.
 - Varsayılan "pencere yaklaşınca" davranışı Aşağı yapış seçildi, gerekirse değiştirilecek.
-- Kısayollar örnek. Windows kısayollarıyla çakışma kontrolü yapılacak.
+- Kısayol varsayılanları (`Ctrl+Alt+harf`) Windows'un `Win+harf` kısayollarıyla çakışmaz; yine de başka bir uygulama aynı kombinasyonu tutuyorsa kullanıcı değiştirir.
