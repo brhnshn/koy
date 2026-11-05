@@ -118,13 +118,28 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     /// <summary>
     /// Explorer yeniden başlayınca yeni görev çubuğu görünür ve varsayılan durumda gelir; gizlemeyi yeniden uygular.
     /// TaskbarService.Hide idempotent olduğundan kullanıcının asıl görev çubuğu durumu korunur.
+    /// Yer ayır modunda AppBar kayıtları da Explorer'la birlikte yok olur; çalışma alanı yeniden ayrılır.
     /// </summary>
     public void ReapplyTaskbarHiding()
     {
-        if (_windowStates.Count == 0 || !settings.HideWindowsTaskbar)
+        if (_windowStates.Count == 0)
             return;
 
-        TaskbarService.Hide();
+        if (settings.HideWindowsTaskbar)
+            TaskbarService.Hide();
+
+        if (_appBarService is null)
+            return;
+
+        foreach (var (_, state) in _windowStates)
+        {
+            if (state.Hwnd == 0)
+                continue;
+
+            var source = PresentationSource.FromVisual(state.Window);
+            var dpiScale = source?.CompositionTarget?.TransformToDevice.M22 ?? state.Monitor.DpiScaleY;
+            _appBarService.Reregister(state.Hwnd, (int)Math.Ceiling(state.Window.ReservedHeight), dpiScale);
+        }
     }
 
     private void EnsureTaskbarHidden()

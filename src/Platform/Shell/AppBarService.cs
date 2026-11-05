@@ -55,6 +55,16 @@ public sealed class AppBarService : IAppBarService
         UpdatePositionInternal(new HWND(windowHandle), heightDip, dpiScale);
     }
 
+    public void Reregister(nint windowHandle, int heightDip, double dpiScale = 1.0)
+    {
+        if (windowHandle == 0)
+            return;
+
+        // Eski Explorer'ın kaydı yok olmuştur; ABM_REMOVE zararsızdır ve yerel kayıt kümesini de temizler.
+        Unregister(windowHandle);
+        Register(windowHandle, heightDip, dpiScale);
+    }
+
     public unsafe void Unregister(nint windowHandle)
     {
         if (windowHandle == 0 || !_registeredHandles.Remove(windowHandle))
