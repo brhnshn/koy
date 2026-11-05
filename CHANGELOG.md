@@ -41,6 +41,11 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - Hakkında sayfasında gerçek sürüm ve son güncelleme denetimi durumu.
 - **Dock sistem tepsisi** (topluluk katkısı, teşekkürler **xdaxer**, #11): Windows görev çubuğu gizliyken Discord, OneDrive gibi arka plan uygulamalarının simgelerine dock'taki düğmeden açılan pencereyle ulaşılır; sol ve sağ tık uygulamaya iletilir. Koy yalnız görev çubuğu gerçekten gizliyken tepsiyi devralır ve her kaydı Windows'a da iletir; Koy kapanınca, duraklayınca ya da çökünce tepsinin eksiksiz geri gelmesi hedeflenir. Dock sayfasından "Sistem tepsisini dock'ta göster" ile kapatılabilir (varsayılan açık). Elle denenmedi.
 - Geliştirici aracı: `tools/Koy.UiSnapshots` (arayüzü ekrana çıkarmadan PNG'ye çizer).
+- **Takvim:** ay görünümüne ek olarak hafta ve gün görünümü (yerel etkinlikler, `%AppData%\Koy\events.json`; Google/Outlook yok). Gün görünümünde etkinlik eklenip silinir, ay ızgarasındaki ya da hafta satırındaki güne tıklayınca o günün görünümü açılır. Pomodoro'nun yanında serbest geri sayım zamanlayıcısı (süre seç, başlat, duraklat, sıfırla; bitince çentik kısa süre açılıp titrer) ve kronometre (başlat, duraklat, tur, sıfırla). Zamanlayıcı bitiş anını bir kez hesaplar, kronometre saatten okur; ikisi de arka planda saniyelik tik atmaz, ekran yalnız takvim sekmesi görünürken tazelenir.
+- **Hava durumu ve konum:** kurulum sihirbazına "Hava durumu için konumunu kullanalım mı?" adımı (Evet / Şimdi değil). Evet denirse konum açılışta, günde en fazla bir kez ve tek seferlik düşük doğrulukla okunur; koordinat ayarlara yazılır, hava 30 dakika önbellekle Open-Meteo'dan gelir. Ayarlar › Çentik'te "Hava durumu için konumu kullan" anahtarı ve yedek olarak şehir arama (Open-Meteo geocoding). Konum yoksa ve şehir seçilmemişse çentikte hava durumu gösterilmez. İzin reddi, zaman aşımı ve ağ hatası uygulamayı etkilemez. Hakkında sayfasında Open-Meteo atfı (CC BY 4.0).
+- **Kontrol merkezi:** Wi-Fi, Bluetooth ve Rahatsız Etme döşemeleri sürüklenerek yeniden sıralanır (yay animasyonlu); sıra ayara yazılır ve açılışta uygulanır.
+- **Ağ durumu servisi** çentik durum verisine bağlandı (Wi-Fi adı, Ethernet, bağlı değil; olay tabanlı, yoklama yok). Ağ adı konum izni gerektirmeyen Windows bağlantı profilinden alınır.
+- Çentikte yazı yazılacak alanlara (takvimde etkinlik adı) tıklanınca pencere geçici olarak etkinleşir ki klavye çalışsın; odak gidince yine odak çalmaz.
 
 ### Değişenler (Changed)
 - Dock ve çentik tek bir pencere izleyici ve tek bir medya servisini paylaşıyor; pencere olaylarında dock yenilemesi birleştiriliyor (daha az iş).
@@ -58,7 +63,7 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - GitHub Actions adımları commit SHA'sına sabitlendi (tedarik zinciri sertleştirmesi).
 
 ### Bilinen eksikler
-Dock tepsisi (#11) gerçek donanımda elle denenmedi ve bellek etkisi ölçülmedi; takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi; kontrol merkezi döşemelerini sürükleyerek sıralama; gerçek çok monitörlü ve karışık DPI donanımda doğrulama; bellek ölçümü (son ölçüm 82,7 MB, hedef 60 MB). Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Dock tepsisi (#11) gerçek donanımda elle denenmedi ve bellek etkisi ölçülmedi; ana görünüm (iki sütunlu çentik) arayüzü tasarım bekliyor; gerçek çok monitörlü ve karışık DPI donanımda doğrulama; bellek ölçümü (son ölçüm 82,7 MB, hedef 60 MB). Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## [0.1.0] - 2026-11-04
 

@@ -73,9 +73,9 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 - [x] `Platform/Display/BrightnessService.cs`: dahili ekran WMI `WmiMonitorBrightness` / `WmiMonitorBrightnessMethods`; harici ekran DDC/CI (`GetPhysicalMonitorsFromHMONITOR`, `SetVCPFeature` kod 0x10). Desteklenmiyorsa kaydırıcı gizlenir.
 - [x] `Platform/Shell/FocusAssistService.cs`: Rahatsız Etme durumu (okuma); açma/kapama için resmi API yoksa yalnız Windows ayarını açan kısayol.
 - [x] `Platform/Power/PowerService.cs`: `Windows.System.Power.PowerManager` (pil yüzdesi, şarj); pil yoksa panelde gizle.
-- [ ] `Platform/Weather/WeatherService.cs`: Open-Meteo (`https://api.open-meteo.com/v1/forecast?latitude=..&longitude=..&current=temperature_2m,weather_code`). Konum: ayarlardan şehir (Open-Meteo geocoding API) — konum izni isteme. 30 dk önbellek, `HttpClient` tek örnek. **Kısmi:** servis, önbellek ve gösterim var; konum sabit (İstanbul), şehir seçimi ve geocoding yok.
+- [x] `Platform/Weather/WeatherService.cs`: Open-Meteo (`https://api.open-meteo.com/v1/forecast?latitude=..&longitude=..&current=temperature_2m,weather_code`). Konum: ayarlardan şehir (Open-Meteo geocoding API) — konum izni isteme. 30 dk önbellek, `HttpClient` tek örnek. Konum kurulum sihirbazında sorulur (cihaz konumu, açılışta günde en fazla bir kez) ya da Ayarlar › Çentik'ten şehir aranır (`Core/Weather/WeatherLocationPolicy`, `OpenMeteoParser`, `Platform/Weather/LocationService`, `GeocodingService`). Konum yoksa hava durumu gösterilmez; Hakkında'da Open-Meteo atfı.
 - [x] `App/Features/ControlCenter/ControlCenterPanel.xaml` + ViewModel: döşemeler (Wi-Fi, BT, Rahatsız Etme), kaydırıcılar (ses, parlaklık).
-- [ ] Döşeme düzenini sürükleyerek değiştirme: düzen `AppSettings.ControlCenterLayout` (liste) olarak saklanır. **Kısmi:** ayar alanı var, ama hiçbir yerde okunmuyor ve sürükleme yok.
+- [x] Döşeme düzenini sürükleyerek değiştirme: düzen `AppSettings.ControlCenterLayout` (liste) olarak saklanır; sıralama mantığı `Core/Notch/ControlCenterTiles`, sürükleme `ControlCenterPanel` (yay animasyonlu).
 - [x] `App/Features/Status/StatusPanel.xaml` + ViewModel: pil, hava durumu, saat.
 - [x] Kabul: her kontrol gerçek donanımda denendi; bellek ölçüldü (40.9 MB < 60 MB bütçe).
 
@@ -84,7 +84,7 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 ## M3 — Takvim, Pomodoro, Raf, Ayarlar, Dil (2026-11-04, kısmen tamamlandı)
 - [x] `Core/Calendar/MonthGrid.cs`: ay görünümü için gün ızgarası (Pazartesi başlangıçlı, kültüre göre). Testli.
 - [x] `Core/Timers/Pomodoro.cs`: durum makinesi (çalışma / kısa mola / uzun mola), süreler ayardan (Paket C'de bağlandı). Testli; zaman `TimeProvider` ile verilir ki test edilebilsin.
-- [ ] `App/Features/Calendar/CalendarPanel.xaml`: gün / hafta / ay, zamanlayıcı, kronometre, Pomodoro. Yalnız yerel; Google/Outlook sonraki sürüm. **Kısmi:** yalnız ay görünümü ve Pomodoro var; gün/hafta görünümü, serbest geri sayım zamanlayıcısı ve kronometre yok. Hâlâ eksik.
+- [x] `App/Features/Calendar/CalendarPanel.xaml`: gün / hafta / ay, zamanlayıcı, kronometre, Pomodoro. Yalnız yerel (`%AppData%\Koy\events.json`); Google/Outlook sonraki sürüm. Durum makineleri `Core/Timers/CountdownTimer`, `LapStopwatch` (TimeProvider, testli); etkinlik mantığı `Core/Calendar/EventAgenda`, `EventBook`.
 - [x] Bildirim: zamanlayıcı bitince notch kısa süre Peek durumuna geçer ve titrer (yay animasyonu).
 - [x] `App/Features/Shelf/ShelfPanel.xaml`: notch'a dosya / metin sürükle-bırak (`AllowDrop`), listeden dışarı sürükleme (`DragDrop.DoDragDrop`). Dosyalar kopyalanmaz, yol tutulur; liste `%AppData%\Koy\shelf.json`.
 - [x] Ayarlar penceresi: M6.5'te `KoyWindow` oldu, eski `SettingsWindow` silindi. Paket C ve D1 sonrası vurgu rengi, tema ve katı/yarı saydam malzeme görünüme etki ediyor.
@@ -137,7 +137,7 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 - [x] "Pencere yaklaşınca" davranışı ayardan seçilir: **Yer ayır** (dock alt kenara oturur, çalışma alanı ayrılır), **Aşağı yapış** (normal boy pencere yaklaşınca dock alt kenara iner, incelir, pencereyi örtmez; varsayılan), **Çekil** (büyütülmüş pencerede gizlenir, fare alt kenara inince gelir), **Hep gizli**. Tam ekranda her modda gizli. Büyütülmüş pencere ile dock arasında boşluk kalmamalı. Paket C'de varsayılan `DockDown` oldu ve her yüklemede `Dodge`'a çeviren göç kaldırıldı. Not: eski bir kurulumda `settings.json`'da `Dodge` yazılı kalmış olabilir; Dock sayfasından Aşağı yapış seçilir.
 - [x] Simgenin üzerine gelince pencere önizlemesi (DWM thumbnail, `DwmRegisterThumbnail`). Yalnız üzerine gelindiğinde kurulur, bellek ölçülür.
 - [ ] İsteğe bağlı ayırıcı: solda uygulamalar, sağda klasörler, son kullanılanlar ve küçültülmüş pencereler. **Kısmi:** ayırıcı, tek klasör (İndirilenler) ve küçültülmüş pencereler var; son kullanılanlar yok, ayar arayüzü yok.
-- [ ] Saat, pil, ses ve ağ dock'tan çentiğe taşınır (tasarıma göre). **Kısmi:** dock'ta durum alanı yok; saat ve pil çentikte, ses kontrol merkezinde. Ağ durumu hiçbir yerde gösterilmiyor (`INetworkService` / `NetworkService` bağlı değil).
+- [ ] Saat, pil, ses ve ağ dock'tan çentiğe taşınır (tasarıma göre). **Kısmi:** dock'ta durum alanı yok; saat ve pil çentikte, ses kontrol merkezinde. `INetworkService` / `NetworkService` artık çentik durum verisine bağlı (olay tabanlı, Wi-Fi adı dahil); çentikte görünür gösterimi iki sütunlu ana görünümle gelecek (tasarım bekliyor), bu yüzden kutu açık.
 
 ### 6.4 Çentik genişler
 - [x] Ses ve parlaklık değişince çentikte gösterge: Paket C'de `AudioService` ve `BrightnessService` olaylarına bağlandı, ayrı ayrı kapatılır. Windows'un kendi göstergesini gizleme hâlâ deneysel.
@@ -182,7 +182,7 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 - [ ] #11: kapsam kararı bekliyor (bu ROADMAP v1 dışı demişti).
 - #9: `main`'de farklı bir yapıyla (Ekranlar sayfası, D2) çözüldü; kapatılacak.
 
-**Hâlâ açık olan eksikler:** takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi (konum sabit İstanbul); kontrol merkezi döşeme sırasının sürükleyerek değiştirilmesi (`ControlCenterLayout` okunmuyor); dock'ta "son kullanılanlar" ve ağ durumu; ses görselleştirici; tepsi simgesinin dock durumuyla tek simgeye indirilmesi; gerçek çoklu monitör ve karışık DPI doğrulaması; bellek ölçümü.
+**Hâlâ açık olan eksikler:** iki sütunlu ana görünüm ve kapalı/Peek çentikte tarih ve ağ simgesi (tasarım bekliyor; veri tarafı hazır: `HomeViewModel`, `NotchLayout.ShowPeekDetails`); dock'ta "son kullanılanlar"; ses görselleştirici; tepsi simgesinin dock durumuyla tek simgeye indirilmesi; gerçek çoklu monitör ve karışık DPI doğrulaması; bellek ölçümü.
 
 ---
 
