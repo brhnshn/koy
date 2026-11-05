@@ -125,13 +125,19 @@ public sealed class WindowThumbnailPresenter : FrameworkElement
         if (box == _lastBox)
             return;
 
-        _lastBox = box;
         var (sourceWidth, sourceHeight) = DwmThumbnailHelper.QuerySourceSize(_thumbHandle);
         var destination = ThumbnailFit.Fit(sourceWidth, sourceHeight, box);
         if (destination == _lastDestination)
+        {
+            _lastBox = box;
             return;
+        }
 
+        // Kutu yalnız DWM güncellemesi başarılı olunca hatırlanır; başarısızsa sonraki düzen geçişi yeniden dener.
         if (DwmThumbnailHelper.Update(_thumbHandle, destination))
+        {
             _lastDestination = destination;
+            _lastBox = box;
+        }
     }
 }
