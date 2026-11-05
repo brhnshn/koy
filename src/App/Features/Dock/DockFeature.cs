@@ -108,6 +108,18 @@ public sealed class DockFeature(AppSettings settings) : IFeature
         UpdateEdgeTimer();
     }
 
+    /// <summary>
+    /// Explorer yeniden başlayınca yeni görev çubuğu görünür ve varsayılan durumda gelir; gizlemeyi yeniden uygular.
+    /// TaskbarService.Hide idempotent olduğundan kullanıcının asıl görev çubuğu durumu korunur.
+    /// </summary>
+    public void ReapplyTaskbarHiding()
+    {
+        if (_windowStates.Count == 0)
+            return;
+
+        TaskbarService.Hide();
+    }
+
     private void CreateDockWindow(DisplayMonitor monitor)
     {
         var visibilityController = new VisibilityController(settings.DockVisibility);

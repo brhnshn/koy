@@ -22,6 +22,10 @@ public sealed class TrayIconManager : IDisposable
     private TrayIconService? _trayService;
     private DispatcherTimer? _singleClickTimer;
     private bool _isRunning;
+    private readonly uint _taskbarCreatedMessage = TrayIconService.TaskbarCreatedMessage;
+
+    /// <summary>Explorer yeniden başladı; simge geri eklendi. Dock görev çubuğu gizlemesini yeniden uygulamalı.</summary>
+    public event Action? ExplorerRestarted;
 
     public void Start()
     {
@@ -68,6 +72,13 @@ public sealed class TrayIconManager : IDisposable
 
     private nint HandleMessage(int msg, nint lParam, ref bool handled)
     {
+        if (_taskbarCreatedMessage != 0 && (uint)msg == _taskbarCreatedMessage)
+        {
+            _trayService?.Recreate();
+            ExplorerRestarted?.Invoke();
+            return 0;
+        }
+
         if (msg == WmTrayCallback)
         {
             var mouseMsg = lParam.ToInt32();

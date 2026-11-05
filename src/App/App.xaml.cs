@@ -78,6 +78,7 @@ public partial class App : Application
 
         // Sistem tepsisi simgesi: dock kapalıyken de Koy menüsüne erişilmesini sağlar
         _trayIconManager = new TrayIconManager();
+        _trayIconManager.ExplorerRestarted += OnExplorerRestarted;
         _trayIconManager.Start();
 
         // Yalnız açık özellikler başlatılır. Dock kapalıyken görev çubuğuna hiç dokunulmaz.
@@ -100,6 +101,15 @@ public partial class App : Application
     /// <summary>
     /// Görev çubuğunu geri getirir; hata verse bile çağıranın (çökme işleyicisi) akışını bozmaz.
     /// </summary>
+    private void OnExplorerRestarted()
+    {
+        CrashLog.Guard("Explorer yeniden başladı", () =>
+        {
+            foreach (var dock in _features.OfType<DockFeature>())
+                dock.ReapplyTaskbarHiding();
+        });
+    }
+
     internal static void SafeRestoreTaskbar()
     {
         try
