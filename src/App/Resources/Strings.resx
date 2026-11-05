@@ -271,7 +271,7 @@
     <value>Theme, accent color and animations</value>
   </data>
   <data name="ShortcutsSubtitle" xml:space="preserve">
-    <value>Mouse and scroll wheel actions</value>
+    <value>Keyboard, mouse and wheel actions</value>
   </data>
   <data name="PerformanceSubtitle" xml:space="preserve">
     <value>Memory usage and power saving</value>
@@ -586,7 +586,7 @@
     <value>Space</value>
   </data>
   <data name="ShortcutsNotice" xml:space="preserve">
-    <value>Shortcuts are examples. Conflicting shortcuts with Windows or other apps are highlighted in red.</value>
+    <value>Click a box and press the new combination to change it. Esc cancels, Backspace removes the shortcut. A shortcut held by another app is shown as an error on its row.</value>
   </data>
   <data name="MouseHeader" xml:space="preserve">
     <value>MOUSE</value>
@@ -692,5 +692,29 @@
   </data>
   <data name="ExitKoyAction" xml:space="preserve">
     <value>Exit Koy</value>
+  </data>
+  <data name="ShortcutPressKeys" xml:space="preserve">
+    <value>Press a combination…</value>
+  </data>
+  <data name="ShortcutNone" xml:space="preserve">
+    <value>Not set</value>
+  </data>
+  <data name="ShortcutReset" xml:space="preserve">
+    <value>Reset to default</value>
+  </data>
+  <data name="ShortcutErrInvalid" xml:space="preserve">
+    <value>Press a key together with at least Ctrl, Alt or Win.</value>
+  </data>
+  <data name="ShortcutErrReserved" xml:space="preserve">
+    <value>Windows reserves this shortcut, choose another combination.</value>
+  </data>
+  <data name="ShortcutErrDuplicate" xml:space="preserve">
+    <value>Already used for "{0}".</value>
+  </data>
+  <data name="ShortcutErrInUse" xml:space="preserve">
+    <value>Another app is using this shortcut, it could not be registered.</value>
+  </data>
+  <data name="ShortcutErrFailed" xml:space="preserve">
+    <value>The shortcut could not be registered.</value>
   </data>
 </root>

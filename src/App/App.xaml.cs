@@ -8,9 +8,12 @@ using Koy.App.Features.Dock;
 using Koy.App.Features.Menu;
 using Koy.App.Features.Notch;
 using Koy.App.Features.Settings;
+using Koy.App.Features.Shortcuts;
 using Koy.App.Features.Wizard;
 using Koy.Core.Diagnostics;
 using Koy.Core.Settings;
+using Koy.Core.Shortcuts;
+using Koy.Platform.Media;
 using Koy.Platform.Shell;
 using Velopack;
 
@@ -39,10 +42,14 @@ public partial class App : Application
 {
     private readonly List<IFeature> _features = [];
     private TrayIconManager? _trayIconManager;
+    private ShortcutController? _shortcuts;
     private readonly SharedServices _services = new();
 
     private static readonly TimeSpan PauseDuration = TimeSpan.FromHours(1);
     private DispatcherTimer? _pauseTimer;
+
+    /// <summary>Genel kısayollar; Kısayollar sayfası kayıt sonuçlarını buradan okur.</summary>
+    public ShortcutController? Shortcuts => _shortcuts;
 
     /// <summary>"1 saat duraklat" etkin mi: çentik ve dock kapalı, Windows görev çubuğu geri gelmiş durumda.</summary>
     public bool IsPaused { get; private set; }
@@ -99,10 +106,74 @@ public partial class App : Application
         foreach (var feature in _features)
             feature.Start();
 
+        // Genel kısayollar: çentik/dock açık olmasa da çalışır.
+        _shortcuts = new ShortcutController();
+        _shortcuts.Triggered += OnShortcutTriggered;
+        _shortcuts.Start(settings);
+
         // İlk kurulumdan hemen sonra ana uygulama doğrudan ekrana çıksın
         if (isFirstRun)
         {
             KoyWindow.ShowInstance();
+        }
+    }
+
+    /// <summary>Kısayol ayarı değişti: diskteki ayarlarla yeniden kaydeder.</summary>
+    public void ApplyShortcuts()
+    {
+        _shortcuts?.Apply(new SettingsStore(SettingsStore.DefaultPath).Load());
+    }
+
+    private void OnShortcutTriggered(ShortcutAction action)
+    {
+        switch (action)
+        {
+            case ShortcutAction.ToggleNotch:
+                _features.OfType<NotchFeature>().FirstOrDefault()?.ToggleExpanded();
+                break;
+            case ShortcutAction.OpenShelf:
+                _features.OfType<NotchFeature>().FirstOrDefault()?.OpenShelf();
+                break;
+            case ShortcutAction.ToggleDock:
+                ToggleDockEnabled();
+                break;
+            case ShortcutAction.OpenMenu:
+                SagAltMenuWindow.Toggle();
+                break;
+            case ShortcutAction.PlayPause:
+                _ = PlayPauseAsync();
+                break;
+        }
+    }
+
+    /// <summary>Dock'u göster/gizle: sağ alt menüdeki anahtarla aynı etki (ayar da kaydedilir).</summary>
+    private void ToggleDockEnabled()
+    {
+        var store = new SettingsStore(SettingsStore.DefaultPath);
+        var current = store.Load();
+        var enabled = !current.DockEnabled;
+        store.Save(current with { DockEnabled = enabled });
+        UpdateDockState(enabled);
+    }
+
+    private async Task PlayPauseAsync()
+    {
+        try
+        {
+            if (_services.RunningMediaService is { } running)
+            {
+                await running.PlayPauseAsync();
+                return;
+            }
+
+            // Çentik ve dock kapalı: servisi yalnız bu iş için kur, sonra bırak (AGENTS.md #5).
+            using var temporary = new MediaService();
+            await temporary.StartAsync();
+            await temporary.PlayPauseAsync();
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("Kısayol: oynat/duraklat", ex);
         }
     }
 
@@ -284,6 +355,9 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _shortcuts?.Dispose();
+        _shortcuts = null;
+
         _trayIconManager?.Dispose();
         _trayIconManager = null;
 

@@ -14,6 +14,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 {
     private readonly SettingsStore _store;
 
+    /// <summary>Kısayollar sayfası: tuş yakalama, kayıt ve hata durumu.</summary>
+    public ShortcutsViewModel Shortcuts { get; }
+
     [ObservableProperty]
     private int _selectedPageIndex; // 0: Genel, 1: Çentik, 2: Dock, 3: Ekranlar, 4: Görünüm, 5: Kısayollar, 6: Performans, 7: Hakkında
 
@@ -212,6 +215,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     public KoyWindowViewModel(SettingsStore? store = null)
     {
         _store = store ?? new SettingsStore(SettingsStore.DefaultPath);
+        Shortcuts = new ShortcutsViewModel(_store);
         LoadFromSettings();
     }
 
@@ -260,6 +264,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
             WheelAction = s.WheelAction;
             MiddleClickAction = s.MiddleClickAction;
+            Shortcuts.Load(s);
 
             var panels = s.EnabledPanels ?? ["music", "calendar", "shelf", "controlcenter"];
             PanelMusic = panels.Contains("music", StringComparer.OrdinalIgnoreCase);

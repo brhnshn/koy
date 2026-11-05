@@ -319,6 +319,44 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         }
     }
 
+    /// <summary>Kısayol: fare hangi ekrandaysa onun çentiğini açar, açıksa kapatır.</summary>
+    public void ToggleExpanded()
+    {
+        var state = PickStateForShortcut();
+        if (state is null)
+            return;
+
+        var controller = state.Controller;
+        if (controller.State == NotchState.Expanded)
+            controller.OnClick();
+        else
+            controller.Expand();
+    }
+
+    /// <summary>Kısayol: Raf panelini açar (panel kapalıysa da).</summary>
+    public void OpenShelf()
+    {
+        PickStateForShortcut()?.ViewModel.ExpandToShelf();
+    }
+
+    private NotchWindowState? PickStateForShortcut()
+    {
+        if (_windowStates.Count == 0)
+            return null;
+
+        if (_windowTracker is not null && _windowTracker.GetCursorPosition(out var x, out var y))
+        {
+            foreach (var state in _windowStates.Values)
+            {
+                var b = state.Monitor.Bounds;
+                if (x >= b.Left && x < b.Right && y >= b.Top && y < b.Bottom)
+                    return state;
+            }
+        }
+
+        return _windowStates.Values.First();
+    }
+
     public void Stop()
     {
         _edgePeekTimer?.Stop();
