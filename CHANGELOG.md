@@ -26,6 +26,11 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - Tam ekran algısı odak başka ekrandayken de her monitörün kendi en üst penceresine bakıyor.
 - Ayarlar sıfırlanınca kurulum sihirbazı tekrar açılmıyor; çalışan özellikler yeni varsayılanla yeniden kuruluyor.
 - Sabitli uygulama kısayolları çözülürken sızan COM nesnesi serbest bırakılıyor.
+- Topluluk katkıları (teşekkürler **xdaxer**):
+  - Kontrol Merkezi'ndeki Wi-Fi ve Bluetooth anahtarları artık radyoyu gerçekten açıp kapatıyor; radyo yoksa, kapalıysa ya da Windows izin vermiyorsa döşeme bunu gösteriyor ve Windows ayarlarına yönlendiriyor (#12).
+  - Pili olmayan bilgisayarlarda çentikteki pil göstergesi gizleniyor (#8).
+  - Dock pencere önizlemesi üst düzey pencereye kaydediliyor; önizleme güncellemesi başarısız olursa sonraki düzende yeniden deneniyor (#10).
+  - Açılışta kapalı çentiğin zemini çiziliyor (#13).
 
 ### Eklenenler (Added)
 - **Genel kısayollar:** çentik, raf, dock, Koy menüsü ve oynat/duraklat için `Ctrl+Alt+N/R/D/K/Space`; tuş yakalama kutusuyla değiştirilir, Windows'un ayırdığı ya da başka uygulamanın tuttuğu kombinasyonlar satırda bildirilir.
