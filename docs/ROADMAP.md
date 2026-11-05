@@ -175,7 +175,11 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 - [ ] Pil HUD'u tamamlama (düşük pil, şarj tamamlandı uyarıları).
 - [ ] **Bellek bütçesi kararı:** son ölçüm 82,7 MB, revizyon sonrası yeniden ölçülmedi. Karar çıkmadan E paketi başlamaz (`docs/MEMORY.md`).
 
-**Katkıcı PR'ları (#10–#14):** değerlendirmede, hiçbiri birleştirilmedi. #9, D2'de yalnız fikir olarak alındı; olduğu gibi birleştirilemedi.
+**Katkıcı PR'ları (xdaxer):**
+- [x] #8 pilsiz makinede pil gizleme, #10 dock pencere önizlemesi, #12 Kontrol Merkezi Wi-Fi/Bluetooth yönetimi, #13 açılış zemini: `main`'e alındı (bizim düzeltmelerimizle).
+- [ ] #14: bellek ölçümü ve bütçe kararı bekliyor.
+- [ ] #11: kapsam kararı bekliyor (bu ROADMAP v1 dışı demişti).
+- #9: `main`'de farklı bir yapıyla (Ekranlar sayfası, D2) çözüldü; kapatılacak.
 
 **Hâlâ açık olan eksikler:** takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi (konum sabit İstanbul); kontrol merkezi döşeme sırasının sürükleyerek değiştirilmesi (`ControlCenterLayout` okunmuyor); dock'ta "son kullanılanlar" ve ağ durumu; ses görselleştirici; tepsi simgesinin dock durumuyla tek simgeye indirilmesi; gerçek çoklu monitör ve karışık DPI doğrulaması; bellek ölçümü.
 
