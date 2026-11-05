@@ -849,4 +849,25 @@
   <data name="UninstallFailed" xml:space="preserve">
     <value>Kaldırıcı başlatılamadı. Koy kurulu kaldı; Windows Ayarları &gt; Yüklü uygulamalar üzerinden kaldırabilirsiniz.</value>
   </data>
+  <data name="RadioNotFound" xml:space="preserve">
+    <value>Bulunamadı</value>
+  </data>
+  <data name="RadioNoAccess" xml:space="preserve">
+    <value>İzin yok</value>
+  </data>
+  <data name="RadioDisabled" xml:space="preserve">
+    <value>Devre dışı</value>
+  </data>
+  <data name="RadioToggleFailed" xml:space="preserve">
+    <value>Değiştirilemedi</value>
+  </data>
+  <data name="RadioOpenSettingsHint" xml:space="preserve">
+    <value>Koy'dan değiştirilemiyor. Windows ayarlarını açmak için tıklayın.</value>
+  </data>
+  <data name="RadioPrivacyHint" xml:space="preserve">
+    <value>Koy'un radyoları yönetmesine izin verilmiyor. Gizlilik ayarlarını açmak için tıklayın.</value>
+  </data>
+  <data name="OpenInSettings" xml:space="preserve">
+    <value>Ayarlarda aç</value>
+  </data>
 </root>

@@ -41,8 +41,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     /// <summary>Boşta saat gösterilsin mi (ayar: Saat ve pil / Yalnız saat / Hiçbiri).</summary>
     public bool ShowIdleClock => IdleDisplay.ShowClock(Settings.IdleDisplayMode);
 
-    /// <summary>Boşta pil gösterilsin mi.</summary>
-    public bool ShowIdleBattery => IdleDisplay.ShowBattery(Settings.IdleDisplayMode);
+    /// <summary>Boşta pil gösterilsin mi (ayar izin veriyorsa ve bilgisayarda pil varsa).</summary>
+    public bool ShowIdleBattery => HasBattery && IdleDisplay.ShowBattery(Settings.IdleDisplayMode);
 
     /// <summary>Pil tasarrufu: pille çalışırken çentik animasyonsuz (anında) geçer.</summary>
     public bool ReduceMotion => Settings.BatterySaverReduceMotion && _status.IsOnBattery;
@@ -91,7 +91,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private bool _isCharging;
 
     [ObservableProperty]
-    private bool _hasBattery = true;
+    private bool _hasBattery;
+
+    partial void OnHasBatteryChanged(bool value) => OnPropertyChanged(nameof(ShowIdleBattery));
 
     [ObservableProperty]
     private double _batteryFillWidth = 17;

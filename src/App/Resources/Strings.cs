@@ -47,4 +47,11 @@ public static class Strings
     public static string NetworkCellular => Get(nameof(NetworkCellular));
     public static string NetworkNoInternet => Get(nameof(NetworkNoInternet));
     public static string NetworkDisconnected => Get(nameof(NetworkDisconnected));
+    public static string RadioNotFound => Get(nameof(RadioNotFound));
+    public static string RadioNoAccess => Get(nameof(RadioNoAccess));
+    public static string RadioDisabled => Get(nameof(RadioDisabled));
+    public static string RadioToggleFailed => Get(nameof(RadioToggleFailed));
+    public static string RadioOpenSettingsHint => Get(nameof(RadioOpenSettingsHint));
+    public static string RadioPrivacyHint => Get(nameof(RadioPrivacyHint));
+    public static string OpenInSettings => Get(nameof(OpenInSettings));
 }

@@ -99,9 +99,8 @@ PropVariantClear
 DwmRegisterThumbnail
 DwmUnregisterThumbnail
 DwmUpdateThumbnailProperties
+DwmQueryThumbnailSourceSize
 DWM_THUMBNAIL_PROPERTIES
-CreateWindowEx
-DestroyWindow
 
 Shell_NotifyIcon
 NOTIFYICONDATAW

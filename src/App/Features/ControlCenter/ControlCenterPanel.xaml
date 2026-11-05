@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:Koy.App.Features.ControlCenter"
              xmlns:res="clr-namespace:Koy.App.Resources"
+             xmlns:radio="clr-namespace:Koy.Core.Radio;assembly=Koy.Core"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:ControlCenterViewModel}"
              Foreground="{StaticResource NotchForeground}"
@@ -46,6 +47,68 @@
         </Setter.Value>
       </Setter>
     </Style>
+
+    <!-- Döşemenin sağındaki ok: Windows'taki ağ / cihaz sayfasını açar -->
+    <Style x:Key="TileChevronStyle" TargetType="Button">
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ChevronBorder" Background="Transparent" CornerRadius="6" Width="18" Height="30">
+              <Path Width="5" Height="9" Stretch="Uniform" Data="M 0,0 L 4,4 L 0,8"
+                    Stroke="#99FFFFFF" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ChevronBorder" Property="Background" Value="#26FFFFFF" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Wi-Fi / Bluetooth döşemesinin içeriği: simge, ad ve durum (Açık, Kapalı, Bulunamadı, İzin yok...) -->
+    <DataTemplate x:Key="RadioTileTemplate" DataType="{x:Type local:RadioTileViewModel}">
+      <Grid Margin="0,0,14,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border x:Name="IconBorder" Width="26" Height="26" CornerRadius="13" VerticalAlignment="Center" Background="#20FFFFFF">
+          <Path x:Name="Icon" Width="13" Height="13" Stretch="Uniform"
+                Stroke="#FFFFFFFF" StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
+          <TextBlock x:Name="Title" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
+          <TextBlock x:Name="Status" Text="{Binding StatusText}" FontSize="9" Foreground="#99FFFFFF" TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+      </Grid>
+      <DataTemplate.Triggers>
+        <DataTrigger Binding="{Binding Kind}" Value="{x:Static radio:RadioKind.WiFi}">
+          <Setter TargetName="Title" Property="Text" Value="{x:Static res:Strings.WiFi}" />
+          <Setter TargetName="Icon" Property="Fill" Value="#FFFFFFFF" />
+          <Setter TargetName="Icon" Property="Data" Value="M 12,18 A 1.5,1.5 0 1 1 12,15 A 1.5,1.5 0 0 1 12,18 M 7.05,12.05 A 7,7 0 0 1 16.95,12.05 M 3.5,8.5 A 12,12 0 0 1 20.5,8.5" />
+        </DataTrigger>
+        <DataTrigger Binding="{Binding Kind}" Value="{x:Static radio:RadioKind.Bluetooth}">
+          <Setter TargetName="Title" Property="Text" Value="{x:Static res:Strings.Bluetooth}" />
+          <Setter TargetName="Icon" Property="Width" Value="11" />
+          <Setter TargetName="Icon" Property="Data" Value="M 7,2 L 7,22 L 13,17 L 2,8 L 13,7 L 7,2 Z M 7,7 L 10,9.5 L 7,12 Z M 7,12 L 10,14.5 L 7,17 Z" />
+        </DataTrigger>
+        <DataTrigger Binding="{Binding IsOn}" Value="True">
+          <Setter TargetName="IconBorder" Property="Background" Value="{DynamicResource KoyAccent}" />
+          <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource KoyAccentText}" />
+        </DataTrigger>
+        <!-- Değiştirilemeyen radyo soluk görünür; durum satırı nedenini sarıyla yazar -->
+        <DataTrigger Binding="{Binding IsUnavailable}" Value="True">
+          <Setter TargetName="IconBorder" Property="Opacity" Value="0.5" />
+          <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource KoyStatusWarn}" />
+        </DataTrigger>
+      </DataTemplate.Triggers>
+    </DataTemplate>
 
     <!-- Kaydırıcı (Slider) Modern Minimal Stili -->
     <Style x:Key="ModernSliderStyle" TargetType="Slider">
@@ -107,113 +170,47 @@
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <!-- 1. Wi-Fi Döşemesi -->
-      <Button Grid.Column="0" Style="{StaticResource TileButtonStyle}" Height="46" Command="{Binding ToggleWiFiCommand}">
+      <!-- 1. Wi-Fi Döşemesi: tıklayınca açar/kapatır; ok, Windows'taki ağ listesini açar -->
+      <Grid Grid.Column="0">
+        <Button Style="{StaticResource TileButtonStyle}" Height="46"
+                CommandParameter="{x:Static radio:RadioKind.WiFi}"
+                Command="{Binding ActivateRadioCommand}"
+                ToolTip="{Binding WiFi.ToolTip}"
+                Content="{Binding WiFi}"
+                ContentTemplate="{StaticResource RadioTileTemplate}" />
+        <Button Style="{StaticResource TileChevronStyle}" HorizontalAlignment="Right" Margin="0,0,3,0"
+                CommandParameter="{x:Static radio:RadioKind.WiFi}"
+                Command="{Binding OpenRadioSettingsCommand}"
+                ToolTip="{x:Static res:Strings.OpenInSettings}" />
+      </Grid>
+
+      <!-- 2. Bluetooth Döşemesi: tıklayınca açar/kapatır; ok, Windows'taki cihaz listesini açar -->
+      <Grid Grid.Column="2">
+        <Button Style="{StaticResource TileButtonStyle}" Height="46"
+                CommandParameter="{x:Static radio:RadioKind.Bluetooth}"
+                Command="{Binding ActivateRadioCommand}"
+                ToolTip="{Binding Bluetooth.ToolTip}"
+                Content="{Binding Bluetooth}"
+                ContentTemplate="{StaticResource RadioTileTemplate}" />
+        <Button Style="{StaticResource TileChevronStyle}" HorizontalAlignment="Right" Margin="0,0,3,0"
+                CommandParameter="{x:Static radio:RadioKind.Bluetooth}"
+                Command="{Binding OpenRadioSettingsCommand}"
+                ToolTip="{x:Static res:Strings.OpenInSettings}" />
+      </Grid>
+
+      <!-- 3. Rahatsız Etme: resmi açma/kapama ya da güvenilir okuma API'si yok; uydurma durum yerine
+           Windows'taki ayarı açan kısayol olarak gösterilir. -->
+      <Button Grid.Column="4" Style="{StaticResource TileButtonStyle}" Height="46"
+              Command="{Binding OpenDoNotDisturbSettingsCommand}"
+              ToolTip="{x:Static res:Strings.OpenInSettings}">
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <!-- Wi-Fi İkonu -->
-          <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Center">
-            <Border.Style>
-              <Style TargetType="Border">
-                <Setter Property="Background" Value="#20FFFFFF" />
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding IsWiFiOn}" Value="True">
-                    <Setter Property="Background" Value="#3B82F6" />
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </Border.Style>
-            <Path Width="13" Height="13" Stretch="Uniform" Fill="#FFFFFFFF"
-                  Data="M 12,18 A 1.5,1.5 0 1 1 12,15 A 1.5,1.5 0 0 1 12,18 M 7.05,12.05 A 7,7 0 0 1 16.95,12.05 M 3.5,8.5 A 12,12 0 0 1 20.5,8.5"
-                  Stroke="#FFFFFFFF" StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                  HorizontalAlignment="Center" VerticalAlignment="Center" />
-          </Border>
-
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
-            <TextBlock Text="{x:Static res:Strings.WiFi}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" />
-            <TextBlock Text="{Binding IsWiFiOn, Converter={StaticResource BoolToVis}}" FontSize="9" Foreground="#99FFFFFF">
-              <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                  <Setter Property="Text" Value="{x:Static res:Strings.Off}" />
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsWiFiOn}" Value="True">
-                      <Setter Property="Text" Value="{x:Static res:Strings.On}" />
-                      <Setter Property="Foreground" Value="#60A5FA" />
-                    </DataTrigger>
-                  </Style.Triggers>
-                </Style>
-              </TextBlock.Style>
-            </TextBlock>
-          </StackPanel>
-        </Grid>
-      </Button>
-
-      <!-- 2. Bluetooth Döşemesi -->
-      <Button Grid.Column="2" Style="{StaticResource TileButtonStyle}" Height="46" Command="{Binding ToggleBluetoothCommand}">
-        <Grid>
-          <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <!-- Bluetooth İkonu -->
-          <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Center">
-            <Border.Style>
-              <Style TargetType="Border">
-                <Setter Property="Background" Value="#20FFFFFF" />
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding IsBluetoothOn}" Value="True">
-                    <Setter Property="Background" Value="#3B82F6" />
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </Border.Style>
-            <Path Width="11" Height="13" Stretch="Uniform"
-                  Data="M 7,2 L 7,22 L 13,17 L 2,8 L 13,7 L 7,2 Z M 7,7 L 10,9.5 L 7,12 Z M 7,12 L 10,14.5 L 7,17 Z"
-                  Stroke="#FFFFFFFF" StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                  HorizontalAlignment="Center" VerticalAlignment="Center" />
-          </Border>
-
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
-            <TextBlock Text="{x:Static res:Strings.Bluetooth}" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
-            <TextBlock FontSize="9" Foreground="#99FFFFFF">
-              <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                  <Setter Property="Text" Value="{x:Static res:Strings.Off}" />
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsBluetoothOn}" Value="True">
-                      <Setter Property="Text" Value="{x:Static res:Strings.On}" />
-                      <Setter Property="Foreground" Value="#60A5FA" />
-                    </DataTrigger>
-                  </Style.Triggers>
-                </Style>
-              </TextBlock.Style>
-            </TextBlock>
-          </StackPanel>
-        </Grid>
-      </Button>
-
-      <!-- 3. Rahatsız Etme Döşemesi -->
-      <Button Grid.Column="4" Style="{StaticResource TileButtonStyle}" Height="46" Command="{Binding ToggleDoNotDisturbCommand}">
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
           <!-- Hilal Ay İkonu -->
-          <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Center">
-            <Border.Style>
-              <Style TargetType="Border">
-                <Setter Property="Background" Value="#20FFFFFF" />
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding IsDoNotDisturbOn}" Value="True">
-                    <Setter Property="Background" Value="#8B5CF6" />
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </Border.Style>
+          <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Center" Background="#20FFFFFF">
             <Path Width="12" Height="12" Stretch="Uniform" Fill="#FFFFFFFF"
                   Data="M 12 3 A 9 9 0 1 0 21 12 A 7 7 0 0 1 12 3 Z"
                   HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -221,20 +218,12 @@
 
           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
             <TextBlock Text="{x:Static res:Strings.DoNotDisturb}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
-            <TextBlock FontSize="9" Foreground="#99FFFFFF">
-              <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                  <Setter Property="Text" Value="{x:Static res:Strings.Off}" />
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsDoNotDisturbOn}" Value="True">
-                      <Setter Property="Text" Value="{x:Static res:Strings.On}" />
-                      <Setter Property="Foreground" Value="#C4B5FD" />
-                    </DataTrigger>
-                  </Style.Triggers>
-                </Style>
-              </TextBlock.Style>
-            </TextBlock>
+            <TextBlock Text="{x:Static res:Strings.OpenInSettings}" FontSize="9" Foreground="#99FFFFFF" TextTrimming="CharacterEllipsis" />
           </StackPanel>
+
+          <Path Grid.Column="2" Width="5" Height="9" Stretch="Uniform" Data="M 0,0 L 4,4 L 0,8" Margin="4,0,2,0"
+                Stroke="#99FFFFFF" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                VerticalAlignment="Center" />
         </Grid>
       </Button>
     </Grid>

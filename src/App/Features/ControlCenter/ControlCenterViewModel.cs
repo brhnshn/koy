@@ -2,6 +2,7 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Koy.Core.Audio;
+using Koy.Core.Diagnostics;
 using Koy.Core.Display;
 using Koy.Core.Radio;
 using Koy.Core.Settings;
@@ -20,16 +21,15 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     private IBrightnessService? _brightnessService;
     private readonly AppSettings _settings;
     private readonly Dispatcher _dispatcher;
+    private bool _brightnessStarted;
     private bool _disposed;
 
-    [ObservableProperty]
-    private bool _isWiFiOn;
+    // Son açma/kapama denemesi reddedildiyse döşeme bunu yazar; radyo durumu değişince silinir.
+    private readonly Dictionary<RadioKind, bool> _toggleFailed = new() { [RadioKind.WiFi] = false, [RadioKind.Bluetooth] = false };
 
-    [ObservableProperty]
-    private bool _isBluetoothOn;
+    public RadioTileViewModel WiFi { get; } = new(RadioKind.WiFi);
 
-    [ObservableProperty]
-    private bool _isDoNotDisturbOn;
+    public RadioTileViewModel Bluetooth { get; } = new(RadioKind.Bluetooth);
 
     [ObservableProperty]
     private float _volume;
@@ -63,8 +63,6 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         _focusAssistService = focusAssistService;
         _settings = settings;
         _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
-
-        _focusAssistService.StateChanged += OnFocusAssistChanged;
     }
 
     public void SetActive(bool active)
@@ -72,21 +70,33 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         if (!active || _disposed)
             return;
 
-        IsDoNotDisturbOn = _focusAssistService.IsActive;
+        if (_radioService is null)
+        {
+            _radioService = _radioFactory();
+            _radioService.StateChanged += OnRadioStateChanged;
+        }
+
+        // Her açılışta yeniden taranır: USB Wi-Fi takılıp çıkarılmış ya da radyo izni ayarlardan
+        // sonradan verilmiş olabilir. Yalnız tek seferlik sorgu; zamanlayıcı yok.
+        Observe(_radioService.RefreshAsync(), "ControlCenter radyo taraması");
 
         EnsureAudioService();
 
-        // Ses tekerlekle önceden kurulmuş olabilir; radyo ve parlaklık yine de ilk açılışta başlar.
-        if (_radioService is not null)
+        // Ses tekerlekle önceden kurulmuş olabilir; parlaklık yine de ilk açılışta bir kez başlar.
+        if (_brightnessStarted)
             return;
 
-        // Radyo durumu StartAsync bitince StateChanged ile gelir.
-        _radioService = _radioFactory();
-        _radioService.StateChanged += OnRadioStateChanged;
-        _ = _radioService.StartAsync();
-
-        _ = InitializeBrightnessAsync();
+        _brightnessStarted = true;
+        Observe(InitializeBrightnessAsync(), "ControlCenter parlaklık başlatma");
     }
+
+    // Fire-and-forget görevlerin istisnası yutulmasın: gözlenir ve günlüğe yazılır.
+    private static void Observe(Task task, string source) =>
+        _ = task.ContinueWith(
+            t => CrashLog.Write(source, t.Exception),
+            CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
 
     private void EnsureAudioService()
     {
@@ -141,11 +151,23 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     {
         _dispatcher.InvokeAsync(() =>
         {
-            if (e.Kind == RadioKind.WiFi)
-                IsWiFiOn = e.State == RadioState.On;
-            else if (e.Kind == RadioKind.Bluetooth)
-                IsBluetoothOn = e.State == RadioState.On;
+            var tile = GetTile(e.Kind);
+            if (tile.State.IsOn != (e.State == RadioState.On))
+                _toggleFailed[e.Kind] = false;
+
+            UpdateRadioTile(e.Kind);
         });
+    }
+
+    private RadioTileViewModel GetTile(RadioKind kind) => kind == RadioKind.WiFi ? WiFi : Bluetooth;
+
+    private void UpdateRadioTile(RadioKind kind)
+    {
+        if (_radioService is null)
+            return;
+
+        var state = kind == RadioKind.WiFi ? _radioService.WiFiState : _radioService.BluetoothState;
+        GetTile(kind).Apply(RadioTileResolver.Resolve(_radioService.Access, state, _toggleFailed[kind]));
     }
 
     private void OnBrightnessChanged(object? sender, int e)
@@ -156,38 +178,42 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         });
     }
 
-    private void OnFocusAssistChanged(object? sender, bool e)
+    /// <summary>
+    /// Döşemeye tıklama: radyo değiştirilebiliyorsa açar/kapatır, değiştirilemiyorsa nedenine göre
+    /// ilgili Windows ayarını açar (sahte anahtar yok).
+    /// </summary>
+    [RelayCommand]
+    private async Task ActivateRadioAsync(RadioKind kind)
     {
-        _dispatcher.InvokeAsync(() =>
+        if (_radioService is null)
+            return;
+
+        switch (GetTile(kind).State.Action)
         {
-            IsDoNotDisturbOn = e;
-        });
+            case RadioTileAction.Toggle:
+                var ok = await _radioService.ToggleAsync(kind);
+                _toggleFailed[kind] = !ok;
+                UpdateRadioTile(kind);
+                break;
+            case RadioTileAction.OpenSettings:
+                _radioService.OpenSettings(kind);
+                break;
+            case RadioTileAction.OpenPrivacySettings:
+                _radioService.OpenPrivacySettings();
+                break;
+        }
     }
 
+    /// <summary>Ağ listesi ve cihaz eşleştirme için Windows'un kendi sayfası.</summary>
     [RelayCommand]
-    private async Task ToggleWiFiAsync()
-    {
-        if (_radioService is null)
-            return;
-        await _radioService.ToggleAsync(RadioKind.WiFi);
-        IsWiFiOn = _radioService.WiFiState == RadioState.On;
-    }
+    private void OpenRadioSettings(RadioKind kind) => _radioService?.OpenSettings(kind);
 
+    /// <summary>
+    /// Rahatsız Etme'yi açıp kapatan ve durumunu güvenilir okuyan resmi bir API yok; döşeme yalnız
+    /// Windows'taki ayarı açar ve açık/kapalı durumu uydurmaz.
+    /// </summary>
     [RelayCommand]
-    private async Task ToggleBluetoothAsync()
-    {
-        if (_radioService is null)
-            return;
-        await _radioService.ToggleAsync(RadioKind.Bluetooth);
-        IsBluetoothOn = _radioService.BluetoothState == RadioState.On;
-    }
-
-    [RelayCommand]
-    private void ToggleDoNotDisturb()
-    {
-        _focusAssistService.OpenSettings();
-        IsDoNotDisturbOn = _focusAssistService.IsActive;
-    }
+    private void OpenDoNotDisturbSettings() => _focusAssistService.OpenSettings();
 
     [RelayCommand]
     private void ToggleMute()
@@ -216,7 +242,6 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
             return;
 
         _disposed = true;
-        _focusAssistService.StateChanged -= OnFocusAssistChanged;
 
         if (_audioService is not null)
         {
