@@ -209,6 +209,22 @@ public partial class App : Application
         }
     }
 
+    /// <summary>
+    /// Çökme işleyicilerinde Koy'un tepsi penceresini beklemeden kapatır: görev çubuğu geri geldiği için Windows
+    /// tepsisi hemen asıl sahibine döner (süreç yaşamaya devam ediyorsa da). Hata verse bile akışı bozmaz.
+    /// </summary>
+    private void SafeCloseTrayHost()
+    {
+        try
+        {
+            _services.RequestTrayHostClose();
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("Tepsi penceresi kapatılamadı", ex);
+        }
+    }
+
     private void InstallGlobalErrorHandlers()
     {
         // Önce log, sonra görev çubuğu: Restore bir istisna atsa bile kayıt yazılmış olur.
@@ -216,12 +232,14 @@ public partial class App : Application
         {
             CrashLog.Write(args.IsTerminating ? "AppDomain Unhandled (süreç sonlanıyor)" : "AppDomain Unhandled", args.ExceptionObject);
             SafeRestoreTaskbar();
+            SafeCloseTrayHost();
         };
 
         DispatcherUnhandledException += (_, args) =>
         {
             CrashLog.Write("Dispatcher Unhandled", args.Exception);
             SafeRestoreTaskbar();
+            SafeCloseTrayHost();
         };
 
         // Gözlenmeyen Task hataları: süreci düşürmez, ama izi kalsın.
