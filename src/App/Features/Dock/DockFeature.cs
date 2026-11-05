@@ -47,6 +47,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     private FullscreenDetector? _fullscreenDetector;
     private AppBarService? _appBarService;
     private MonitorService? _monitorService;
+    private DisplayEvents? _displayEvents;
     private MediaService? _mediaService;
     private PowerService? _powerService;
     private DockController? _controller;
@@ -57,10 +58,6 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         if (_windows.Count > 0)
             return;
 
-        // Görev çubuğunu gizle (ve durumunu diske kaydet); kullanıcı "Windows görev çubuğunu gizle"yi kapattıysa dokunulmaz.
-        if (settings.HideWindowsTaskbar)
-            TaskbarService.Hide();
-
         // Platform servislerini başlat
         _pinnedAppsService = new PinnedAppsService();
         _windowTracker = services.AcquireWindowTracker();
@@ -69,6 +66,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         _monitorService = new MonitorService();
         _monitorService.Start();
         _monitorService.MonitorsChanged += OnMonitorsChanged;
+        _displayEvents = new DisplayEvents(_monitorService);
 
         _controller = new DockController(
             _pinnedAppsService,
@@ -95,13 +93,16 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             ApplyReduceMotion();
         }
 
-        var monitors = _monitorService.GetMonitors();
-        var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(monitors, settings.MonitorTarget);
+        // Dock, ayarlarda "dock açık" olan her monitörde ayrı bir pencere olarak kurulur.
+        var targetMonitors = ResolveTargetMonitors(_monitorService.GetMonitors());
 
         foreach (var monitor in targetMonitors)
         {
             CreateDockWindow(monitor);
         }
+
+        // Görev çubuğu yalnız en az bir dock penceresi varken gizlenir (aksi halde hiçbir ekranda görev çubuğu kalmazdı).
+        ApplyTaskbarPolicy();
 
         // 50 ms kenar gözetleme (peek) zamanlayıcısı (yalnız gizliyken UI thread'de çalışır)
         _edgePeekTimer = new DispatcherTimer(DispatcherPriority.Background)
@@ -147,17 +148,43 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             if (state.Hwnd == 0)
                 continue;
 
-            var source = PresentationSource.FromVisual(state.Window);
-            var dpiScale = source?.CompositionTarget?.TransformToDevice.M22 ?? state.Monitor.DpiScaleY;
+            var dpiScale = state.Monitor.DpiScaleY;
             _appBarService.Reregister(state.Hwnd, (int)Math.Ceiling(state.Window.ReservedHeight), dpiScale);
         }
     }
 
+    private bool _taskbarHidden;
+
     private void EnsureTaskbarHidden()
     {
-        if (settings.HideWindowsTaskbar)
+        if (settings.HideWindowsTaskbar && _windowStates.Count > 0)
             TaskbarService.EnsureHidden();
     }
+
+    /// <summary>
+    /// Dock penceresi varken Windows görev çubuğunu (birincil ve bütün ikincil monitörlerdeki) gizler; hiç dock
+    /// penceresi kalmadıysa (ör. dock her ekranda kapatıldı) geri getirir. Kullanıcı "görev çubuğunu gizle"yi
+    /// kapattıysa hiç dokunulmaz.
+    /// </summary>
+    private void ApplyTaskbarPolicy()
+    {
+        if (!settings.HideWindowsTaskbar)
+            return;
+
+        if (_windowStates.Count > 0)
+        {
+            TaskbarService.Hide();
+            _taskbarHidden = true;
+        }
+        else if (_taskbarHidden)
+        {
+            TaskbarService.Restore();
+            _taskbarHidden = false;
+        }
+    }
+
+    private IReadOnlyList<DisplayMonitor> ResolveTargetMonitors(IReadOnlyList<DisplayMonitor> monitors) =>
+        MonitorPolicy.DockMonitors(MonitorPolicy.Resolve(settings.Monitors, settings.NewScreenDefault, monitors));
 
     private void CreateDockWindow(DisplayMonitor monitor)
     {
@@ -203,8 +230,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
             if (_appBarService is not null)
             {
-                var source = PresentationSource.FromVisual(window);
-                var dpiScale = source?.CompositionTarget?.TransformToDevice.M22 ?? monitor.DpiScaleY;
+                var dpiScale = state.Monitor.DpiScaleY;
                 var height = window.ActualHeight > 0 ? (int)Math.Ceiling(window.ReservedHeight) : 46;
                 _appBarService.Register(hwnd, height, dpiScale);
             }
@@ -218,8 +244,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
             if (_appBarService is not null && state.Hwnd != 0 && e.NewSize.Height > 0)
             {
-                var source = PresentationSource.FromVisual(window);
-                var dpiScale = source?.CompositionTarget?.TransformToDevice.M22 ?? monitor.DpiScaleY;
+                var dpiScale = state.Monitor.DpiScaleY;
                 _appBarService.UpdatePosition(state.Hwnd, (int)Math.Ceiling(window.ReservedHeight), dpiScale);
             }
         };
@@ -227,6 +252,14 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         window.LocationChanged += (s, e) =>
         {
             UpdateDockBounds(window, visibilityController);
+        };
+
+        // DPI değişince DIP yükseklik aynı kalır (SizeChanged gelmez) ama piksel karşılığı değişir: AppBar payı yenilenir.
+        window.DpiChanged += (s, e) =>
+        {
+            UpdateDockBounds(window, visibilityController);
+            if (_appBarService is not null && state.Hwnd != 0 && window.ActualHeight > 0)
+                _appBarService.UpdatePosition(state.Hwnd, (int)Math.Ceiling(window.ReservedHeight), state.Monitor.DpiScaleY);
         };
 
         window.DisplayChangeHandler = () =>
@@ -269,8 +302,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
         if (_monitorService is null) return;
 
-        var currentMonitors = _monitorService.GetMonitors();
-        var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(currentMonitors, settings.MonitorTarget);
+        var targetMonitors = ResolveTargetMonitors(_monitorService.GetMonitors());
         var targetKeys = new HashSet<string>(targetMonitors.Select(m => m.Id), StringComparer.OrdinalIgnoreCase);
 
         // 1. Hedefte olmayan veya bağlantısı kesilen monitörlerin pencerelerini kapat
@@ -305,8 +337,9 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             }
         }
 
-        // Windows Explorer yeni monitör için ikincil görev çubuğu oluşturmuş olabilir (Shell_SecondaryTrayWnd)
-        EnsureTaskbarHidden();
+        // Windows Explorer yeni monitör için ikincil görev çubuğu oluşturmuş olabilir (Shell_SecondaryTrayWnd);
+        // Hide() ikincil çubukları da kapsar. Son dock penceresi kapandıysa görev çubuğu geri gelir.
+        ApplyTaskbarPolicy();
         UpdateEdgeTimer();
     }
 
@@ -497,6 +530,8 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         _windowStates.Clear();
         _windows.Clear();
 
+        _displayEvents?.Dispose();
+        _displayEvents = null;
         _monitorService?.Dispose();
         _monitorService = null;
 
