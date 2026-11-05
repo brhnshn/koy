@@ -21,7 +21,7 @@ Makine: Windows 11 Home 26200, RTX 4050 Laptop + Intel UHD.
 | 2026-11-04 | Kontrol Merkezi servisleri + hava durumu tembel (`b07c0db`) | 79.0 MB | 132.0 MB | 196 → 147 modül, pencere dışı kısım 20 → 13 MB. ~7 MB tasarruf sağlandı |
 | 2026-11-04 | Tam genişlik dock + durum alanı, dock kapalı | 90.4 MB | 160.6 MB | Bütçe aşılmış; dock dışı bir kaynak, ayrıca incelenecek |
 | 2026-11-04 | Tam genişlik dock + durum alanı, dock açık | 101.5 MB | 650.4 MB | Dock + durum alanı birkaç MB ekliyor; working set'teki artış kabuk simge fabrikasının yüklediği DLL'ler |
-| 2026-11-04 | M6 Sürüm (Paket 0-4 Tam E2E, Boşta) | 82.7 MB | 135.9 MB | Bütçe (< 85 MB) sağlandı; Seelen UI model yüzen dock, çentik 236×34, lazy servisler |
+| 2026-11-04 | M6 Sürüm (Paket 0-4 Tam E2E, Boşta) | 82.7 MB | 135.9 MB | Bütçe kararı revizyon sonrasına bırakıldı (hedef < 60 MB geçerli; 85 MB eşiği resmi karar değil); Seelen UI model yüzen dock, çentik 236×34, lazy servisler |
 
 
 ## Öğrenilenler
