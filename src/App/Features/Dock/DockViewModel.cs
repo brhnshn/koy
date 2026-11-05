@@ -33,7 +33,10 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     private readonly IShellActionService _shellActionService;
     private readonly VisibilityController? _visibilityController;
     private readonly IMediaService? _mediaService;
-    private readonly ITrayService? _trayService;
+    private ITrayService? _trayService;
+    // Tepsi iş parçacığı okur, arayüz iş parçacığı yazar: kapalıyken simge olayları arayüzü uyandırmasın.
+    private volatile bool _trayPopupOpen;
+    private int _traySyncQueued;
     private DispatcherTimer? _trayCloseTimer;
 
     private readonly Spring _translateSpring;
@@ -111,7 +114,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _hasTrayIcons;
 
-    public bool HasTray => _trayService is not null;
+    /// <summary>Tepsi düğmesi yalnız tepsi penceresi gerçekten çalışıyorsa görünür (başlatma başarısızsa gizli).</summary>
+    public bool HasTray => _trayService is { IsRunning: true };
 
     /// <summary>Ayırıcının sağında bir şey varsa (klasörler ya da tepsi) ayırıcı görünür.</summary>
     public bool ShowRightSection => ShowFolders || HasTray;
@@ -231,6 +235,30 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         UpdateItems();
     }
 
+    /// <summary>
+    /// Tepsi servisini takar ya da çıkarır (görev çubuğu gizlenince / geri gelince). Arayüz iş parçacığında çağrılır.
+    /// Çıkarılınca açık pencere kapanır ve simge görüntüleri bırakılır.
+    /// </summary>
+    public void SetTrayService(ITrayService? service)
+    {
+        if (ReferenceEquals(_trayService, service))
+            return;
+
+        if (_trayService is not null)
+            _trayService.IconsChanged -= OnTrayIconsChanged;
+
+        _trayService = service;
+
+        if (service is not null)
+            service.IconsChanged += OnTrayIconsChanged;
+
+        IsTrayPopupOpen = false;
+        TrayIcons.Clear();
+        HasTrayIcons = false;
+        OnPropertyChanged(nameof(HasTray));
+        OnPropertyChanged(nameof(ShowRightSection));
+    }
+
     [RelayCommand]
     private void ToggleTray()
     {
@@ -285,6 +313,7 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
     partial void OnIsTrayPopupOpenChanged(bool value)
     {
+        _trayPopupOpen = value;
         if (!value)
         {
             _trayCloseTimer?.Stop();
@@ -297,12 +326,27 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
     private void OnTrayIconsChanged(object? sender, EventArgs e)
     {
-        // Tepsi iş parçacığından gelir; pencere kapalıyken hiçbir şey yapılmaz.
-        Application.Current?.Dispatcher.InvokeAsync(() =>
+        // Tepsi iş parçacığından gelir. Pencere kapalıyken arayüze hiç dönülmez: açılırken liste zaten baştan okunur.
+        if (!_trayPopupOpen)
+            return;
+
+        // Sık değişen simgelerde (animasyonlu ipucu, rozet) arka arkaya iş biriktirme: bekleyen tek bir eşitleme yeter.
+        if (Interlocked.Exchange(ref _traySyncQueued, 1) == 1)
+            return;
+
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null)
         {
+            Volatile.Write(ref _traySyncQueued, 0);
+            return;
+        }
+
+        dispatcher.InvokeAsync(() =>
+        {
+            Volatile.Write(ref _traySyncQueued, 0);
             if (IsTrayPopupOpen)
                 SyncTrayIcons();
-        });
+        }, DispatcherPriority.Background);
     }
 
     private void SyncTrayIcons()
@@ -830,6 +874,7 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         if (_trayService is not null)
         {
             _trayService.IconsChanged -= OnTrayIconsChanged;
+            _trayService = null;
         }
 
         _trayCloseTimer?.Stop();

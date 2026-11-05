@@ -6,6 +6,7 @@ using Koy.Core.Power;
 using Koy.Core.Dock;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
+using Koy.Core.Tray;
 using Koy.Core.Visibility;
 using Koy.Platform.Display;
 using Koy.Platform.Media;
@@ -50,7 +51,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     private DisplayEvents? _displayEvents;
     private MediaService? _mediaService;
     private PowerService? _powerService;
-    private TrayHostService? _trayService;
+    private TrayHostService? _trayService;   // yalnız görev çubuğu gizliyken dolu (ApplyTrayPolicy)
     private DockController? _controller;
     private DispatcherTimer? _edgePeekTimer;
 
@@ -83,13 +84,6 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             _appBarService = new AppBarService();
         }
 
-        // Görev çubuğu gizliyken tepsi simgelerine ulaşmanın tek yolu Koy'un kendi tepsisi (ayardan kapatılabilir).
-        if (settings.DockShowTray)
-        {
-            _trayService = new TrayHostService();
-            _trayService.Start();
-        }
-
         // Medya servisi (Tam genişlik Now Playing hapı için); Notch ile paylaşılan tek örnek
         _mediaService = services.AcquireMediaService();
 
@@ -108,6 +102,9 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         {
             CreateDockWindow(monitor);
         }
+
+        // Önce tepsi, sonra görev çubuğu: Windows'un tepsisi gizlenmeden Koy'un tepsisi hazır olsun.
+        ApplyTrayPolicy();
 
         // Görev çubuğu yalnız en az bir dock penceresi varken gizlenir (aksi halde hiçbir ekranda görev çubuğu kalmazdı).
         ApplyTaskbarPolicy();
@@ -146,7 +143,11 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             return;
 
         if (settings.HideWindowsTaskbar)
+        {
             TaskbarService.Hide();
+            // Yeni Gezgin kendi tepsisini oluşturdu: Koy'unki yeniden öne alınır, uygulamalar simgelerini yeniden kaydeder.
+            _trayService?.EnsureFirst();
+        }
 
         if (_appBarService is null)
             return;
@@ -187,12 +188,47 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         {
             TaskbarService.Hide();
             _taskbarHidden = true;
+            _trayService?.EnsureFirst();
         }
         else if (_taskbarHidden)
         {
             TaskbarService.Restore();
             _taskbarHidden = false;
         }
+    }
+
+    /// <summary>
+    /// Koy'un tepsi penceresini yalnız Windows görev çubuğu gerçekten gizliyken (ayar açık ve en az bir dock penceresi
+    /// var) kurar; koşul bozulunca (son dock penceresi kapandı, ayar değişti) bırakır. Bütün monitörlerdeki dock'lar
+    /// SharedServices'teki aynı örneği paylaşır.
+    /// </summary>
+    private void ApplyTrayPolicy()
+    {
+        var shouldHost = TrayHostPolicy.ShouldHost(settings.HideWindowsTaskbar, settings.DockShowTray, _windowStates.Count);
+
+        if (shouldHost && _trayService is null)
+        {
+            _trayService = services.AcquireTrayHost();
+            if (_trayService is not null)
+            {
+                foreach (var state in _windowStates.Values)
+                    state.ViewModel.SetTrayService(_trayService);
+            }
+        }
+        else if (!shouldHost && _trayService is not null)
+        {
+            ReleaseTray();
+        }
+    }
+
+    private void ReleaseTray()
+    {
+        // Düğme ve açık pencere önce kapanır; sonra Koy'un Shell_TrayWnd penceresi yok edilir ve Windows tepsisi tek başına kalır.
+        foreach (var state in _windowStates.Values)
+            state.ViewModel.SetTrayService(null);
+
+        _trayService = null;
+        services.ReleaseTrayHost();
     }
 
     private IReadOnlyList<DisplayMonitor> ResolveTargetMonitors(IReadOnlyList<DisplayMonitor> monitors) =>
@@ -351,7 +387,9 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         }
 
         // Windows Explorer yeni monitör için ikincil görev çubuğu oluşturmuş olabilir (Shell_SecondaryTrayWnd);
-        // Hide() ikincil çubukları da kapsar. Son dock penceresi kapandıysa görev çubuğu geri gelir.
+        // Hide() ikincil çubukları da kapsar. Son dock penceresi kapandıysa görev çubuğu geri gelir
+        // ve (tepsi önce bırakılır) Koy'un tepsi penceresi de kapanır.
+        ApplyTrayPolicy();
         ApplyTaskbarPolicy();
         UpdateEdgeTimer();
     }
@@ -511,9 +549,10 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         }
 
         // Koy'un Shell_TrayWnd penceresi kapanır; uygulamalar yeniden doğrudan Windows tepsisine yazar.
-        // Bütün kayıtlar zaten Windows'a da iletildiği için tepside eksik simge kalmaz.
-        _trayService?.Dispose();
-        _trayService = null;
+        // Bütün kayıtlar zaten Windows'a da iletildiği için tepside eksik simge kalmaz (TrayHostService açıklaması).
+        // Görev çubuğu geri getirilmeden (aşağıdaki Restore) önce yapılır.
+        if (_trayService is not null)
+            ReleaseTray();
 
         if (_monitorService is not null)
         {

@@ -14,6 +14,8 @@ public sealed partial class TrayIconViewModel : ObservableObject
     /// <summary>Görüntünün hangi simge kopyasından çözüldüğü; değişince görüntü yeniden çözülür.</summary>
     public nint IconHandle { get; private set; }
 
+    private bool _decoded;
+
     /// <summary>Boş ipucunda null: WPF boş bir ipucu kutusu göstermesin.</summary>
     [ObservableProperty]
     private string? _tooltip;
@@ -30,9 +32,11 @@ public sealed partial class TrayIconViewModel : ObservableObject
     public void Update(TrayIcon model, Func<TrayIconKey, byte[]?> loadImage)
     {
         Tooltip = NullIfEmpty(model.Tooltip);
-        if (model.IconHandle == IconHandle && Icon is not null)
+        // Çözülemeyen simge de bir kez denenir; aynı tanıtıcıyla her eşitlemede GDI ve PNG işi tekrarlanmaz.
+        if (_decoded && model.IconHandle == IconHandle)
             return;
 
+        _decoded = true;
         IconHandle = model.IconHandle;
         Icon = Decode(loadImage(Key));
     }

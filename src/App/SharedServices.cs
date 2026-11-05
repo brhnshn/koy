@@ -17,6 +17,8 @@ public sealed class SharedServices : IDisposable
     private int _mediaServiceUsers;
     private RadioService? _radioService;
     private int _radioServiceUsers;
+    private TrayHostService? _trayHost;
+    private int _trayHostUsers;
     private bool _disposed;
 
     public WindowTracker AcquireWindowTracker()
@@ -89,6 +91,56 @@ public sealed class SharedServices : IDisposable
         }
     }
 
+    /// <summary>
+    /// Koy'un Shell_TrayWnd penceresi (sistem tepsisi barındırıcısı). Monitör başına ayrı pencere kurulmaz: bütün
+    /// dock'lar aynı örneği paylaşır. Pencere kurulamazsa null döner (sayılmaz, bırakmaya gerek yok).
+    /// </summary>
+    public TrayHostService? AcquireTrayHost()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        // Pencere beklenmedik kapandıysa (RequestClose sonrası) yenisi kurulur.
+        if (_trayHost is { IsRunning: false })
+        {
+            _trayHost.Dispose();
+            _trayHost = null;
+        }
+
+        if (_trayHost is null)
+        {
+            var host = new TrayHostService();
+            host.Start();
+            if (!host.IsRunning)
+            {
+                host.Dispose();
+                return null;
+            }
+
+            _trayHost = host;
+        }
+
+        _trayHostUsers++;
+        return _trayHost;
+    }
+
+    public void ReleaseTrayHost()
+    {
+        if (_trayHostUsers == 0)
+            return;
+
+        if (--_trayHostUsers == 0)
+        {
+            _trayHost?.Dispose();
+            _trayHost = null;
+        }
+    }
+
+    /// <summary>
+    /// Tepsi penceresini beklemeden kapatma isteği (çökme işleyicileri): Windows tepsisi hemen eski haline döner.
+    /// Örnek sonra normal yoldan (Release/Dispose) bırakılır.
+    /// </summary>
+    public void RequestTrayHostClose() => _trayHost?.RequestClose();
+
     public void Dispose()
     {
         if (_disposed)
@@ -101,6 +153,9 @@ public sealed class SharedServices : IDisposable
         _mediaService = null;
         _radioService?.Dispose();
         _radioService = null;
+        _trayHost?.Dispose();
+        _trayHost = null;
+        _trayHostUsers = 0;
         _windowTrackerUsers = 0;
         _mediaServiceUsers = 0;
         _radioServiceUsers = 0;

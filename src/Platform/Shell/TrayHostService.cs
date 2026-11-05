@@ -20,6 +20,13 @@ namespace Koy.Platform.Shell;
 /// Yöntem RetroBar ve Cairo Shell'in (ManagedShell) kullandığıyla aynıdır.
 ///
 /// Pencere kendi iş parçacığında çalışır: arayüz meşgulken uygulamaların Shell_NotifyIcon çağrıları beklemesin.
+///
+/// Süreç nasıl ölürse ölsün sistemde iz kalmaz: pencere ve pencere sınıfları sürece aittir (süreç bitince Windows
+/// yok eder), diske, kayıt defterine, AppBar'a ya da görev çubuğu durumuna hiçbir şey yazılmaz, her kayıt Windows'a da
+/// iletildiği için Gezgin simgeleri zaten bilir. Geriye yalnız görev çubuğunun gizli kalması kalır; onu
+/// açılıştaki TaskbarService.Restore (ve çökme işleyicilerindeki SafeRestoreTaskbar) geri getirir.
+/// Temiz kapanışta (Stop) pencere yok edilir ve uygulamalara bir kez daha TaskbarCreated yayınlanır:
+/// iletimi kaçan (Gezgin o an yanıt vermiyorsa) kayıtlar da Windows tepsisine yeniden eklenir.
 /// </summary>
 public sealed class TrayHostService : ITrayService
 {
@@ -86,6 +93,17 @@ public sealed class TrayHostService : ITrayService
         _thread = new Thread(() => Run(ready)) { IsBackground = true, Name = "Koy tepsi" };
         _thread.Start();
         ready.Wait(TimeSpan.FromSeconds(5));
+    }
+
+    /// <summary>
+    /// Pencereyi beklemeden kapatma isteği yollar (çökme işleyicileri için: arayüz iş parçacığı bloklanmaz).
+    /// Kapanış tepsi iş parçacığında biter; tam bekleme için <see cref="Stop"/> kullanılır.
+    /// </summary>
+    public void RequestClose()
+    {
+        var hwnd = Hwnd;
+        if (!hwnd.IsNull)
+            PInvoke.PostMessage(hwnd, WmClose, default, default);
     }
 
     public void Stop()
@@ -249,6 +267,9 @@ public sealed class TrayHostService : ITrayService
         UnregisterClass(ShellTrayLocator.TrayClassName, instance);
         UnregisterClass(NotifyClassName, instance);
         IconsChanged?.Invoke(this, EventArgs.Empty);
+
+        // Koy artık Shell_TrayWnd sahibi değil: uygulamalar simgelerini Windows'un tepsisine yeniden eklesin.
+        BroadcastTaskbarCreated();
     }
 
     private unsafe bool CreateWindows(HINSTANCE instance)
