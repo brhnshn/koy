@@ -19,9 +19,15 @@ C# + WPF, .NET 10 (`global.json`), yalnız Windows 11. MVVM: CommunityToolkit.Mv
 ```powershell
 dotnet build Koy.slnx                       # derle
 dotnet test Koy.slnx                        # testler
-dotnet run --project src/App                # çalıştır (notch'a sağ tık → Çıkış)
+dotnet run --project src/App                # çalıştır (çıkış: Koy penceresinde "Koy'dan çık" ya da sağ alt menü)
 powershell -ExecutionPolicy Bypass -File scripts\measure-memory.ps1   # bellek ölç
+dotnet run --project tools/Koy.UiSnapshots -- --out <klasör> --prefix <ad> [--theme dark|light|both] [--scene all|uninstall]
+python scripts/generate-icons.py            # marka simgelerini (ICO/PNG) assets/branding'den üretir
 ```
+`tools/Koy.UiSnapshots`: Koy penceresinin sayfalarını, sihirbazı ve sağ alt menüyü ekrana çıkarmadan PNG'ye çizer
+(Win32 kancası, AppBar ya da görev çubuğu servisi başlatılmaz; ayarlar geçici dosyada). Arayüz değişikliğinin görsel
+kanıtı için kullanılır. Uygulamayı çalıştırmadan bakmak gerektiğinde ve kaldırma gibi geri alınamaz akışlarda tek güvenli yol budur.
+Sürüm ve değişiklik günlüğü release-please ile otomatiktir; elle etiket atılmaz, akış için `CONTRIBUTING.md` (Sürüm bölümü).
 SDK bulunamazsa yeni terminal aç (PATH yenilenmemiş olabilir).
 
 ## Yapı
@@ -29,6 +35,10 @@ SDK bulunamazsa yeni terminal aç (PATH yenilenmemiş olabilir).
 src/Core/       Saf C# (net10.0). WPF ve Windows API YOK.
                 Servis sözleşmeleri (IMediaService…) ve veri modelleri, durum makineleri, orkestrasyon,
                 yay fiziği, ayarlar. Klasörler özelliğe göre: Media/, Audio/, Notch/, Visibility/, Settings/…
+                Appearance/ tema, vurgu rengi, malzeme, köşe ve hareket (MotionPolicy) kararları
+                Shortcuts/  kısayol modeli (Hotkey), varsayılanlar, çakışma/ayrılmış kombinasyon denetimi
+                Display/    monitör modeli, ekran başına ayar, yerleşim çözümleyici (DisplayLayoutResolver)
+                Uninstall/  kaldırma kararları ve temizlik listesi (UninstallPlan, UninstallCleaner)
 src/Platform/   Core'daki sözleşmelerin Windows 11 uygulamaları (WinRT / CsWin32). Aynı klasör adları:
                 Media/MediaService.cs : Core.Media.IMediaService. Win32 çağrısı için adını NativeMethods.txt'ye
                 ekle, CsWin32 üretir; elle DllImport yazma.
@@ -37,11 +47,15 @@ src/App/        WPF. Yalnız görseller ve ince ViewModel'ler, özellik klasörl
                 Features/Notch/                NotchFeature, NotchWindow, NotchShape, NotchViewModel
                 Features/Music/, ControlCenter/, Status/, Calendar/, Shelf/   notch panelleri
                 Features/Dock/                 DockFeature, DockWindow… (kapalıyken hiç yüklenmez)
-                Features/Settings/             KoyWindow (ayarlar) ve sayfaları
-                Resources/                     paylaşılan stiller, Strings.resx
+                Features/Settings/             KoyWindow (ayarlar), sayfaları, AppUninstaller (kaldırma)
+                Features/Shortcuts/            ShortcutController: genel kısayolların kaydı ve dağıtımı
+                Features/Menu/, Wizard/        sağ alt menü ve tepsi simgesi, ilk açılış sihirbazı
+                Resources/                     Theme.Dark/Light.xaml (renkler), Tokens.xaml (ölçü, yazı), Icons.xaml,
+                                               Styles.xaml, Motion.cs (hareket), ThemeManager, Strings.resx
 tests/Core.Tests/  xUnit, yalnız Core. Ayrı App.Tests yok: mantık Core'da, ViewModel ince kalır.
-docs/           PLAN, ROADMAP, MEMORY, NAMING.
-scripts/        Yardımcı betikler.
+tools/Koy.UiSnapshots/  Arayüzü PNG'ye çizen yardımcı (bkz. Komutlar). Çözüme dahildir, sürümle yayımlanmaz.
+docs/           PLAN, DESIGN, ROADMAP, MEMORY, NAMING.
+scripts/        pack.ps1 (Velopack paketi), measure-memory.ps1, generate-icons.py, get-velopack-version.ps1.
 ```
 Bağımlılık yönü: `App → Platform → Core` ve `App → Core`. Core hiçbir şeye bağımlı değildir. Platform WPF'e bağımlı olmaz.
 Özellikler ayrı projelere (assembly) bölünmez; klasör yeterli.
@@ -50,7 +64,7 @@ Bağımlılık yönü: `App → Platform → Core` ve `App → Core`. Core hiçb
 1. **Bellek bütçesi: tek monitör, boşta < 60 MB private.** Her aşama sonunda `scripts/measure-memory.ps1` çalıştır, sonucu `docs/MEMORY.md` tablosuna yaz. Bütçeyi aşan değişiklik birleştirilmez; önce sebebi bul.
 2. **Tarayıcı yok.** WebView2, CefSharp, Electron, Blazor Hybrid kullanılmaz.
 3. **Yazılımla çizim varsayılan.** GPU ile çizim ~135 MB ekliyor (bkz. `docs/MEMORY.md`). `App.xaml.cs` içindeki `RenderMode.SoftwareOnly` satırını ölçmeden kaldırma.
-4. **Tek süreç.** Bütün pencereler (her monitör için notch + dock, ayarlar) aynı süreçte. Ayarlar penceresi yalnız açılınca oluşturulur, kapanınca bırakılır.
+4. **Tek süreç.** Bütün pencereler (her monitör için notch + dock, ayarlar) aynı süreçte. Koy penceresi (`KoyWindow`) ilk açılışta oluşturulur ve tek örnek olarak kalır; kapatınca yok edilmez, gizlenir (`OnClosing` iptal edilir, ayarlar kaydedilir). Açılmamışsa hiç oluşturulmaz. Koy'u gerçekten kapatan yalnız "Koy'dan çık" düğmesi ve sağ alt menüdür; çentik ve dock bağlam menülerinde Çıkış yoktur.
 5. **Servisler yalnız gerektiğinde çalışır.** Notch gizliyken görselleştirici, fare takibi, küçük resim üretimi durur. Zamanlayıcılar (`DispatcherTimer`) görünür değilken durdurulur.
 6. **Animasyon yalnız hareket varken kare çizer.** `CompositionTarget.Rendering` animasyon başlarken bağlanır, `Spring` durunca çözülür (örnek: `NotchWindow.xaml.cs`). WPF `Storyboard` yerine `Core/Animation/Spring` kullanılır.
 7. **Görev çubuğu güvenliği.** Uygulama nasıl kapanırsa kapansın (normal çıkış, istisna, süreç öldürülmesi) Windows görev çubuğu geri gelmeli. Açılışta `TaskbarService.Restore()` çağrısı kalır. Dock'la ilgili her değişiklikte elle test: Görev Yöneticisi'nden süreci öldür → uygulamayı yeniden aç → görev çubuğu görünüyor mu?
