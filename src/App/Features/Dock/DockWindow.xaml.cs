@@ -44,6 +44,7 @@ public partial class DockWindow : Window
         InitializeComponent();
         Loaded += OnLoaded;
         SizeChanged += OnSizeChanged;
+        DpiChanged += (_, _) => Reposition(_targetMonitor);
         PreviewMouseDown += (_, e) =>
         {
             if (e.ChangedButton != MouseButton.Right)
@@ -65,15 +66,16 @@ public partial class DockWindow : Window
 
     protected override void OnSourceInitialized(EventArgs e)
     {
-        base.OnSourceInitialized(e);
-
         var hwnd = new WindowInteropHelper(this).Handle;
         WindowStyles.ApplyToolWindowAndNoActivate(hwnd);
 
         var source = HwndSource.FromHwnd(hwnd);
         source?.AddHook(WndProc);
 
+        // Önce hedef ekrana yerleş, sonra SourceInitialized abonelerini çalıştır: AppBar kaydı pencerenin
+        // bulunduğu monitöre göre yapılır, yanlış ekranda yer ayrılmasın.
         Reposition(_targetMonitor);
+        base.OnSourceInitialized(e);
     }
 
     private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
@@ -132,6 +134,26 @@ public partial class DockWindow : Window
     public void Reposition(DisplayMonitor? targetMonitor = null)
     {
         _targetMonitor = targetMonitor ?? _targetMonitor;
+
+        var hwnd = Handle;
+        if (hwnd != 0 && _targetMonitor is { PixelWidth: > 100 } monitor)
+        {
+            // Pencere oluşmuşsa konum hedef ekranın kendi ölçeğiyle pikselde verilir (karışık DPI'da DIP Left/Top yanıltır).
+            // Pencere başka DPI'lı ekrandaysa önce yalnız taşınır; DpiChanged gelince tam yerleşir (boyut iki kez ölçeklenmesin).
+            var sameDpi = Math.Abs(VisualTreeHelper.GetDpi(this).DpiScaleX - monitor.DpiScaleX) < 0.01;
+            if (ViewModel?.IsFullWidthMode == true)
+            {
+                SizeToContent = SizeToContent.Manual;
+                WindowStyles.SetBounds(hwnd, WindowPlacementMath.BottomFullWidth(monitor, 44.0), resize: sameDpi);
+            }
+            else
+            {
+                SizeToContent = SizeToContent.WidthAndHeight;
+                var margin = (ViewModel?.IsSnapped == true) ? 0.0 : 10.0;
+                WindowStyles.SetBounds(hwnd, WindowPlacementMath.BottomCenter(monitor, ActualWidth, ActualHeight, margin), resize: false);
+            }
+            return;
+        }
 
         if (ViewModel?.IsFullWidthMode == true)
         {

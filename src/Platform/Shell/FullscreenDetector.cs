@@ -18,7 +18,84 @@ public sealed class FullscreenDetector : IFullscreenDetector
 
     public bool IsFullscreen() => IsFullscreen(0);
 
+    /// <summary>
+    /// Belirtilen monitörde tam ekran var mı (0: ön plan hangi monitördeyse orada). Odak başka ekrandaki bir
+    /// pencerede olsa bile bu monitörün en üstündeki gerçek pencere tam ekransa o ekran tam ekran sayılır;
+    /// yan ekranda video tam ekranken ana ekrana tıklamak oradaki Koy'u videonun üstüne çıkarmasın.
+    /// </summary>
     public bool IsFullscreen(nint targetMonitorHandle = 0)
+    {
+        if (IsForegroundFullscreen(targetMonitorHandle))
+            return true;
+
+        return targetMonitorHandle != 0 && IsTopWindowFullscreenOn(targetMonitorHandle);
+    }
+
+    private unsafe bool IsTopWindowFullscreenOn(nint monitorHandle)
+    {
+        var ownPid = (uint)Environment.ProcessId;
+        var result = false;
+        var decided = false;
+
+        // EnumWindows üstten alta (z sırası) gezer; hedef monitördeki ilk gerçek pencere karar verir.
+        PInvoke.EnumWindows((hwnd, _) =>
+        {
+            if (!PInvoke.IsWindowVisible(hwnd) || PInvoke.IsIconic(hwnd) || IgnoredHandles.Contains(hwnd.Value) || hwnd.Value == NotchHandle)
+                return true;
+
+            uint pid = 0;
+            PInvoke.GetWindowThreadProcessId(hwnd, &pid);
+            if (pid == ownPid)
+                return true;
+
+            // Gizlenmiş (cloaked) UWP/başka sanal masaüstü pencereleri görünür sayılmaz.
+            int cloaked = 0;
+            if (PInvoke.DwmGetWindowAttribute(hwnd, Windows.Win32.Graphics.Dwm.DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, &cloaked, sizeof(int)).Succeeded && cloaked != 0)
+                return true;
+
+            var exStyle = (WINDOW_EX_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+            if (exStyle.HasFlag(WINDOW_EX_STYLE.WS_EX_TOOLWINDOW) || exStyle.HasFlag(WINDOW_EX_STYLE.WS_EX_NOACTIVATE) ||
+                exStyle.HasFlag(WINDOW_EX_STYLE.WS_EX_TRANSPARENT))
+                return true;
+
+            Span<char> buffer = stackalloc char[256];
+            fixed (char* ptr = buffer)
+            {
+                var len = PInvoke.GetClassName(hwnd, ptr, 256);
+                if (len > 0)
+                {
+                    var cn = buffer[..len];
+                    if (cn.SequenceEqual("Progman") || cn.SequenceEqual("WorkerW") || cn.SequenceEqual("Shell_TrayWnd") ||
+                        cn.SequenceEqual("Shell_SecondaryTrayWnd") || cn.SequenceEqual("ScreenClippingHost"))
+                        return true;
+                }
+            }
+
+            if (!PInvoke.GetWindowRect(hwnd, out var wr))
+                return true;
+
+            var mon = PInvoke.MonitorFromWindow(hwnd, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
+            if (mon.Value != monitorHandle)
+                return true;
+
+            var mi = new MONITORINFO { cbSize = (uint)sizeof(MONITORINFO) };
+            if (!PInvoke.GetMonitorInfo(mon, ref mi))
+                return true;
+
+            var style = (WINDOW_STYLE)PInvoke.GetWindowLong(hwnd, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            result = FullscreenRule.IsFullscreen(
+                new WindowRect(wr.left, wr.top, wr.right, wr.bottom),
+                new WindowRect(mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right, mi.rcMonitor.bottom),
+                hasCaption: style.HasFlag(WINDOW_STYLE.WS_CAPTION),
+                isMaximized: style.HasFlag(WINDOW_STYLE.WS_MAXIMIZE));
+            decided = true;
+            return false; // ilk gerçek pencere karar verdi, taramayı bitir
+        }, 0);
+
+        return decided && result;
+    }
+
+    private bool IsForegroundFullscreen(nint targetMonitorHandle)
     {
         // Ön plandaki pencereyi al
         var fg = PInvoke.GetForegroundWindow();

@@ -37,6 +37,7 @@ public partial class NotchWindow : Window
     {
         InitializeComponent();
         Loaded += (_, _) => PlaceAtTopCenter(_targetMonitor);
+        DpiChanged += (_, _) => PlaceAtTopCenter(_targetMonitor);
         DataContextChanged += OnDataContextChanged;
     }
 
@@ -88,8 +89,18 @@ public partial class NotchWindow : Window
     {
         _targetMonitor = targetMonitor ?? _targetMonitor;
 
-        if (_targetMonitor is not null && _targetMonitor.WidthDip > 100)
+        if (_targetMonitor is not null && _targetMonitor.PixelWidth > 100 && _hwnd != 0)
         {
+            // Pencere oluşmuşsa konum hedef ekranın kendi ölçeğiyle pikselde verilir (karışık DPI'da DIP Left/Top yanıltır).
+            // Pencere şu an başka DPI'lı ekrandaysa önce yalnız taşınır: Windows taşırken boyutu kendi ölçekler
+            // (WM_DPICHANGED), boyut aynı çağrıda verilirse iki kez ölçeklenir. DpiChanged gelince tam yerleşir.
+            var windowScale = VisualTreeHelper.GetDpi(this).DpiScaleX;
+            var sameDpi = Math.Abs(windowScale - _targetMonitor.DpiScaleX) < 0.01;
+            WindowStyles.SetBounds(_hwnd, WindowPlacementMath.TopCenter(_targetMonitor, Width, Height), resize: sameDpi);
+        }
+        else if (_targetMonitor is not null && _targetMonitor.WidthDip > 100)
+        {
+            // Pencere henüz oluşmadı: yaklaşık DIP konumu; SourceInitialized'da piksel konumu uygulanır.
             Left = _targetMonitor.LeftDip + (_targetMonitor.WidthDip - Width) / 2;
             Top = _targetMonitor.TopDip;
         }

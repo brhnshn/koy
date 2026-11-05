@@ -1,4 +1,5 @@
 using System.Reflection;
+using Koy.Core.Display;
 using Koy.Core.Settings;
 
 namespace Koy.Core.Tests;
@@ -11,7 +12,8 @@ public class AppSettingsEqualityTests
 {
     public static IEnumerable<object[]> ScalarProperties() =>
         typeof(AppSettings).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.CanWrite && p.PropertyType != typeof(List<string>))
+            .Where(p => p.CanWrite && p.PropertyType != typeof(List<string>) &&
+                        p.PropertyType != typeof(Dictionary<string, MonitorSettings>))
             .Select(p => new object[] { p.Name });
 
     [Theory]
@@ -37,6 +39,18 @@ public class AppSettingsEqualityTests
         property.SetValue(changed, new List<string> { "yeni" });
 
         Assert.NotEqual(new AppSettings(), changed);
+    }
+
+    [Fact]
+    public void Changing_monitor_settings_makes_settings_unequal_and_changes_the_hash()
+    {
+        var changed = new AppSettings { Monitors = new() { ["a"] = new MonitorSettings { DockEnabled = false } } };
+        var other = new AppSettings { Monitors = new() { ["a"] = new MonitorSettings { DockEnabled = true } } };
+
+        Assert.NotEqual(new AppSettings(), changed);
+        Assert.NotEqual(new AppSettings().GetHashCode(), changed.GetHashCode());
+        Assert.NotEqual(changed, other);
+        Assert.Equal(changed, new AppSettings { Monitors = new() { ["A"] = new MonitorSettings { DockEnabled = false } } });
     }
 
     private static object? Different(Type type, object? value)

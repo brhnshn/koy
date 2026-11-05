@@ -19,6 +19,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     /// <summary>Kısayollar sayfası: tuş yakalama, kayıt ve hata durumu.</summary>
     public ShortcutsViewModel Shortcuts { get; }
 
+    /// <summary>Ekranlar sayfası: monitör şeması ve ekran başına ayarlar.</summary>
+    public DisplaysViewModel Displays { get; }
+
     [ObservableProperty]
     private int _selectedPageIndex; // 0: Genel, 1: Çentik, 2: Dock, 3: Ekranlar, 4: Görünüm, 5: Kısayollar, 6: Performans, 7: Hakkında
 
@@ -256,6 +259,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     {
         _store = store ?? new SettingsStore(SettingsStore.DefaultPath);
         Shortcuts = new ShortcutsViewModel(_store);
+        Displays = new DisplaysViewModel(_store);
         LoadFromSettings();
     }
 

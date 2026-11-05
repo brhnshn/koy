@@ -1,3 +1,4 @@
+using Koy.Core.Display;
 using Koy.Core.Dock;
 using Koy.Core.Visibility;
 
@@ -11,7 +12,10 @@ namespace Koy.Core.Settings;
 /// </summary>
 public sealed record AppSettings
 {
-    public int Version { get; set; } = 2;
+    /// <summary>Şema sürümü. 3: monitör başına ayar (<see cref="Monitors"/>), eski <see cref="MonitorTarget"/> göçle taşınır.</summary>
+    public const int CurrentVersion = 3;
+
+    public int Version { get; set; } = CurrentVersion;
     public string Language { get; set; } = "tr";
     public bool NotchEnabled { get; set; } = true;
 
@@ -40,7 +44,17 @@ public sealed record AppSettings
     public int DockThumbnailDelayMs { get; set; } = 400;
     public int DockDodgeDelayMs { get; set; } = 150;
 
+    /// <summary>Eski (sürüm 2) hedef monitör alanı. Göçten sonra okunmaz; yalnız eski dosyalar bozulmasın diye durur.</summary>
     public string MonitorTarget { get; set; } = "Primary";
+
+    /// <summary>
+    /// Monitör başına çentik/dock ayarı; anahtar kararlı monitör kimliği. Bağlı olmayan ekranların kaydı da saklanır
+    /// (ekran geri takılınca ayarı döner). Sözlük yerinde değiştirilmez, <see cref="MonitorPolicy.Update"/> yenisini üretir.
+    /// </summary>
+    public Dictionary<string, MonitorSettings> Monitors { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Daha önce hiç görülmemiş yeni bir ekran bağlanınca çentik/dock durumu.</summary>
+    public NewScreenMode NewScreenDefault { get; set; } = NewScreenMode.NotchAndDock;
     public string? AccentColor { get; set; }
 
     /// <summary>Açıksa vurgu rengi Windows vurgu renginden gelir, AccentColor yok sayılır.</summary>
@@ -119,6 +133,8 @@ public sealed record AppSettings
                DockThumbnailDelayMs == other.DockThumbnailDelayMs &&
                DockDodgeDelayMs == other.DockDodgeDelayMs &&
                MonitorTarget == other.MonitorTarget &&
+               NewScreenDefault == other.NewScreenDefault &&
+               MonitorsEqual(Monitors, other.Monitors) &&
                AccentColor == other.AccentColor &&
                UseWindowsAccent == other.UseWindowsAccent &&
                FirstRunCompleted == other.FirstRunCompleted &&
@@ -178,6 +194,8 @@ public sealed record AppSettings
         hash.Add(DockThumbnailDelayMs);
         hash.Add(DockDodgeDelayMs);
         hash.Add(MonitorTarget);
+        hash.Add(NewScreenDefault);
+        hash.Add(MonitorsHash(Monitors));
         hash.Add(AccentColor);
         hash.Add(UseWindowsAccent);
         hash.Add(FirstRunCompleted);
@@ -223,5 +241,29 @@ public sealed record AppSettings
                 hash.Add(item);
         }
         return hash.ToHashCode();
+    }
+
+    private static bool MonitorsEqual(Dictionary<string, MonitorSettings>? a, Dictionary<string, MonitorSettings>? b)
+    {
+        if (ReferenceEquals(a, b)) return true;
+        a ??= [];
+        b ??= [];
+        if (a.Count != b.Count) return false;
+        foreach (var (key, value) in a)
+        {
+            var match = b.FirstOrDefault(p => string.Equals(p.Key, key, StringComparison.OrdinalIgnoreCase));
+            if (match.Key is null || !Equals(value, match.Value)) return false;
+        }
+        return true;
+    }
+
+    // Sıradan bağımsız: sözlük sırası değişse de aynı ayarlar aynı özeti verir.
+    private static int MonitorsHash(Dictionary<string, MonitorSettings>? monitors)
+    {
+        var sum = 0;
+        if (monitors is not null)
+            foreach (var (key, value) in monitors)
+                sum += HashCode.Combine(key.ToLowerInvariant(), value);
+        return sum;
     }
 }
