@@ -5,44 +5,84 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:Koy.App.Features.Settings"
              xmlns:res="clr-namespace:Koy.App.Resources"
+             xmlns:display="clr-namespace:Koy.Core.Display;assembly=Koy.Core"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
 
     <StackPanel Margin="0,0,16,24">
         <TextBlock Text="{Binding [NavDisplays], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="#F4F4F5" />
         <TextBlock Text="{Binding [DisplaysSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,16" />
 
-        <!-- Monitör Harita Alanı -->
+        <!-- Monitör Haritası: bağlı ekranlar gerçek yerleşimleriyle (Windows'taki gibi yan yana / üst üste).
+             Ana ekran mavi çerçeveli; çentik ve dock yalnız gösterildikleri ekranda çizilir. -->
         <Border Background="#111113" CornerRadius="12" Height="180" Margin="0,0,0,12">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <!-- Ekran 1 (Ana Ekran) -->
-                <Border Width="200" Height="118" Background="#27272A" BorderBrush="#3B82F6" BorderThickness="2" CornerRadius="8" Margin="0,0,14,0">
-                    <Grid>
-                        <!-- Mini Çentik -->
-                        <Border Width="40" Height="7" Background="#0A0A0B" CornerRadius="0,0,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" />
-                        <!-- Sayı 1 -->
-                        <TextBlock Text="1" FontSize="22" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <!-- Mini Dock -->
-                        <Border Width="64" Height="8" Background="#52525B" CornerRadius="4" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,6" />
-                    </Grid>
-                </Border>
-
-                <!-- Ekran 2 -->
-                <Border Width="230" Height="132" Background="#27272A" BorderBrush="#3F3F46" BorderThickness="2" CornerRadius="8">
-                    <Grid>
-                        <!-- Mini Çentik -->
-                        <Border Width="40" Height="7" Background="#0A0A0B" CornerRadius="0,0,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" />
-                        <!-- Sayı 2 -->
-                        <TextBlock Text="2" FontSize="22" FontWeight="Bold" Foreground="#F4F4F5" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        <!-- Mini Dock -->
-                        <Border Width="64" Height="8" Background="#52525B" CornerRadius="4" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,6" />
-                    </Grid>
-                </Border>
-            </StackPanel>
+            <ItemsControl ItemsSource="{Binding MonitorMap.Tiles}"
+                          Width="{Binding MonitorMap.Width}"
+                          Height="{Binding MonitorMap.Height}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                        <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type display:MonitorMapTile}">
+                        <Border Width="{Binding Width}" Height="{Binding Height}"
+                                Background="#27272A" BorderThickness="2" CornerRadius="8">
+                            <Border.ToolTip>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}×{1}">
+                                            <Binding Path="PixelWidth" />
+                                            <Binding Path="PixelHeight" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </Border.ToolTip>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="#3F3F46" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsPrimary}" Value="True">
+                                            <Setter Property="BorderBrush" Value="#3B82F6" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <!-- Mini Çentik -->
+                                <Border Width="40" Height="7" Background="#0A0A0B" CornerRadius="0,0,5,5"
+                                        HorizontalAlignment="Center" VerticalAlignment="Top"
+                                        Visibility="{Binding HasNotch, Converter={StaticResource BoolToVis}}" />
+                                <!-- Ekran Numarası -->
+                                <TextBlock Text="{Binding Number}" FontSize="22" FontWeight="Bold" Foreground="#F4F4F5"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <!-- Mini Dock -->
+                                <Border Width="64" Height="8" Background="#52525B" CornerRadius="4"
+                                        HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,6"
+                                        Visibility="{Binding HasDock, Converter={StaticResource BoolToVis}}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Border>
 
         <!-- EKRAN 1 -->
-        <TextBlock Text="{Binding [PrimaryScreenHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
+        <TextBlock Style="{StaticResource SectionHeaderStyle}">
+            <Run Text="{Binding [PrimaryScreenHeader], Source={x:Static res:Loc.Instance}, Mode=OneWay}" /><Run Text="{Binding PrimaryScreenResolution, Mode=OneWay}" />
+        </TextBlock>
 
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>

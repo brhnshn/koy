@@ -1,11 +1,14 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 
 namespace Koy.App.Features.Settings;
 
 public partial class KoyWindow : Window
 {
+    private const int WmDisplayChange = 0x007E;
+
     private static KoyWindow? _instance;
 
     public static KoyWindow Instance => _instance ??= new KoyWindow();
@@ -35,6 +38,21 @@ public partial class KoyWindow : Window
         win.Activate();
         win.Topmost = false;
         win.Focus();
+    }
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        // Pencere açıkken ekran takılır ya da çıkarılırsa Ekranlar haritası beklemeden güncellensin.
+        (PresentationSource.FromVisual(this) as HwndSource)?.AddHook(WndProc);
+    }
+
+    private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    {
+        if (msg == WmDisplayChange)
+            ViewModel.RefreshMonitors();
+
+        return 0;
     }
 
     private void Navigate(int index)

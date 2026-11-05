@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.Core.Display;
 using Koy.Core.Dock;
 using Koy.Core.Settings;
 using Koy.Core.Visibility;
@@ -132,8 +133,21 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private int _dockThumbnailDelayMs = 400;
 
     // --- EKRANLAR ---
+    // Harita alanı: içerik sütunu ~640 DIP; kutular tasarımdaki gibi en fazla 132 DIP yüksek.
+    private const double MonitorMapMaxWidth = 560;
+    private const double MonitorMapMaxHeight = 132;
+
+    private IReadOnlyList<DisplayMonitor> _monitors = [];
+    private string _monitorTarget = "Primary";
+
     [ObservableProperty]
     private int _monitorCount = 1;
+
+    [ObservableProperty]
+    private MonitorMapLayoutResult _monitorMap = MonitorMapLayoutResult.Empty;
+
+    [ObservableProperty]
+    private string _primaryScreenResolution = "";
 
     [ObservableProperty]
     private bool _screen1Notch = true;
@@ -270,21 +284,45 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
             RefreshMemory();
 
-            try
-            {
-                using var monitorService = new MonitorService();
-                MonitorCount = monitorService.GetMonitors().Count;
-            }
-            catch
-            {
-                MonitorCount = 1;
-            }
+            _monitorTarget = s.MonitorTarget;
+            RefreshMonitors();
         }
         finally
         {
             _isLoading = false;
         }
     }
+
+    /// <summary>Bağlı ekranları yeniden okur; ekran takılıp çıkarılınca da çağrılır.</summary>
+    public void RefreshMonitors()
+    {
+        try
+        {
+            using var monitorService = new MonitorService();
+            _monitors = monitorService.GetMonitors();
+        }
+        catch
+        {
+            _monitors = [];
+        }
+
+        MonitorCount = Math.Max(1, _monitors.Count);
+        UpdateMonitorMap();
+    }
+
+    private void UpdateMonitorMap()
+    {
+        MonitorMap = MonitorMapLayout.Compute(
+            _monitors, MonitorMapMaxWidth, MonitorMapMaxHeight, _monitorTarget, NotchEnabled, DockEnabled);
+
+        var primary = MonitorMap.Tiles.FirstOrDefault(t => t.IsPrimary) ?? MonitorMap.Tiles.FirstOrDefault();
+        PrimaryScreenResolution = primary is null ? "" : $" · {primary.PixelWidth}×{primary.PixelHeight}";
+    }
+
+    // Haritadaki mini çentik ve dock, ilgili özellik açılıp kapanınca hemen güncellensin.
+    partial void OnNotchEnabledChanged(bool value) => UpdateMonitorMap();
+
+    partial void OnDockEnabledChanged(bool value) => UpdateMonitorMap();
 
     public void RefreshMemory()
     {
@@ -318,7 +356,8 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     {
         base.OnPropertyChanged(e);
         if (_isLoading) return;
-        if (e.PropertyName is nameof(SelectedPageIndex) or nameof(MemoryUsageMb) or nameof(MemoryUsageText) or nameof(MemoryPct) or nameof(MonitorCount))
+        if (e.PropertyName is nameof(SelectedPageIndex) or nameof(MemoryUsageMb) or nameof(MemoryUsageText) or nameof(MemoryPct)
+            or nameof(MonitorCount) or nameof(MonitorMap) or nameof(PrimaryScreenResolution))
             return;
 
         SaveSettings();

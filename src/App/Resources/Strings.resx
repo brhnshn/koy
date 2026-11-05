@@ -481,7 +481,7 @@
     <value>SECTIONS</value>
   </data>
   <data name="PrimaryScreenHeader" xml:space="preserve">
-    <value>DISPLAY 1 · PRIMARY · 1920×1080</value>
+    <value>DISPLAY 1 · PRIMARY</value>
   </data>
   <data name="ScreenNotchTitle" xml:space="preserve">
     <value>Notch</value>
