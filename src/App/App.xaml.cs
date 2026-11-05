@@ -270,6 +270,13 @@ public partial class App : Application
         }
     }
 
+    /// <summary>Görev çubuğu elle geri getirildi: çalışan dock Koy'un tepsi penceresini bırakır.</summary>
+    public void NotifyTaskbarRestoredManually()
+    {
+        foreach (var dock in _features.OfType<DockFeature>())
+            dock.OnTaskbarRestoredManually();
+    }
+
     public void UpdateDockState(bool enabled)
     {
         if (IsPaused)

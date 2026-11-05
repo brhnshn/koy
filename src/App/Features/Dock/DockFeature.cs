@@ -168,10 +168,30 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     {
         if (settings.HideWindowsTaskbar && _windowStates.Count > 0)
         {
-            TaskbarService.EnsureHidden();
+            // Görev çubuğu yeniden göründüyse gizlendi: tepsi sahipliği (elle geri getirmede bırakılmıştı) geri alınır.
+            if (TaskbarService.EnsureHidden() && _trayReleasedByUser)
+                _trayReleasedByUser = false;
+
+            ApplyTrayPolicy();
+
             // Gezgin görev çubuğunu yeniden gösterip gizleyince kendi penceresini öne alabilir; tepsi geri alınır.
             _trayService?.EnsureFirst();
         }
+    }
+
+    // "Windows görev çubuğunu geri getir" düğmesi dock çalışırken basıldı: görev çubuğu görünürken tepsi sahipliği alınmaz.
+    private bool _trayReleasedByUser;
+
+    /// <summary>
+    /// Kullanıcı görev çubuğunu elle geri getirdi (Dock / Hakkında sayfasındaki kurtarma düğmesi). Görev çubuğu
+    /// görünürken Windows'un tepsisine dokunulmaz: Koy'un tepsi penceresi bırakılır. Görev çubuğu dock tarafından
+    /// yeniden gizlenirse tepsi geri alınır.
+    /// </summary>
+    public void OnTaskbarRestoredManually()
+    {
+        _trayReleasedByUser = true;
+        if (_trayService is not null)
+            ReleaseTray();
     }
 
     /// <summary>
@@ -204,11 +224,18 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     /// </summary>
     private void ApplyTrayPolicy()
     {
-        var shouldHost = TrayHostPolicy.ShouldHost(settings.HideWindowsTaskbar, settings.DockShowTray, _windowStates.Count);
+        var shouldHost = !_trayReleasedByUser
+            && TrayHostPolicy.ShouldHost(settings.HideWindowsTaskbar, settings.DockShowTray, _windowStates.Count);
 
-        if (shouldHost && _trayService is null)
+        // Tepsi iş parçacığı beklenmedik biçimde öldüyse (pencere kurulumu sonrası kapandı) tutamaç ölüdür: bırakılıp yeniden alınır.
+        if (shouldHost && _trayService is { IsRunning: false })
+            ReleaseTray();
+
+        // Kurulum başarısızsa pencere olaylarında her seferinde yeni iş parçacığı denenmez; ekran değişince yeniden denenir.
+        if (shouldHost && _trayService is null && !_trayAcquireFailed)
         {
             _trayService = services.AcquireTrayHost();
+            _trayAcquireFailed = _trayService is null;
             if (_trayService is not null)
             {
                 foreach (var state in _windowStates.Values)
@@ -220,6 +247,8 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             ReleaseTray();
         }
     }
+
+    private bool _trayAcquireFailed;
 
     private void ReleaseTray()
     {
@@ -389,6 +418,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         // Windows Explorer yeni monitör için ikincil görev çubuğu oluşturmuş olabilir (Shell_SecondaryTrayWnd);
         // Hide() ikincil çubukları da kapsar. Son dock penceresi kapandıysa görev çubuğu geri gelir
         // ve (tepsi önce bırakılır) Koy'un tepsi penceresi de kapanır.
+        _trayAcquireFailed = false;
         ApplyTrayPolicy();
         ApplyTaskbarPolicy();
         UpdateEdgeTimer();
@@ -538,6 +568,19 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
     public void Stop()
     {
+        try
+        {
+            StopCore();
+        }
+        finally
+        {
+            // Güvenlik kuralı: Kapanışta Windows görev çubuğu her durumda geri getirilir (yukarıdaki temizlik hata verse bile).
+            TaskbarService.Restore();
+        }
+    }
+
+    private void StopCore()
+    {
         _edgePeekTimer?.Stop();
         _edgePeekTimer = null;
 
@@ -608,8 +651,5 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         _fullscreenDetector = null;
         _pinnedAppsService = null;
         _shellActionService = null;
-
-        // Güvenlik kuralı: Kapanışta Windows görev çubuğu her durumda geri getirilir
-        TaskbarService.Restore();
     }
 }

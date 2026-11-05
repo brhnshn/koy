@@ -82,13 +82,13 @@ public static class TaskbarService
     /// o zaman alt kenarda bizim dock'la birlikte ikinci bir çubuk çıkar. Birincil veya ikincil
     /// monitörlerdeki görev çubuklarından herhangi biri görünür olduysa tekrar gizler.
     /// </summary>
-    public static void EnsureHidden()
+    public static bool EnsureHidden()
     {
         var primary = ShellTrayLocator.FindExplorerTray();
         if (primary != HWND.Null && PInvoke.IsWindowVisible(primary))
         {
             SetVisible(false);
-            return;
+            return true;
         }
 
         var secondary = HWND.Null;
@@ -97,9 +97,11 @@ public static class TaskbarService
             if (PInvoke.IsWindowVisible(secondary))
             {
                 SetVisible(false);
-                return;
+                return true;
             }
         }
+
+        return false;
     }
 
     private static void SetVisible(bool visible)
