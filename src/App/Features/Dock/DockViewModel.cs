@@ -297,9 +297,11 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
             _trayCloseTimer.Stop();
             _trayCloseTimer.Start();
         }
-        else
+        else if (action != TrayMouseAction.RightClick)
         {
-            // Uygulamanın menüsü ya da penceresi açılıyor; tepsi penceresi önünü kapatmasın.
+            // Çift tık uygulamanın penceresini açar; tepsi penceresi önünü kapatmasın.
+            // Sağ tıkta pencere AÇIK kalır: menü açıkken görünür, seçim ya da dış tıklamayla kapanır
+            // (kapatma kararı TrayPopupDismissPolicy'de, yoklama TrayButton'da).
             IsTrayPopupOpen = false;
         }
     }
@@ -318,14 +320,34 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     partial void OnIsTrayPopupOpenChanged(bool value)
     {
         _trayPopupOpen = value;
-        if (!value)
+        if (value)
+        {
+            _trayClearTimer?.Stop();
+        }
+        else
         {
             _trayCloseTimer?.Stop();
-            // Kapalıyken görüntüler bellekte tutulmaz.
-            TrayIcons.Clear();
+            // Kapanış animasyonu süresince simgeler görünür kalır; sonra bırakılır (kapalıyken bellekte tutulmaz).
+            _trayClearTimer ??= CreateTrayClearTimer();
+            _trayClearTimer.Stop();
+            _trayClearTimer.Start();
         }
 
         EvaluatePosition(_lastContentWidth);
+    }
+
+    private DispatcherTimer? _trayClearTimer;
+
+    private DispatcherTimer CreateTrayClearTimer()
+    {
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            if (!IsTrayPopupOpen)
+                TrayIcons.Clear();
+        };
+        return timer;
     }
 
     private void OnTrayIconsChanged(object? sender, EventArgs e)
@@ -983,5 +1005,6 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         }
 
         _trayCloseTimer?.Stop();
+        _trayClearTimer?.Stop();
     }
 }

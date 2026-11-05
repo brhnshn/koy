@@ -49,20 +49,30 @@
 
         <!-- Tepsi penceresi: uygulamaların gerçek simgeleri; sol ve sağ tık uygulamaya iletilir.
              IsOpen koddan yönetilir: gizli dock biçimindeki düğmenin penceresi açılmasın. -->
+        <!-- StaysOpen=True: pencere odak kaybıyla (uygulamanın menüsü öne gelince) kapanmaz. Kapanışı kod yönetir:
+             dış tıklama ya da menüden seçim (TrayPopupDismissPolicy), kısa Spring animasyonuyla. -->
         <Popup x:Name="TrayPopup"
                PlacementTarget="{Binding ElementName=TrayToggle}"
                Placement="Top"
                VerticalOffset="-6"
                AllowsTransparency="True"
-               StaysOpen="False"
+               StaysOpen="True"
                PopupAnimation="None">
-            <Border Background="{DynamicResource KoyMenuBg}"
+            <Border x:Name="PopupBody"
+                    RenderTransformOrigin="0.5,1"
+                    Background="{DynamicResource KoyMenuBg}"
                     BorderBrush="{DynamicResource KoyMenuBorder}"
                     BorderThickness="1"
                     CornerRadius="14"
                     Padding="8"
                     Margin="12"
                     SnapsToDevicePixels="True">
+                <Border.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="PopupScale"/>
+                        <TranslateTransform x:Name="PopupShift"/>
+                    </TransformGroup>
+                </Border.RenderTransform>
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="24"
                                       ShadowDepth="4"
