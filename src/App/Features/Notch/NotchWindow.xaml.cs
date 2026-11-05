@@ -279,12 +279,18 @@ public partial class NotchWindow : Window
                 WindowStyles.ReassertTopmost(_hwnd);
             }
 
-            _translateY.Target = 0;
+            if (ViewModel?.ReduceMotion == true)
+                _translateY.SnapTo(0);
+            else
+                _translateY.Target = 0;
         }
         else
         {
             var hideOffset = Notch.ActualHeight > 0 ? -(Notch.ActualHeight + 20) : -150;
-            _translateY.Target = hideOffset;
+            if (ViewModel?.ReduceMotion == true)
+                _translateY.SnapTo(hideOffset);
+            else
+                _translateY.Target = hideOffset;
         }
 
         WakeAnimation();
@@ -298,11 +304,21 @@ public partial class NotchWindow : Window
             return;
         }
 
-        _width.Target = width;
-        _height.Target = height;
-        if (ViewModel is not null)
+        if (ViewModel?.ReduceMotion == true)
         {
-            _cornerRadius.Target = ViewModel.TargetCornerRadius;
+            // Pil tasarrufu: yay animasyonu yok, şekil tek karede yeni boyuta geçer.
+            _width.SnapTo(width);
+            _height.SnapTo(height);
+            _cornerRadius.SnapTo(ViewModel.TargetCornerRadius);
+        }
+        else
+        {
+            _width.Target = width;
+            _height.Target = height;
+            if (ViewModel is not null)
+            {
+                _cornerRadius.Target = ViewModel.TargetCornerRadius;
+            }
         }
         WakeAnimation();
     }

@@ -36,6 +36,9 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _batteryText = "";
 
+    /// <summary>Cihaz şu an pille (şarj olmadan) çalışıyor mu. Pil tasarrufu kararlarında kullanılır.</summary>
+    public bool IsOnBattery { get; private set; }
+
     [ObservableProperty]
     private bool _hasWeather;
 
@@ -123,6 +126,7 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
             HasBattery = e.HasBattery;
             BatteryPercent = e.RemainingPercent;
             IsCharging = e.IsCharging;
+            SetBatteryStatus(e.Status);
             BatteryText = IsCharging ? $"%{BatteryPercent} ({Resources.Strings.Charging})" : $"%{BatteryPercent}";
         });
     }
@@ -132,7 +136,18 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
         HasBattery = _powerService.HasBattery;
         BatteryPercent = _powerService.RemainingPercent;
         IsCharging = _powerService.IsCharging;
+        SetBatteryStatus(_powerService.Status);
         BatteryText = IsCharging ? $"%{BatteryPercent} ({Resources.Strings.Charging})" : $"%{BatteryPercent}";
+    }
+
+    private void SetBatteryStatus(BatteryStatus status)
+    {
+        var onBattery = BatterySaverPolicy.ShouldReduceMotion(true, HasBattery, status);
+        if (onBattery == IsOnBattery)
+            return;
+
+        IsOnBattery = onBattery;
+        OnPropertyChanged(nameof(IsOnBattery));
     }
 
     private void OnWeatherChanged(object? sender, WeatherInfo? weather)

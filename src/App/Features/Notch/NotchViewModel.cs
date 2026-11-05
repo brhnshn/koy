@@ -44,6 +44,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     /// <summary>Boşta pil gösterilsin mi.</summary>
     public bool ShowIdleBattery => IdleDisplay.ShowBattery(Settings.IdleDisplayMode);
 
+    /// <summary>Pil tasarrufu: pille çalışırken çentik animasyonsuz (anında) geçer.</summary>
+    public bool ReduceMotion => Settings.BatterySaverReduceMotion && _status.IsOnBattery;
+
     /// <summary>Müzik çalarken dalga simgesi gösterilsin mi.</summary>
     public bool ShowMusicWaveform => Settings.MusicShowWaveform;
 

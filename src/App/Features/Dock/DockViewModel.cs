@@ -36,6 +36,9 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     private bool _isAnimating;
     private bool _disposed;
 
+    /// <summary>Pil tasarrufu: true iken dock kayma ve solma animasyonu olmadan anında konum/görünürlük değiştirir.</summary>
+    public bool ReduceMotion { get; set; }
+
     private DisplayMonitor? _currentMonitor;
     private WindowRect _foregroundWindowBounds = WindowRect.Empty;
     private bool _isForegroundWindowMaximized;
@@ -363,8 +366,16 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         var targetY = shouldShow ? resolved.TranslationY : (resolved.IsFullWidth ? (DockPositionResolver.FullWidthHeightDip + 10.0) : 80.0);
         var targetOpacity = shouldShow ? resolved.Opacity : 0.0;
 
-        _translateSpring.Target = targetY;
-        _opacitySpring.Target = targetOpacity;
+        if (ReduceMotion)
+        {
+            _translateSpring.SnapTo(targetY);
+            _opacitySpring.SnapTo(targetOpacity);
+        }
+        else
+        {
+            _translateSpring.Target = targetY;
+            _opacitySpring.Target = targetOpacity;
+        }
 
         _isAnimating = true;
         AnimationNeeded?.Invoke(this, EventArgs.Empty);

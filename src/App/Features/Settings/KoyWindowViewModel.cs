@@ -332,23 +332,38 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
         SaveSettings();
 
-        if (e.PropertyName == nameof(NotchEnabled) && Application.Current is App appNotch)
+        if (Application.Current is not App app)
+            return;
+
+        if (e.PropertyName == nameof(NotchEnabled))
         {
-            appNotch.UpdateNotchState(NotchEnabled);
+            app.UpdateNotchState(NotchEnabled);
         }
-        else if (e.PropertyName == nameof(DockEnabled) && Application.Current is App appDock)
+        else if (e.PropertyName == nameof(DockEnabled))
         {
-            appDock.UpdateDockState(DockEnabled);
+            app.UpdateDockState(DockEnabled);
         }
-        else if (e.PropertyName is (nameof(DockStyle) or nameof(DockProximity) or nameof(DockHideInFullscreen) or nameof(DockIconSize) or nameof(HideWindowsTaskbar)) && Application.Current is App appReload)
+        else
         {
-            appReload.ReloadDock();
-        }
-        else if (e.PropertyName is (nameof(NotchVisibility) or nameof(NotchHideInFullscreen) or nameof(ShowVolumeOsd) or nameof(ShowBrightnessOsd) or nameof(MusicShowWaveform) or nameof(IdleDisplayMode) or nameof(NotchOpenBehavior) or nameof(WheelAction) or nameof(PanelMusic) or nameof(PanelCalendar) or nameof(PanelShelf) or nameof(PanelControlCenter) or nameof(PanelStatus)) && Application.Current is App appReloadNotch)
-        {
-            appReloadNotch.ReloadNotch();
+            // Özellikler ayarı kurulurken okur; seçenek değişince ilgili özellik yeni ayarla yeniden kurulur.
+            if (AffectsDock(e.PropertyName))
+                app.ReloadDock();
+            if (AffectsNotch(e.PropertyName))
+                app.ReloadNotch();
         }
     }
+
+    private static bool AffectsDock(string? name) =>
+        name is not null && name != nameof(DockEnabled) &&
+        (name.StartsWith("Dock", StringComparison.Ordinal) ||
+         name is nameof(HideWindowsTaskbar) or nameof(BatterySaverReduceMotion) or nameof(MiddleClickAction));
+
+    private static bool AffectsNotch(string? name) =>
+        name is nameof(NotchVisibility) or nameof(NotchHideInFullscreen) or nameof(MusicShowWaveform)
+            or nameof(ShowVolumeOsd) or nameof(ShowBrightnessOsd) or nameof(IdleDisplayMode)
+            or nameof(NotchOpenBehavior) or nameof(WheelAction) or nameof(BatterySaverReduceMotion)
+            or nameof(PanelMusic) or nameof(PanelCalendar) or nameof(PanelShelf)
+            or nameof(PanelControlCenter) or nameof(PanelStatus);
 
     partial void OnLanguageChanged(string value)
     {

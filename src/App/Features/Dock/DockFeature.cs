@@ -2,12 +2,14 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using Koy.Core.Display;
+using Koy.Core.Power;
 using Koy.Core.Dock;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
 using Koy.Core.Visibility;
 using Koy.Platform.Display;
 using Koy.Platform.Media;
+using Koy.Platform.Power;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Dock;
@@ -46,6 +48,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     private AppBarService? _appBarService;
     private MonitorService? _monitorService;
     private MediaService? _mediaService;
+    private PowerService? _powerService;
     private DockController? _controller;
     private DispatcherTimer? _edgePeekTimer;
 
@@ -83,6 +86,14 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
         // Medya servisi (Tam genişlik Now Playing hapı için); Notch ile paylaşılan tek örnek
         _mediaService = services.AcquireMediaService();
+
+        // Pil tasarrufu için güç durumu; ayar kapalıysa servis kurulmaz.
+        if (settings.BatterySaverReduceMotion)
+        {
+            _powerService = new PowerService();
+            _powerService.PowerChanged += OnPowerChanged;
+            ApplyReduceMotion();
+        }
 
         var monitors = _monitorService.GetMonitors();
         var targetMonitors = DisplayLayoutResolver.ResolveTargetMonitors(monitors, settings.MonitorTarget);
@@ -159,6 +170,8 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             status: null,
             mediaService: _mediaService);
 
+        viewModel.ReduceMotion = _reduceMotion;
+
         var window = new DockWindow { DataContext = viewModel };
         window.SetTargetMonitor(monitor);
 
@@ -225,6 +238,25 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         _windows[monitor.Id] = window;
 
         window.Show();
+    }
+
+    private bool _reduceMotion;
+
+    private void OnPowerChanged(object? sender, PowerChangedEventArgs e)
+    {
+        // WinRT güç olayları UI dışı thread'den gelir; durum ve pencere nesnelerine UI thread'inde dokunulur.
+        Application.Current?.Dispatcher.InvokeAsync(ApplyReduceMotion);
+    }
+
+    private void ApplyReduceMotion()
+    {
+        if (_powerService is null)
+            return;
+
+        _reduceMotion = BatterySaverPolicy.ShouldReduceMotion(
+            settings.BatterySaverReduceMotion, _powerService.HasBattery, _powerService.Status);
+        foreach (var state in _windowStates.Values)
+            state.ViewModel.ReduceMotion = _reduceMotion;
     }
 
     private void OnMonitorsChanged(object? sender, EventArgs e)
@@ -467,6 +499,13 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
 
         _monitorService?.Dispose();
         _monitorService = null;
+
+        if (_powerService is not null)
+        {
+            _powerService.PowerChanged -= OnPowerChanged;
+            _powerService.Dispose();
+            _powerService = null;
+        }
 
         _controller?.Dispose();
         _controller = null;
