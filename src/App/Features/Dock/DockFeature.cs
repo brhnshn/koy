@@ -349,6 +349,13 @@ public sealed class DockFeature(AppSettings settings) : IFeature
 
     private void CheckEdgePeek()
     {
+        // Savunma: UI thread dışından çağrılırsa (VerifyAccess çökmesi, 4.11 23:18) UI'a taşı.
+        if (Application.Current is { } app && !app.Dispatcher.CheckAccess())
+        {
+            app.Dispatcher.InvokeAsync(CheckEdgePeek, DispatcherPriority.Background);
+            return;
+        }
+
         if (_windowTracker is null || _windowStates.Count == 0)
             return;
 

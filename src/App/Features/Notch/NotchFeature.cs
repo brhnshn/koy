@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using Koy.App.Features.Calendar;
 using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
@@ -52,7 +53,7 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
     private WindowTracker? _windowTracker;
     private FullscreenDetector? _fullscreenDetector;
     private MonitorService? _monitorService;
-    private ITimer? _edgePeekTimer;
+    private DispatcherTimer? _edgePeekTimer;
 
     public void Start()
     {
@@ -82,12 +83,14 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
             CreateNotchWindow(monitor);
         }
 
-        // 100 ms kenar gözetleme (peek) zamanlayıcısı; yalnız gizliyken çalışır (AGENTS.md #5)
-        _edgePeekTimer = TimeProvider.System.CreateTimer(
-            _ => CheckEdgePeek(),
-            null,
-            Timeout.InfiniteTimeSpan,
-            Timeout.InfiniteTimeSpan);
+        // 100 ms kenar gözetleme (peek) zamanlayıcısı; yalnız gizliyken çalışır (AGENTS.md #5).
+        // DispatcherTimer UI thread'de tikler: eskiden ThreadPool zamanlayıcısıydı ve CheckEdgePeek
+        // pencere/durum nesnelerine UI dışından dokunup VerifyAccess çökmesine yol açıyordu.
+        _edgePeekTimer = new DispatcherTimer(DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMilliseconds(100)
+        };
+        _edgePeekTimer.Tick += (_, _) => CheckEdgePeek();
 
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
         _windowTracker.Start();
@@ -264,11 +267,12 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
         if (anyNeedsPeek)
         {
-            _edgePeekTimer.Change(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(100));
+            if (!_edgePeekTimer.IsEnabled)
+                _edgePeekTimer.Start();
         }
-        else
+        else if (_edgePeekTimer.IsEnabled)
         {
-            _edgePeekTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            _edgePeekTimer.Stop();
         }
     }
 
@@ -313,7 +317,7 @@ public sealed class NotchFeature(AppSettings settings) : IFeature
 
     public void Stop()
     {
-        _edgePeekTimer?.Dispose();
+        _edgePeekTimer?.Stop();
         _edgePeekTimer = null;
 
         if (_monitorService is not null)
