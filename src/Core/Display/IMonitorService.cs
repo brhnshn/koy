@@ -18,6 +18,28 @@ public sealed record DisplayMonitor(
     nint Handle = 0,
     string DeviceName = "")
 {
+    /// <summary>Piksel cinsinden çözünürlük genişliği.</summary>
+    public int PixelWidth => Bounds.Width;
+
+    /// <summary>Piksel cinsinden çözünürlük yüksekliği.</summary>
+    public int PixelHeight => Bounds.Height;
+
+    /// <summary>
+    /// Windows'un "Ekranı tanımla" ile gösterdiği numara (aygıt adının sonundaki sayı: DISPLAY2 → 2).
+    /// Aygıt adı yoksa 0.
+    /// </summary>
+    public int Number
+    {
+        get
+        {
+            var end = DeviceName.Length;
+            var start = end;
+            while (start > 0 && char.IsAsciiDigit(DeviceName[start - 1]))
+                start--;
+            return start < end && int.TryParse(DeviceName.AsSpan(start, end - start), out var n) ? n : 0;
+        }
+    }
+
     /// <summary>DIP cinsinden genişlik.</summary>
     public double WidthDip => (Bounds.Right - Bounds.Left) / DpiScaleX;
 

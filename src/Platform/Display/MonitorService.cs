@@ -19,25 +19,42 @@ public sealed class MonitorService : IMonitorService
 
     public event EventHandler? MonitorsChanged;
 
+    // Son bildirimdeki ekran düzeni; pencerelerden ve sistem olaylarından (App tarafı bağlar) gelen tekrarlar aynı düzen için bir kez iletilir.
+    private string _lastSignature = "";
+
     public void Start()
     {
+        if (_started || _disposed) return;
         _started = true;
+        _lastSignature = Signature(GetMonitors());
     }
 
     public void Stop()
     {
+        if (!_started) return;
         _started = false;
     }
 
     public void NotifyDisplayChanged()
     {
         if (!_started || _disposed) return;
+
+        var signature = Signature(GetMonitors());
+        if (signature == _lastSignature) return;
+        _lastSignature = signature;
         MonitorsChanged?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>Kimlik, sınırlar, çalışma alanı, DPI ve ana ekran bilgisinden bir imza: bunlardan biri değişince düzen değişmiştir.</summary>
+    private static string Signature(IReadOnlyList<DisplayMonitor> monitors) =>
+        string.Join("|", monitors
+            .OrderBy(m => m.Id, StringComparer.OrdinalIgnoreCase)
+            .Select(m => $"{m.Id};{m.Bounds};{m.WorkArea};{m.DpiScaleX:F2};{m.IsPrimary}"));
 
     public unsafe IReadOnlyList<DisplayMonitor> GetMonitors()
     {
         var list = new List<DisplayMonitor>();
+        var configs = DisplayConfigReader.Read();
 
         PInvoke.EnumDisplayMonitors(
             default(HDC),
@@ -84,21 +101,36 @@ public sealed class MonitorService : IMonitorService
                         mi.monitorInfo.rcWork.right,
                         mi.monitorInfo.rcWork.bottom);
 
+                    // Kararlı kimlik: DisplayConfig yolu (çözünürlük, sıra ve aygıt adı değişse de aynı kalır).
+                    // Okunamazsa Windows aygıt adına düşülür.
+                    var hasConfig = configs.TryGetValue(deviceName, out var config) && config.DevicePath.Length > 0;
+                    var id = hasConfig ? config.DevicePath : deviceName;
+                    var name = hasConfig && config.FriendlyName.Length > 0
+                        ? config.FriendlyName
+                        : FallbackName(deviceName);
+
                     list.Add(new DisplayMonitor(
-                        Id: deviceName,
-                        Name: deviceName,
+                        Id: id,
+                        Name: name,
                         Bounds: bounds,
                         WorkArea: workArea,
                         IsPrimary: isPrimary,
                         DpiScaleX: dpiScaleX,
                         DpiScaleY: dpiScaleY,
-                        Handle: hMonitor.Value));
+                        Handle: hMonitor.Value,
+                        DeviceName: deviceName));
                 }
 
                 return true;
             }, 0);
 
         return list;
+    }
+
+    private static string FallbackName(string deviceName)
+    {
+        var digits = new string(deviceName.Where(char.IsAsciiDigit).ToArray());
+        return digits.Length > 0 ? $"Display {digits}" : deviceName;
     }
 
     public DisplayMonitor? GetPrimaryMonitor()
