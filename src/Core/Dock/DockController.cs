@@ -18,6 +18,7 @@ public sealed class DockController : IDisposable
     private nint _lastForegroundHandle;
     private List<DockItem> _items = [];
     private bool _isHiddenByFullscreen;
+    private readonly RefreshDebouncer? _refreshDebouncer;
     private bool _disposed;
 
     public event EventHandler? ItemsChanged;
@@ -31,12 +32,20 @@ public sealed class DockController : IDisposable
         IPinnedAppsService pinnedAppsService,
         IWindowTracker windowTracker,
         IShellActionService shellActionService,
-        IFullscreenDetector? fullscreenDetector = null)
+        IFullscreenDetector? fullscreenDetector = null,
+        TimeSpan? refreshDebounce = null,
+        Action<Action>? post = null,
+        TimeProvider? timeProvider = null)
     {
         _pinnedAppsService = pinnedAppsService;
         _windowTracker = windowTracker;
         _shellActionService = shellActionService;
         _fullscreenDetector = fullscreenDetector;
+
+        // Pencere olay fırtınasında (aç/kapa/göster/gizle) her olayda EnumWindows + simge çıkarımı yapılmasın.
+        // Verilmezse yenileme eşzamanlıdır (testler ve basit kullanım).
+        if (refreshDebounce is { } delay && delay > TimeSpan.Zero)
+            _refreshDebouncer = new RefreshDebouncer(Refresh, delay, post, timeProvider);
 
         _windowTracker.ForegroundWindowChanged += OnForegroundWindowChanged;
         _windowTracker.WindowsChanged += OnWindowsChanged;
@@ -51,6 +60,9 @@ public sealed class DockController : IDisposable
     public void Refresh()
     {
         if (_disposed) return;
+
+        // Tam yenileme yapılıyor; bekleyen ertelenmiş istek gereksiz kalır.
+        _refreshDebouncer?.Cancel();
 
         CheckFullscreen();
 
@@ -279,10 +291,18 @@ public sealed class DockController : IDisposable
         return false;
     }
 
+    private void RequestRefresh()
+    {
+        if (_refreshDebouncer is null)
+            Refresh();
+        else
+            _refreshDebouncer.Request();
+    }
+
     private void OnWindowFlashing(object? sender, nint handle)
     {
         _flashingHandles.Add(handle);
-        Refresh();
+        RequestRefresh();
     }
 
     private void OnForegroundWindowChanged(object? sender, WindowInfo e)
@@ -296,13 +316,14 @@ public sealed class DockController : IDisposable
 
     private void OnWindowsChanged(object? sender, EventArgs e)
     {
-        Refresh();
+        RequestRefresh();
     }
 
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
+        _refreshDebouncer?.Dispose();
 
         _windowTracker.ForegroundWindowChanged -= OnForegroundWindowChanged;
         _windowTracker.WindowsChanged -= OnWindowsChanged;

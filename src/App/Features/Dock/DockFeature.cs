@@ -70,7 +70,9 @@ public sealed class DockFeature(AppSettings settings) : IFeature
             _pinnedAppsService,
             _windowTracker,
             _shellActionService,
-            _fullscreenDetector);
+            _fullscreenDetector,
+            refreshDebounce: TimeSpan.FromMilliseconds(120),
+            post: action => Application.Current?.Dispatcher.InvokeAsync(action));
 
         // Yalnızca ReserveSpace (Yer ayır) yakınlık modunda masaüstü çalışma alanından (AppBar) yer ayır
         if (settings.DockProximity == DockProximityMode.ReserveSpace)

@@ -471,4 +471,50 @@ public class DockTests
         Assert.False(controller.Items[0].IsActive);
         Assert.True(controller.Items[1].IsActive);
     }
+
+    [Fact]
+    public void RefreshDebounce_PencereOlaylariniTekYenilemeyeIndirir()
+    {
+        var pinnedService = new FakePinnedAppsService();
+        var windowTracker = new FakeWindowTracker();
+        var shell = new FakeShellActionService();
+        var time = new RefreshDebouncerTests.ManualTimeProvider();
+        using var controller = new DockController(
+            pinnedService, windowTracker, shell,
+            refreshDebounce: TimeSpan.FromMilliseconds(100), timeProvider: time);
+
+        var refreshCount = 0;
+        controller.ItemsChanged += (_, _) => refreshCount++;
+
+        windowTracker.TriggerWindowsChange();
+        windowTracker.TriggerWindowsChange();
+        windowTracker.TriggerWindowsChange();
+        Assert.Equal(0, refreshCount);
+
+        time.FireLast();
+
+        Assert.Equal(1, refreshCount);
+    }
+
+    [Fact]
+    public void RefreshDebounce_OnPlanDegisimiHemenYenilerVeBekleyeniIptalEder()
+    {
+        var pinnedService = new FakePinnedAppsService();
+        var windowTracker = new FakeWindowTracker();
+        var shell = new FakeShellActionService();
+        var time = new RefreshDebouncerTests.ManualTimeProvider();
+        using var controller = new DockController(
+            pinnedService, windowTracker, shell,
+            refreshDebounce: TimeSpan.FromMilliseconds(100), timeProvider: time);
+
+        var refreshCount = 0;
+        controller.ItemsChanged += (_, _) => refreshCount++;
+
+        windowTracker.TriggerWindowsChange();
+        windowTracker.TriggerForegroundChange(new WindowInfo(42, WindowRect.Empty));
+        Assert.Equal(1, refreshCount);
+
+        time.FireLast();
+        Assert.Equal(1, refreshCount);
+    }
 }
