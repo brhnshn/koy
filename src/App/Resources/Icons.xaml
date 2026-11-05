@@ -43,4 +43,6 @@
     <Geometry x:Key="IconDownload">M 12 15 V 3M 21 15 v 4 a 2 2 0 0 1 -2 2 H 5 a 2 2 0 0 1 -2 -2 v -4M 7 10 l 5 5 l 5 -5</Geometry>
     <Geometry x:Key="IconLifeBuoy">M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0zM 4.93 4.93 l 4.24 4.24M 14.83 9.17 l 4.24 -4.24M 14.83 14.83 l 4.24 4.24M 9.17 14.83 l -4.24 4.24M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0z</Geometry>
     <Geometry x:Key="IconGithub">M 18 16 l 4 -4 l -4 -4M 6 8 l -4 4 l 4 4M 14.5 4 l -5 16</Geometry>
+    <Geometry x:Key="IconWifi">M 12 20 h 0.01M 2 8.82 a 15 15 0 0 1 20 0M 5 12.859 a 10 10 0 0 1 14 0M 8.5 16.429 a 5 5 0 0 1 7 0</Geometry>
+    <Geometry x:Key="IconBluetooth">M 7 7 l 10 10 l -5 5 V 2 l 5 5 L 7 17</Geometry>
 </ResourceDictionary>

@@ -54,6 +54,14 @@
     <SolidColorBrush x:Key="KoyMenuHover" Color="#2E2E35" />
     <SolidColorBrush x:Key="KoyMenuSeparator" Color="#2E2E33" />
 
+    <!-- Çentik her zaman koyu yüzeydir (temadan bağımsız). Sekmeler ve durum simgeleri bu fırçaları kullanır. -->
+    <SolidColorBrush x:Key="KoyNotchText" Color="#F4F4F5" />
+    <SolidColorBrush x:Key="KoyNotchTextSecondary" Color="#D4D4D8" />
+    <!-- Seçili sekmenin (açık dolgu) üstündeki koyu yazı: çentik yüzeyiyle aynı renk -->
+    <SolidColorBrush x:Key="KoyNotchTextOnLight" Color="#0A0A0B" />
+    <!-- Beyazın %10'u: koyu yüzeyde fare üstü katmanı (yarı saydam olduğu için token karşılığı yok) -->
+    <SolidColorBrush x:Key="KoyNotchHover" Color="#1AFFFFFF" />
+
     <!-- Yarı saydam gri: hem koyu hem açık yüzeyde okunur. -->
     <SolidColorBrush x:Key="KoyScrollThumb" Color="#66808088" />
     <SolidColorBrush x:Key="KoyScrollThumbHover" Color="#99808088" />

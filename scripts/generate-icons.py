@@ -48,6 +48,8 @@ ICONS = [
     ("Download", "download"),
     ("LifeBuoy", "life-buoy"),
     ("Github", "code-xml"),
+    ("Wifi", "wifi"),
+    ("Bluetooth", "bluetooth"),
 ]
 
 TOKEN = re.compile(r"[a-zA-Z]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?")

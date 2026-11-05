@@ -88,13 +88,15 @@
             </Grid.ColumnDefinitions>
 
             <!-- Orta-sağ: Wi-Fi ve Bluetooth durumu. Windows tepsisi gizli olduğu için bağlantıları gösteren yer burası;
-                 tıklayınca çentik Kontrol sekmesinde açılır. Radyo yoksa (ör. Bluetooth'suz kasa) simgesi çıkmaz. -->
+                 tıklayınca çentik Kontrol sekmesinde açılır. Radyo yoksa (ör. Bluetooth'suz kasa) simgesi çıkmaz.
+                 Çentik her zaman koyu yüzey olduğu için renkler KoyNotch* token'larından gelir. -->
             <Button Grid.Column="1"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Margin="0,0,4,0"
                     Cursor="Hand"
                     FocusVisualStyle="{x:Null}"
+                    Foreground="{DynamicResource KoyNotchText}"
                     Command="{Binding OpenControlCenterCommand}"
                     Visibility="{Binding ShowIdleRadio, Converter={StaticResource BoolToVis}}">
               <Button.Template>
@@ -128,11 +130,9 @@
                       </Style.Triggers>
                     </Style>
                   </Grid.Style>
-                  <Path Stretch="Uniform" Fill="#F4F4F5"
-                        Stroke="#F4F4F5" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                        Data="M 12,18 A 1.5,1.5 0 1 1 12,15 A 1.5,1.5 0 0 1 12,18 M 7.05,12.05 A 7,7 0 0 1 16.95,12.05 M 3.5,8.5 A 12,12 0 0 1 20.5,8.5" />
+                  <res:KoyIcon Data="{DynamicResource IconWifi}" Size="14" StrokeWidth="2.4" />
                   <!-- Kapalıyken çapraz çizgi: yalnız soluklukla açık/kapalı ayırt edilmiyordu -->
-                  <Line X1="1" Y1="13" X2="13" Y2="1" Stroke="#F4F4F5" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                  <Line X1="1" Y1="13" X2="13" Y2="1" Stroke="{DynamicResource KoyNotchText}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
                     <Line.Style>
                       <Style TargetType="Line">
                         <Setter Property="Visibility" Value="Visible" />
@@ -168,11 +168,9 @@
                       </Style.Triggers>
                     </Style>
                   </Grid.Style>
-                  <Path Stretch="Uniform" 
-                        Stroke="#F4F4F5" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                        Data="M 7,2 L 7,22 L 13,17 L 2,8 L 13,7 L 7,2 Z M 7,7 L 10,9.5 L 7,12 Z M 7,12 L 10,14.5 L 7,17 Z" />
+                  <res:KoyIcon Data="{DynamicResource IconBluetooth}" Size="14" StrokeWidth="2.4" />
                   <!-- Kapalıyken çapraz çizgi: yalnız soluklukla açık/kapalı ayırt edilmiyordu -->
-                  <Line X1="1" Y1="13" X2="13" Y2="1" Stroke="#F4F4F5" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                  <Line X1="1" Y1="13" X2="13" Y2="1" Stroke="{DynamicResource KoyNotchText}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
                     <Line.Style>
                       <Style TargetType="Line">
                         <Setter Property="Visibility" Value="Visible" />
@@ -368,15 +366,15 @@
                     <ControlTemplate TargetType="Button">
                       <Border x:Name="Pill" Height="22" Padding="10,0" CornerRadius="11" Background="Transparent">
                         <TextBlock x:Name="Label" Text="{Binding Label}" FontSize="11" FontWeight="SemiBold"
-                                   Foreground="#D4D4D8" VerticalAlignment="Center" />
+                                   Foreground="{DynamicResource KoyNotchTextSecondary}" VerticalAlignment="Center" />
                       </Border>
                       <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                          <Setter TargetName="Pill" Property="Background" Value="#1AFFFFFF" />
+                          <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchHover}" />
                         </Trigger>
                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                          <Setter TargetName="Pill" Property="Background" Value="#F4F4F5" />
-                          <Setter TargetName="Label" Property="Foreground" Value="#0A0A0B" />
+                          <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchText}" />
+                          <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource KoyNotchTextOnLight}" />
                         </DataTrigger>
                       </ControlTemplate.Triggers>
                     </ControlTemplate>
