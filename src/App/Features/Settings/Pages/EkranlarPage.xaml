@@ -44,6 +44,9 @@
                 <TextBlock Text="{Binding [NavDisplays], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="#F4F4F5" />
                 <TextBlock Text="{Binding [DisplaysSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,16" />
             </StackPanel>
+            <Button Style="{StaticResource SettingButtonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Command="{Binding IdentifyCommand}"
+                    Content="{Binding [DisplaysIdentify], Source={x:Static res:Loc.Instance}}" />
         </Grid>
 
         <!-- Monitör şeması: gerçek yerleşim, ölçekli. Karta tıklayınca o ekranın ayarları aşağıda açılır. -->

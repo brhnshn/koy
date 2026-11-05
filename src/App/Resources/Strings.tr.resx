@@ -723,4 +723,7 @@
   <data name="DisplayPrimaryBadge" xml:space="preserve">
     <value>Ana ekran</value>
   </data>
+  <data name="DisplaysIdentify" xml:space="preserve">
+    <value>Ekranları tanımla</value>
+  </data>
 </root>

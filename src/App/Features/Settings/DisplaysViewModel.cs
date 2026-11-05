@@ -197,6 +197,15 @@ public sealed partial class DisplaysViewModel(SettingsStore store) : ObservableO
         Select(card);
     }
 
+    /// <summary>"Ekranları tanımla": her monitörde 2 saniye ekran numarası.</summary>
+    [RelayCommand]
+    private void Identify()
+    {
+        // Şema yenilenmemiş olabilir (ekran yeni takıldı); güncel liste okunur.
+        using var service = new MonitorService();
+        IdentifyOverlayWindow.ShowOn(service.GetMonitors());
+    }
+
     [RelayCommand]
     private void SelectCard(MonitorCardViewModel? card) => Select(card);
 
