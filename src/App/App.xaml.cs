@@ -20,10 +20,12 @@ public static class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // Velopack kurulum ve güncelleme kancaları (kaldırma anında görev çubuğunu mutlaka geri getir)
+        // Velopack kurulum ve güncelleme kancaları: kaldırma ve güncelleme sürecin ölmesiyle biter,
+        // OnExit çalışmayabilir; görev çubuğu bu kancalarda mutlaka geri getirilir (hata verse bile süreç düşmesin).
         VelopackApp.Build()
-            .OnBeforeUninstallFastCallback(_ => TaskbarService.Restore())
-            .OnAfterUpdateFastCallback(_ => TaskbarService.Restore())
+            .OnBeforeUninstallFastCallback(_ => App.SafeRestoreTaskbar())
+            .OnBeforeUpdateFastCallback(_ => App.SafeRestoreTaskbar())
+            .OnAfterUpdateFastCallback(_ => App.SafeRestoreTaskbar())
             .Run();
 
         var app = new App();
@@ -98,7 +100,7 @@ public partial class App : Application
     /// <summary>
     /// Görev çubuğunu geri getirir; hata verse bile çağıranın (çökme işleyicisi) akışını bozmaz.
     /// </summary>
-    private static void SafeRestoreTaskbar()
+    internal static void SafeRestoreTaskbar()
     {
         try
         {
