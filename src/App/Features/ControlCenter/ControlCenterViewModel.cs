@@ -14,6 +14,7 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 {
     private readonly Func<IAudioService> _audioFactory;
     private readonly Func<IRadioService> _radioFactory;
+    private readonly Action? _radioRelease;
     private readonly Func<IBrightnessService> _brightnessFactory;
     private readonly IFocusAssistService _focusAssistService;
     private IAudioService? _audioService;
@@ -48,10 +49,13 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
     // Servisler panel ilk açıldığında kurulur (AGENTS.md #5): WMI parlaklık sorgusu, CoreAudio ve
     // radyo erişimi açılışta birkaç MB tutuyor ve panel hiç açılmayabilir. Kurulduktan sonra
-    // notch kapanana kadar yaşar ve bu ViewModel tarafından bırakılır.
+    // notch kapanana kadar yaşar ve bu ViewModel tarafından bırakılır. İstisna: radyo servisi
+    // (kapalı çentikteki Wi-Fi / Bluetooth simgeleri için) çentik açılırken kurulur ve bütün monitörlerde
+    // paylaşılır; radioRelease verilirse paylaşımlı sayaç azaltılır, verilmezse servis burada Dispose edilir.
     public ControlCenterViewModel(
         Func<IAudioService> audioFactory,
         Func<IRadioService> radioFactory,
+        Action? radioRelease,
         Func<IBrightnessService> brightnessFactory,
         IFocusAssistService focusAssistService,
         AppSettings settings,
@@ -59,6 +63,7 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     {
         _audioFactory = audioFactory;
         _radioFactory = radioFactory;
+        _radioRelease = radioRelease;
         _brightnessFactory = brightnessFactory;
         _focusAssistService = focusAssistService;
         _settings = settings;
@@ -74,17 +79,25 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         if (_disposed || _radioService is not null)
             return;
 
-        EnsureRadioService();
-        _ = _radioService!.RefreshAsync();
+        var created = EnsureRadioService();
+
+        // Paylaşımlı servis başka bir monitörde zaten tarandıysa yeniden taranmaz: durum EnsureRadioService'te alındı.
+        if (created && _radioService!.WiFiState == RadioState.Unknown && _radioService.BluetoothState == RadioState.Unknown)
+            Observe(_radioService.RefreshAsync(), "ControlCenter radyo izleme");
     }
 
-    private void EnsureRadioService()
+    // Servis yeni bağlandıysa true. Paylaşımlı servis durumu zaten biliyor olabilir (olay bir daha gelmez),
+    // bu yüzden döşemeler mevcut durumdan hemen beslenir.
+    private bool EnsureRadioService()
     {
         if (_radioService is not null)
-            return;
+            return false;
 
         _radioService = _radioFactory();
         _radioService.StateChanged += OnRadioStateChanged;
+        UpdateRadioTile(RadioKind.WiFi);
+        UpdateRadioTile(RadioKind.Bluetooth);
+        return true;
     }
 
     public void SetActive(bool active)
@@ -271,7 +284,10 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         if (_radioService is not null)
         {
             _radioService.StateChanged -= OnRadioStateChanged;
-            _radioService.Dispose();
+            if (_radioRelease is not null)
+                _radioRelease();
+            else
+                _radioService.Dispose();
             _radioService = null;
         }
 

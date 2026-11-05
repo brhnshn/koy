@@ -1,4 +1,5 @@
 using Koy.Platform.Media;
+using Koy.Platform.Radio;
 using Koy.Platform.Shell;
 
 namespace Koy.App;
@@ -14,6 +15,8 @@ public sealed class SharedServices : IDisposable
     private int _windowTrackerUsers;
     private MediaService? _mediaService;
     private int _mediaServiceUsers;
+    private RadioService? _radioService;
+    private int _radioServiceUsers;
     private bool _disposed;
 
     public WindowTracker AcquireWindowTracker()
@@ -63,6 +66,29 @@ public sealed class SharedServices : IDisposable
         }
     }
 
+    /// <summary>
+    /// Wi-Fi / Bluetooth radyo servisi. Her monitördeki çentik aynı örneği paylaşır: radyo olay aboneliği ve
+    /// WinRT taraması monitör sayısıyla çoğalmaz. Son kullanan bıraktığında Dispose edilir.
+    /// </summary>
+    public RadioService AcquireRadioService()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _radioServiceUsers++;
+        return _radioService ??= new RadioService();
+    }
+
+    public void ReleaseRadioService()
+    {
+        if (_radioServiceUsers == 0)
+            return;
+
+        if (--_radioServiceUsers == 0)
+        {
+            _radioService?.Dispose();
+            _radioService = null;
+        }
+    }
+
     public void Dispose()
     {
         if (_disposed)
@@ -73,7 +99,10 @@ public sealed class SharedServices : IDisposable
         _windowTracker = null;
         _mediaService?.Dispose();
         _mediaService = null;
+        _radioService?.Dispose();
+        _radioService = null;
         _windowTrackerUsers = 0;
         _mediaServiceUsers = 0;
+        _radioServiceUsers = 0;
     }
 }

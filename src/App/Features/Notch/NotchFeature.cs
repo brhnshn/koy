@@ -129,7 +129,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         var musicVm = new MusicViewModel(_mediaService!);
         var controlCenterVm = new ControlCenterViewModel(
             () => new AudioService(),
-            () => new RadioService(),
+            () => services.AcquireRadioService(),
+            services.ReleaseRadioService,
             () => new BrightnessService(),
             _focusAssistService!,
             settings);
