@@ -7,7 +7,6 @@ using Koy.Core.Appearance;
 using Koy.Core.Dock;
 using Koy.Core.Settings;
 using Koy.Core.Visibility;
-using Koy.Platform.Display;
 using Koy.Platform.Shell;
 
 namespace Koy.App.Features.Settings;
@@ -153,9 +152,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private int _dockThumbnailDelayMs = 400;
 
     // --- EKRANLAR ---
-    [ObservableProperty]
-    private int _monitorCount = 1;
-
     [ObservableProperty]
     private bool _screen1Notch = true;
 
@@ -327,15 +323,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
             RefreshMemory();
 
-            try
-            {
-                using var monitorService = new MonitorService();
-                MonitorCount = monitorService.GetMonitors().Count;
-            }
-            catch
-            {
-                MonitorCount = 1;
-            }
         }
         finally
         {
@@ -378,7 +365,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     {
         base.OnPropertyChanged(e);
         if (_isLoading) return;
-        if (e.PropertyName is nameof(SelectedPageIndex) or nameof(MemoryUsageMb) or nameof(MemoryUsageText) or nameof(MemoryPct) or nameof(MemoryLevel) or nameof(MonitorCount)
+        if (e.PropertyName is nameof(SelectedPageIndex) or nameof(MemoryUsageMb) or nameof(MemoryUsageText) or nameof(MemoryPct) or nameof(MemoryLevel)
             or nameof(IsResetConfirming) or nameof(IsCheckingUpdates) or nameof(LastCheckText) or nameof(AboutStatusText) or nameof(CheckButtonText) or nameof(CanCheckUpdates))
             return;
 
