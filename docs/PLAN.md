@@ -46,7 +46,7 @@ Nectar'dan ilham alıyor ama kodu, tasarımı ve görselleri bize ait olacak; Ne
 
 | Alan | Seçim | Neden |
 | --- | --- | --- |
-| Çalışma zamanı | .NET 10 (LTS), C# | Uzun destek, Burhan'ın dili |
+| Çalışma zamanı | .NET 10 (LTS), C# | Uzun destek, projenin ana dili |
 | Arayüz | WPF | Olgun, hafif, tarayıcı yok; WinUI 3'ün paketleme dertleri yok |
 | MVVM | CommunityToolkit.Mvvm | Kaynak üreticisiyle az kod, sıfır yansıma |
 | Windows API (WinRT) | `net10.0-windows10.0.22621.0` hedefi | Medya, radyo, pil API'leri doğrudan |

@@ -1,12 +1,12 @@
 # DESIGN — Koy arayüz tasarımı (M6)
 
-Burhan onayladı (2026-11-04): "çok iyi olmuş". Kodlarken bu belge esas alınır.
+Tasarım proje sahibi tarafından onaylandı (2026-11-04). Kodlarken bu belge esas alınır.
 
-**Tasarımları görmek için:** [`docs/design/index.html`](design/index.html) dosyasını herhangi bir tarayıcıda aç. Tek dosyadır, internet gerekmez; bütün ekranlar sayfa sayfa görünür, düğmeler tıklanabilir. Ekranların kaynak kodu (renkler, ölçüler) `docs/design/source/*.dc.html` dosyalarında.
+**Tasarımları görmek için:** [`docs/design/index.html`](design/index.html) dosyasını herhangi bir tarayıcıda aç. Tek dosyadır, internet gerekmez; bütün ekranlar sayfa sayfa görünür, düğmeler tıklanabilir. Ekranların kaynak kodu (renkler, ölçüler) `docs/design/source/*.dc.html` dosyalarında; kaynak değişince `python docs/design/build.py` ile `index.html` yeniden üretilir.
 
-**Asıl tuval (claude.ai, özel):** https://claude.ai/artifact/N38DJr48ogJn8sZYS3HsoE. Tuval değişirse dosyaları `docs/design/source/` altına yeniden kopyala ve `python docs/design/build.py` çalıştır.
+**Not (`support.js`):** `source/*.dc.html` dosyaları, tasarım tuvalinin çalışma zamanı olan `support.js` dosyasına başvurur. Bu dosya depoda yoktur; bu yüzden `source/` altındaki dosyalar tarayıcıda tek başına açılınca çalışmaz. Tasarımı görmek için `index.html` kullanılır: kaynakları kendi içine gömer ve `support.js` gerektirmez.
 
-Tuvalde beş sayfa var:
+Galerideki beş sayfa:
 
 | Sayfa | İçerik |
 |---|---|
@@ -15,8 +15,6 @@ Tuvalde beş sayfa var:
 | Dock görünümü | Yüzen dock, tam genişlik biçimi, etkileşimler |
 | Pencereli görünüm | Aşağı yapış, çekil, yer ayır, iki ekran |
 | Çentik görünümü | Durumlar, göstergeler, açık paneller, kısa bildirimler |
-
-Kararların gerekçeleri vault'ta, `projects/notch-dock/Kurallar.md` dosyasında.
 
 ## İlkeler
 1. Koy, Windows görev çubuğunun kopyası değildir. Saat, pil ve ağ çentikte durur, dock'ta değil.
@@ -86,6 +84,6 @@ Kararların gerekçeleri vault'ta, `projects/notch-dock/Kurallar.md` dosyasında
 - **İlk açılış:** üç adımlık bir kurulum. İkinci adımda kullanıcı seçer: Çentik ve dock / Yalnız çentik / Yalnız dock.
 
 ## Açık sorular
-- Dock'taki ayırıcı ve klasörler kesin değil: Burhan "olabilir" dedi. Ayardan kapatılabilir olacak.
+- Dock'taki ayırıcı ve klasörler kesin değil. Ayardan kapatılabilir olacak.
 - Varsayılan "pencere yaklaşınca" davranışı Aşağı yapış seçildi, gerekirse değiştirilecek.
 - Kısayollar örnek. Windows kısayollarıyla çakışma kontrolü yapılacak.

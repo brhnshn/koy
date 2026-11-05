@@ -18,13 +18,13 @@ a{color:#2563EB}a:hover{color:#1D4ED8}
   <div style="display: flex; flex-direction: column; gap: 8px;">
     <span style="font-size: 13px; font-weight: 600; color: #2563EB; letter-spacing: 0.4px;">KOY · 4 KASIM 2026</span>
     <h1 style="margin: 0; font-size: 40px; font-weight: 700;">Kararlar, ilkeler ve yapılacaklar</h1>
-    <p style="margin: 0; font-size: 16px; color: #52525B; max-width: 760px; line-height: 1.5;">Bu tuval Burhan'ın kararlarına göre hazırlandı. Kaynak: vault'ta projects/notch-dock/Kurallar.md, depoda docs/ROADMAP.md (M6).</p>
+    <p style="margin: 0; font-size: 16px; color: #52525B; max-width: 760px; line-height: 1.5;">Bu sayfa M6 tasarım kararlarının özetidir. Kaynak: docs/ROADMAP.md (M6) ve docs/DESIGN.md.</p>
   </div>
 
   <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;">
 
     <section style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 14px;">
-      <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Burhan'ın kararları</h2>
+      <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Tasarım kararları</h2>
       <sc-for list="{{decisions}}" as="d" hint-placeholder-count="8">
         <div style="display: flex; gap: 12px;">
           <span style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #2563EB; margin-top: 7px;"></span>
@@ -60,7 +60,7 @@ a{color:#2563EB}a:hover{color:#1D4ED8}
   </div>
 
   <section style="background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 16px; padding: 24px 28px; display: flex; flex-direction: column; gap: 10px;">
-    <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Açık sorular (Burhan seçecek)</h2>
+    <h2 style="margin: 0; font-size: 20px; font-weight: 600;">Açık sorular</h2>
     <sc-for list="{{questions}}" as="q" hint-placeholder-count="4">
       <span style="font-size: 14px; line-height: 1.5; color: #3F3F46;">{{q}}</span>
     </sc-for>
@@ -71,7 +71,7 @@ a{color:#2563EB}a:hover{color:#1D4ED8}
 class Component extends DCLogic {
   renderVals() {
     const decisions = [
-      { t: 'Windows\'tan farklı olmalı', b: '"Aynıysa insanlar neden kullansın?" Tam genişlik Windows tarzı çubuk reddedildi.' },
+      { t: 'Windows\'tan farklı olmalı', b: 'Koy, görev çubuğunun kopyası olmamalı; Windows tarzı tam genişlik çubuk varsayılan tasarım olarak reddedildi.' },
       { t: 'Seelen UI modeli', b: 'Yüzen ya da tam genişlik seçilir, pencere üstüne binince dock çekilir, simgenin üzerinde pencere önizlemesi, her ekranda ayrı dock.' },
       { t: 'Pencereli görünümde aşağı yapış', b: 'Normal boy pencere dock\'a yaklaşınca dock alt kenara iner, uygulamayı örtmez. Tam ekranda gizlenir. Hepsi ayardan seçilir.' },
       { t: 'Çentik müzikten fazlası', b: 'Dosya rafı, takvim, ses ve parlaklık göstergesi çentikte (Boring Notch / NotchNook gibi).' },

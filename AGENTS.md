@@ -1,7 +1,7 @@
 # AGENTS.md — Koy
 
 Bu dosya bu depoda çalışan bütün ajanlar (Antigravity/Gemini, Claude, Codex) için tek talimat kaynağıdır.
-İletişim Türkçe. Kullanıcı Burhan.
+İletişim Türkçe. Kararları proje sahibi verir.
 
 ## Proje
 Windows 11 için hafif bir **notch** (ekranın üst ortasında, yay animasyonlu koy/ada) ve görev çubuğunun yerine geçen bir **dock**.
@@ -37,7 +37,7 @@ src/App/        WPF. Yalnız görseller ve ince ViewModel'ler, özellik klasörl
                 Features/Notch/                NotchFeature, NotchWindow, NotchShape, NotchViewModel
                 Features/Music/, ControlCenter/, Status/, Calendar/, Shelf/   notch panelleri
                 Features/Dock/                 DockFeature, DockWindow… (kapalıyken hiç yüklenmez)
-                Features/Settings/             SettingsWindow
+                Features/Settings/             KoyWindow (ayarlar) ve sayfaları
                 Resources/                     paylaşılan stiller, Strings.resx
 tests/Core.Tests/  xUnit, yalnız Core. Ayrı App.Tests yok: mantık Core'da, ViewModel ince kalır.
 docs/           PLAN, ROADMAP, MEMORY, NAMING.
@@ -54,7 +54,7 @@ Bağımlılık yönü: `App → Platform → Core` ve `App → Core`. Core hiçb
 5. **Servisler yalnız gerektiğinde çalışır.** Notch gizliyken görselleştirici, fare takibi, küçük resim üretimi durur. Zamanlayıcılar (`DispatcherTimer`) görünür değilken durdurulur.
 6. **Animasyon yalnız hareket varken kare çizer.** `CompositionTarget.Rendering` animasyon başlarken bağlanır, `Spring` durunca çözülür (örnek: `NotchWindow.xaml.cs`). WPF `Storyboard` yerine `Core/Animation/Spring` kullanılır.
 7. **Görev çubuğu güvenliği.** Uygulama nasıl kapanırsa kapansın (normal çıkış, istisna, süreç öldürülmesi) Windows görev çubuğu geri gelmeli. Açılışta `TaskbarService.Restore()` çağrısı kalır. Dock'la ilgili her değişiklikte elle test: Görev Yöneticisi'nden süreci öldür → uygulamayı yeniden aç → görev çubuğu görünüyor mu?
-8. **Ağır kütüphane yok.** Serilog, Autofac, ReactiveUI, MahApps, büyük UI kütleri eklenmez. Yeni NuGet paketi eklemeden önce Burhan'a sor ve bellek etkisini ölç.
+8. **Ağır kütüphane yok.** Serilog, Autofac, ReactiveUI, MahApps, büyük UI kütleri eklenmez. Yeni NuGet paketi eklemeden önce proje sahibine sor ve bellek etkisini ölç.
 9. **Görseller:** Albüm kapağı gibi resimler gösterilecek boyutta çözülür (`BitmapImage.DecodePixelWidth`), sonra `Freeze()` edilir.
 10. **Ayarlar** `%AppData%\Koy\settings.json`. Yeni alan → `AppSettings` içine varsayılan değerle eklenir; kaynak üreticili `SettingsJsonContext` kullanılır, yansımalı `JsonSerializer` çağrısı yazılmaz.
 11. **Sözleşmeler Core'da.** Her platform servisinin arayüzü ve veri modeli `src/Core/<Alan>/` içinde, uygulaması `src/Platform/<Alan>/` içinde. Core arayüzlerinde **WinRT / Win32 tipi görünmez** (`IRandomAccessStreamReference`, `HWND` yok): kapak `byte[]`, pencere kimliği `nint`. Durum ve karar mantığı (ne zaman gizlen, hangi panel, Pomodoro) Core'da yazılır ve test edilir; ViewModel yalnız bağlar.
@@ -77,4 +77,4 @@ Bağımlılık yönü: `App → Platform → Core` ve `App → Core`. Core hiçb
 ## Git
 - Ana dal `main`. Her iş kendi dalında: `feat/m1-music-panel`, `fix/...`.
 - Commit mesajı Türkçe, kısa, emir kipinde: "Müzik panelini ekle".
-- Push ve PR yalnız Burhan isteyince.
+- Push ve PR yalnız proje sahibi isteyince.

@@ -121,10 +121,10 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 ---
 
 ## M6 — Koy'u Windows'tan ayır: dock yeniden, çoklu ekran, kendi arayüzü (2026-11-04, açık)
-**Neden:** Burhan, Windows görev çubuğunun aynısı olan tam genişlik çubuğu sevmedi ("aynıysa insanlar neden kullansın"). Çoklu ekranda yalnız birincil ekranda çalışıyor. M5'teki `All` monitör ayarı kodda yok: `MonitorTarget` yalnız tek bir ekran seçiyor. Kararlar vault'ta `projects/notch-dock/Kurallar.md`, araştırma `Arastirma-dock-notch.md`.
+**Neden:** Windows görev çubuğunun aynısı olan tam genişlik çubuk, Koy'u ayırt edici kılmıyor. Çoklu ekranda yalnız birincil ekranda çalışıyor. M5'teki `All` monitör ayarı kodda yok: `MonitorTarget` yalnız tek bir ekran seçiyor. 
 
-### 6.1 Arayüz tasarımı (önce bu, Burhan seçer)
-- [x] Dock, çentik HUD'u ve Koy penceresi için tasarım taslakları: Burhan onayladı (2026-11-04). Özet ve ölçüler `docs/DESIGN.md`'de, tuval https://claude.ai/artifact/N38DJr48ogJn8sZYS3HsoE.
+### 6.1 Arayüz tasarımı (önce bu, proje sahibi seçer)
+- [x] Dock, çentik HUD'u ve Koy penceresi için tasarım taslakları: proje sahibi onayladı (2026-11-04). Özet ve ölçüler `docs/DESIGN.md`'de, görseller `docs/design/index.html`'de.
 
 ### 6.2 Çoklu ekran
 - [x] `Core`: monitör başına durum modeli. Hangi ekranda ne gösterileceği (`Primary` / `All` / `Specific`) saf mantıkla belirlenir ve test edilir.

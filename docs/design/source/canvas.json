@@ -189,7 +189,7 @@
     "ncen": {
       "fill": "orange",
       "page": "centik",
-      "text": "Burhan: Boring Notch / NotchNook gibi dosya rafı, takvim, ses ve parlaklık göstergesi çentikte olmalı. Uygulama adları, saat ve şarkılar örnek veridir.",
+      "text": "Karar: Boring Notch / NotchNook gibi dosya rafı, takvim, ses ve parlaklık göstergesi çentikte olmalı. Uygulama adları, saat ve şarkılar örnek veridir.",
       "w": 300,
       "x": 2880,
       "y": 0
@@ -197,7 +197,7 @@
     "ndock": {
       "fill": "orange",
       "page": "dock",
-      "text": "Burhan: Seelen UI 'tam olarak bu olmalı'. Saat, pil, ağ dock'ta değil çentikte. Ayırıcı (klasörler, küçültülmüş pencereler) 'olabilir', kesin değil.",
+      "text": "Karar: Dock için Seelen UI modeli esas alınır. Saat, pil, ağ dock'ta değil çentikte. Ayırıcı (klasörler, küçültülmüş pencereler) 'olabilir', kesin değil.",
       "w": 300,
       "x": 3040,
       "y": 0
@@ -205,7 +205,7 @@
     "nkoy": {
       "fill": "orange",
       "page": "koy",
-      "text": "Burhan: Koy tam ekran bir uygulama olmasın, orta boy yeter. Pencereyi kapatmak Koy'u kapatmaz; çıkış yalnız sağ alttaki menüden ya da pencerenin sol altındaki düğmeden.",
+      "text": "Karar: Koy tam ekran bir uygulama olmasın, orta boy yeter. Pencereyi kapatmak Koy'u kapatmaz; çıkış yalnız sağ alttaki menüden ya da pencerenin sol altındaki düğmeden.",
       "w": 300,
       "x": 4400,
       "y": 0
@@ -213,7 +213,7 @@
     "npen": {
       "fill": "orange",
       "page": "pencereli",
-      "text": "Burhan: Tam ekranda gidiyor, bu zaten var. Pencereli görünümde dock aşağıya yapışsın, uygulamayı engellemesin. Hepsi ayardan seçilecek (Koy › Dock › Pencere yaklaşınca).",
+      "text": "Karar: Tam ekranda dock gizlenir (zaten var). Pencereli görünümde dock aşağıya yapışsın, uygulamayı engellemesin. Hepsi ayardan seçilecek (Koy › Dock › Pencere yaklaşınca).",
       "w": 300,
       "x": 3040,
       "y": 0
