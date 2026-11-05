@@ -714,4 +714,13 @@
   <data name="PomodoroLongBreakTitle" xml:space="preserve">
     <value>Long break (min)</value>
   </data>
+  <data name="WindowMinimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="WindowHide" xml:space="preserve">
+    <value>Hide window</value>
+  </data>
+  <data name="WindowHideTip" xml:space="preserve">
+    <value>Hide window (Koy keeps running)</value>
+  </data>
 </root>

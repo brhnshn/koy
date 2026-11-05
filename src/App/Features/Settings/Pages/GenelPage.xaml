@@ -10,8 +10,8 @@
 
     <StackPanel Margin="0,0,16,24">
         <!-- Başlık -->
-        <TextBlock Text="{Binding [General], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="#F4F4F5" />
-        <TextBlock Text="{Binding [GeneralSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [General], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+        <TextBlock Text="{Binding [GeneralSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,16" />
 
         <!-- BAŞLANGIÇ -->
         <TextBlock Text="{Binding [StartupHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
@@ -71,7 +71,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [ChannelTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="#27272A" CornerRadius="8" Padding="3">
+                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [ChannelStable], Source={x:Static res:Loc.Instance}}" GroupName="UpdateChan"
                                      IsChecked="{Binding UpdateChannel, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Kararlı}"
@@ -96,9 +96,9 @@
         <!-- Bilgi Kutusu -->
         <Border Style="{StaticResource InfoNoticeStyle}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="ℹ" FontSize="14" Foreground="#BFDBFE" Margin="0,0,10,0" VerticalAlignment="Top" />
+                <TextBlock Text="ℹ" FontSize="14" Foreground="{DynamicResource KoyFgInfo}" Margin="0,0,10,0" VerticalAlignment="Top" />
                 <TextBlock Text="{Binding [WindowCloseNotice], Source={x:Static res:Loc.Instance}}"
-                           Foreground="#BFDBFE" FontSize="13" TextWrapping="Wrap" LineHeight="18" />
+                           Foreground="{DynamicResource KoyFgInfo}" FontSize="13" TextWrapping="Wrap" LineHeight="18" />
             </StackPanel>
         </Border>
     </StackPanel>

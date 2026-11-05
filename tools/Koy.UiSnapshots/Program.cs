@@ -58,6 +58,8 @@ public static class Program
             if (win.FindName("ContentScrollViewer") is System.Windows.Controls.ScrollViewer sv)
                 sv.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Disabled;
 
+            // İlk ölçüm sayfa şablonlarını kurar; ardından her sayfa gerçek boyutuyla çizilir.
+            ((FrameworkElement)win.Content).Measure(new Size(880, double.PositiveInfinity));
             for (var i = 0; i < PageNames.Length; i++)
             {
                 vm.SelectPage(i);

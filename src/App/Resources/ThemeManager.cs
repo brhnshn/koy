@@ -1,0 +1,150 @@
+using System.Windows;
+using System.Windows.Media;
+using Koy.Core.Appearance;
+using Koy.Core.Settings;
+using Microsoft.Win32;
+
+namespace Koy.App.Resources;
+
+/// <summary>
+/// Görünüm ayarlarını (tema, vurgu, malzeme, köşe, hareket) uygulama kaynaklarına uygular.
+/// Sıra: [0] tema sözlüğü (Koyu/Açık, değişince yenisiyle değiştirilir), Tokens, Icons, Styles, en sonda
+/// ezmeler (vurgu tonları, köşe yarıçapları, yarı saydam yüzeyler). Hepsi DynamicResource ile okunduğu için
+/// değişiklik açık pencerelere anında yansır.
+/// Yalnız Koy penceresi, ilk kurulum sihirbazı ve sağ alt menü bu kaynakları kullanır; çentik ve dock kendi
+/// sabit renklerinde kalır.
+/// </summary>
+public static class ThemeManager
+{
+    private const string Base = "pack://application:,,,/Koy;component/Resources/";
+
+    private static ResourceDictionary? _themeDictionary;
+    private static ResourceDictionary? _overrides;
+    private static AppSettings? _last;
+    private static bool _watching;
+
+    public static ResolvedTheme Current { get; private set; } = ResolvedTheme.Dark;
+
+    /// <summary>Ortak sözlükleri yükler (App.xaml'in yerini tutar; araçlar da aynı yolu kullanır).</summary>
+    public static void Install(Application app)
+    {
+        var merged = app.Resources.MergedDictionaries;
+        if (merged.Count > 0)
+            return;
+
+        merged.Add(Load("Theme.Dark.xaml"));
+        _themeDictionary = merged[0];
+        merged.Add(Load("Tokens.xaml"));
+        merged.Add(Load("Icons.xaml"));
+        merged.Add(Load("Styles.xaml"));
+        _overrides = new ResourceDictionary();
+        merged.Add(_overrides);
+    }
+
+    private static ResourceDictionary Load(string name) => new() { Source = new Uri(Base + name, UriKind.Absolute) };
+
+    /// <summary>Ayarları uygular. "Sistem" seçiliyken Windows uygulama teması izlenir.</summary>
+    public static void Apply(Application app, AppSettings settings, bool? systemUsesLightOverride = null)
+    {
+        Install(app);
+        _last = settings;
+
+        var theme = ThemeSetting.Resolve(settings.Theme, systemUsesLightOverride ?? SystemUsesLightTheme());
+        Current = theme;
+
+        var merged = app.Resources.MergedDictionaries;
+        var wanted = Load(theme == ResolvedTheme.Light ? "Theme.Light.xaml" : "Theme.Dark.xaml");
+        var index = _themeDictionary is null ? 0 : merged.IndexOf(_themeDictionary);
+        if (index < 0)
+            index = 0;
+        merged[index] = wanted;
+        _themeDictionary = wanted;
+
+        BuildOverrides(settings, theme, wanted);
+        Motion.Refresh(settings);
+
+        if (ThemeSetting.Normalize(settings.Theme) == ThemeSetting.System)
+            WatchSystemTheme(app);
+    }
+
+    private static void BuildOverrides(AppSettings settings, ResolvedTheme theme, ResourceDictionary palette)
+    {
+        var o = _overrides ??= new ResourceDictionary();
+        o.Clear();
+
+        // Köşeler
+        var r = CornerRadii.For(CornerSetting.Resolve(settings.CornerRadius));
+        o["KoyRadiusWindow"] = new CornerRadius(r.Window);
+        o["KoyRadiusWindowTop"] = new CornerRadius(Math.Max(0, r.Window - 1), Math.Max(0, r.Window - 1), 0, 0);
+        o["KoyRadiusWindowBottomLeft"] = new CornerRadius(0, 0, 0, Math.Max(0, r.Window - 1));
+        o["KoyRadiusRow"] = new CornerRadius(r.Row);
+        o["KoyRadiusControl"] = new CornerRadius(r.Control);
+        o["KoyRadiusSmall"] = new CornerRadius(r.Small);
+
+        // Vurgu: Windows vurgusu ya da seçilen renk; varsayılan Koy mavisi tema sözlüğünden gelir.
+        string? accentHex = settings.UseWindowsAccent ? WindowsAccentHex() : settings.AccentColor;
+        if (!string.IsNullOrWhiteSpace(accentHex))
+        {
+            var surface = palette["KoyBgRow"] is SolidColorBrush b ? ToHex(b.Color) : "#1F1F23";
+            var p = AccentPalette.Derive(accentHex, theme, surface);
+            o["KoyAccent"] = Brush(p.Base);
+            o["KoyAccentHover"] = Brush(p.Hover);
+            o["KoyAccentPressed"] = Brush(p.Pressed);
+            o["KoyOnAccent"] = Brush(p.OnAccent);
+            o["KoyAccentText"] = Brush(p.Text);
+            o["KoyFocusRing"] = Brush(p.Focus);
+            var c = (Color)ColorConverter.ConvertFromString(p.Base);
+            o["KoyAccentSubtle"] = new SolidColorBrush(Color.FromArgb(theme == ResolvedTheme.Dark ? (byte)0x26 : (byte)0x22, c.R, c.G, c.B));
+        }
+
+        // Yarı saydam malzeme: pencere yüzeyleri %88 opak; satırlar ve metin kontrastı korunur.
+        if (MaterialSetting.IsTranslucent(settings.Material))
+        {
+            var alpha = (byte)Math.Round(255 * MaterialSetting.TranslucentSurfaceOpacity);
+            foreach (var key in new[] { "KoyBgWindow", "KoyBgShell" })
+            {
+                if (palette[key] is SolidColorBrush src)
+                    o[key] = new SolidColorBrush(Color.FromArgb(alpha, src.Color.R, src.Color.G, src.Color.B));
+            }
+        }
+    }
+
+    private static SolidColorBrush Brush(string hex) => new((Color)ColorConverter.ConvertFromString(hex));
+
+    private static string ToHex(Color c) => $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+
+    private static string WindowsAccentHex() => ToHex(SystemParameters.WindowGlassColor);
+
+    /// <summary>Windows uygulama teması açık mı (kayıt defteri: AppsUseLightTheme).</summary>
+    public static bool SystemUsesLightTheme()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            return key?.GetValue("AppsUseLightTheme") is int v && v != 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static void WatchSystemTheme(Application app)
+    {
+        if (_watching)
+            return;
+        _watching = true;
+
+        // Windows teması değişince (yalnız ayar "Sistem" iken) kaynaklar yeniden uygulanır.
+        SystemEvents.UserPreferenceChanged += (_, e) =>
+        {
+            if (e.Category is not (UserPreferenceCategory.General or UserPreferenceCategory.Color or UserPreferenceCategory.VisualStyle))
+                return;
+            app.Dispatcher.BeginInvoke(() =>
+            {
+                if (_last is { } s && (ThemeSetting.Normalize(s.Theme) == ThemeSetting.System || s.UseWindowsAccent))
+                    Apply(app, s);
+            });
+        };
+    }
+}

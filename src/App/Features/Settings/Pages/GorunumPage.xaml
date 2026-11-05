@@ -9,8 +9,8 @@
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
 
     <StackPanel Margin="0,0,16,24">
-        <TextBlock Text="{Binding [NavAppearance], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="#F4F4F5" />
-        <TextBlock Text="{Binding [AppearanceSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [NavAppearance], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+        <TextBlock Text="{Binding [AppearanceSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,16" />
 
         <!-- TEMA -->
         <TextBlock Text="{Binding [ThemeHeader], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
@@ -20,7 +20,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [ThemeTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="#27272A" CornerRadius="8" Padding="3">
+                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [ThemeSystem], Source={x:Static res:Loc.Instance}}" GroupName="ThemeGroup"
                                      IsChecked="{Binding Theme, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Sistem}"
@@ -43,7 +43,7 @@
                     <TextBlock Text="{Binding [AccentColorTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <RadioButton Background="#3B82F6" GroupName="AccentColors"
+                    <RadioButton Background="{DynamicResource KoyAccent}" GroupName="AccentColors"
                                  IsChecked="{Binding AccentColor, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=#3B82F6}"
                                  Style="{StaticResource ColorRadioStyle}" />
                     <RadioButton Background="#8B5CF6" GroupName="AccentColors"
@@ -81,7 +81,7 @@
                     <TextBlock Text="{Binding [MaterialTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                     <TextBlock Text="{Binding [MaterialDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="#27272A" CornerRadius="8" Padding="3">
+                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [MaterialSolid], Source={x:Static res:Loc.Instance}}" GroupName="MatGroup"
                                      IsChecked="{Binding Material, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Katı}"
@@ -99,7 +99,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [CornerRadiusTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <TextBlock Text="18 px" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#D4D4D8" FontSize="13" />
+                <TextBlock Text="18 px" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource KoyTextSecondary}" FontSize="13" />
             </Grid>
         </Border>
 
@@ -111,7 +111,7 @@
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [AnimationTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <Border HorizontalAlignment="Right" Background="#27272A" CornerRadius="8" Padding="3">
+                <Border HorizontalAlignment="Right" Background="{DynamicResource KoyBgControl}" CornerRadius="8" Padding="3">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="{Binding [AnimGentle], Source={x:Static res:Loc.Instance}}" GroupName="AnimSpeed"
                                      IsChecked="{Binding AnimationSpeed, Converter={x:Static local:ComparisonToBoolConverter.Instance}, ConverterParameter=Sakin}"

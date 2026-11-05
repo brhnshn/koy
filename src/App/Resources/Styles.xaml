@@ -1,62 +1,116 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:m="clr-namespace:Koy.App.Resources">
+    <!--
+        Koy penceresi, kurulum sihirbazı ve sağ alt menü için ortak bileşen stilleri.
+        Bütün renk, boyut ve köşe değerleri token'dan gelir (Theme.*.xaml, Tokens.xaml) ve DynamicResource ile okunur;
+        sabit hex yalnız KoyLogoGeometry dışında yoktur. Hareket (hover, basma, anahtar yayı) Motion ekli özellikleriyle.
+    -->
 
     <!-- Koy Marka Logosu Vektör Geometrisi (Windows 11 Fluent Squircle + Çentik + K Monogramı) -->
     <Geometry x:Key="KoyLogoGeometry">M 80,32 H 176 C 202,32 224,54 224,80 V 176 C 224,202 202,224 176,224 H 80 C 54,224 32,202 32,176 V 80 C 32,54 54,32 80,32 Z M 88,32 C 94,44 104,54 116,54 H 140 C 152,54 162,44 168,32 H 88 Z M 76,96 C 76,88 83,82 91,82 C 99,82 106,88 106,96 V 176 C 106,184 99,190 91,190 C 83,190 76,184 76,176 Z M 106,136 L 148,88 C 154,82 164,81 170,87 C 176,93 176,102 170,107 L 134,143 L 170,179 C 176,184 176,193 170,199 C 164,205 154,204 148,198 L 106,148 Z</Geometry>
 
-    <!-- Bölüm Başlığı Stili -->
-    <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12" />
+    <!-- Klavye odağı: yalnız klavyeyle gezerken görünür, 2 px vurgu halkası -->
+    <Style x:Key="KoyFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Stroke="{DynamicResource KoyFocusRing}" StrokeThickness="2" RadiusX="7" RadiusY="7"
+                               Margin="-3" SnapsToDevicePixels="True" IsHitTestVisible="False" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Metin stilleri -->
+    <Style x:Key="PageTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontPageTitle}" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="#71717A" />
-        <Setter Property="Margin" Value="0,18,0,6" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
     </Style>
 
-    <!-- Ayar Satırı Konteyneri (MinHeight 56 px, #1F1F23, 10 px radius, 8 16 px padding) -->
-    <Style x:Key="SettingRowStyle" TargetType="Border">
-        <Setter Property="MinHeight" Value="56" />
-        <Setter Property="Background" Value="#1F1F23" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="Padding" Value="16,8" />
-        <Setter Property="Margin" Value="0,0,0,4" />
+    <Style x:Key="PageSubtitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontSubtitle}" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextSecondary}" />
+        <Setter Property="Margin" Value="0,4,0,0" />
+        <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
-    <!-- Satır Başlığı ve Açıklaması -->
+    <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontSection}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextMuted}" />
+        <Setter Property="Margin" Value="2,24,0,8" />
+    </Style>
+
     <Style x:Key="SettingTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="#F4F4F5" />
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontRowTitle}" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
     <Style x:Key="SettingDescStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="Foreground" Value="#A1A1AA" />
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontCaption}" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextSecondary}" />
         <Setter Property="Margin" Value="0,2,0,0" />
+        <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
-    <!-- Modern Geçiş Düğmesi (Toggle Switch: 40×22 px iz, 16×16 px yuvarlak) -->
+    <!-- Ayar satırı: 52 px, satır zemini + 1 px kenarlık, ince köşe -->
+    <Style x:Key="SettingRowStyle" TargetType="Border">
+        <Setter Property="MinHeight" Value="{DynamicResource KoyRowMinHeight}" />
+        <Setter Property="Background" Value="{DynamicResource KoyBgRow}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderHairline}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource KoyRadiusRow}" />
+        <Setter Property="Padding" Value="14,8" />
+        <Setter Property="Margin" Value="0,0,0,4" />
+        <Setter Property="m:Motion.Stagger" Value="True" />
+    </Style>
+
+    <!-- Segment kapsayıcısı (SegRadioStyle düğmelerini sarar) -->
+    <Style x:Key="SegmentContainerStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource KoyBgControl}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderHairline}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource KoyRadiusControl}" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Anahtar (toggle): 40x22 iz, yaylı 16 px düğme. Kapalı izin kenarı 3:1 kontrastlı. -->
     <Style x:Key="ToggleSwitchStyle" TargetType="CheckBox">
         <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KoyFocusVisual}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
-                    <Border x:Name="track"
-                            Width="40"
-                            Height="22"
-                            CornerRadius="11"
-                            Background="#3F3F46">
-                        <Ellipse x:Name="knob"
-                                 Width="16"
-                                 Height="16"
-                                 Fill="#D4D4D8"
-                                 HorizontalAlignment="Left"
-                                 Margin="3,0,0,0" />
-                    </Border>
+                    <Grid x:Name="root" Width="40" Height="22" Background="Transparent" SnapsToDevicePixels="True">
+                        <Border x:Name="track" CornerRadius="11"
+                                Background="{DynamicResource KoyToggleTrackOff}"
+                                BorderBrush="{DynamicResource KoyBorderControl}" BorderThickness="1" />
+                        <Border x:Name="trackOn" CornerRadius="11" Opacity="0"
+                                Background="{DynamicResource KoyAccent}" />
+                        <Grid x:Name="knobHost" Width="16" Height="16" HorizontalAlignment="Left" Margin="3,0,0,0">
+                            <Ellipse Fill="{DynamicResource KoyToggleKnobOff}" />
+                            <Ellipse x:Name="knobOn" Fill="{DynamicResource KoyToggleKnobOn}" Opacity="0" />
+                        </Grid>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="track" Property="Background" Value="#3B82F6" />
-                            <Setter TargetName="knob" Property="HorizontalAlignment" Value="Right" />
-                            <Setter TargetName="knob" Property="Margin" Value="0,0,3,0" />
-                            <Setter TargetName="knob" Property="Fill" Value="#FFFFFF" />
+                            <Setter TargetName="trackOn" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter TargetName="knobOn" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter TargetName="knobHost" Property="m:Motion.KnobOn" Value="True" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="root" Property="m:Motion.ScaleTo" Value="0.94" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.45" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -64,151 +118,131 @@
         </Setter>
     </Style>
 
-    <!-- Koyu Tema Modern CheckBox Stili (Tik Kutusu) -->
+    <!-- Onay kutusu -->
     <Style x:Key="ModernCheckBoxStyle" TargetType="CheckBox">
         <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Background" Value="#27272A" />
-        <Setter Property="BorderBrush" Value="#52525B" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KoyFocusVisual}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
                     <Grid Background="Transparent">
-                        <Border x:Name="box"
-                                Width="22"
-                                Height="22"
-                                CornerRadius="6"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1.5">
-                            <Path x:Name="checkMark"
-                                  Data="M4 11 L9 16 L18 6"
-                                  Stroke="#FFFFFF"
-                                  StrokeThickness="2"
-                                  StrokeStartLineCap="Round"
-                                  StrokeEndLineCap="Round"
-                                  StrokeLineJoin="Round"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                  Visibility="Collapsed" />
-                        </Border>
+                        <Border x:Name="box" Width="20" Height="20" CornerRadius="{DynamicResource KoyRadiusSmall}"
+                                Background="{DynamicResource KoyBgControl}"
+                                BorderBrush="{DynamicResource KoyBorderControl}" BorderThickness="1.5" />
+                        <Border x:Name="boxOn" Width="20" Height="20" CornerRadius="{DynamicResource KoyRadiusSmall}"
+                                Background="{DynamicResource KoyAccent}" Opacity="0" />
+                        <m:KoyIcon x:Name="mark" Data="{DynamicResource IconCheck}" Size="14" StrokeWidth="2.5"
+                                   Foreground="{DynamicResource KoyOnAccent}" Opacity="0"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="box" Property="Background" Value="#3B82F6" />
-                            <Setter TargetName="box" Property="BorderBrush" Value="#3B82F6" />
-                            <Setter TargetName="checkMark" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="boxOn" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter TargetName="mark" Property="m:Motion.FadeTo" Value="1" />
                         </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="box" Property="BorderBrush" Value="#60A5FA" />
-                        </Trigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True" />
-                                <Condition Property="IsChecked" Value="True" />
-                            </MultiTrigger.Conditions>
-                            <Setter TargetName="box" Property="Background" Value="#2563EB" />
-                            <Setter TargetName="box" Property="BorderBrush" Value="#2563EB" />
-                        </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <!-- Bölümlenmiş Radyo Düğmesi (Segmented Switch) -->
+    <!-- Segment düğmesi (SegmentContainerStyle içinde) -->
     <Style x:Key="SegRadioStyle" TargetType="RadioButton">
         <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="pill"
-                            Padding="12,6"
-                            CornerRadius="6"
-                            Background="Transparent">
-                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="pill" Property="Background" Value="#3F3F46" />
-                            <Setter Property="Foreground" Value="#F4F4F5" />
-                            <Setter Property="FontWeight" Value="SemiBold" />
-                        </Trigger>
-                        <Trigger Property="IsChecked" Value="False">
-                            <Setter Property="Foreground" Value="#A1A1AA" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!-- Renk Seçim Radyo Düğmesi -->
-    <Style x:Key="ColorRadioStyle" TargetType="RadioButton">
-        <Setter Property="Cursor" Value="Hand" />
-        <Setter Property="Width" Value="24" />
-        <Setter Property="Height" Value="24" />
-        <Setter Property="Margin" Value="0,0,8,0" />
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontControl}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextSecondary}" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KoyFocusVisual}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
                     <Grid>
-                        <Border x:Name="outerRing"
-                                Width="24"
-                                Height="24"
-                                CornerRadius="12"
-                                BorderThickness="2"
-                                BorderBrush="Transparent" />
-                        <Border Width="16"
-                                Height="16"
-                                CornerRadius="8"
-                                Background="{TemplateBinding Background}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center" />
+                        <Border x:Name="hover" CornerRadius="{DynamicResource KoyRadiusSmall}"
+                                Background="{DynamicResource KoyBgHover}" Opacity="0" />
+                        <Border x:Name="sel" CornerRadius="{DynamicResource KoyRadiusSmall}"
+                                Background="{DynamicResource KoyBgActive}"
+                                BorderBrush="{DynamicResource KoyBorderStrong}" BorderThickness="1" Opacity="0" />
+                        <ContentPresenter Margin="12,5" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="outerRing" Property="BorderBrush" Value="#F4F4F5" />
-                        </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="outerRing" Property="BorderBrush" Value="#71717A" />
+                            <Setter TargetName="hover" Property="m:Motion.FadeTo" Value="0.7" />
                         </Trigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True" />
-                                <Condition Property="IsChecked" Value="True" />
-                            </MultiTrigger.Conditions>
-                            <Setter TargetName="outerRing" Property="BorderBrush" Value="#FFFFFF" />
-                        </MultiTrigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="sel" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter TargetName="hover" Property="m:Motion.FadeTo" Value="0" />
+                            <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <!-- Standart İşlem Düğmesi -->
-    <Style x:Key="SettingButtonStyle" TargetType="Button">
-        <Setter Property="Height" Value="32" />
-        <Setter Property="Padding" Value="14,0" />
-        <Setter Property="Background" Value="#27272A" />
-        <Setter Property="BorderBrush" Value="#3F3F46" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Foreground" Value="#F4F4F5" />
-        <Setter Property="FontSize" Value="13" />
+    <!-- Renk seçimi: 24 px halka, seçili halka metin renginde, odakta odak halkası. AutomationProperties.Name sayfada verilir. -->
+    <Style x:Key="ColorRadioStyle" TargetType="RadioButton">
         <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Width" Value="28" />
+        <Setter Property="Height" Value="28" />
+        <Setter Property="Margin" Value="0,0,6,0" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KoyFocusVisual}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid Background="Transparent">
+                        <Ellipse x:Name="ringHover" Stroke="{DynamicResource KoyBorderControl}" StrokeThickness="2" Opacity="0" />
+                        <Ellipse x:Name="ring" Stroke="{DynamicResource KoyTextPrimary}" StrokeThickness="2" Opacity="0" />
+                        <Ellipse Width="18" Height="18" Fill="{TemplateBinding Background}" />
+                        <m:KoyIcon x:Name="mark" Data="{DynamicResource IconCheck}" Size="12" StrokeWidth="3"
+                                   Foreground="#FF0A0A0B" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ringHover" Property="m:Motion.FadeTo" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="ring" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter TargetName="mark" Property="m:Motion.FadeTo" Value="0.85" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Standart düğme: 28 px, hover katmanı yumuşak belirir, basılınca %97'ye küçülür -->
+    <Style x:Key="SettingButtonStyle" TargetType="Button">
+        <Setter Property="Height" Value="{DynamicResource KoyControlHeight}" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Background" Value="{DynamicResource KoyBgControl}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderStrong}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontControl}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KoyFocusVisual}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="b"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
-                    </Border>
+                    <Grid x:Name="root">
+                        <Border x:Name="b" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource KoyRadiusControl}" />
+                        <Border x:Name="hover" Background="{DynamicResource KoyBgHover}" Opacity="0"
+                                CornerRadius="{DynamicResource KoyRadiusControl}" />
+                        <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="b" Property="Background" Value="#3F3F46" />
+                            <Setter TargetName="hover" Property="m:Motion.FadeTo" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="root" Property="m:Motion.ScaleTo" Value="0.97" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.5" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -216,37 +250,139 @@
         </Setter>
     </Style>
 
-    <!-- Tehlikeli İşlem Düğmesi (Kırmızı) -->
-    <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource SettingButtonStyle}">
-        <Setter Property="Foreground" Value="#FCA5A5" />
-        <Setter Property="BorderBrush" Value="#522525" />
+    <!-- Birincil düğme: vurgu zemini, üstünde kontrast garantili yazı -->
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource SettingButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource KoyAccent}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyOnAccent}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="root">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="{DynamicResource KoyRadiusControl}" />
+                        <Border x:Name="hover" Background="{DynamicResource KoyAccentHover}" Opacity="0"
+                                CornerRadius="{DynamicResource KoyRadiusControl}" />
+                        <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="hover" Property="m:Motion.FadeTo" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="root" Property="m:Motion.ScaleTo" Value="0.97" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
-    <!-- Klavye Tuş Rozeti -->
-    <Style x:Key="KeyBadgeStyle" TargetType="Border">
-        <Setter Property="MinWidth" Value="28" />
+    <!-- Tehlikeli işlem düğmesi -->
+    <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource SettingButtonStyle}">
+        <Setter Property="Foreground" Value="{DynamicResource KoyDangerText}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource KoyDangerBorder}" />
+        <Setter Property="Background" Value="{DynamicResource KoyDangerBg}" />
+    </Style>
+
+    <!-- Başlık çubuğu düğmesi: Tag = ikon geometrisi, Foreground ikon rengi -->
+    <Style x:Key="TitleButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="40" />
         <Setter Property="Height" Value="28" />
-        <Setter Property="Padding" Value="8,0" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextSecondary}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KoyFocusVisual}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid Background="Transparent">
+                        <Border x:Name="hover" Background="{DynamicResource KoyBgHover}" Opacity="0"
+                                CornerRadius="{DynamicResource KoyRadiusControl}" Margin="2" />
+                        <m:KoyIcon Data="{TemplateBinding Tag}" Size="14" StrokeWidth="2"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="hover" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Kenar çubuğu gezinme öğesi (RadioButton): Tag = ikon geometrisi, Content = ad -->
+    <Style x:Key="NavItemStyle" TargetType="RadioButton">
+        <Setter Property="Height" Value="{DynamicResource KoyNavItemHeight}" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextSecondary}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="0,1" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KoyFocusVisual}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid x:Name="root" Background="Transparent">
+                        <Border x:Name="hover" Background="{DynamicResource KoyBgNavHover}" Opacity="0"
+                                CornerRadius="{DynamicResource KoyRadiusControl}" />
+                        <Border x:Name="active" Background="{DynamicResource KoyBgNavActive}" Opacity="0"
+                                BorderBrush="{DynamicResource KoyBorderHairline}" BorderThickness="1"
+                                CornerRadius="{DynamicResource KoyRadiusControl}" />
+                        <Border x:Name="bar" Width="3" Height="16" CornerRadius="2" HorizontalAlignment="Left"
+                                Margin="1,0,0,0" Background="{DynamicResource KoyAccent}" Opacity="0" />
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,8,0">
+                            <m:KoyIcon x:Name="icon" Data="{TemplateBinding Tag}" Size="16" StrokeWidth="1.9" />
+                            <ContentPresenter Margin="12,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="hover" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="active" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter TargetName="bar" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+                            <Setter TargetName="icon" Property="Foreground" Value="{DynamicResource KoyAccentText}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Klavye tuş rozeti -->
+    <Style x:Key="KeyBadgeStyle" TargetType="Border">
+        <Setter Property="MinWidth" Value="24" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Padding" Value="7,0" />
         <Setter Property="Margin" Value="2,0" />
-        <Setter Property="Background" Value="#27272A" />
-        <Setter Property="BorderBrush" Value="#3F3F46" />
-        <Setter Property="BorderThickness" Value="1,1,1,2" />
-        <Setter Property="CornerRadius" Value="6" />
-        <Setter Property="TextBlock.FontSize" Value="12" />
-        <Setter Property="TextBlock.Foreground" Value="#F4F4F5" />
+        <Setter Property="Background" Value="{DynamicResource KoyBgControl}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderStrong}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{DynamicResource KoyRadiusSmall}" />
+        <Setter Property="TextBlock.FontFamily" Value="{DynamicResource KoyFontMono}" />
+        <Setter Property="TextBlock.FontSize" Value="{DynamicResource KoyFontKey}" />
+        <Setter Property="TextBlock.Foreground" Value="{DynamicResource KoyTextPrimary}" />
         <Setter Property="TextBlock.VerticalAlignment" Value="Center" />
         <Setter Property="TextBlock.HorizontalAlignment" Value="Center" />
     </Style>
 
-    <!-- Mavi Bilgi Bildirimi Kutusu -->
+    <!-- Mavi bilgi kutusu -->
     <Style x:Key="InfoNoticeStyle" TargetType="Border">
-        <Setter Property="Background" Value="#172033" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="Padding" Value="14,12" />
+        <Setter Property="Background" Value="{DynamicResource KoyBgInfo}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource KoyRadiusRow}" />
+        <Setter Property="Padding" Value="12,10" />
         <Setter Property="Margin" Value="0,8" />
     </Style>
 
-    <!-- ComboBox Toggle Button Stili -->
+    <!-- Açılır liste: düğme -->
     <Style x:Key="DarkComboBoxToggle" TargetType="ToggleButton">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="IsTabStop" Value="False" />
@@ -255,31 +391,23 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
-                    <Border x:Name="border"
-                            Background="#27272A"
-                            BorderBrush="#3F3F46"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="12,0,10,0">
-                        <Grid>
-                            <Path x:Name="arrow"
-                                  HorizontalAlignment="Right"
-                                  VerticalAlignment="Center"
-                                  Data="M0 0 L4 4 L8 0"
-                                  Stroke="#A1A1AA"
-                                  StrokeThickness="1.5"
-                                  StrokeStartLineCap="Round"
-                                  StrokeEndLineCap="Round" />
-                        </Grid>
-                    </Border>
+                    <Grid>
+                        <Border x:Name="border" Background="{DynamicResource KoyBgControl}"
+                                BorderBrush="{DynamicResource KoyBorderStrong}" BorderThickness="1"
+                                CornerRadius="{DynamicResource KoyRadiusControl}" />
+                        <Border x:Name="hover" Background="{DynamicResource KoyBgHover}" Opacity="0"
+                                CornerRadius="{DynamicResource KoyRadiusControl}" />
+                        <m:KoyIcon x:Name="arrow" Data="{DynamicResource IconChevronDown}" Size="14" StrokeWidth="2"
+                                   Foreground="{DynamicResource KoyTextSecondary}"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="#52525B" />
-                            <Setter TargetName="border" Property="Background" Value="#323238" />
-                            <Setter TargetName="arrow" Property="Stroke" Value="#F4F4F5" />
+                            <Setter TargetName="hover" Property="m:Motion.FadeTo" Value="1" />
+                            <Setter TargetName="arrow" Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="#3B82F6" />
+                            <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource KoyAccent}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -287,30 +415,28 @@
         </Setter>
     </Style>
 
-    <!-- ComboBoxItem Stili -->
+    <!-- Açılır liste: öğe -->
     <Style x:Key="DarkComboBoxItemStyle" TargetType="ComboBoxItem">
-        <Setter Property="Foreground" Value="#F4F4F5" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="Height" Value="34" />
-        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontControl}" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="10,0" />
         <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">
-                    <Border x:Name="itemBorder"
-                            Background="Transparent"
-                            CornerRadius="6"
-                            Margin="4,2"
-                            Padding="{TemplateBinding Padding}">
+                    <Border x:Name="itemBorder" Background="Transparent" CornerRadius="{DynamicResource KoyRadiusSmall}"
+                            Margin="2,1" Padding="{TemplateBinding Padding}">
                         <ContentPresenter VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="itemBorder" Property="Background" Value="#27272A" />
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource KoyBgHover}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="itemBorder" Property="Background" Value="#3B82F6" />
-                            <Setter Property="Foreground" Value="#FFFFFF" />
+                            <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource KoyAccentSubtle}" />
+                            <Setter Property="Foreground" Value="{DynamicResource KoyAccentText}" />
                             <Setter Property="FontWeight" Value="SemiBold" />
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -319,52 +445,40 @@
         </Setter>
     </Style>
 
-    <!-- Koyu Tema Modern ComboBox Stili -->
+    <!-- Açılır liste -->
     <Style x:Key="SettingComboBoxStyle" TargetType="ComboBox">
         <Setter Property="ItemContainerStyle" Value="{StaticResource DarkComboBoxItemStyle}" />
-        <Setter Property="Foreground" Value="#F4F4F5" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
+        <Setter Property="FontSize" Value="{DynamicResource KoyFontControl}" />
+        <Setter Property="Height" Value="{DynamicResource KoyControlHeight}" />
+        <Setter Property="MinWidth" Value="120" />
         <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource KoyFocusVisual}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
-                        <ToggleButton Name="ToggleButton"
-                                      Style="{StaticResource DarkComboBoxToggle}"
-                                      Focusable="False"
+                        <ToggleButton Name="ToggleButton" Style="{StaticResource DarkComboBoxToggle}" Focusable="False"
                                       IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
-                        <ContentPresenter Name="ContentSite"
-                                          IsHitTestVisible="False"
+                        <ContentPresenter Name="ContentSite" IsHitTestVisible="False"
                                           Content="{TemplateBinding SelectionBoxItem}"
                                           ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                           ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                          Margin="14,0,30,0"
-                                          VerticalAlignment="Center"
-                                          HorizontalAlignment="Left">
+                                          Margin="12,0,32,0" VerticalAlignment="Center" HorizontalAlignment="Left">
                             <ContentPresenter.Resources>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="#F4F4F5" />
+                                    <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
                                 </Style>
                             </ContentPresenter.Resources>
                         </ContentPresenter>
-                        <Popup Name="Popup"
-                               Placement="Bottom"
-                               IsOpen="{TemplateBinding IsDropDownOpen}"
-                               AllowsTransparency="True"
-                               Focusable="False"
-                               PopupAnimation="Fade"
-                               VerticalOffset="4">
-                            <Grid Name="DropDown"
-                                  SnapsToDevicePixels="True"
-                                  MinWidth="{TemplateBinding ActualWidth}"
-                                  MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                <Border Background="#1F1F23"
-                                        BorderBrush="#3F3F46"
-                                        BorderThickness="1"
-                                        CornerRadius="8"
-                                        Padding="2">
+                        <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True" Focusable="False" PopupAnimation="Fade" VerticalOffset="4">
+                            <Grid Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}"
+                                  MaxHeight="{TemplateBinding MaxDropDownHeight}" Margin="0,0,12,16">
+                                <Border Background="{DynamicResource KoyBgRow}" BorderBrush="{DynamicResource KoyBorderStrong}"
+                                        BorderThickness="1" CornerRadius="{DynamicResource KoyRadiusControl}" Padding="2">
                                     <Border.Effect>
-                                        <DropShadowEffect Color="#000000" Opacity="0.4" BlurRadius="16" ShadowDepth="4" Direction="270" />
+                                        <DropShadowEffect Color="#000000" Opacity="0.35" BlurRadius="14" ShadowDepth="3" Direction="270" />
                                     </Border.Effect>
                                     <ScrollViewer SnapsToDevicePixels="True">
                                         <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
@@ -390,15 +504,15 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
                     <Border x:Name="thumbBorder"
-                            Background="#3F3F46"
+                            Background="{DynamicResource KoyScrollThumb}"
                             CornerRadius="3"
                             Margin="1" />
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="thumbBorder" Property="Background" Value="#71717A" />
+                            <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource KoyScrollThumbHover}" />
                         </Trigger>
                         <Trigger Property="IsDragging" Value="True">
-                            <Setter TargetName="thumbBorder" Property="Background" Value="#A1A1AA" />
+                            <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource KoyScrollThumbDrag}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -533,7 +647,7 @@
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Height" Value="1" />
         <Setter Property="Margin" Value="4,4" />
-        <Setter Property="Background" Value="#2E2E33" />
+        <Setter Property="Background" Value="{DynamicResource KoyMenuSeparator}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Separator}">
@@ -546,7 +660,7 @@
     <!-- Evrensel Modern MenuItem Stili -->
     <Style TargetType="{x:Type MenuItem}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
-        <Setter Property="Foreground" Value="#F4F4F5" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyMenuText}" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Height" Value="32" />
@@ -579,7 +693,7 @@
 
                             <TextBlock Grid.Column="2"
                                        Text="{TemplateBinding InputGestureText}"
-                                       Foreground="#71717A"
+                                       Foreground="{DynamicResource KoyMenuTextMuted}"
                                        FontSize="11"
                                        Margin="16,0,0,0"
                                        VerticalAlignment="Center" />
@@ -587,11 +701,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="menuItemBorder" Property="Background" Value="#2E2E35" />
-                            <Setter Property="Foreground" Value="#FFFFFF" />
+                            <Setter TargetName="menuItemBorder" Property="Background" Value="{DynamicResource KoyMenuHover}" />
+                            <Setter Property="Foreground" Value="{DynamicResource KoyMenuText}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="#52525B" />
+                            <Setter Property="Foreground" Value="{DynamicResource KoyMenuTextDisabled}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -608,8 +722,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContextMenu}">
-                    <Border Background="#18181B"
-                            BorderBrush="#2E2E33"
+                    <Border Background="{DynamicResource KoyMenuBg}"
+                            BorderBrush="{DynamicResource KoyMenuBorder}"
                             BorderThickness="1"
                             CornerRadius="10"
                             Padding="4"

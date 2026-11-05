@@ -9,18 +9,18 @@
              d:DataContext="{d:DesignInstance local:KoyWindowViewModel}">
 
     <StackPanel Margin="0,0,16,24">
-        <TextBlock Text="{Binding [NavAbout], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="#F4F4F5" />
-        <TextBlock Text="{Binding [AboutSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,16" />
+        <TextBlock Text="{Binding [NavAbout], Source={x:Static res:Loc.Instance}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+        <TextBlock Text="{Binding [AboutSubtitle], Source={x:Static res:Loc.Instance}}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,16" />
 
         <!-- Kimlik Kartı -->
-        <Border Background="#111113" CornerRadius="12" Padding="20" Margin="0,0,0,16">
+        <Border Background="{DynamicResource KoyBgShell}" CornerRadius="12" Padding="20" Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Border Width="56" Height="56" CornerRadius="14" Background="#18181B" BorderBrush="#27272A" BorderThickness="1" Margin="0,0,16,0">
-                    <Path Fill="#3B82F6" Data="{StaticResource KoyLogoGeometry}" Width="32" Height="32" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Border Width="56" Height="56" CornerRadius="14" Background="{DynamicResource KoyBgWindow}" BorderBrush="{DynamicResource KoyBgControl}" BorderThickness="1" Margin="0,0,16,0">
+                    <Path Fill="{DynamicResource KoyAccent}" Data="{StaticResource KoyLogoGeometry}" Width="32" Height="32" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Koy" FontSize="18" FontWeight="Bold" Foreground="#F4F4F5" />
-                    <TextBlock Text="{Binding AboutStatusText}" FontSize="13" Foreground="#A1A1AA" Margin="0,2,0,0" />
+                    <TextBlock Text="Koy" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource KoyTextPrimary}" />
+                    <TextBlock Text="{Binding AboutStatusText}" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,2,0,0" />
                 </StackPanel>
             </StackPanel>
         </Border>

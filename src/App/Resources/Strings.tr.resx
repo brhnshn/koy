@@ -714,4 +714,13 @@
   <data name="PomodoroLongBreakTitle" xml:space="preserve">
     <value>Uzun mola (dk)</value>
   </data>
+  <data name="WindowMinimize" xml:space="preserve">
+    <value>Küçült</value>
+  </data>
+  <data name="WindowHide" xml:space="preserve">
+    <value>Pencereyi gizle</value>
+  </data>
+  <data name="WindowHideTip" xml:space="preserve">
+    <value>Pencereyi gizle (Koy çalışmaya devam eder)</value>
+  </data>
 </root>

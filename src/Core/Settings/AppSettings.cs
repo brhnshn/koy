@@ -43,11 +43,15 @@ public sealed record AppSettings
     public string MonitorTarget { get; set; } = "Primary";
     public string? AccentColor { get; set; }
 
+    /// <summary>Açıksa vurgu rengi Windows vurgu renginden gelir, AccentColor yok sayılır.</summary>
+    public bool UseWindowsAccent { get; set; }
+
     /// <summary>İlk açılış sihirbazının tamamlanıp tamamlanmadığını belirtir.</summary>
     public bool FirstRunCompleted { get; set; }
 
     public string Theme { get; set; } = "Dark";
-    public double CornerRadius { get; set; } = 18.0;
+    /// <summary>Koy penceresinin köşe seçimi (bkz. CornerSetting): 6 Keskin, 12 Standart, 17 Yuvarlak. Eski varsayılan 18 Standart sayılır.</summary>
+    public double CornerRadius { get; set; } = 12.0;
     public string AnimationSpeed { get; set; } = "Normal";
     public bool RespectReduceMotion { get; set; } = true;
     public bool HideWindowsTaskbar { get; set; } = true;
@@ -116,6 +120,7 @@ public sealed record AppSettings
                DockDodgeDelayMs == other.DockDodgeDelayMs &&
                MonitorTarget == other.MonitorTarget &&
                AccentColor == other.AccentColor &&
+               UseWindowsAccent == other.UseWindowsAccent &&
                FirstRunCompleted == other.FirstRunCompleted &&
                Theme == other.Theme &&
                CornerRadius.Equals(other.CornerRadius) &&
@@ -174,6 +179,7 @@ public sealed record AppSettings
         hash.Add(DockDodgeDelayMs);
         hash.Add(MonitorTarget);
         hash.Add(AccentColor);
+        hash.Add(UseWindowsAccent);
         hash.Add(FirstRunCompleted);
         hash.Add(Theme);
         hash.Add(CornerRadius);

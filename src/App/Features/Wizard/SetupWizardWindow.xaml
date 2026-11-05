@@ -15,7 +15,7 @@
         Background="Transparent"
         ResizeMode="NoResize"
         FontFamily="Segoe UI Variable Text, Segoe UI, sans-serif"
-        Foreground="#F4F4F5">
+        Foreground="{DynamicResource KoyTextPrimary}">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -24,9 +24,9 @@
             <Setter Property="Height" Value="36" />
             <Setter Property="Padding" Value="18,0" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="#3F3F46" />
+            <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderStrong}" />
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="#F4F4F5" />
+            <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
@@ -42,7 +42,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="b" Property="Background" Value="#27272A" />
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource KoyBgControl}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -51,9 +51,9 @@
         </Style>
 
         <Style x:Key="WizardPrimaryButton" TargetType="Button" BasedOn="{StaticResource WizardNavButton}">
-            <Setter Property="Background" Value="#3B82F6" />
+            <Setter Property="Background" Value="{DynamicResource KoyAccent}" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="{DynamicResource KoyTextPrimary}" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -66,7 +66,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="b" Property="Background" Value="#2563EB" />
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource KoyAccentPressed}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -76,8 +76,8 @@
     </Window.Resources>
 
     <!-- Ana Pencere Gövdesi -->
-    <Border Background="#18181B"
-            BorderBrush="#2E2E33"
+    <Border Background="{DynamicResource KoyBgWindow}"
+            BorderBrush="{DynamicResource KoyBorderHairline}"
             BorderThickness="1"
             CornerRadius="12">
         <Grid>
@@ -90,11 +90,11 @@
             <!-- Başlık çubuğu -->
             <Grid Grid.Row="0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Background="Transparent" Margin="16,4,12,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Path Fill="#3B82F6" Data="{StaticResource KoyLogoGeometry}" Width="16" Height="16" Stretch="Uniform" />
-                    <TextBlock Text="Koy Kurulum" FontSize="13" FontWeight="SemiBold" Foreground="#F4F4F5" Margin="8,0,0,0" VerticalAlignment="Center" />
+                    <Path Fill="{DynamicResource KoyAccent}" Data="{StaticResource KoyLogoGeometry}" Width="16" Height="16" Stretch="Uniform" />
+                    <TextBlock Text="Koy Kurulum" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="8,0,0,0" VerticalAlignment="Center" />
                 </StackPanel>
                 <Button HorizontalAlignment="Right" VerticalAlignment="Center" Width="28" Height="28"
-                        Background="Transparent" BorderThickness="0" Foreground="#A1A1AA" Cursor="Hand" Click="Close_Click">
+                        Background="Transparent" BorderThickness="0" Foreground="{DynamicResource KoyTextSecondary}" Cursor="Hand" Click="Close_Click">
                     <TextBlock Text="✕" FontSize="12" />
                 </Button>
             </Grid>
@@ -102,21 +102,21 @@
             <!-- ADIM 1: Hoş Geldiniz ve Dil Seçimi -->
             <Grid Grid.Row="1" Margin="56,20,56,0" Visibility="{Binding IsStep1, Converter={StaticResource BoolToVis}}">
                 <StackPanel VerticalAlignment="Center" MaxWidth="560" HorizontalAlignment="Center">
-                    <TextBlock Text="Adım 1 / 3" FontSize="13" Foreground="#A1A1AA" Margin="0,0,0,8" />
-                    <TextBlock Text="Koy'a Hoş Geldiniz" FontSize="32" FontWeight="SemiBold" Foreground="#F4F4F5" Margin="0,0,0,10" />
+                    <TextBlock Text="Adım 1 / 3" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
+                    <TextBlock Text="Koy'a Hoş Geldiniz" FontSize="32" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,10" />
                     <TextBlock Text="Windows 11 için akıllı çentik ve minimalist yüzen dock. Başlamadan önce tercihlerinizi belirleyelim."
-                               FontSize="15" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
+                               FontSize="15" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
 
                     <!-- Dil Seçimi Bölümü -->
-                    <Border Background="#1F1F23" CornerRadius="12" Padding="20" Margin="0,0,0,16">
+                    <Border Background="{DynamicResource KoyBgRow}" CornerRadius="12" Padding="20" Margin="0,0,0,16">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Arayüz Dili" FontSize="15" FontWeight="SemiBold" Foreground="#F4F4F5" />
-                                <TextBlock Text="Uygulama içinde kullanılacak dili seçin." FontSize="13" Foreground="#A1A1AA" Margin="0,4,0,0" />
+                                <TextBlock Text="Arayüz Dili" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
+                                <TextBlock Text="Uygulama içinde kullanılacak dili seçin." FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,4,0,0" />
                             </StackPanel>
                             <ComboBox Grid.Column="1" Width="140" Height="36" VerticalAlignment="Center"
                                       SelectedValuePath="Tag" SelectedValue="{Binding SelectedLanguage}"
@@ -132,9 +132,9 @@
             <!-- ADIM 2: Koy ekranında ne olsun? (3 Kartlı Seçim) -->
             <Grid Grid.Row="1" Margin="56,16,56,0" Visibility="{Binding IsStep2, Converter={StaticResource BoolToVis}}">
                 <StackPanel>
-                    <TextBlock Text="Adım 2 / 3" FontSize="13" Foreground="#A1A1AA" Margin="0,0,0,8" />
-                    <TextBlock Text="Koy ekranında ne olsun?" FontSize="28" FontWeight="SemiBold" Foreground="#F4F4F5" Margin="0,0,0,6" />
-                    <TextBlock Text="Sonra Koy penceresinden istediğin zaman değiştirebilirsin." FontSize="14" Foreground="#A1A1AA" Margin="0,0,0,24" />
+                    <TextBlock Text="Adım 2 / 3" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
+                    <TextBlock Text="Koy ekranında ne olsun?" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,6" />
+                    <TextBlock Text="Sonra Koy penceresinden istediğin zaman değiştirebilirsin." FontSize="14" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,24" />
 
                     <!-- 3 Kartlı Izgara -->
                     <Grid>
@@ -147,14 +147,14 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Kart 0: Çentik ve dock -->
-                        <Border Grid.Column="0" Height="248" CornerRadius="14" Background="#1F1F23" Cursor="Hand" MouseLeftButtonDown="Card0_Click">
+                        <Border Grid.Column="0" Height="248" CornerRadius="14" Background="{DynamicResource KoyBgRow}" Cursor="Hand" MouseLeftButtonDown="Card0_Click">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="BorderThickness" Value="2" />
-                                    <Setter Property="BorderBrush" Value="#2E2E33" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderHairline}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding SelectedLayoutIndex}" Value="0">
-                                            <Setter Property="BorderBrush" Value="#3B82F6" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource KoyAccent}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -165,34 +165,34 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <!-- Üst Önizleme Tuvali -->
-                                <Border Grid.Row="0" Background="#243445" CornerRadius="12,12,0,0">
+                                <Border Grid.Row="0" Background="{DynamicResource KoyBorderHairline}" CornerRadius="12,12,0,0">
                                     <Grid>
                                         <!-- Mini Çentik -->
-                                        <Border Width="64" Height="12" Background="#0A0A0B" CornerRadius="0,0,7,7"
+                                        <Border Width="64" Height="12" Background="{DynamicResource KoyOnAccent}" CornerRadius="0,0,7,7"
                                                 HorizontalAlignment="Center" VerticalAlignment="Top" />
                                         <!-- Mini Dock -->
-                                        <Border Width="120" Height="18" Background="#E618181B" CornerRadius="7"
+                                        <Border Width="120" Height="18" Background="{DynamicResource KoyBgWindow}" CornerRadius="7"
                                                 HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10" />
                                     </Grid>
                                 </Border>
                                 <!-- Alt Açıklama -->
                                 <StackPanel Grid.Row="1" Margin="14,12">
-                                    <TextBlock Text="Çentik ve dock" FontSize="15" FontWeight="SemiBold" Foreground="#F4F4F5" />
+                                    <TextBlock Text="Çentik ve dock" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
                                     <TextBlock Text="Windows görev çubuğu gizlenir, yerine Koy dock'u gelir."
-                                               FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
+                                               FontSize="12" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
                                 </StackPanel>
                             </Grid>
                         </Border>
 
                         <!-- Kart 1: Yalnız çentik -->
-                        <Border Grid.Column="2" Height="248" CornerRadius="14" Background="#1F1F23" Cursor="Hand" MouseLeftButtonDown="Card1_Click">
+                        <Border Grid.Column="2" Height="248" CornerRadius="14" Background="{DynamicResource KoyBgRow}" Cursor="Hand" MouseLeftButtonDown="Card1_Click">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="BorderThickness" Value="2" />
-                                    <Setter Property="BorderBrush" Value="#2E2E33" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderHairline}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding SelectedLayoutIndex}" Value="1">
-                                            <Setter Property="BorderBrush" Value="#3B82F6" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource KoyAccent}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -202,30 +202,30 @@
                                     <RowDefinition Height="140" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
-                                <Border Grid.Row="0" Background="#243445" CornerRadius="12,12,0,0">
+                                <Border Grid.Row="0" Background="{DynamicResource KoyBorderHairline}" CornerRadius="12,12,0,0">
                                     <Grid>
                                         <!-- Mini Çentik -->
-                                        <Border Width="64" Height="12" Background="#0A0A0B" CornerRadius="0,0,7,7"
+                                        <Border Width="64" Height="12" Background="{DynamicResource KoyOnAccent}" CornerRadius="0,0,7,7"
                                                 HorizontalAlignment="Center" VerticalAlignment="Top" />
                                     </Grid>
                                 </Border>
                                 <StackPanel Grid.Row="1" Margin="14,12">
-                                    <TextBlock Text="Yalnız çentik" FontSize="15" FontWeight="SemiBold" Foreground="#F4F4F5" />
+                                    <TextBlock Text="Yalnız çentik" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
                                     <TextBlock Text="Windows görev çubuğu olduğu gibi kalır."
-                                               FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
+                                               FontSize="12" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
                                 </StackPanel>
                             </Grid>
                         </Border>
 
                         <!-- Kart 2: Yalnız dock -->
-                        <Border Grid.Column="4" Height="248" CornerRadius="14" Background="#1F1F23" Cursor="Hand" MouseLeftButtonDown="Card2_Click">
+                        <Border Grid.Column="4" Height="248" CornerRadius="14" Background="{DynamicResource KoyBgRow}" Cursor="Hand" MouseLeftButtonDown="Card2_Click">
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="BorderThickness" Value="2" />
-                                    <Setter Property="BorderBrush" Value="#2E2E33" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource KoyBorderHairline}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding SelectedLayoutIndex}" Value="2">
-                                            <Setter Property="BorderBrush" Value="#3B82F6" />
+                                            <Setter Property="BorderBrush" Value="{DynamicResource KoyAccent}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -235,17 +235,17 @@
                                     <RowDefinition Height="140" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
-                                <Border Grid.Row="0" Background="#243445" CornerRadius="12,12,0,0">
+                                <Border Grid.Row="0" Background="{DynamicResource KoyBorderHairline}" CornerRadius="12,12,0,0">
                                     <Grid>
                                         <!-- Mini Dock -->
-                                        <Border Width="120" Height="18" Background="#E618181B" CornerRadius="7"
+                                        <Border Width="120" Height="18" Background="{DynamicResource KoyBgWindow}" CornerRadius="7"
                                                 HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10" />
                                     </Grid>
                                 </Border>
                                 <StackPanel Grid.Row="1" Margin="14,12">
-                                    <TextBlock Text="Yalnız dock" FontSize="15" FontWeight="SemiBold" Foreground="#F4F4F5" />
+                                    <TextBlock Text="Yalnız dock" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
                                     <TextBlock Text="Çentik kapalı; saat ve pil dock'un sağ ucunda."
-                                               FontSize="12" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
+                                               FontSize="12" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="16" />
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -256,22 +256,22 @@
             <!-- ADIM 3: Başlangıç ve İzinler / Tamamlandı -->
             <Grid Grid.Row="1" Margin="56,20,56,0" Visibility="{Binding IsStep3, Converter={StaticResource BoolToVis}}">
                 <StackPanel VerticalAlignment="Center" MaxWidth="560" HorizontalAlignment="Center">
-                    <TextBlock Text="Adım 3 / 3" FontSize="13" Foreground="#A1A1AA" Margin="0,0,0,8" />
-                    <TextBlock Text="Her şey hazır!" FontSize="32" FontWeight="SemiBold" Foreground="#F4F4F5" Margin="0,0,0,10" />
+                    <TextBlock Text="Adım 3 / 3" FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,0,0,8" />
+                    <TextBlock Text="Her şey hazır!" FontSize="32" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" Margin="0,0,0,10" />
                     <TextBlock Text="Seçimleriniz uygulandı. İstediğiniz zaman sağ alttaki menüden veya Koy penceresinden ayarları güncelleyebilirsiniz."
-                               FontSize="15" Foreground="#A1A1AA" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
+                               FontSize="15" Foreground="{DynamicResource KoyTextSecondary}" TextWrapping="Wrap" Margin="0,0,0,28" LineHeight="22" />
 
                     <!-- Başlangıç Seçeneği -->
-                    <Border Background="#1F1F23" CornerRadius="12" Padding="20">
+                    <Border Background="{DynamicResource KoyBgRow}" CornerRadius="12" Padding="20">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Windows açılınca Koy'u başlat" FontSize="15" FontWeight="SemiBold" Foreground="#F4F4F5" />
+                                <TextBlock Text="Windows açılınca Koy'u başlat" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource KoyTextPrimary}" />
                                 <TextBlock Text="Bilgisayarınız açıldığında otomatik olarak arka planda çalışsın."
-                                           FontSize="13" Foreground="#A1A1AA" Margin="0,4,0,0" />
+                                           FontSize="13" Foreground="{DynamicResource KoyTextSecondary}" Margin="0,4,0,0" />
                             </StackPanel>
                             <CheckBox Grid.Column="1"
                                       IsChecked="{Binding RunAtStartup}"
@@ -283,7 +283,7 @@
             </Grid>
 
             <!-- Alt Gezinme Çubuğu (76 px) -->
-            <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="#232327" Padding="56,0">
+            <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource KoyBorderShell}" Padding="56,0">
                 <Grid VerticalAlignment="Center">
                     <!-- Sol: 3 Hap Noktası -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -292,11 +292,11 @@
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Width" Value="8" />
-                                    <Setter Property="Background" Value="#52525B" />
+                                    <Setter Property="Background" Value="{DynamicResource KoyBorderControl}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="1">
                                             <Setter Property="Width" Value="24" />
-                                            <Setter Property="Background" Value="#3B82F6" />
+                                            <Setter Property="Background" Value="{DynamicResource KoyAccent}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -308,11 +308,11 @@
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Width" Value="8" />
-                                    <Setter Property="Background" Value="#52525B" />
+                                    <Setter Property="Background" Value="{DynamicResource KoyBorderControl}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="2">
                                             <Setter Property="Width" Value="24" />
-                                            <Setter Property="Background" Value="#3B82F6" />
+                                            <Setter Property="Background" Value="{DynamicResource KoyAccent}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -324,11 +324,11 @@
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="Width" Value="8" />
-                                    <Setter Property="Background" Value="#52525B" />
+                                    <Setter Property="Background" Value="{DynamicResource KoyBorderControl}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="3">
                                             <Setter Property="Width" Value="24" />
-                                            <Setter Property="Background" Value="#3B82F6" />
+                                            <Setter Property="Background" Value="{DynamicResource KoyAccent}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
