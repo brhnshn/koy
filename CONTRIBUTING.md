@@ -103,3 +103,20 @@ powershell -ExecutionPolicy Bypass -File scripts\pack.ps1 -Version 0.1.0
 2. **Commit Mesajları:** Konvansiyonel (`feat:`, `fix:`, `perf:`, `refactor:`, `docs:`, `test:`) önekleriyle, Türkçe veya İngilizce net emir kipinde yazılır.
 3. **Test Zorunluluğu:** `Core` katmanına eklenen her durum makinesi, yerleşim hesaplayıcısı veya kural için `tests/Core.Tests/` altında xUnit testi yazılmalıdır.
 4. **Lisans:** Gönderdiğiniz her katkı, projenin [GPLv3](LICENSE) lisansı altında yayınlanmayı kabul ettiğiniz anlamına gelir.
+
+---
+
+## 7. Sürüm Nasıl Çıkar
+
+Sürümler [release-please](https://github.com/googleapis/release-please) ile otomatik hazırlanır; elle etiket atılmaz.
+
+1. **Commit önekleri sürümü belirler** (`main` dalına birleşen commit'lere bakılır):
+   - `fix:` → yama sürümü, değişiklik günlüğünde **Düzeltmeler**.
+   - `perf:` → yama sürümü, **Performans**.
+   - `!` işareti ya da `BREAKING CHANGE:` (ör. `fix!:`) → 1.0 öncesinde minör sürüm.
+   - `docs:`, `refactor:`, `test:`, `chore:`, `ci:` değişiklik günlüğüne girmez ve tek başına sürüm çıkarmaz.
+2. `main`'e her birleştirmede release-please bir **sürüm PR'ı** açar ya da günceller (`CHANGELOG.md` ve `Directory.Build.props` içindeki sürüm numarası).
+3. Yayınlamaya hazır olunca bu PR'ı birleştirin. Başka bir şey yapmayın.
+4. Birleştirmeden sonra otomatik olarak etiket (`vX.Y.Z`) ve GitHub release'i oluşur, aynı iş akışı kurulum dosyasını, taşınabilir zip'i ve `SHA256SUMS.txt` dosyasını release'e ekler.
+
+Sürüm PR'ının metnini (`CHANGELOG.md`) birleştirmeden önce düzenleyebilirsiniz. Bir etiketi yeniden paketlemek gerekirse Actions sekmesinden **Release** iş akışını elle (`workflow_dispatch`) etiket adıyla çalıştırın.

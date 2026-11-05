@@ -1,5 +1,12 @@
 name: Release
 
+# Paketleme ve yayin adimlari. Uc yoldan calisir:
+#  1. Elle bir v* etiketi push edilirse (tag push).
+#  2. release-please.yml, surum PR'i birlestikten sonra cagirir (workflow_call).
+#     GITHUB_TOKEN ile atilan etiket baska is akisini tetiklemedigi icin etiket push'u
+#     bu yolda calismaz; paketleme bu cagri ile yapilir.
+#  3. Mevcut bir etiketi yeniden paketlemek icin elle (workflow_dispatch).
+
 on:
   push:
     tags:
@@ -7,23 +14,46 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (e.g. v0.1.0)'
+        description: 'Existing release tag to package (e.g. v0.1.0)'
         required: true
         default: 'v0.1.0'
+  workflow_call:
+    inputs:
+      tag_name:
+        description: 'Release tag to package (e.g. v0.1.0)'
+        required: true
+        type: string
+      existing_release:
+        description: 'The GitHub release already exists (created by release-please): only attach files, keep its notes'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag_name || github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   release:
     name: Package & Publish Release
     runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      # Girdi dogrudan betige gomulmez, ortam degiskeni uzerinden okunur (betik enjeksiyonu onlemi).
+      TAG_NAME: ${{ inputs.tag_name || github.ref_name }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag_name && format('refs/tags/{0}', inputs.tag_name) || github.ref }}
 
       - name: Setup .NET 10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
         with:
           global-json-file: global.json
 
@@ -36,14 +66,17 @@ jobs:
       - name: Publish App (win-x64)
         run: dotnet publish src/App/Koy.App.csproj -c Release -r win-x64 --self-contained false -o publish/win-x64
 
-      - name: Install Velopack CLI
-        run: dotnet tool install -g vpk
+      - name: Install Velopack CLI (matches the Velopack package version)
+        shell: pwsh
+        run: |
+          $vpkVersion = & ./scripts/get-velopack-version.ps1
+          dotnet tool install -g vpk --version $vpkVersion
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Build Velopack Installer & Portable Zip
         shell: pwsh
         run: |
-          $rawTag = if ("${{ inputs.tag_name }}" -ne "") { "${{ inputs.tag_name }}" } else { "${{ github.ref_name }}" }
-          $ver = $rawTag.TrimStart('v')
+          $ver = $env:TAG_NAME.TrimStart('v')
           New-Item -ItemType Directory -Path dist -Force | Out-Null
 
           vpk pack --packId Koy `
@@ -55,6 +88,7 @@ jobs:
                    --icon src/App/Resources/app.ico `
                    --runtime win-x64 `
                    --outputDir dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           Compress-Archive -Path "publish/win-x64/*" -DestinationPath "dist/Koy-win-Portable.zip" -Force
 
@@ -67,11 +101,14 @@ jobs:
           }
           Get-Content dist/SHA256SUMS.txt
 
+      # Surum yoksa olusturur (elle etiket), varsa yalniz dosya ekler ve notlara dokunmaz.
+      # release-please yolunda notlar CHANGELOG'dan gelir; GitHub'in otomatik notlari eklenmez.
       - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
-          tag_name: ${{ inputs.tag_name || github.ref_name }}
-          generate_release_notes: true
+          tag_name: ${{ env.TAG_NAME }}
+          generate_release_notes: ${{ !inputs.existing_release }}
+          fail_on_unmatched_files: true
           files: |
             dist/Koy-win-Setup.exe
             dist/Koy-win-Portable.zip
