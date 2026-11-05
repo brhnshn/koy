@@ -106,6 +106,9 @@ public partial class App : Application
         foreach (var feature in _features)
             feature.Start();
 
+        // Güncellemeleri otomatik denetle ayarı: açılıştan sonra arka planda tek seferlik denetim.
+        _ = AutoUpdater.RunAsync(settings);
+
         // Genel kısayollar: çentik/dock açık olmasa da çalışır.
         _shortcuts = new ShortcutController();
         _shortcuts.Triggered += OnShortcutTriggered;
