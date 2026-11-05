@@ -53,6 +53,20 @@ public static class WindowStyles
     }
 
     /// <summary>
+    /// Pencereyi fiziksel piksel koordinatlarıyla yerleştirir (z sırası ve odak değişmez). Farklı DPI'lı ekranlar
+    /// arasında WPF'in DIP tabanlı Left/Top alanı yanlış yere düşebildiği için çoklu ekranda bu kullanılır.
+    /// <paramref name="resize"/> false ise yalnız konum verilir, boyutu WPF belirler (SizeToContent).
+    /// </summary>
+    public static void SetBounds(nint hwnd, Koy.Core.Shell.WindowRect rect, bool resize)
+    {
+        var flags = SET_WINDOW_POS_FLAGS.SWP_NOZORDER | SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE;
+        if (!resize)
+            flags |= SET_WINDOW_POS_FLAGS.SWP_NOSIZE;
+
+        PInvoke.SetWindowPos(new HWND(hwnd), HWND.Null, rect.Left, rect.Top, rect.Width, rect.Height, flags);
+    }
+
+    /// <summary>
     /// Odak çalmadan pencereyi en üste (Topmost) taşır.
     /// </summary>
     public static void ReassertTopmost(nint hwnd)
