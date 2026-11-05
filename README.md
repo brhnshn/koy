@@ -64,6 +64,7 @@ Windows görev çubuğunun sıradan bir kopyası değildir; saat, pil ve ağ gö
   - **Yer Ayır (`ReserveSpace`):** `SHAppBarMessage` ile çalışma alanından 46 px yer ayırır; büyütülmüş pencereler tam dock'un üstünde biter.
   - **Hep Gizli (`AlwaysHidden`):** Yalnızca fare ekranın alt kenarına geldiğinde görünür.
 - **Canlı DWM Pencere Önizlemesi:** Simgenin üzerinde 400 ms durulduğunda `DwmRegisterThumbnail` ile gerçek zamanlı pencere önizlemesi (üst düzey pencereye kaydedilir; kayıt başarısız olursa bir sonraki düzende yeniden denenir).
+- **Sistem Tepsisi:** Windows görev çubuğu gizliyken arka plan uygulamalarının (Discord, OneDrive vb.) simgeleri dock'taki yukarı ok düğmesinden açılan pencerede durur; sol/sağ tık uygulamaya iletilir. Koy bu sırada kendi `Shell_TrayWnd` penceresini kurar ve her kaydı Windows'a da iletir, yani Koy kapanır, çöker ya da duraklatılırsa Windows tepsisi eksiksiz geri gelir. Görev çubuğu görünürken (ya da Dock sayfasında "Sistem tepsisini dock'ta göster" kapalıyken) Windows'un tepsisine dokunulmaz. Katkı: xdaxer (#11).
 - **Z-Order Kararlılığı:** Alt+Tab ile pencereler arasında geçiş yaparken sabitlenmemiş açık uygulama simgelerinin sırası zıplamaz (`_stableUnpinnedOrder`).
 
 ### 3. Çoklu Ekran (Multi-Monitor) İzolasyonu
@@ -84,6 +85,7 @@ Windows görev çubuğunun sıradan bir kopyası değildir; saat, pil ve ağ gö
 ### 5. Bilinen Eksikler
 Dürüst durum: aşağıdakiler henüz yok ya da doğrulanmadı.
 - **Bellek:** tek monitörde boşta hedefimiz 60 MB'ın altında; son ölçüm (v0.1.0 hazırlığı) boşta 82,7 MB private idi, hedefin üzerinde; ayrıntılar [`docs/MEMORY.md`](docs/MEMORY.md) içinde. Son arayüz, kısayol ve çoklu ekran revizyonlarından sonra yeniden ölçülmedi; bütçe kararı bekliyor.
+- **Dock tepsisi (#11):** gerçek donanımda elle denenmedi (Discord, Steam, Tailscale gibi uygulamalarda tıklama ve menü, Explorer yeniden başlayınca simgelerin dönüşü, Koy'u Görev Yöneticisi'nden öldürünce Windows tepsisi) ve bellek etkisi ölçülmedi.
 - **Çoklu ekran:** gerçek çok monitörlü ve karışık DPI'lı donanımda ve ikincil görev çubuğu AppBar'ında elle denenmedi.
 - **Henüz yok:** pano geçmişi, mikrofon/kamera kullanım göstergesi, Bluetooth cihaz bildirimi, ayrıntılı pil göstergesi. Sıra için [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - **Doğrulanmadı:** hareket (animasyon) akıcılığı, yarı saydam malzemenin gerçek cihazda görünümü, sistem teması değişince canlı güncelleme, uygulama içi kaldırma akışının gerçek bir kurulumda uçtan uca denenmesi.
@@ -112,7 +114,7 @@ Dürüst durum: aşağıdakiler henüz yok ya da doğrulanmadı.
 git clone https://github.com/brhnshn/koy.git
 cd koy
 
-# 2. Derleyin ve birim testlerini çalıştırın (505 test)
+# 2. Derleyin ve birim testlerini çalıştırın (550 test)
 dotnet build Koy.slnx -c Release -warnaserror
 dotnet test Koy.slnx -c Release
 
@@ -161,7 +163,7 @@ koy/
 │   ├── Platform/      # Windows 11 API uygulamaları (CsWin32 NativeMethods.txt & WinRT). WPF YOK.
 │   └── App/           # WPF arayüzü, ince ViewModel'ler, 8 sayfalı KoyWindow, vektör ikonlar ve .resx dil dosyaları.
 ├── tests/
-│   └── Core.Tests/    # xUnit birim testleri (505 test: Spring, NotchController, DockPositionResolver, Pomodoro, kısayollar, ekran yerleşimi, kaldırma vb.).
+│   └── Core.Tests/    # xUnit birim testleri (550 test: Spring, NotchController, DockPositionResolver, Pomodoro, kısayollar, ekran yerleşimi, kaldırma vb.).
 ├── tools/
 │   └── Koy.UiSnapshots/ # Arayüzü ekrana çıkarmadan PNG'ye çizen yardımcı (görsel doğrulama).
 ├── assets/branding/   # Koy Rozeti (Konsept C) vektör SVG, PNG ve çok katmanlı ICO marka varlıkları.

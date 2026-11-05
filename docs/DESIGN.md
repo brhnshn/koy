@@ -53,9 +53,10 @@ Koy penceresi, sihirbaz ve sağ alt menü renk, ölçü ve hareketi koda gömmez
   - 60 px yüksekliğinde, ekranın altından 10 px yukarıda durur.
   - Düzen soldan sağa: Başlat, uygulamalar, ayırıcı, klasörler ve küçültülmüş pencereler, ayırıcı, Koy simgesi.
   - Çalışan uygulamanın altında nokta, aktif uygulamanın altında 16 px'lik çizgi görünür.
+  - **Sistem tepsisi:** klasörlerin sağında, Koy simgesinin solunda yukarı ok düğmesi. Tıklanınca düğmenin üstünde koyu bir pencere açılır (başlık "Sistem tepsisi", 36 px kareler, en çok 6 simge genişliğinde sarar, boşsa "Tepsi simgesi yok"). Sol tık uygulamaya iletilir ve pencere çift tık süresi kadar açık kalır; sağ tık uygulamanın menüsünü açar ve pencereyi kapatır; dışarı tıklayınca kapanır. Düğme yalnız Windows görev çubuğu gizliyken ve ayar açıkken görünür (Dock sayfası "Sistem tepsisini dock'ta göster"). Renkler dock'un sabit koyu token'larıdır (`KoyMenu*`, `KoyNotch*`), ok `IconChevronUp`.
 - **Tam genişlik:**
-  - 44 px yüksekliğinde. Saat ve tepsi yoktur.
-  - Solda çalan müzik, ortada uygulamalar, sağda yalnız Koy simgesi durur.
+  - 44 px yüksekliğinde. Saat yoktur; sistem tepsisi düğmesi yüzen dock'taki gibi koşulludur.
+  - Solda çalan müzik, ortada uygulamalar, sağda (varsa tepsi düğmesi ve) Koy simgesi durur.
   - Aktif uygulama, adıyla birlikte hap biçiminde gösterilir.
 - **Pencere yaklaşınca** (Koy › Dock):
   - **Yer ayır:** dock alt kenara oturur ve koyu bir şerit olur. Çalışma alanından 46 px ayrılır. Büyütülmüş pencere tam dock'un üstünde biter, arada boşluk kalmaz.
@@ -87,7 +88,7 @@ Koy penceresi, sihirbaz ve sağ alt menü renk, ölçü ve hareketi koda gömmez
 |---|---|
 | Genel | Windows açılınca başlat; Windows görev çubuğunu gizle; arayüz dili; güncellemeleri otomatik denetle; kanal (Kararlı / Önizleme); Şimdi denetle |
 | Çentik | Çentiği göster; ne zaman görünsün (Her zaman / Akıllı / Fareyle); tam ekranda gizle; boştayken ne gösterilsin (Saat ve pil / Yalnız saat / Hiçbiri); müzik çalarken kapak ve dalga; ses göstergesi; parlaklık göstergesi; Windows'un kendi göstergesini gizle (deneysel); paneller (sürükleyerek sıralanır, tek tek kapatılır); açılma (Üzerine gelince / Tıklayınca); boyut |
-| Dock | Dock'u göster; biçim (Yüzen / Tam genişlik); pencere yaklaşınca (Yer ayır / Aşağı yapış / Çekil / Hep gizli); tam ekranda gizle; geri çıkma gecikmesi; simge boyutu; büyütme efekti; çalışan göstergesi (Nokta / Çizgi); pencereleri grupla; bildirim rozetleri; Başlat düğmesi; klasörler; küçültülmüş pencereler; son kullanılanlar; pencere önizlemesi ve gecikmesi |
+| Dock | Dock'u göster; biçim (Yüzen / Tam genişlik); pencere yaklaşınca (Yer ayır / Aşağı yapış / Çekil / Hep gizli); tam ekranda gizle; geri çıkma gecikmesi; simge boyutu; büyütme efekti; çalışan göstergesi (Nokta / Çizgi); pencereleri grupla; bildirim rozetleri; Başlat düğmesi; klasörler; küçültülmüş pencereler; sistem tepsisini dock'ta göster (varsayılan açık; yalnız Windows görev çubuğu gizliyken etkili); son kullanılanlar; pencere önizlemesi ve gecikmesi |
 | Ekranlar | Bağlı monitörler gerçek yerleşimiyle bir haritada kartlar olarak görünür; karta tıklayınca o ekranın ayarları açılır ("Tanımla" ekranın üstünde numarasını kısa süre gösterir). Ekran başına: çentik ve dock açık/kapalı, dock'ta yalnız o ekrandaki pencereler. Yeni bağlanan ekranda ne gösterilsin (Çentik ve dock / Yalnız çentik / Hiçbiri). Ayarlar kararlı bir monitör kimliğine bağlıdır; ekran çıkarılıp takılınca ayarı geri gelir. Gerçek çok monitörlü ve karışık DPI'lı donanımda henüz elle denenmedi. |
 | Görünüm | Tema (Sistem / Koyu / Açık); vurgu rengi; Windows vurgu rengini kullan; malzeme (Katı / Yarı saydam); köşe yuvarlaklığı; animasyon (Sakin / Normal / Hızlı / Kapalı); Windows'un "animasyonları azalt" ayarına uy |
 | Kısayollar | Çentik, Raf, Dock, Koy menüsü ve oynat/duraklat için genel kısayollar; satıra tıklayıp tuşlara basarak değiştirilir. Varsayılanlar `Ctrl+Alt+N`, `R`, `D`, `K`, `Space`. Windows'un ayırdığı (Alt+Tab, Win+harf vb.) ya da başka uygulamanın tuttuğu bir kombinasyon kaydedilmez ve sebebi satırda gösterilir. Çentikte tekerlek (Panel değiştir / Ses); dock'ta orta tık (Yeni pencere / Kapat) |

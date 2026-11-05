@@ -39,7 +39,13 @@ src/Core/       Saf C# (net10.0). WPF ve Windows API YOK.
                 Shortcuts/  kısayol modeli (Hotkey), varsayılanlar, çakışma/ayrılmış kombinasyon denetimi
                 Display/    monitör modeli, ekran başına ayar, yerleşim çözümleyici (DisplayLayoutResolver)
                 Uninstall/  kaldırma kararları ve temizlik listesi (UninstallPlan, UninstallCleaner)
+                Tray/       dock sistem tepsisi: SHELLTRAYDATA çözümleyici, simge deposu (üst sınırlı), tıklama geri
+                            çağrısı, TrayHostPolicy (ne zaman barındırılır, Koy-süreç filtresi), ITrayService
 src/Platform/   Core'daki sözleşmelerin Windows 11 uygulamaları (WinRT / CsWin32). Aynı klasör adları:
+                Shell/TrayHostService.cs : Core.Tray.ITrayService. Koy'un gizli Shell_TrayWnd penceresi (kendi iş
+                parçacığında); her kaydı Windows'a da iletir. SharedServices.AcquireTrayHost ile sayaçlı paylaşılır;
+                yalnız görev çubuğu gizliyken kurulur (DockFeature.ApplyTrayPolicy). Görev çubuğu bulan her kod
+                ShellTrayLocator.FindExplorerTray kullanır, FindWindow("Shell_TrayWnd") yazılmaz (Koy'un penceresi çıkar).
                 Media/MediaService.cs : Core.Media.IMediaService. Win32 çağrısı için adını NativeMethods.txt'ye
                 ekle, CsWin32 üretir; elle DllImport yazma.
 src/App/        WPF. Yalnız görseller ve ince ViewModel'ler, özellik klasörleriyle:
@@ -67,7 +73,7 @@ Bağımlılık yönü: `App → Platform → Core` ve `App → Core`. Core hiçb
 4. **Tek süreç.** Bütün pencereler (her monitör için notch + dock, ayarlar) aynı süreçte. Koy penceresi (`KoyWindow`) ilk açılışta oluşturulur ve tek örnek olarak kalır; kapatınca yok edilmez, gizlenir (`OnClosing` iptal edilir, ayarlar kaydedilir). Açılmamışsa hiç oluşturulmaz. Koy'u gerçekten kapatan yalnız "Koy'dan çık" düğmesi ve sağ alt menüdür; çentik ve dock bağlam menülerinde Çıkış yoktur.
 5. **Servisler yalnız gerektiğinde çalışır.** Notch gizliyken görselleştirici, fare takibi, küçük resim üretimi durur. Zamanlayıcılar (`DispatcherTimer`) görünür değilken durdurulur.
 6. **Animasyon yalnız hareket varken kare çizer.** `CompositionTarget.Rendering` animasyon başlarken bağlanır, `Spring` durunca çözülür (örnek: `NotchWindow.xaml.cs`). WPF `Storyboard` yerine `Core/Animation/Spring` kullanılır.
-7. **Görev çubuğu güvenliği.** Uygulama nasıl kapanırsa kapansın (normal çıkış, istisna, süreç öldürülmesi) Windows görev çubuğu geri gelmeli. Açılışta `TaskbarService.Restore()` çağrısı kalır. Dock'la ilgili her değişiklikte elle test: Görev Yöneticisi'nden süreci öldür → uygulamayı yeniden aç → görev çubuğu görünüyor mu?
+7. **Görev çubuğu güvenliği.** Uygulama nasıl kapanırsa kapansın (normal çıkış, istisna, süreç öldürülmesi) Windows görev çubuğu geri gelmeli. Açılışta `TaskbarService.Restore()` çağrısı kalır. Dock'la ilgili her değişiklikte elle test: Görev Yöneticisi'nden süreci öldür → uygulamayı yeniden aç → görev çubuğu görünüyor mu? Koy'un tepsi penceresi (`TrayHostService`) yalnız görev çubuğu gizliyken kurulur, her kaydı Windows'a da iletir ve dock kapanırken / duraklatırken / çökme işleyicilerinde görev çubuğundan önce kapatılır; görev çubuğunu bulan kod `ShellTrayLocator.FindExplorerTray` kullanır.
 8. **Ağır kütüphane yok.** Serilog, Autofac, ReactiveUI, MahApps, büyük UI kütleri eklenmez. Yeni NuGet paketi eklemeden önce proje sahibine sor ve bellek etkisini ölç.
 9. **Görseller:** Albüm kapağı gibi resimler gösterilecek boyutta çözülür (`BitmapImage.DecodePixelWidth`), sonra `Freeze()` edilir.
 10. **Ayarlar** `%AppData%\Koy\settings.json`. Yeni alan → `AppSettings` içine varsayılan değerle eklenir; kaynak üreticili `SettingsJsonContext` kullanılır, yansımalı `JsonSerializer` çağrısı yazılmaz.

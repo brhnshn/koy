@@ -31,6 +31,7 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
   - Pili olmayan bilgisayarlarda çentikteki pil göstergesi gizleniyor (#8).
   - Dock pencere önizlemesi üst düzey pencereye kaydediliyor; önizleme güncellemesi başarısız olursa sonraki düzende yeniden deneniyor (#10).
   - Açılışta kapalı çentiğin zemini çiziliyor (#13).
+  - Dock'a sistem tepsisi: Windows görev çubuğu gizliyken Discord, OneDrive gibi arka plan uygulamalarının simgelerine dock'taki düğmeden açılan pencereyle ulaşılıyor; sol ve sağ tık uygulamaya iletiliyor. Koy yalnız görev çubuğu gerçekten gizliyken tepsiyi devralır, her kaydı Windows'a da iletir (Koy kapanır ya da çökerse tepsi eksiksiz geri gelir). Dock sayfasından kapatılabilir; elle denenmedi (#11).
   - Açık çentiğin üstünde Müzik, Kontrol, Durum, Takvim ve Raf sekmeleri; kapalı çentikte saatin yanında Wi-Fi ve Bluetooth durum simgeleri (tıklayınca Kontrol sekmesi açılır). Simgeler yalnız Kontrol paneli açıkken ve boşta görünüm "Saat, pil ve bağlantılar" iken çıkar (#14).
 
 ### Eklenenler (Added)
@@ -57,7 +58,7 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - GitHub Actions adımları commit SHA'sına sabitlendi (tedarik zinciri sertleştirmesi).
 
 ### Bilinen eksikler
-Takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi; kontrol merkezi döşemelerini sürükleyerek sıralama; gerçek çok monitörlü ve karışık DPI donanımda doğrulama; bellek ölçümü (son ölçüm 82,7 MB, hedef 60 MB). Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Dock tepsisi (#11) gerçek donanımda elle denenmedi ve bellek etkisi ölçülmedi; takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi; kontrol merkezi döşemelerini sürükleyerek sıralama; gerçek çok monitörlü ve karışık DPI donanımda doğrulama; bellek ölçümü (son ölçüm 82,7 MB, hedef 60 MB). Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## [0.1.0] - 2026-11-04
 

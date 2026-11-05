@@ -105,7 +105,7 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 - [x] `Platform/Shell/WindowTracker.cs` genişlet: açık üst düzey pencereler (`EnumWindows` + görünür, sahipsiz, `WS_EX_TOOLWINDOW` değil), oluşma / kapanma olayları (`EVENT_OBJECT_CREATE / DESTROY / SHOW / HIDE`), yanıp sönme (`HSHELL_FLASH` için `RegisterShellHookWindow`).
 - [x] `App/Features/Dock/DockWindow.xaml` + `DockViewModel.cs`: sabitli + açık uygulamalar, çalışan göstergesi, tıklayınca öne getir / küçült (`SetForegroundWindow`, `ShowWindow`), orta tık yeni pencere, sağ tık menüsü (Kapat, Görev Yöneticisi'nde sonlandır = `TerminateProcess` onaylı).
 - [x] Fareyle büyüme (macOS tarzı) `Spring` ile; isteğe bağlı, ayardan kapatılabilir.
-- [x] Başlat düğmesi: `Win` tuşu gönder (`SendInput`), sistem tepsisi düğmesi: `Win+B` ya da `Shell_TrayWnd` taşma penceresi. Tepsi simgelerini taşımak v1 dışında.
+- [x] Başlat düğmesi: `Win` tuşu gönder (`SendInput`), sistem tepsisi düğmesi: `Win+B` ya da `Shell_TrayWnd` taşma penceresi. Tepsi simgelerini taşımak v1 dışındaydı; PR #11 ile geldi (aşağıda "Dock sistem tepsisi").
 - [x] Kabul: süreci öldür → yeniden aç → görev çubuğu geri. Kaldır → görev çubuğu geri. Tam ekranda dock gizli. Bellek ölçüldü.
 
 ---
@@ -186,8 +186,16 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 
 ---
 
+## Dock sistem tepsisi (PR #11, xdaxer; entegre edildi, elle denenmedi)
+- [x] `Core/Tray/`: SHELLTRAYDATA çözümleyici (boyut sınırlı), simge deposu (üst sınır 256), tıklama geri çağrısı, `TrayHostPolicy` (ne zaman barındırılır, Koy-süreç filtresi). Testli.
+- [x] `Platform/Shell/TrayHostService.cs`: kendi iş parçacığında gizli `Shell_TrayWnd` penceresi, her kaydı Windows'a da iletir. `ShellTrayLocator.FindExplorerTray` görev çubuğu gizleme/geri getirme kodunda Koy'un kendi penceresini atlar.
+- [x] `SharedServices.AcquireTrayHost`: bütün monitörlerdeki dock'lar aynı örneği paylaşır; yalnız Windows görev çubuğu gizliyken (ayar açık ve en az bir dock penceresi var) kurulur. Ayar: Dock sayfası "Sistem tepsisini dock'ta göster" (`DockShowTray`, varsayılan açık).
+- [x] Koy kapanır / duraklatılır / dock kapanır / ayar kapanır → pencere kapanır ve Windows tepsisi geri gelir; çökme işleyicileri görev çubuğunu ve tepsi penceresini birlikte kapatır.
+- [ ] **Elle sınama** (proje sahibi): Discord/Steam/Tailscale tıklama ve menü; Görev Yöneticisi'nden süreci öldür → Windows tepsisi ve görev çubuğu geri; Explorer'ı yeniden başlat → simgeler geri; çok monitör.
+- [ ] Bellek ölçümü (AGENTS #1): main ile main + tepsi karşılaştırması, `docs/MEMORY.md`.
+
 ## Sonraya kalanlar
 - Google / Outlook takvim (OAuth).
-- Sistem tepsisi simgelerini dock'a taşıma.
+- Tepsi: gizli (taşma) simgeleri ayrı gösterme, balon bildirimleri (`NIF_INFO`), animasyonlu simgelerin ölçümü.
 - Sabitli uygulama sırasını kayıt defterinden (`Taskband\Favorites`) okuma.
 - Kod imzalama.

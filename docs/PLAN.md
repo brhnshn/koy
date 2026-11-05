@@ -132,7 +132,7 @@ Kullanıcı tıklar → ViewModel komutu → Servis → Windows API
 | Risk | Etkisi | Önlem |
 | --- | --- | --- |
 | Dock'un görev çubuğunu değiştirmesi zor | Yüksek | Dock en sona; görev çubuğu geri getirme ilk günden test edilir |
-| Sistem tepsisi simgeleri için resmi API yok | Orta | v1'de tepsi düğmesi gerçek Windows tepsisini açar; simgeleri taşımak sonraya |
+| Sistem tepsisi simgeleri için resmi API yok | Orta | Koy kendi `Shell_TrayWnd` penceresini kurar, kayıtları toplar ve Windows'a da iletir (PR #11; yalnız görev çubuğu gizliyken, elle denenmedi) |
 | Sabitli uygulama sırası belgelenmemiş kayıt defterinde | Orta | v1'de kısayol klasörü sırası; sonra iyileştirme |
 | WPF'te akıcı yay animasyonu | Orta | M1'de erken prototip, fps ölçümü |
 | İmzasız kurulum dosyasına SmartScreen uyarısı | Düşük | SHA256 listesi; ileride kod imzalama |
