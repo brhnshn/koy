@@ -13,8 +13,12 @@ public static class PopupMenuProbe
 {
     private const string MenuClassName = "#32768";
 
-    /// <summary>Görünen menü pencerelerinin ekran dikdörtgenleri; menü yoksa boş.</summary>
-    public static IReadOnlyList<WindowRect> GetVisibleMenuRects()
+    /// <summary>
+    /// Görünen menü pencerelerinin ekran dikdörtgenleri; menü yoksa boş. <paramref name="bringToFront"/> açıksa her menü
+    /// odak çalmadan en üstteki (topmost) katmanın önüne alınır: dock da topmost olduğundan, ön plan değişince dock'un
+    /// kendini yeniden öne alması menünün üstüne çıkabiliyordu ve menü dock'un arkasında kalıyordu.
+    /// </summary>
+    public static IReadOnlyList<WindowRect> GetVisibleMenuRects(bool bringToFront = false)
     {
         List<WindowRect>? result = null;
         var hwnd = HWND.Null;
@@ -24,9 +28,24 @@ public static class PopupMenuProbe
                 continue;
 
             (result ??= []).Add(new WindowRect(rect.left, rect.top, rect.right, rect.bottom));
+            if (bringToFront)
+                WindowStyles.ReassertTopmost(hwnd.Value);
         }
 
         return result ?? [];
+    }
+
+    /// <summary>Ekranda görünen bir bağlam menüsü var mı (dock kendini öne alırken menünün üstüne çıkmasın).</summary>
+    public static bool AnyVisibleMenu()
+    {
+        var hwnd = HWND.Null;
+        while (!(hwnd = PInvoke.FindWindowEx(HWND.Null, hwnd, MenuClassName, null)).IsNull)
+        {
+            if (PInvoke.IsWindowVisible(hwnd))
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>Pencere tanıtıcısının ekran dikdörtgeni; geçersizse false.</summary>

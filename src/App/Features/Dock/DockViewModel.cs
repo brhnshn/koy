@@ -347,12 +347,14 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>Tepsi simgesine tıklandı: uygulamaya Windows görev çubuğunun göndereceği mesajları iletir.</summary>
-    public void SendTrayMouse(TrayIconViewModel icon, TrayMouseAction action)
+    public void SendTrayMouse(TrayIconViewModel icon, TrayMouseAction action, WindowRect dockRect = default)
     {
         if (_trayService is null)
             return;
 
         CursorHelper.GetPosition(out var x, out var y);
+        // Çıpa dock'un üzerine düşerse uygulamanın menüsü dock'un içine açılırdı: dock'un üst kenarının üstüne çekilir.
+        (x, y) = TrayMenuAnchor.ClampAboveDock(x, y, dockRect);
         _trayService.SendMouse(icon.Key, action, x, y);
 
         if (action == TrayMouseAction.LeftClick)
