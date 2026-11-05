@@ -46,11 +46,15 @@ public sealed class TrayHostService : ITrayService
     private const uint ResyncDelayMs = 1500;
     private const uint CatchUpDelayMs = 2000;
     private const uint ForwardTimeoutMs = 2000;
+    private static readonly TimeSpan StopWait = TimeSpan.FromMilliseconds(250);
 
     // Kendi "TaskbarCreated" yayınımız bize de gelir; bu süre içindekiler yok sayılır.
     private static readonly TimeSpan SelfBroadcastWindow = TimeSpan.FromSeconds(3);
     // Yayın bütün uygulamalara simgelerini yeniden ekletir; Gezgin'le sıra kavgasında art arda yayın yapılmasın.
     private static readonly TimeSpan MinResyncInterval = TimeSpan.FromSeconds(5);
+
+    // Stop beklemeden döner; kapanmakta olan iş parçacığı burada tutulur ki sıradaki Start sınıf adı boşalana dek beklesin.
+    private static Thread? s_closingThread;
 
     private readonly object _gate = new();
     private readonly TrayIconStore _store = new();
@@ -58,6 +62,7 @@ public sealed class TrayHostService : ITrayService
     private readonly WNDPROC _trayProc;
     private readonly WNDPROC _notifyProc;
     private readonly Dictionary<uint, string> _appNames = [];
+    private readonly HashSet<uint> _pendingNames = [];
 
     private Thread? _thread;
     // Pencere tanıtıcısını tepsi iş parçacığı yazar, arayüz iş parçacığı okur (IsRunning, EnsureFirst, Stop).
@@ -89,6 +94,9 @@ public sealed class TrayHostService : ITrayService
         if (_thread is not null || _disposed)
             return;
 
+        // Önceki örnek arka planda kapanıyor olabilir (Stop beklemez); "Shell_TrayWnd" sınıfı boşalmadan yenisi kaydolamaz.
+        Volatile.Read(ref s_closingThread)?.Join(TimeSpan.FromSeconds(2));
+
         var ready = new ManualResetEventSlim();
         _thread = new Thread(() => Run(ready)) { IsBackground = true, Name = "Koy tepsi" };
         _thread.Start();
@@ -116,7 +124,11 @@ public sealed class TrayHostService : ITrayService
         if (!hwnd.IsNull)
             PInvoke.PostMessage(hwnd, WmClose, default, default);
 
-        thread.Join(TimeSpan.FromSeconds(3));
+        // Arayüz iş parçacığı burada bekler: uzun bekleme kapanışta donma demek. Kısa beklenir; tepsi iş parçacığı
+        // gecikirse (Gezgin yanıtsızsa Forward 2 sn bekleyebilir) temizliği (pencere, sınıflar, TaskbarCreated yayını)
+        // arka planda bitirir. Windows tepsisi için bir şey kaybolmaz: kayıtlar zaten iletilmişti, yayın sonra gelir.
+        Volatile.Write(ref s_closingThread, thread);
+        thread.Join(StopWait);
         _thread = null;
     }
 
@@ -503,8 +515,20 @@ public sealed class TrayHostService : ITrayService
         {
             if (_appNames.TryGetValue(processId, out var cached))
                 return cached;
+
+            // Dosya sürüm bilgisi diskten okunur: arayüz iş parçacığında değil, havuzda çözülür. Çözülünce
+            // IconsChanged ile pencere yenilenir; o ana dek ipucu boş kalır.
+            if (!_pendingNames.Add(processId))
+                return string.Empty;
         }
 
+        var pid = processId;
+        ThreadPool.QueueUserWorkItem(_ => ResolveAppName(pid));
+        return string.Empty;
+    }
+
+    private void ResolveAppName(uint processId)
+    {
         var name = string.Empty;
         try
         {
@@ -521,8 +545,16 @@ public sealed class TrayHostService : ITrayService
         }
 
         lock (_appNames)
+        {
+            _pendingNames.Remove(processId);
+            if (_disposed)
+                return;
+
             _appNames[processId] = name;
-        return name;
+        }
+
+        if (name.Length > 0)
+            IconsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private TrayIcon? Find(TrayIconKey key)
