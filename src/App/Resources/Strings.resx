@@ -810,4 +810,25 @@
   <data name="ExitKoyConfirm" xml:space="preserve">
     <value>Confirm exit</value>
   </data>
+  <data name="RadioNotFound" xml:space="preserve">
+    <value>Not found</value>
+  </data>
+  <data name="RadioNoAccess" xml:space="preserve">
+    <value>No access</value>
+  </data>
+  <data name="RadioDisabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="RadioToggleFailed" xml:space="preserve">
+    <value>Couldn't change</value>
+  </data>
+  <data name="RadioOpenSettingsHint" xml:space="preserve">
+    <value>Can't be changed from Koy. Click to open Windows settings.</value>
+  </data>
+  <data name="RadioPrivacyHint" xml:space="preserve">
+    <value>Koy isn't allowed to control radios. Click to open privacy settings.</value>
+  </data>
+  <data name="OpenInSettings" xml:space="preserve">
+    <value>Open in Settings</value>
+  </data>
 </root>
