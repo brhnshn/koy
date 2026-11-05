@@ -12,7 +12,8 @@ namespace Koy.UiSnapshots;
 /// <summary>
 /// Koy'un pencerelerini ekrana çıkarmadan PNG'ye çevirir. Hiçbir Win32 kancası, AppBar ya da görev çubuğu
 /// servisi başlatılmaz; pencereler gösterilmez, yalnız ölçülüp çizilir.
-/// Kullanım: Koy.UiSnapshots --out &lt;klasör&gt; --prefix once|sonra [--theme dark|light|both]
+/// Kullanım: Koy.UiSnapshots --out &lt;klasör&gt; --prefix once|sonra [--theme dark|light|both] [--scene all|uninstall]
+/// <c>--scene uninstall</c>: yalnız Hakkında sayfası ve kaldırma onay görünümü (kaldırıcı hiçbir zaman çalıştırılmaz).
 /// </summary>
 public static class Program
 {
@@ -27,6 +28,7 @@ public static class Program
         var outDir = Arg(args, "--out") ?? Path.Combine(Environment.CurrentDirectory, "ui-snapshots");
         var prefix = Arg(args, "--prefix") ?? "snap";
         var themeArg = (Arg(args, "--theme") ?? "dark").ToLowerInvariant();
+        var scene = (Arg(args, "--scene") ?? "all").ToLowerInvariant();
         Directory.CreateDirectory(outDir);
 
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
@@ -36,7 +38,10 @@ public static class Program
         foreach (var theme in themes)
         {
             SnapshotTheme.Apply(app, theme);
-            RenderAll(outDir, prefix, theme);
+            if (scene == "uninstall")
+                RenderUninstall(outDir, prefix, theme);
+            else
+                RenderAll(outDir, prefix, theme);
         }
 
         Console.WriteLine($"Bitti: {outDir}");
@@ -76,6 +81,47 @@ public static class Program
 
             var menu = new SagAltMenuWindow(new SagAltMenuViewModel(store));
             RenderElement((FrameworkElement)menu.Content, 320, 0, Path.Combine(outDir, $"{prefix}-{theme}-sagalt-menu.png"));
+        }
+        finally
+        {
+            try { File.Delete(tempSettings); } catch { }
+        }
+    }
+
+    /// <summary>Hakkında sayfası (kaldırma düğmesi kapalı ve açık) ve onay görünümü (ayarlar saklanır / silinir).</summary>
+    private static void RenderUninstall(string outDir, string prefix, string theme)
+    {
+        var tempSettings = Path.Combine(Path.GetTempPath(), "koy-uisnap-" + Guid.NewGuid().ToString("N") + ".json");
+        var store = new SettingsStore(tempSettings);
+        store.Save(new AppSettings { FirstRunCompleted = true });
+
+        try
+        {
+            var vm = new KoyWindowViewModel(store);
+            var win = new KoyWindow(vm);
+            if (win.FindName("ContentScrollViewer") is System.Windows.Controls.ScrollViewer sv)
+                sv.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Disabled;
+            var root = (FrameworkElement)win.Content;
+            root.Measure(new Size(880, double.PositiveInfinity));
+            vm.SelectPage(7);
+
+            string Path_(string name) => Path.Combine(outDir, $"{prefix}-{theme}-{name}.png");
+
+            // Geliştirme çalıştırması: kurulu değil, düğme kapalı.
+            RenderElement(root, 880, 680, Path_("hakkinda-devre-disi"));
+
+            // Kurulu sürüm gibi: düğme açık. Gerçek kaldırıcıya hiçbir bağ yok, yalnız görünüm.
+            vm.UninstallAvailability = Koy.Core.Uninstall.UninstallAvailability.Available;
+            RenderElement(root, 880, 680, Path_("hakkinda"));
+
+            vm.IsUninstallConfirming = true;
+            RenderElement(root, 880, 680, Path_("onay"));
+
+            vm.KeepSettingsOnUninstall = false;
+            RenderElement(root, 880, 680, Path_("onay-ayarlar-silinecek"));
+
+            vm.UninstallError = Koy.App.Resources.Strings.Get("UninstallFailed");
+            RenderElement(root, 880, 680, Path_("onay-hata"));
         }
         finally
         {

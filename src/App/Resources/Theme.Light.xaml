@@ -39,6 +39,7 @@
     <SolidColorBrush x:Key="KoyDangerText" Color="#B91C1C" />
     <SolidColorBrush x:Key="KoyDangerBorder" Color="#F0B4B4" />
     <SolidColorBrush x:Key="KoyDangerBg" Color="#FDECEC" />
+    <SolidColorBrush x:Key="KoyScrim" Color="#66101114" />
     <SolidColorBrush x:Key="KoyStatusOk" Color="#059669" />
     <SolidColorBrush x:Key="KoyStatusWarn" Color="#B45309" />
 

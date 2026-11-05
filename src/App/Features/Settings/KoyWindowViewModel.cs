@@ -6,6 +6,7 @@ using Koy.App.Resources;
 using Koy.Core.Appearance;
 using Koy.Core.Dock;
 using Koy.Core.Settings;
+using Koy.Core.Uninstall;
 using Koy.Core.Visibility;
 using Koy.Platform.Shell;
 
@@ -366,7 +367,8 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         base.OnPropertyChanged(e);
         if (_isLoading) return;
         if (e.PropertyName is nameof(SelectedPageIndex) or nameof(MemoryUsageMb) or nameof(MemoryUsageText) or nameof(MemoryPct) or nameof(MemoryLevel)
-            or nameof(IsResetConfirming) or nameof(IsCheckingUpdates) or nameof(LastCheckText) or nameof(AboutStatusText) or nameof(CheckButtonText) or nameof(CanCheckUpdates))
+            or nameof(IsResetConfirming) or nameof(UninstallAvailability) or nameof(CanUninstall) or nameof(UninstallRowDescription)
+            or nameof(IsUninstallConfirming) or nameof(KeepSettingsOnUninstall) or nameof(UninstallError) or nameof(IsCheckingUpdates) or nameof(LastCheckText) or nameof(AboutStatusText) or nameof(CheckButtonText) or nameof(CanCheckUpdates))
             return;
 
         SaveSettings();
@@ -432,6 +434,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     [RelayCommand]
     public void SaveSettings()
     {
+        // Kaldırma başladıysa ayar dosyası yeniden oluşmasın (pencereler kapanırken kaydetmeye çalışır).
+        if (AppUninstaller.InProgress)
+            return;
+
         StartupService.SetEnabled(RunAtStartup);
 
         var enabledPanels = new List<string>();
@@ -523,6 +529,53 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         if (Application.Current is App app)
             app.ReloadAllFeatures();
     }
+
+    // --- KALDIRMA ---
+    /// <summary>Uygulama içinden kaldırma mümkün mü; kurulu olmayan sürümde düğme kapalı kalır.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanUninstall), nameof(UninstallRowDescription))]
+    private UninstallAvailability _uninstallAvailability = AppUninstaller.GetAvailability();
+
+    public bool CanUninstall => UninstallAvailability == UninstallAvailability.Available;
+
+    public string UninstallRowDescription =>
+        Strings.Get(CanUninstall ? "UninstallRowDesc" : "UninstallOnlyInstalled");
+
+    /// <summary>Onay görünümü açık mı.</summary>
+    [ObservableProperty]
+    private bool _isUninstallConfirming;
+
+    /// <summary>"Ayarlarımı sakla": varsayılan işaretli; kaldırma geri alınamayan tek yönlü iş, güvenli taraf saklamak.</summary>
+    [ObservableProperty]
+    private bool _keepSettingsOnUninstall = true;
+
+    [ObservableProperty]
+    private string _uninstallError = "";
+
+    [RelayCommand(CanExecute = nameof(CanUninstall))]
+    public void RequestUninstall()
+    {
+        UninstallError = "";
+        KeepSettingsOnUninstall = true;
+        IsUninstallConfirming = true;
+    }
+
+    [RelayCommand]
+    public void CancelUninstall() => IsUninstallConfirming = false;
+
+    [RelayCommand]
+    public void ConfirmUninstall()
+    {
+        if (!CanUninstall)
+            return;
+
+        if (AppUninstaller.Begin(KeepSettingsOnUninstall))
+            return; // Koy kapanıyor
+
+        UninstallError = Strings.Get("UninstallFailed");
+    }
+
+    partial void OnUninstallAvailabilityChanged(UninstallAvailability value) => RequestUninstallCommand.NotifyCanExecuteChanged();
 
     [RelayCommand]
     public void CopyDiagnostics()

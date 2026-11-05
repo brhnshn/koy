@@ -810,4 +810,43 @@
   <data name="ExitKoyConfirm" xml:space="preserve">
     <value>Confirm exit</value>
   </data>
+  <data name="UninstallTitle" xml:space="preserve">
+    <value>Uninstall Koy</value>
+  </data>
+  <data name="UninstallRowDesc" xml:space="preserve">
+    <value>Removes Koy from this computer. Your taskbar comes back.</value>
+  </data>
+  <data name="UninstallOnlyInstalled" xml:space="preserve">
+    <value>Only available in the installed version.</value>
+  </data>
+  <data name="UninstallAction" xml:space="preserve">
+    <value>Uninstall Koy</value>
+  </data>
+  <data name="UninstallDialogTitle" xml:space="preserve">
+    <value>Uninstall Koy?</value>
+  </data>
+  <data name="UninstallDialogIntro" xml:space="preserve">
+    <value>This will happen:</value>
+  </data>
+  <data name="UninstallItemApp" xml:space="preserve">
+    <value>The app files, shortcuts and the start-with-Windows entry are removed.</value>
+  </data>
+  <data name="UninstallItemTaskbar" xml:space="preserve">
+    <value>The Windows taskbar returns right away.</value>
+  </data>
+  <data name="UninstallKeepSettings" xml:space="preserve">
+    <value>Keep my settings</value>
+  </data>
+  <data name="UninstallKeepSettingsDesc" xml:space="preserve">
+    <value>If you reinstall Koy later, your preferences and shelf are still there.</value>
+  </data>
+  <data name="UninstallDeleteWarn" xml:space="preserve">
+    <value>Your settings and shelf items are deleted too. This cannot be undone.</value>
+  </data>
+  <data name="UninstallConfirm" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="UninstallFailed" xml:space="preserve">
+    <value>The uninstaller could not be started. Koy is still installed; you can remove it from Windows Settings &gt; Installed apps.</value>
+  </data>
 </root>

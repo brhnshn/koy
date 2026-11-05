@@ -134,6 +134,96 @@
                     </Grid>
                 </ScrollViewer>
             </Grid>
+
+            <!-- Kaldırma onayı: pencerenin üstünde, Koy tarzında kart -->
+            <Grid x:Name="UninstallOverlay" Grid.RowSpan="2" Focusable="False">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsUninstallConfirming}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Border Background="{DynamicResource KoyScrim}" CornerRadius="{DynamicResource KoyRadiusWindow}" />
+                <Border x:Name="UninstallCard" Width="440" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Background="{DynamicResource KoyBgRow}" BorderBrush="{DynamicResource KoyBorderStrong}" BorderThickness="1"
+                        CornerRadius="{DynamicResource KoyRadiusRow}" Padding="24"
+                        AutomationProperties.Name="{Binding [UninstallDialogTitle], Source={x:Static res:Loc.Instance}}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <res:KoyIcon Data="{StaticResource IconTriangleAlert}" Size="20" StrokeWidth="2" Foreground="{DynamicResource KoyDangerText}" />
+                            <TextBlock Text="{Binding [UninstallDialogTitle], Source={x:Static res:Loc.Instance}}" FontSize="{DynamicResource KoyFontPageTitle}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource KoyTextPrimary}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding [UninstallDialogIntro], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" Margin="0,14,0,6" />
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <res:KoyIcon Data="{StaticResource IconCheck}" Size="14" StrokeWidth="2.5" Foreground="{DynamicResource KoyStatusOk}" VerticalAlignment="Top" Margin="0,2,10,0" />
+                                <TextBlock Text="{Binding [UninstallItemApp], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" FontWeight="Normal" TextWrapping="Wrap" MaxWidth="360" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <res:KoyIcon Data="{StaticResource IconCheck}" Size="14" StrokeWidth="2.5" Foreground="{DynamicResource KoyStatusOk}" VerticalAlignment="Top" Margin="0,2,10,0" />
+                                <TextBlock Text="{Binding [UninstallItemTaskbar], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" FontWeight="Normal" TextWrapping="Wrap" MaxWidth="360" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Ayarlarımı sakla -->
+                        <Border Background="{DynamicResource KoyBgWindow}" BorderBrush="{DynamicResource KoyBorderHairline}" BorderThickness="1"
+                                CornerRadius="{DynamicResource KoyRadiusRow}" Padding="14,12" Margin="0,16,0,0">
+                            <StackPanel>
+                                <!-- Kutu şablonu içerik göstermez; metin yanında, tıklanınca kutuyu çevirir -->
+                                <Grid Background="Transparent" Cursor="Hand" MouseLeftButtonUp="KeepSettingsLabel_Click">
+                                    <CheckBox IsChecked="{Binding KeepSettingsOnUninstall, Mode=TwoWay}" Style="{StaticResource ModernCheckBoxStyle}"
+                                              HorizontalAlignment="Left" VerticalAlignment="Top"
+                                              AutomationProperties.Name="{Binding [UninstallKeepSettings], Source={x:Static res:Loc.Instance}}" />
+                                    <StackPanel Margin="30,0,0,0">
+                                        <TextBlock Text="{Binding [UninstallKeepSettings], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                                        <TextBlock Text="{Binding [UninstallKeepSettingsDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="{Binding [UninstallDeleteWarn], Source={x:Static res:Loc.Instance}}" Foreground="{DynamicResource KoyDangerText}"
+                                           FontSize="{DynamicResource KoyFontCaption}" TextWrapping="Wrap" Margin="30,8,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding KeepSettingsOnUninstall}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="{Binding UninstallError}" Foreground="{DynamicResource KoyDangerText}" FontSize="{DynamicResource KoyFontCaption}"
+                                   TextWrapping="Wrap" Margin="0,12,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding UninstallError}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                            <Button x:Name="UninstallCancelButton" Content="{Binding [Cancel], Source={x:Static res:Loc.Instance}}" Command="{Binding CancelUninstallCommand}"
+                                    Style="{StaticResource SettingButtonStyle}" IsCancel="True" Margin="0,0,8,0" />
+                            <Button Content="{Binding [UninstallConfirm], Source={x:Static res:Loc.Instance}}" Command="{Binding ConfirmUninstallCommand}"
+                                    Style="{StaticResource DangerButtonStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
     </Border>
 </Window>

@@ -810,4 +810,43 @@
   <data name="ExitKoyConfirm" xml:space="preserve">
     <value>Çıkışı onayla</value>
   </data>
+  <data name="UninstallTitle" xml:space="preserve">
+    <value>Koy'u kaldır</value>
+  </data>
+  <data name="UninstallRowDesc" xml:space="preserve">
+    <value>Koy'u bu bilgisayardan kaldırır. Görev çubuğunuz eski haline döner.</value>
+  </data>
+  <data name="UninstallOnlyInstalled" xml:space="preserve">
+    <value>Yalnız kurulu sürümde kullanılabilir.</value>
+  </data>
+  <data name="UninstallAction" xml:space="preserve">
+    <value>Koy'u kaldır</value>
+  </data>
+  <data name="UninstallDialogTitle" xml:space="preserve">
+    <value>Koy kaldırılsın mı?</value>
+  </data>
+  <data name="UninstallDialogIntro" xml:space="preserve">
+    <value>Bu işlemle şunlar olur:</value>
+  </data>
+  <data name="UninstallItemApp" xml:space="preserve">
+    <value>Uygulama dosyaları, kısayollar ve Windows ile başlatma kaydı silinir.</value>
+  </data>
+  <data name="UninstallItemTaskbar" xml:space="preserve">
+    <value>Windows görev çubuğu hemen eski haline döner.</value>
+  </data>
+  <data name="UninstallKeepSettings" xml:space="preserve">
+    <value>Ayarlarımı sakla</value>
+  </data>
+  <data name="UninstallKeepSettingsDesc" xml:space="preserve">
+    <value>Koy'u sonra yeniden kurarsanız tercihleriniz ve rafınız yerinde olur.</value>
+  </data>
+  <data name="UninstallDeleteWarn" xml:space="preserve">
+    <value>Ayarlarınız ve raf öğeleriniz de silinir. Bu geri alınamaz.</value>
+  </data>
+  <data name="UninstallConfirm" xml:space="preserve">
+    <value>Kaldır</value>
+  </data>
+  <data name="UninstallFailed" xml:space="preserve">
+    <value>Kaldırıcı başlatılamadı. Koy kurulu kaldı; Windows Ayarları &gt; Yüklü uygulamalar üzerinden kaldırabilirsiniz.</value>
+  </data>
 </root>

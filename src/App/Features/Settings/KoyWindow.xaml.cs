@@ -27,6 +27,17 @@ public partial class KoyWindow : Window
         if (e.PropertyName == nameof(KoyWindowViewModel.Material))
             ApplyBackdrop();
 
+        if (e.PropertyName == nameof(KoyWindowViewModel.IsUninstallConfirming) && ViewModel.IsUninstallConfirming && IsVisible)
+        {
+            // Kart solarak girer; odak güvenli seçeneğe (İptal) verilir.
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
+            {
+                Motion.PageEnter(UninstallCard);
+                UninstallCancelButton.Focus();
+            });
+            return;
+        }
+
         if (e.PropertyName != nameof(KoyWindowViewModel.SelectedPageIndex) || !IsVisible)
             return;
 
@@ -73,6 +84,13 @@ public partial class KoyWindow : Window
         var translucent = Koy.Core.Appearance.MaterialSetting.IsTranslucent(ViewModel.Material);
         Koy.Platform.Shell.BackdropService.ApplyBackdrop(
             hwnd, translucent ? Koy.Platform.Shell.WindowBackdropType.Acrylic : Koy.Platform.Shell.WindowBackdropType.None);
+    }
+
+    private void KeepSettingsLabel_Click(object sender, MouseButtonEventArgs e)
+    {
+        // Kutunun kendisine tıklama zaten çevirir; yalnız metne tıklama buraya gelir.
+        if (e.OriginalSource is System.Windows.Controls.TextBlock)
+            ViewModel.KeepSettingsOnUninstall = !ViewModel.KeepSettingsOnUninstall;
     }
 
     private void Navigate(int index)

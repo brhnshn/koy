@@ -374,6 +374,7 @@ public partial class App : Application
         _services.Dispose();
 
         TaskbarService.Restore();
+        AppUninstaller.CleanAfterExit();
         base.OnExit(e);
     }
 }
