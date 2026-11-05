@@ -39,23 +39,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AppTitle" xml:space="preserve">
-    <value>Koy</value>
-  </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
-  </data>
-  <data name="Music" xml:space="preserve">
-    <value>Music</value>
-  </data>
-  <data name="ControlCenter" xml:space="preserve">
-    <value>Control Center</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Status</value>
-  </data>
-  <data name="Calendar" xml:space="preserve">
-    <value>Calendar</value>
   </data>
   <data name="Shelf" xml:space="preserve">
     <value>Shelf</value>
@@ -81,50 +66,8 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="Save" xml:space="preserve">
-    <value>Save</value>
-  </data>
   <data name="General" xml:space="preserve">
     <value>General</value>
-  </data>
-  <data name="Appearance" xml:space="preserve">
-    <value>Appearance</value>
-  </data>
-  <data name="About" xml:space="preserve">
-    <value>About</value>
-  </data>
-  <data name="Language" xml:space="preserve">
-    <value>App Language</value>
-  </data>
-  <data name="LanguageDesc" xml:space="preserve">
-    <value>Interface language</value>
-  </data>
-  <data name="RunAtStartup" xml:space="preserve">
-    <value>Run on Windows Startup</value>
-  </data>
-  <data name="RunAtStartupDesc" xml:space="preserve">
-    <value>Start Koy automatically when computer boots</value>
-  </data>
-  <data name="NotchVisibility" xml:space="preserve">
-    <value>Visibility Mode</value>
-  </data>
-  <data name="NotchVisibilityDesc" xml:space="preserve">
-    <value>Fixed (always visible), Smart (auto-hide on overlap), or Peek</value>
-  </data>
-  <data name="EnabledPanels" xml:space="preserve">
-    <value>Enabled Panels</value>
-  </data>
-  <data name="AccentColor" xml:space="preserve">
-    <value>Accent Color</value>
-  </data>
-  <data name="AccentColorDesc" xml:space="preserve">
-    <value>Color used in tiles and indicators</value>
-  </data>
-  <data name="AboutDesc" xml:space="preserve">
-    <value>Lightweight spring-animated notch and dock for Windows 11.</value>
-  </data>
-  <data name="CopyDiagnostics" xml:space="preserve">
-    <value>Copy Diagnostics</value>
   </data>
   <data name="WiFi" xml:space="preserve">
     <value>Wi-Fi</value>
@@ -153,26 +96,11 @@
   <data name="Start" xml:space="preserve">
     <value>Start</value>
   </data>
-  <data name="Pause" xml:space="preserve">
-    <value>Pause</value>
-  </data>
   <data name="NextPhase" xml:space="preserve">
     <value>Next Phase</value>
   </data>
   <data name="Dock" xml:space="preserve">
     <value>Dock</value>
-  </data>
-  <data name="DockEnabled" xml:space="preserve">
-    <value>Enable Dock</value>
-  </data>
-  <data name="DockEnabledDesc" xml:space="preserve">
-    <value>Hides Windows taskbar and displays Koy dock</value>
-  </data>
-  <data name="DockHoverMagnify" xml:space="preserve">
-    <value>Magnification Effect</value>
-  </data>
-  <data name="DockHoverMagnifyDesc" xml:space="preserve">
-    <value>Smooth spring magnification on mouse hover</value>
   </data>
   <data name="LaunchNewInstance" xml:space="preserve">
     <value>Open New Window</value>
@@ -185,21 +113,6 @@
   </data>
   <data name="StartMenu" xml:space="preserve">
     <value>Start</value>
-  </data>
-  <data name="SystemTray" xml:space="preserve">
-    <value>System Tray</value>
-  </data>
-  <data name="TargetMonitor" xml:space="preserve">
-    <value>Target Display</value>
-  </data>
-  <data name="TargetMonitorDesc" xml:space="preserve">
-    <value>Display monitor where Notch and Dock appear</value>
-  </data>
-  <data name="QuickSettings" xml:space="preserve">
-    <value>Quick settings</value>
-  </data>
-  <data name="NotificationCenter" xml:space="preserve">
-    <value>Notifications and calendar</value>
   </data>
   <data name="VolumeLevel" xml:space="preserve">
     <value>Volume: {0}%</value>
@@ -377,9 +290,6 @@
   </data>
   <data name="DockEnabledTitle" xml:space="preserve">
     <value>Enable Dock</value>
-  </data>
-  <data name="DockLayoutHeader" xml:space="preserve">
-    <value>Layout and behavior</value>
   </data>
   <data name="DockStyleTitle" xml:space="preserve">
     <value>Dock style</value>
@@ -632,9 +542,6 @@
   </data>
   <data name="IdleNotice" xml:space="preserve">
     <value>Koy uses 0% CPU when idle. Timers only run when their respective panel is open.</value>
-  </data>
-  <data name="UpdatesTitle" xml:space="preserve">
-    <value>Updates</value>
   </data>
   <data name="DiagnosticInfoTitle" xml:space="preserve">
     <value>Information for bug reporting</value>

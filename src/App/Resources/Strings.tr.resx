@@ -39,23 +39,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AppTitle" xml:space="preserve">
-    <value>Koy</value>
-  </data>
   <data name="Settings" xml:space="preserve">
     <value>Ayarlar</value>
-  </data>
-  <data name="Music" xml:space="preserve">
-    <value>Müzik</value>
-  </data>
-  <data name="ControlCenter" xml:space="preserve">
-    <value>Kontrol Merkezi</value>
-  </data>
-  <data name="Status" xml:space="preserve">
-    <value>Durum</value>
-  </data>
-  <data name="Calendar" xml:space="preserve">
-    <value>Takvim</value>
   </data>
   <data name="Shelf" xml:space="preserve">
     <value>Raf</value>
@@ -81,50 +66,8 @@
   <data name="Cancel" xml:space="preserve">
     <value>İptal</value>
   </data>
-  <data name="Save" xml:space="preserve">
-    <value>Kaydet</value>
-  </data>
   <data name="General" xml:space="preserve">
     <value>Genel</value>
-  </data>
-  <data name="Appearance" xml:space="preserve">
-    <value>Görünüm</value>
-  </data>
-  <data name="About" xml:space="preserve">
-    <value>Hakkında</value>
-  </data>
-  <data name="Language" xml:space="preserve">
-    <value>Uygulama Dili</value>
-  </data>
-  <data name="LanguageDesc" xml:space="preserve">
-    <value>Arayüz metinlerinin dili</value>
-  </data>
-  <data name="RunAtStartup" xml:space="preserve">
-    <value>Windows Açılışında Çalıştır</value>
-  </data>
-  <data name="RunAtStartupDesc" xml:space="preserve">
-    <value>Bilgisayar açıldığında Koy otomatik başlasın</value>
-  </data>
-  <data name="NotchVisibility" xml:space="preserve">
-    <value>Görünürlük Modu</value>
-  </data>
-  <data name="NotchVisibilityDesc" xml:space="preserve">
-    <value>Sabit (daima ekranda), Akıllı (pencere gelince gizlen) veya Kenar Gözetleme</value>
-  </data>
-  <data name="EnabledPanels" xml:space="preserve">
-    <value>Etkin Paneller</value>
-  </data>
-  <data name="AccentColor" xml:space="preserve">
-    <value>Vurgu Rengi</value>
-  </data>
-  <data name="AccentColorDesc" xml:space="preserve">
-    <value>Döşeme ve göstergelerde kullanılan renk</value>
-  </data>
-  <data name="AboutDesc" xml:space="preserve">
-    <value>Windows 11 için hafif, yay animasyonlu çentik (notch) ve dock.</value>
-  </data>
-  <data name="CopyDiagnostics" xml:space="preserve">
-    <value>Tanılama Bilgilerini Kopyala</value>
   </data>
   <data name="WiFi" xml:space="preserve">
     <value>Wi-Fi</value>
@@ -153,26 +96,11 @@
   <data name="Start" xml:space="preserve">
     <value>Başlat</value>
   </data>
-  <data name="Pause" xml:space="preserve">
-    <value>Duraklat</value>
-  </data>
   <data name="NextPhase" xml:space="preserve">
     <value>Sonraki Aşama</value>
   </data>
   <data name="Dock" xml:space="preserve">
     <value>Dock</value>
-  </data>
-  <data name="DockEnabled" xml:space="preserve">
-    <value>Dock Etkin</value>
-  </data>
-  <data name="DockEnabledDesc" xml:space="preserve">
-    <value>Windows görev çubuğunu gizler ve Koy dock'unu gösterir</value>
-  </data>
-  <data name="DockHoverMagnify" xml:space="preserve">
-    <value>Simge Büyütme</value>
-  </data>
-  <data name="DockHoverMagnifyDesc" xml:space="preserve">
-    <value>Fareyle simgelerin üzerine gelindiğinde akıcı büyüme efekti</value>
   </data>
   <data name="LaunchNewInstance" xml:space="preserve">
     <value>Yeni Pencere Aç</value>
@@ -185,21 +113,6 @@
   </data>
   <data name="StartMenu" xml:space="preserve">
     <value>Başlat</value>
-  </data>
-  <data name="SystemTray" xml:space="preserve">
-    <value>Sistem Tepsisi</value>
-  </data>
-  <data name="TargetMonitor" xml:space="preserve">
-    <value>Hedef Ekran</value>
-  </data>
-  <data name="TargetMonitorDesc" xml:space="preserve">
-    <value>Notch ve Dock'un görüntüleneceği ekran</value>
-  </data>
-  <data name="QuickSettings" xml:space="preserve">
-    <value>Hızlı ayarlar</value>
-  </data>
-  <data name="NotificationCenter" xml:space="preserve">
-    <value>Bildirimler ve takvim</value>
   </data>
   <data name="VolumeLevel" xml:space="preserve">
     <value>Ses: %{0}</value>
@@ -377,9 +290,6 @@
   </data>
   <data name="DockEnabledTitle" xml:space="preserve">
     <value>Dock etkin</value>
-  </data>
-  <data name="DockLayoutHeader" xml:space="preserve">
-    <value>Yerleşim ve davranış</value>
   </data>
   <data name="DockStyleTitle" xml:space="preserve">
     <value>Dock stili</value>
@@ -632,9 +542,6 @@
   </data>
   <data name="IdleNotice" xml:space="preserve">
     <value>Koy boştayken işlemci kullanmaz. Zamanlayıcılar yalnız ilgili panel açıkken çalışır.</value>
-  </data>
-  <data name="UpdatesTitle" xml:space="preserve">
-    <value>Güncellemeler</value>
   </data>
   <data name="DiagnosticInfoTitle" xml:space="preserve">
     <value>Hata bildirirken eklenecek bilgiler</value>

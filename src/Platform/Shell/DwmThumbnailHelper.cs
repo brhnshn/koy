@@ -11,10 +11,8 @@ namespace Koy.Platform.Shell;
 public static class DwmThumbnailHelper
 {
     private const uint DWM_TNP_RECTDESTINATION = 0x00000001;
-    private const uint DWM_TNP_RECTSOURCE = 0x00000002;
     private const uint DWM_TNP_OPACITY = 0x00000004;
     private const uint DWM_TNP_VISIBLE = 0x00000008;
-    private const uint DWM_TNP_SOURCECLIENTAREAONLY = 0x00000010;
 
     public static unsafe nint Register(nint destinationHwnd, nint sourceHwnd)
     {

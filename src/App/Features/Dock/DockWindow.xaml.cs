@@ -21,7 +21,7 @@ public partial class DockWindow : Window
 
     /// <summary>
     /// Çalışma alanından ayrılacak yükseklik:
-    /// Seelen UI Yüzen Kapsül için 60 px + 10 px alt boşluk; Tam genişlik için 44 px; Yer ayır (ReserveSpace) için 46 px.
+    /// Yüzen dock için 60 px + 10 px alt boşluk; Tam genişlik için 44 px; Yer ayır (ReserveSpace) için 46 px.
     /// </summary>
     public double ReservedHeight
     {
@@ -150,7 +150,7 @@ public partial class DockWindow : Window
 
         SizeToContent = SizeToContent.WidthAndHeight;
 
-        // Seelen UI yüzen kapsül: 60 px yükseklik, alttan 10 px boşluk (aşağı yapışınca alttan 0 px)
+        // Yüzen dock: 60 px yükseklik, alttan 10 px boşluk (aşağı yapışınca alttan 0 px)
         var bottomMargin = (ViewModel?.IsSnapped == true) ? 0.0 : 10.0;
 
         if (_targetMonitor is not null && _targetMonitor.WidthDip > 100)
