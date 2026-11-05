@@ -11,6 +11,7 @@ using Koy.Core.Notch;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
 using Koy.Core.Visibility;
+using Koy.Core.Weather;
 using Koy.Platform.Audio;
 using Koy.Platform.Display;
 using Koy.Platform.Media;
@@ -69,7 +70,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         _mediaService = services.AcquireMediaService();
 
         _powerService = new PowerService();
-        _weatherService = new WeatherService();
+        _weatherService = new WeatherService(cacheDuration: WeatherRefreshPolicy.CacheDuration(settings.WeatherRefreshInterval));
         _focusAssistService = new FocusAssistService();
         _shelfService = new ShelfService();
 

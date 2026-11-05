@@ -196,7 +196,21 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _batterySaverStopWaveform = true;
 
     [ObservableProperty]
-    private string _weatherRefreshInterval = "30 dakikada bir";
+    private string _weatherRefreshInterval = "30m"; // 30m, 1h, startup
+
+    [ObservableProperty]
+    private int _pomodoroWorkMinutes = 25;
+
+    [ObservableProperty]
+    private int _pomodoroShortBreakMinutes = 5;
+
+    [ObservableProperty]
+    private int _pomodoroLongBreakMinutes = 15;
+
+    /// <summary>Pomodoro süre seçenekleri (dakika). Ayar dosyasına elle yazılan başka değerler de çalışır.</summary>
+    public int[] PomodoroWorkOptions { get; } = [15, 20, 25, 30, 45, 50, 60];
+    public int[] PomodoroShortBreakOptions { get; } = [3, 5, 10, 15];
+    public int[] PomodoroLongBreakOptions { get; } = [10, 15, 20, 30];
 
     [ObservableProperty]
     private bool _audioVisualizerEnabled;
@@ -264,6 +278,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             RespectReduceMotion = s.RespectReduceMotion;
             BatterySaverReduceMotion = s.BatterySaverReduceMotion;
             BatterySaverStopWaveform = s.BatterySaverStopWaveform;
+            WeatherRefreshInterval = s.WeatherRefreshInterval;
+            PomodoroWorkMinutes = s.PomodoroWorkMinutes;
+            PomodoroShortBreakMinutes = s.PomodoroShortBreakMinutes;
+            PomodoroLongBreakMinutes = s.PomodoroLongBreakMinutes;
             AudioVisualizerEnabled = s.AudioVisualizerEnabled;
 
             WheelAction = s.WheelAction;
@@ -362,6 +380,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         name is nameof(NotchVisibility) or nameof(NotchHideInFullscreen) or nameof(MusicShowWaveform)
             or nameof(ShowVolumeOsd) or nameof(ShowBrightnessOsd) or nameof(IdleDisplayMode)
             or nameof(NotchOpenBehavior) or nameof(WheelAction) or nameof(BatterySaverReduceMotion)
+            or nameof(WeatherRefreshInterval) or nameof(PomodoroWorkMinutes) or nameof(PomodoroShortBreakMinutes) or nameof(PomodoroLongBreakMinutes)
             or nameof(PanelMusic) or nameof(PanelCalendar) or nameof(PanelShelf)
             or nameof(PanelControlCenter) or nameof(PanelStatus);
 
@@ -432,6 +451,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             RespectReduceMotion = RespectReduceMotion,
             BatterySaverReduceMotion = BatterySaverReduceMotion,
             BatterySaverStopWaveform = BatterySaverStopWaveform,
+            WeatherRefreshInterval = WeatherRefreshInterval,
+            PomodoroWorkMinutes = PomodoroWorkMinutes,
+            PomodoroShortBreakMinutes = PomodoroShortBreakMinutes,
+            PomodoroLongBreakMinutes = PomodoroLongBreakMinutes,
             AudioVisualizerEnabled = AudioVisualizerEnabled,
             WheelAction = WheelAction,
             MiddleClickAction = MiddleClickAction,

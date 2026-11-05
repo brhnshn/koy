@@ -717,4 +717,16 @@
   <data name="ShortcutErrFailed" xml:space="preserve">
     <value>Kısayol kaydedilemedi.</value>
   </data>
+  <data name="PomodoroHeader" xml:space="preserve">
+    <value>POMODORO</value>
+  </data>
+  <data name="PomodoroWorkTitle" xml:space="preserve">
+    <value>Çalışma süresi (dk)</value>
+  </data>
+  <data name="PomodoroShortBreakTitle" xml:space="preserve">
+    <value>Kısa mola (dk)</value>
+  </data>
+  <data name="PomodoroLongBreakTitle" xml:space="preserve">
+    <value>Uzun mola (dk)</value>
+  </data>
 </root>

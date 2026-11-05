@@ -74,6 +74,12 @@ public sealed record AppSettings
     public string ShortcutToggleDock { get; set; } = "Ctrl+Alt+D";
     public string ShortcutOpenMenu { get; set; } = "Ctrl+Alt+K";
     public string ShortcutPlayPause { get; set; } = "Ctrl+Alt+Space";
+    /// <summary>Pomodoro uzun mola süresi (dakika).</summary>
+    public int PomodoroLongBreakMinutes { get; set; } = 15;
+    /// <summary>Pomodoro kısa mola süresi (dakika).</summary>
+    public int PomodoroShortBreakMinutes { get; set; } = 5;
+    /// <summary>Pomodoro çalışma süresi (dakika).</summary>
+    public int PomodoroWorkMinutes { get; set; } = 25;
     /// <summary>Parlaklık değişince çentikte 1,5 sn parlaklık göstergesi çıksın.</summary>
     public bool ShowBrightnessOsd { get; set; } = true;
     /// <summary>Ses değişince çentikte 1,5 sn ses göstergesi çıksın.</summary>
@@ -136,6 +142,9 @@ public sealed record AppSettings
                ShortcutToggleDock == other.ShortcutToggleDock &&
                ShortcutOpenMenu == other.ShortcutOpenMenu &&
                ShortcutPlayPause == other.ShortcutPlayPause &&
+               PomodoroLongBreakMinutes == other.PomodoroLongBreakMinutes &&
+               PomodoroShortBreakMinutes == other.PomodoroShortBreakMinutes &&
+               PomodoroWorkMinutes == other.PomodoroWorkMinutes &&
                ShowBrightnessOsd == other.ShowBrightnessOsd &&
                ShowVolumeOsd == other.ShowVolumeOsd &&
                MusicShowWaveform == other.MusicShowWaveform &&
@@ -193,6 +202,9 @@ public sealed record AppSettings
         hash.Add(ShortcutToggleDock);
         hash.Add(ShortcutOpenMenu);
         hash.Add(ShortcutPlayPause);
+        hash.Add(PomodoroLongBreakMinutes);
+        hash.Add(PomodoroShortBreakMinutes);
+        hash.Add(PomodoroWorkMinutes);
         hash.Add(ShowBrightnessOsd);
         hash.Add(ShowVolumeOsd);
         hash.Add(MusicShowWaveform);

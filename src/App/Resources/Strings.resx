@@ -717,4 +717,16 @@
   <data name="ShortcutErrFailed" xml:space="preserve">
     <value>The shortcut could not be registered.</value>
   </data>
+  <data name="PomodoroHeader" xml:space="preserve">
+    <value>POMODORO</value>
+  </data>
+  <data name="PomodoroWorkTitle" xml:space="preserve">
+    <value>Work duration (min)</value>
+  </data>
+  <data name="PomodoroShortBreakTitle" xml:space="preserve">
+    <value>Short break (min)</value>
+  </data>
+  <data name="PomodoroLongBreakTitle" xml:space="preserve">
+    <value>Long break (min)</value>
+  </data>
 </root>

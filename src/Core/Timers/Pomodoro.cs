@@ -20,6 +20,16 @@ public sealed record PomodoroConfig(
     TimeSpan LongBreakDuration,
     int SessionsBeforeLongBreak = 4)
 {
+    public const int MinMinutes = 1;
+    public const int MaxMinutes = 180;
+
+    /// <summary>Ayarlardaki dakika değerlerinden yapılandırma; saçma değerler 1-180 dakikaya sıkıştırılır.</summary>
+    public static PomodoroConfig FromMinutes(int work, int shortBreak, int longBreak) => new(
+        TimeSpan.FromMinutes(Math.Clamp(work, MinMinutes, MaxMinutes)),
+        TimeSpan.FromMinutes(Math.Clamp(shortBreak, MinMinutes, MaxMinutes)),
+        TimeSpan.FromMinutes(Math.Clamp(longBreak, MinMinutes, MaxMinutes)),
+        4);
+
     public static PomodoroConfig Default => new(
         TimeSpan.FromMinutes(25),
         TimeSpan.FromMinutes(5),
