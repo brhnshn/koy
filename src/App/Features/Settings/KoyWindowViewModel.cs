@@ -429,10 +429,14 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     [RelayCommand]
     public void ResetSettings()
     {
-        var def = new AppSettings();
-        _store.Save(def);
+        // Kurulum sihirbazı tamamlandı bilgisi korunur; yoksa sıfırlama sihirbazı yeniden açardı.
+        _store.Save(FirstRunPolicy.CreateReset(_store.Load()));
         LoadFromSettings();
         SettingsSaved?.Invoke();
+
+        // Çalışan çentik ve dock yeni varsayılanlarla yeniden kurulur.
+        if (Application.Current is App app)
+            app.ReloadAllFeatures();
     }
 
     [RelayCommand]

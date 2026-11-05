@@ -181,6 +181,7 @@ public partial class App : Application
         }
     }
 
+    /// <summary>Çalışan dock'u durdurur, ayarlar açıksa yeni ayarlarla yeniden başlatır.</summary>
     public void ReloadDock()
     {
         var existingDock = _features.OfType<DockFeature>().FirstOrDefault();
@@ -188,16 +189,18 @@ public partial class App : Application
         {
             existingDock.Stop();
             _features.Remove(existingDock);
-            var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            if (settings.DockEnabled)
-            {
-                var dock = new DockFeature(settings, _services);
-                _features.Add(dock);
-                dock.Start();
-            }
+        }
+
+        var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+        if (settings.DockEnabled)
+        {
+            var dock = new DockFeature(settings, _services);
+            _features.Add(dock);
+            dock.Start();
         }
     }
 
+    /// <summary>Çalışan çentiği durdurur, ayarlar açıksa yeni ayarlarla yeniden başlatır.</summary>
     public void ReloadNotch()
     {
         var existingNotch = _features.OfType<NotchFeature>().FirstOrDefault();
@@ -205,14 +208,22 @@ public partial class App : Application
         {
             existingNotch.Stop();
             _features.Remove(existingNotch);
-            var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            if (settings.NotchEnabled)
-            {
-                var notch = new NotchFeature(settings, _services);
-                _features.Add(notch);
-                notch.Start();
-            }
         }
+
+        var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
+        if (settings.NotchEnabled)
+        {
+            var notch = new NotchFeature(settings, _services);
+            _features.Add(notch);
+            notch.Start();
+        }
+    }
+
+    /// <summary>Ayarlar sıfırlandığında iki özelliği de diskteki ayarlara göre yeniden kurar.</summary>
+    public void ReloadAllFeatures()
+    {
+        ReloadNotch();
+        ReloadDock();
     }
 
     protected override void OnExit(ExitEventArgs e)
