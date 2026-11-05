@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using Koy.Core.Animation;
+using Koy.App.Resources;
 using Koy.Core.Display;
 using Koy.Platform.Shell;
 
@@ -19,6 +20,8 @@ public partial class NotchWindow : Window
     private readonly Spring _panelTranslateX = new(0);
     private readonly Spring _panelOpacity = new(1);
     private TimeSpan _lastFrame;
+    // Panel geçişinin süre çarpanından türeyen zaman ölçeği (Sakin 1/1.5, Hızlı 1/0.65); MotionPolicy ile aynı kaynak.
+    private double _panelTimeScale = 1.0;
     private bool _animating;
     private bool _isNotchVisible = true;
     private nint _hwnd;
@@ -253,6 +256,17 @@ public partial class NotchWindow : Window
             return;
         }
 
+        // Pil tasarrufu, Windows "animasyonları azalt" ya da Animasyon: Kapalı iken panel anında değişir.
+        if (ViewModel?.ReduceMotion == true || !Motion.Enabled)
+        {
+            _panelTranslateX.SnapTo(0);
+            _panelOpacity.SnapTo(1);
+            PanelTranslate.X = 0;
+            ExpandedView.Opacity = 1;
+            return;
+        }
+
+        _panelTimeScale = 1.0 / Motion.Scale;
         _panelTranslateX.SnapTo(direction > 0 ? 35 : -35);
         _panelTranslateX.Target = 0;
         _panelOpacity.SnapTo(0.25);
@@ -353,7 +367,7 @@ public partial class NotchWindow : Window
         if (dt <= 0)
             return;
 
-        var moving = _width.Step(dt) | _height.Step(dt) | _cornerRadius.Step(dt) | _translateY.Step(dt) | _panelTranslateX.Step(dt) | _panelOpacity.Step(dt);
+        var moving = _width.Step(dt) | _height.Step(dt) | _cornerRadius.Step(dt) | _translateY.Step(dt) | _panelTranslateX.Step(dt * _panelTimeScale) | _panelOpacity.Step(dt * _panelTimeScale);
         Notch.Width = _width.Value;
         Notch.Height = _height.Value;
         Notch.CornerRadius = _cornerRadius.Value;
