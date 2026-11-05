@@ -12,8 +12,11 @@ namespace Koy.Platform.Shell;
 /// Güvenlik kuralı (AGENTS.md #7): Çökse bile görev çubuğu geri gelmeli.
 /// Görev çubuğu gizlendiğinde durum %AppData%\Koy\taskbar-state.json dosyasına yazılır,
 /// geri getirildiğinde ise bu dosya silinir. Açılışta bu dosya kontrol edilir.
+/// Bu dosya Koy.Watchdog projesine de bağlanarak derlenir (gözcü, Koy ölünce aynı Restore'u çalıştırır); bu yüzden
+/// yalnız Core ve Win32'ye bağımlı kalır. Koy'a özel kısım (gözcüyü başlatma/durdurma) TaskbarService.Watchdog.cs
+/// içindeki kısmi yöntemlerdedir.
 /// </summary>
-public static class TaskbarService
+public static partial class TaskbarService
 {
     private const uint ABM_GETSTATE = 0x00000004;
     private const uint ABM_SETSTATE = 0x0000000A;
@@ -51,18 +54,23 @@ public static class TaskbarService
 
         SaveState(new TaskbarSavedState(true, prevState));
         SetVisible(false);
+        OnHidden();
     }
 
     /// <summary>
     /// Görev çubuğunu (birincil ve bütün ikincil monitörlerdekileri) geri getirir ve durumu önceki haline döndürür.
     /// Explorer çalışmıyorsa (birincil çubuk yok) durum dosyası silinmez; sonraki açılış yeniden dener.
     /// </summary>
-    public static unsafe void Restore()
+    /// <param name="alsoSkipProcessId">Gözcü için: ölen Koy sürecinin tepsi penceresini atla.</param>
+    public static unsafe void Restore(uint alsoSkipProcessId = 0)
     {
+        // Temiz geri yüklemede gözcü gereksiz: önce durdurulur ki aynı işi ikinci kez yapmasın.
+        OnRestoring();
+
         SetVisible(true);
 
         var saved = ReadSavedState();
-        var primary = ShellTrayLocator.FindExplorerTray();
+        var primary = ShellTrayLocator.FindExplorerTray(alsoSkipProcessId);
         if (primary == HWND.Null)
             return;
 
@@ -103,6 +111,11 @@ public static class TaskbarService
 
         return false;
     }
+
+    // Koy'da gözcüyü başlatır/durdurur; gözcü projesinde gövde yoktur (derleyici çağrıyı siler).
+    static partial void OnHidden();
+
+    static partial void OnRestoring();
 
     private static void SetVisible(bool visible)
     {

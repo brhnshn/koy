@@ -14,6 +14,7 @@ using Koy.App.Resources;
 using Koy.Core.Diagnostics;
 using Koy.Core.Settings;
 using Koy.Core.Shortcuts;
+using Koy.Core.Tray;
 using Koy.Platform.Media;
 using Koy.Platform.Shell;
 using Velopack;
@@ -99,14 +100,16 @@ public partial class App : Application
         // Sistem tepsisi simgesi: dock kapalıyken de Koy menüsüne erişilmesini sağlar
         _trayIconManager = new TrayIconManager();
         _trayIconManager.ExplorerRestarted += OnExplorerRestarted;
-        _trayIconManager.Start();
+        // Dock açılacaksa Koy simgesi dock'un sağ ucunda olacağı için bildirim alanı simgesi hiç eklenmez
+        // (dock hiç pencere açamazsa özellikler başlayınca RefreshNotificationAreaIcon simgeyi geri getirir).
+        _trayIconManager.Start(showIcon: !settings.DockEnabled);
 
         // Yalnız açık özellikler başlatılır. Dock kapalıyken görev çubuğuna hiç dokunulmaz.
         if (settings.NotchEnabled)
             _features.Add(new NotchFeature(settings, _services));
 
         if (settings.DockEnabled)
-            _features.Add(new DockFeature(settings, _services));
+            _features.Add(CreateDockFeature(settings));
 
         foreach (var feature in _features)
             feature.Start();
@@ -124,6 +127,23 @@ public partial class App : Application
         {
             KoyWindow.ShowInstance();
         }
+    }
+
+    private DockFeature CreateDockFeature(AppSettings settings)
+    {
+        var dock = new DockFeature(settings, _services);
+        dock.WindowCountChanged += () => CrashLog.Guard("Bildirim alanı simgesi", RefreshNotificationAreaIcon);
+        return dock;
+    }
+
+    /// <summary>
+    /// Koy'un bildirim alanı simgesi yalnız dock penceresi yokken görünür (dock'ta Koy düğmesi var; iki simge olmasın).
+    /// Dock kapanınca, duraklatılınca ya da hiçbir ekranda dock açılmayınca simge geri gelir.
+    /// </summary>
+    private void RefreshNotificationAreaIcon()
+    {
+        var dockWindows = _features.OfType<DockFeature>().Sum(d => d.WindowCount);
+        _trayIconManager?.SetIconVisible(TrayHostPolicy.ShouldShowNotificationAreaIcon(dockWindows));
     }
 
     /// <summary>Kısayol ayarı değişti: diskteki ayarlarla yeniden kaydeder.</summary>
@@ -286,7 +306,7 @@ public partial class App : Application
         if (enabled && existingDock is null)
         {
             var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
-            var dock = new DockFeature(settings, _services);
+            var dock = CreateDockFeature(settings);
             _features.Add(dock);
             dock.Start();
         }
@@ -314,7 +334,7 @@ public partial class App : Application
         var settings = new SettingsStore(SettingsStore.DefaultPath).Load();
         if (settings.DockEnabled)
         {
-            var dock = new DockFeature(settings, _services);
+            var dock = CreateDockFeature(settings);
             _features.Add(dock);
             dock.Start();
         }

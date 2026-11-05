@@ -27,9 +27,28 @@ public sealed class TrayIconManager : IDisposable
     /// <summary>Explorer yeniden başladı; simge geri eklendi. Dock görev çubuğu gizlemesini yeniden uygulamalı.</summary>
     public event Action? ExplorerRestarted;
 
-    public void Start()
+    // Dock açıkken Koy simgesi dock'ta durur; bildirim alanı simgesi gizlenir ama dinleyici pencere kalır
+    // (Explorer yeniden başlama mesajı dock'un görev çubuğu gizlemesi için gerekli).
+    private bool _iconVisible = true;
+
+    /// <summary>Bildirim alanı simgesini gösterir ya da kaldırır. Dinleyici pencere ve Explorer izlemesi etkilenmez.</summary>
+    public void SetIconVisible(bool visible)
+    {
+        _iconVisible = visible;
+        if (!_isRunning || _trayService is null)
+            return;
+
+        if (visible)
+            _trayService.Add("Koy");
+        else
+            _trayService.Remove();
+    }
+
+    /// <param name="showIcon">Başlangıçta simge eklensin mi (dock açılacaksa eklenip hemen kaldırılmasın diye).</param>
+    public void Start(bool showIcon = true)
     {
         if (_isRunning) return;
+        _iconVisible = showIcon;
 
         var parameters = new HwndSourceParameters("KoyTrayListener")
         {
@@ -52,7 +71,8 @@ public sealed class TrayIconManager : IDisposable
         };
 
         _trayService = new TrayIconService(_hwndSource.Handle, WmTrayCallback);
-        _trayService.Add("Koy");
+        if (_iconVisible)
+            _trayService.Add("Koy");
         _isRunning = true;
     }
 
@@ -74,7 +94,9 @@ public sealed class TrayIconManager : IDisposable
     {
         if (_taskbarCreatedMessage != 0 && (uint)msg == _taskbarCreatedMessage)
         {
-            _trayService?.Recreate();
+            // Simge gizliyse (dock açık) yeniden eklenmez; yalnız dock görev çubuğu gizlemesini yeniden uygular.
+            if (_iconVisible)
+                _trayService?.Recreate();
             ExplorerRestarted?.Invoke();
             return 0;
         }

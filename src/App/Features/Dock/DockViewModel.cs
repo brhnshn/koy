@@ -118,7 +118,70 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     public bool HasTray => _trayService is { IsRunning: true };
 
     /// <summary>Ayırıcının sağında bir şey varsa (klasörler ya da tepsi) ayırıcı görünür.</summary>
-    public bool ShowRightSection => ShowFolders || HasTray;
+    public bool ShowRightSection => ShowFolders || HasTray || ShowRecents;
+
+    // Son kullanılanlar: yığın düğmesi; liste yalnız düğmeye tıklanınca okunur (sürekli izleme yok), kapanınca bırakılır.
+    private readonly IRecentFilesService? _recentFiles;
+
+    /// <summary>Son kullanılanlar düğmesi görünür mü (ayar açık ve servis var).</summary>
+    public bool ShowRecents => _settings.DockShowRecents && _recentFiles is not null;
+
+    [ObservableProperty]
+    private bool _isRecentsOpen;
+
+    public ObservableCollection<RecentFile> RecentFiles { get; } = [];
+
+    public bool HasRecentFiles => RecentFiles.Count > 0;
+
+    [RelayCommand]
+    private async Task ToggleRecentsAsync()
+    {
+        if (_recentFiles is null)
+            return;
+
+        if (IsRecentsOpen)
+        {
+            IsRecentsOpen = false;
+            return;
+        }
+
+        ClosePreviewNow();
+
+        IReadOnlyList<RecentFile> items;
+        try
+        {
+            items = await Task.Run(() => _recentFiles.GetRecent());
+        }
+        catch
+        {
+            items = [];
+        }
+
+        RecentFiles.Clear();
+        foreach (var item in items)
+            RecentFiles.Add(item);
+
+        OnPropertyChanged(nameof(HasRecentFiles));
+        IsRecentsOpen = true;
+    }
+
+    /// <summary>Listeden bir dosya seçildi: Windows ilişkili uygulamayla açar, liste kapanır.</summary>
+    public void OpenRecent(RecentFile file)
+    {
+        IsRecentsOpen = false;
+        _shellActionService.Launch(file.OpenPath);
+    }
+
+    partial void OnIsRecentsOpenChanged(bool value)
+    {
+        if (!value)
+        {
+            RecentFiles.Clear();
+            OnPropertyChanged(nameof(HasRecentFiles));
+        }
+
+        EvaluatePosition(_lastContentWidth);
+    }
 
     public ObservableCollection<TrayIconViewModel> TrayIcons { get; } = [];
 
@@ -153,6 +216,10 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<DockItemViewModel> Items { get; } = [];
 
+    /// <summary>Dock gizli ve kenardan açılabilir: kenar zamanlayıcısı çalışmalı.</summary>
+    public bool NeedsEdgeWatch { get; private set; }
+
+    public event EventHandler? EdgeWatchChanged;
     public event EventHandler? AnimationNeeded;
     public event EventHandler? AnimationStopped;
     public event Action? RequestReposition;
@@ -168,9 +235,11 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         VisibilityController? visibilityController = null,
         DockStatusViewModel? status = null,
         IMediaService? mediaService = null,
-        ITrayService? trayService = null)
+        ITrayService? trayService = null,
+        IRecentFilesService? recentFiles = null)
     {
         _settings = settings;
+        _recentFiles = recentFiles;
         Status = status;
         _controller = controller;
         _shellActionService = shellActionService;
@@ -293,9 +362,11 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
             _trayCloseTimer.Stop();
             _trayCloseTimer.Start();
         }
-        else
+        else if (action != TrayMouseAction.RightClick)
         {
-            // Uygulamanın menüsü ya da penceresi açılıyor; tepsi penceresi önünü kapatmasın.
+            // Çift tık uygulamanın penceresini açar; tepsi penceresi önünü kapatmasın.
+            // Sağ tıkta pencere AÇIK kalır: menü açıkken görünür, seçim ya da dış tıklamayla kapanır
+            // (kapatma kararı TrayPopupDismissPolicy'de, yoklama TrayButton'da).
             IsTrayPopupOpen = false;
         }
     }
@@ -314,14 +385,34 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     partial void OnIsTrayPopupOpenChanged(bool value)
     {
         _trayPopupOpen = value;
-        if (!value)
+        if (value)
+        {
+            _trayClearTimer?.Stop();
+        }
+        else
         {
             _trayCloseTimer?.Stop();
-            // Kapalıyken görüntüler bellekte tutulmaz.
-            TrayIcons.Clear();
+            // Kapanış animasyonu süresince simgeler görünür kalır; sonra bırakılır (kapalıyken bellekte tutulmaz).
+            _trayClearTimer ??= CreateTrayClearTimer();
+            _trayClearTimer.Stop();
+            _trayClearTimer.Start();
         }
 
         EvaluatePosition(_lastContentWidth);
+    }
+
+    private DispatcherTimer? _trayClearTimer;
+
+    private DispatcherTimer CreateTrayClearTimer()
+    {
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            if (!IsTrayPopupOpen)
+                TrayIcons.Clear();
+        };
+        return timer;
     }
 
     private void OnTrayIconsChanged(object? sender, EventArgs e)
@@ -504,7 +595,7 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         if (contentWidth > 0)
             _lastContentWidth = contentWidth;
 
-        var effectiveMouseOver = _isMouseOverDock || _isMouseOverPopup || IsPreviewPopupOpen || IsTrayPopupOpen || DockContextMenuManager.HasActiveMenu;
+        var effectiveMouseOver = _isMouseOverDock || _isMouseOverPopup || IsPreviewPopupOpen || IsTrayPopupOpen || IsRecentsOpen || DockContextMenuManager.HasActiveMenu;
 
         var resolved = DockPositionResolver.Resolve(
             _currentMonitor,
@@ -516,7 +607,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
             _isMouseAtBottomEdge,
             effectiveMouseOver,
             _isForegroundWindowFullscreen,
-            _settings.DockHideInFullscreen);
+            _settings.DockHideInFullscreen,
+            _settings.DockEdgeReveal);
 
         IsFullWidthMode = resolved.IsFullWidth;
         IsSnapped = resolved.IsSnapped;
@@ -543,7 +635,9 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
             CapsuleCornerRadius = new CornerRadius(18);
         }
 
-        var isBlockedByFullscreen = _settings.DockHideInFullscreen && (_controller.IsHiddenByFullscreen || _isForegroundWindowFullscreen);
+        // Tam ekran bu monitör için hesaplanır (yan ekrandaki oyun bu ekrandaki dock'u gizlemez; denetleyicinin
+        // sistem geneli bayrağı bilerek kullanılmaz).
+        var isBlockedByFullscreen = _settings.DockHideInFullscreen && _isForegroundWindowFullscreen;
         var shouldShow = !resolved.IsHidden && !isBlockedByFullscreen;
         if (_visibilityController is not null && _settings.DockProximity != DockProximityMode.ReserveSpace)
         {
@@ -552,6 +646,15 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
         IsVisible = shouldShow;
         Status?.SetActive(shouldShow);
+
+        // Fare izleme yalnız dock gizliyken (ya da kenardan açıldıysa, kapanışını görmek için) ve tam ekranda değilken
+        // gerekir; tam ekranda kenardan açılma yok.
+        var needsEdgeWatch = (!shouldShow || _isMouseAtBottomEdge) && !isBlockedByFullscreen && !_isForegroundWindowFullscreen;
+        if (needsEdgeWatch != NeedsEdgeWatch)
+        {
+            NeedsEdgeWatch = needsEdgeWatch;
+            EdgeWatchChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         var targetY = shouldShow ? resolved.TranslationY : (resolved.IsFullWidth ? (DockPositionResolver.FullWidthHeightDip + 10.0) : 80.0);
         var targetOpacity = shouldShow ? resolved.Opacity : 0.0;
@@ -687,6 +790,93 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         AnimationNeeded?.Invoke(this, EventArgs.Empty);
     }
 
+    // Sabitli uygulamaları sürükleyerek sıralama: görsel kayma yaylarla, bırakınca sıra Core'da kalıcı yazılır.
+    private bool _isReordering;
+
+    /// <summary>Sürükleme sürüyor: büyütme ve önizleme susar, imleç öğeyi izler.</summary>
+    public bool IsReordering => _isReordering;
+
+    /// <summary>Öğe sürüklenebilir mi: sabitli, sıralama destekleniyor ve en az iki sabitli var.</summary>
+    public bool CanStartReorder(DockItemViewModel item)
+        => item.Model.IsPinned && _controller.CanReorderPinned && Items.Count(i => i.Model.IsPinned) > 1;
+
+    public int PinnedCount => Items.Count(i => i.Model.IsPinned);
+
+    public void BeginReorder()
+    {
+        _isReordering = true;
+        ClosePreviewNow();
+        OnHoverEnded();
+    }
+
+    /// <summary>Sürükleme sırasında: öğe imleci izler, aradakiler hedef yuvaya göre bir yuva kayar.</summary>
+    public void UpdateReorder(DockItemViewModel dragged, int originalIndex, double dragOffset, double slotWidth)
+    {
+        var count = PinnedCount;
+        var target = DockReorderMath.TargetIndex(count, originalIndex, dragOffset, slotWidth);
+        dragged.SnapOffset(dragOffset);
+
+        for (var i = 0; i < count && i < Items.Count; i++)
+        {
+            if (i != originalIndex)
+                Items[i].SetTargetOffset(DockReorderMath.ShiftFor(i, originalIndex, target, slotWidth));
+        }
+
+        _isAnimating = true;
+        AnimationNeeded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Bırakıldı. Sıra değiştiyse koleksiyon hemen yeni sıraya taşınır ve her öğenin ekrandaki konumu korunacak biçimde
+    /// kayması ayarlanır; sonra yay sıfıra çeker (zıplama olmaz). Sıra kalıcı yazılır.
+    /// </summary>
+    public void CommitReorder(DockItemViewModel dragged, int originalIndex, double dragOffset, double slotWidth)
+    {
+        _isReordering = false;
+        var count = PinnedCount;
+        var target = DockReorderMath.TargetIndex(count, originalIndex, dragOffset, slotWidth);
+
+        if (target == originalIndex)
+        {
+            foreach (var item in Items)
+                item.SetTargetOffset(0);
+        }
+        else
+        {
+            // Bırakma anındaki ekran konumları: yuva dizini × genişlik + o anki kayma.
+            var visual = new Dictionary<DockItemViewModel, double>();
+            for (var i = 0; i < Items.Count; i++)
+                visual[Items[i]] = i * slotWidth + Items[i].OffsetX;
+
+            Items.Move(originalIndex, target);
+
+            for (var i = 0; i < Items.Count; i++)
+            {
+                Items[i].SnapOffset(visual[Items[i]] - i * slotWidth);
+                Items[i].SetTargetOffset(0);
+            }
+
+            _controller.MovePinned(dragged.Model.Id, target);
+        }
+
+        _isAnimating = true;
+        AnimationNeeded?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>Sürükleme yarıda kesildi (yakalama kaybı, Esc): her şey yerine döner.</summary>
+    public void CancelReorder()
+    {
+        if (!_isReordering)
+            return;
+
+        _isReordering = false;
+        foreach (var item in Items)
+            item.SetTargetOffset(0);
+
+        _isAnimating = true;
+        AnimationNeeded?.Invoke(this, EventArgs.Empty);
+    }
+
     public void OnHoverEnded()
     {
         for (var i = 0; i < Items.Count; i++)
@@ -713,6 +903,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         foreach (var item in Items)
         {
             if (item.StepScale(deltaSeconds))
+                scaleMoving = true;
+            if (item.StepOffset(deltaSeconds))
                 scaleMoving = true;
         }
 
@@ -878,5 +1070,6 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         }
 
         _trayCloseTimer?.Stop();
+        _trayClearTimer?.Stop();
     }
 }

@@ -139,20 +139,14 @@ public sealed class FullscreenDetector : IFullscreenDetector
         if (targetMonitorHandle != 0 && fgMon.Value != targetMonitorHandle)
             return false;
 
-        // 1. Windows bildirim durumunu sorgula (DirectX özel tam ekran veya sunum modu)
-        // Not: QUNS_BUSY bilerek dahil edilmez çünkü Windows 11 Odaklanma Yardımı (Do Not Disturb / Quiet Hours)
-        // devredeyken tam ekran oyun olmasa da QUNS_BUSY döndürür ve çentiği yanlışlıkla gizler.
+        // Üç işaret birleşir (FullscreenRule): Windows'un tam ekran bildirimi (özel kip D3D, sunum modu kesin; QUNS_BUSY
+        // tek başına güvenilmez, Sessiz saatlerde de dönebilir, bu yüzden geometriyle birlikte okunur), başlık
+        // çubuğunun olmayışı ve monitörü tamamen kaplama. Sorgu başarısızsa durum bilinmiyor sayılır.
         var hr = PInvoke.SHQueryUserNotificationState(out var notificationState);
-        if (hr.Succeeded)
-        {
-            if (notificationState is QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN or
-                                     QUERY_USER_NOTIFICATION_STATE.QUNS_PRESENTATION_MODE)
-            {
-                return true;
-            }
-        }
+        var shellState = hr.Succeeded
+            ? ShellNotificationStates.FromQuns((int)notificationState)
+            : ShellNotificationState.Unknown;
 
-        // 2. Ön plandaki pencerenin monitörü tamamen kaplayıp kaplamadığını kontrol et (tarayıcı tam ekran, video vb.)
         unsafe
         {
             var mi = new MONITORINFO { cbSize = (uint)sizeof(MONITORINFO) };
@@ -167,7 +161,8 @@ public sealed class FullscreenDetector : IFullscreenDetector
                 new WindowRect(wr.left, wr.top, wr.right, wr.bottom),
                 new WindowRect(mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right, mi.rcMonitor.bottom),
                 hasCaption: style.HasFlag(WINDOW_STYLE.WS_CAPTION),
-                isMaximized: style.HasFlag(WINDOW_STYLE.WS_MAXIMIZE));
+                isMaximized: style.HasFlag(WINDOW_STYLE.WS_MAXIMIZE),
+                state: shellState);
         }
     }
 

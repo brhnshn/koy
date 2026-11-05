@@ -35,6 +35,13 @@ New-Item -ItemType Directory -Path $distDir -Force | Out-Null
 dotnet publish src/App/Koy.App.csproj -c Release -r win-x64 --self-contained false -o $publishDir
 Assert-LastExit 'dotnet publish'
 
+# Gozcu surec (Native AOT, C++ derleme araclari gerekir): Koy ile ayni klasore yalniz exe kopyalanir.
+$watchdogDir = Join-Path $root 'publish\watchdog'
+if (Test-Path $watchdogDir) { Remove-Item $watchdogDir -Recurse -Force }
+dotnet publish src/Watchdog/Koy.Watchdog.csproj -c Release -r win-x64 -o $watchdogDir
+Assert-LastExit 'dotnet publish (Koy.Watchdog)'
+Copy-Item (Join-Path $watchdogDir 'Koy.Watchdog.exe') $publishDir -Force
+
 Write-Host "==> Velopack paketi (vpk pack) olusturuluyor..." -ForegroundColor Cyan
 
 # vpk surumu Velopack paket surumuyle ayni olmali (csproj'daki surum tek kaynak)

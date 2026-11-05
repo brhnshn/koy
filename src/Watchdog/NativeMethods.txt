@@ -1,0 +1,10 @@
+SHAppBarMessage
+APPBARDATA
+ShowWindow
+FindWindowEx
+IsWindowVisible
+GetWindowThreadProcessId
+OpenProcess
+PROCESS_ACCESS_RIGHTS
+WaitForMultipleObjects
+CloseHandle

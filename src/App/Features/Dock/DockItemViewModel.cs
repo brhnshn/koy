@@ -15,6 +15,7 @@ public sealed partial class DockItemViewModel : ObservableObject
 {
     private readonly DockController _controller;
     private readonly Spring _scaleSpring = new(1.0) { Stiffness = 320, Damping = 26 };
+    private readonly Spring _offsetSpring = new(0) { Stiffness = 380, Damping = 30 };
 
     public DockItem Model { get; private set; }
 
@@ -130,6 +131,28 @@ public sealed partial class DockItemViewModel : ObservableObject
     {
         _scaleSpring.SnapTo(scale);
         Scale = scale;
+    }
+
+    /// <summary>Sürükleyerek sıralarken yatay kayma (DIP). Sürüklenen öğe imleci anında izler, öbürleri yayla kayar.</summary>
+    public double OffsetX => _offsetSpring.Value;
+
+    public void SetTargetOffset(double target) => _offsetSpring.Target = target;
+
+    /// <summary>Animasyonsuz atlar; hedef de aynı değere gelir (sonra SetTargetOffset ile yaylanabilir).</summary>
+    public void SnapOffset(double offset)
+    {
+        _offsetSpring.SnapTo(offset);
+        OnPropertyChanged(nameof(OffsetX));
+    }
+
+    public bool StepOffset(double dt)
+    {
+        if (_offsetSpring.IsAtRest)
+            return false;
+
+        var moving = _offsetSpring.Step(dt);
+        OnPropertyChanged(nameof(OffsetX));
+        return moving;
     }
 
     [RelayCommand]

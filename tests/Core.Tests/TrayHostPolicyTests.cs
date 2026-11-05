@@ -15,6 +15,14 @@ public class TrayHostPolicyTests
     public void ShouldHost_OnlyWhenTaskbarIsActuallyHidden(bool hide, bool show, int windows, bool expected) =>
         Assert.Equal(expected, TrayHostPolicy.ShouldHost(hide, show, windows));
 
+    [Theory]
+    [InlineData(0, true)]    // dock yok / duraklatıldı: bildirim alanı simgesi gelir
+    [InlineData(-1, true)]
+    [InlineData(1, false)]   // dock açık: Koy simgesi dock'un sağ ucunda, bildirim alanında ikinci simge yok
+    [InlineData(3, false)]
+    public void ShouldShowNotificationAreaIcon_OnlyWithoutDockWindows(int dockWindows, bool expected) =>
+        Assert.Equal(expected, TrayHostPolicy.ShouldShowNotificationAreaIcon(dockWindows));
+
     [Fact]
     public void IsOwnIcon_MatchesOnlyKoyProcess()
     {

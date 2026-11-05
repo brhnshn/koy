@@ -517,4 +517,43 @@ public class DockTests
         time.FireLast();
         Assert.Equal(1, refreshCount);
     }
+
+    [Fact]
+    public void MovePinned_SabitliSirayiDegistirirVeListeyiYeniler()
+    {
+        var inner = new FakePinnedAppsService
+        {
+            Apps =
+            [
+                new PinnedApp("A", @"C:\Pins\A.lnk", null, null),
+                new PinnedApp("B", @"C:\Pins\B.lnk", null, null),
+                new PinnedApp("C", @"C:\Pins\C.lnk", null, null)
+            ]
+        };
+        List<string> stored = ["A.lnk", "B.lnk", "C.lnk"];
+        var ordered = new OrderedPinnedAppsService(inner, () => stored, o => stored = [.. o]);
+
+        using var controller = new DockController(ordered, new FakeWindowTracker(), new FakeShellActionService());
+        controller.Refresh();
+        Assert.True(controller.CanReorderPinned);
+
+        controller.MovePinned(@"C:\Pins\A.lnk", 2);
+
+        Assert.Equal(["B", "C", "A"], controller.Items.Select(i => i.Title));
+        Assert.Equal(["B.lnk", "C.lnk", "A.lnk"], stored);
+    }
+
+    [Fact]
+    public void MovePinned_SiralanamazKaynaktaVeBilinmeyenOgedeSessizGecer()
+    {
+        var inner = new FakePinnedAppsService { Apps = [new PinnedApp("A", @"C:\Pins\A.lnk", null, null)] };
+        using var controller = new DockController(inner, new FakeWindowTracker(), new FakeShellActionService());
+        controller.Refresh();
+
+        Assert.False(controller.CanReorderPinned);
+        controller.MovePinned(@"C:\Pins\A.lnk", 0);
+        controller.MovePinned(@"C:\Pins\Yok.lnk", 3);
+
+        Assert.Single(controller.Items);
+    }
 }

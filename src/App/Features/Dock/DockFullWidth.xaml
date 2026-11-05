@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:res="clr-namespace:Koy.App.Resources"
              xmlns:local="clr-namespace:Koy.App.Features.Dock"
-             xmlns:tray="clr-namespace:Koy.App.Features.Dock.Tray">
+             xmlns:tray="clr-namespace:Koy.App.Features.Dock.Tray"
+             xmlns:recents="clr-namespace:Koy.App.Features.Dock.Recents">
 
     <!-- Tam Genişlik Modu (Glass / Cam): 44 px yükseklik, üst sınır parıltısı, akrilik koyu arka plan -->
     <Border Background="#D4121216"
@@ -113,6 +114,9 @@
                                 Cursor="Hand"
                                 ToolTip="{Binding Title}"
                                 ToolTipService.IsEnabled="{Binding HasOpenWindows, Converter={x:Static local:DockConverters.InverseBoolConverter}}"
+                                MouseLeftButtonDown="OnItemLeftDown"
+                                MouseMove="OnItemMouseMove"
+                                LostMouseCapture="OnItemLostCapture"
                                 MouseLeftButtonUp="OnItemLeftClick"
                                 MouseRightButtonUp="OnItemRightClick"
                                 MouseDown="OnItemMouseDown"
@@ -135,6 +139,10 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
+
+                            <Border.RenderTransform>
+                                <TranslateTransform X="{Binding OffsetX}"/>
+                            </Border.RenderTransform>
 
                             <Border.ContextMenu>
                                 <ContextMenu>
@@ -180,6 +188,7 @@
                         Orientation="Horizontal"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center">
+            <recents:RecentsButton/>
             <tray:TrayButton/>
             <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                     Command="{Binding OpenKoyMenuCommand}"

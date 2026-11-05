@@ -175,6 +175,25 @@ public sealed class DockController : IDisposable
         ItemsChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>Sabitli uygulamaların sırasını sürükleyerek değiştirebilir miyiz (kaynak sıralamayı destekliyor mu).</summary>
+    public bool CanReorderPinned => _pinnedAppsService is IReorderablePinnedApps;
+
+    /// <summary>
+    /// Sabitli uygulamayı yeni dizine (yalnız sabitliler arasında sayılan dizin) taşır, sırayı kalıcı yapar ve listeyi yeniler.
+    /// </summary>
+    public void MovePinned(string itemId, int newPinnedIndex)
+    {
+        if (_pinnedAppsService is not IReorderablePinnedApps reorderable)
+            return;
+
+        var item = _items.Find(i => i.IsPinned && string.Equals(i.Id, itemId, StringComparison.OrdinalIgnoreCase));
+        if (item is null)
+            return;
+
+        reorderable.MoveTo(PinnedOrder.IdOf(item.Id), newPinnedIndex);
+        Refresh();
+    }
+
     public void HandleItemClick(DockItem item)
     {
         if (!item.IsRunning)

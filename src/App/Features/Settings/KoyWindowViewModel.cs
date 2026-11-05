@@ -123,6 +123,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _dockHideInFullscreen = true;
 
     [ObservableProperty]
+    private bool _dockEdgeReveal = true;
+
+    [ObservableProperty]
     private int _dockDodgeDelayMs = 150;
 
     [ObservableProperty]
@@ -145,6 +148,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _dockShowMinimized = true;
+
+    [ObservableProperty]
+    private bool _dockShowRecents = true;
 
     [ObservableProperty]
     private bool _dockShowTray = true;
@@ -207,7 +213,12 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     [ObservableProperty]
     private double _memoryPct;
 
-    /// <summary>0: bütçe içinde, 1: bütçenin %80'i aşıldı, 2: 60 MB bütçesi aşıldı.</summary>
+    /// <summary>Boşta private bellek hedefi (MB). Çok ekran / açık panellerle <see cref="MemoryLimitMb"/>'a kadar kabul (AGENTS.md #1).</summary>
+    private const double MemoryTargetMb = 150.0;
+
+    private const double MemoryLimitMb = 200.0;
+
+    /// <summary>0: hedef içinde, 1: hedef aşıldı ama kabul sınırı içinde, 2: 200 MB kabul sınırı aşıldı.</summary>
     [ObservableProperty]
     private int _memoryLevel;
 
@@ -282,10 +293,12 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockStyle = s.DockStyle;
             DockProximity = s.DockProximity;
             DockHideInFullscreen = s.DockHideInFullscreen;
+            DockEdgeReveal = s.DockEdgeReveal;
             DockHoverMagnify = s.DockHoverMagnify;
             DockShowStartButton = s.DockShowStartButton;
             DockShowFolders = s.DockShowFolders;
             DockShowMinimized = s.DockShowMinimized;
+            DockShowRecents = s.DockShowRecents;
             DockShowTray = s.DockShowTray;
             DockShowBadges = s.DockShowBadges;
             DockThumbnailPreview = s.DockThumbnailPreview;
@@ -342,9 +355,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             var proc = Process.GetCurrentProcess();
             var memMb = proc.PrivateMemorySize64 / (1024.0 * 1024.0);
             MemoryUsageMb = Math.Round(memMb, 1);
-            MemoryUsageText = $"{MemoryUsageMb:N1} MB / 60 MB";
-            MemoryPct = Math.Clamp((MemoryUsageMb / 60.0) * 100.0, 0, 100);
-            MemoryLevel = MemoryUsageMb > 60 ? 2 : MemoryUsageMb >= 48 ? 1 : 0;
+            MemoryUsageText = $"{MemoryUsageMb:N1} MB / {MemoryTargetMb:N0} MB";
+            MemoryPct = Math.Clamp((MemoryUsageMb / MemoryTargetMb) * 100.0, 0, 100);
+            MemoryLevel = MemoryUsageMb > MemoryLimitMb ? 2 : MemoryUsageMb > MemoryTargetMb ? 1 : 0;
         }
         catch
         {
@@ -465,10 +478,12 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockStyle = DockStyle,
             DockProximity = DockProximity,
             DockHideInFullscreen = DockHideInFullscreen,
+            DockEdgeReveal = DockEdgeReveal,
             DockHoverMagnify = DockHoverMagnify,
             DockShowStartButton = DockShowStartButton,
             DockShowFolders = DockShowFolders,
             DockShowMinimized = DockShowMinimized,
+            DockShowRecents = DockShowRecents,
             DockShowTray = DockShowTray,
             DockShowBadges = DockShowBadges,
             DockThumbnailPreview = DockThumbnailPreview,

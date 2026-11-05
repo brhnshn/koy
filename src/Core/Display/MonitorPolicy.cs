@@ -12,6 +12,13 @@ public sealed record MonitorAssignment(DisplayMonitor Monitor, bool NotchEnabled
 /// </summary>
 public static class MonitorPolicy
 {
+    /// <summary>
+    /// Yeni takılan (kaydı olmayan) ekranın varsayılanı: çentik ve dock AÇIK. Ayarlar ekran başına baştan yapılmaz;
+    /// genel ayarlar (dock biçimi, çentik görünürlüğü…) her ekrana aynen uygulanır. Bir ekranı kapatmak isteyen
+    /// Ekranlar sayfasından o ekranı seçip kapatır; bu yalnız o ekranın kaydını yazar, öbürlerine dokunmaz.
+    /// </summary>
+    public const NewScreenMode DefaultNewScreenMode = NewScreenMode.NotchAndDock;
+
     /// <summary>Yeni ekran varsayılanının monitör ayarı karşılığı.</summary>
     public static MonitorSettings DefaultFor(NewScreenMode mode) => mode switch
     {

@@ -12,6 +12,10 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 0.1.0'dan sonraki revizyon: kod incelemesinden çıkan çökmelerin giderilmesi, etkisiz ayarların gerçekten bağlanması, çoklu ekran, kısayollar, Koyu/Açık tema ve kaldırma ekranı.
 
 ### Düzeltmeler (Fixed)
+- **Görev çubuğu Koy öldürülünce geri geliyor:** Görev Yöneticisi'nden sonlandırılan Koy'un gizlediği görev çubuğu otomatik gizlemede kalıyordu. Dock görev çubuğunu gizlediği sürece küçük bir gözcü süreç (`Koy.Watchdog.exe`, Native AOT, pencere yok) Koy'u izliyor; Koy ölürse görev çubuğunu önceki haline döndürüyor, düzgün kapanışta dokunmuyor.
+- **Dock alt kenardan açılıyor:** büyütülmüş pencere dock'u gizlediğinde fare alt kenarda ~300 ms (tuş basılı değilken) durunca dock çıkıyor; Dock sayfasındaki "Alt kenardan aç" ile kapatılır. Oyunda, F11 tarayıcıda ve tam ekran videoda dock hiçbir koşulda çıkmıyor. Tam ekran artık Windows'un tam ekran bildirimi, başlık çubuğunun olmayışı ve monitörü kaplama işaretlerinin birleşimiyle ve monitör başına belirleniyor (yan ekrandaki oyun bu ekrandaki dock'u gizlemiyor).
+- **Tepsi açılır penceresi sağ tıkta kapanmıyor:** uygulamanın bağlam menüsü açıkken pencere açık kalıyor; menüden seçim yapılınca ya da pencere ve menünün dışına tıklanınca kısa bir yay animasyonuyla kapanıyor.
+- **Dock'ta tek Koy simgesi:** dock açıkken bildirim alanındaki Koy simgesi kaldırılıyor, dock kapanınca ya da duraklayınca geri geliyor.
 - **0.1.0'da çalışmayan, artık çalışanlar:**
   - Kısayollar sayfası yalnızca görüntüydü; artık `RegisterHotKey` ile gerçekten kayıtlı ve değiştirilebilir.
   - Ses ve parlaklık göstergesi (OSD HUD) çentiğe hiç bağlı değildi; artık sistem ses ve parlaklık değişimlerinde açılıyor.
@@ -34,6 +38,8 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
   - Açık çentiğin üstünde Müzik, Kontrol, Durum, Takvim ve Raf sekmeleri; kapalı çentikte saatin yanında Wi-Fi ve Bluetooth durum simgeleri (tıklayınca Kontrol sekmesi açılır). Simgeler yalnız Kontrol paneli açıkken ve boşta görünüm "Saat, pil ve bağlantılar" iken çıkar (#14).
 
 ### Eklenenler (Added)
+- **Sabitli uygulama sırası:** sıra Koy'un ayarlarında tutuluyor (`DockPinnedOrder`); ilk açılışta Windows'un sırası (Taskband `Favorites`) tohum olarak okunuyor, okunamazsa klasör sırası kullanılıyor. Simgeler dock'ta sürüklenerek sıralanıyor (yay animasyonuyla kayma), yeni sabitlenen sona ekleniyor, kaldırılan listeden düşüyor.
+- **Dock'ta son kullanılanlar:** ayırıcının sağında yığın simgesi; Windows'un Son Kullanılanlar klasöründen en çok 10 dosya, yalnız tıklanınca okunur (izleme yok). Dock sayfasından kapatılır.
 - **Genel kısayollar:** çentik, raf, dock, Koy menüsü ve oynat/duraklat için `Ctrl+Alt+N/R/D/K/Space`; tuş yakalama kutusuyla değiştirilir, Windows'un ayırdığı ya da başka uygulamanın tuttuğu kombinasyonlar satırda bildirilir.
 - **Ekranlar sayfası:** monitör haritası, ekran başına çentik ve dock, yeni bağlanan ekran için seçenek, "Tanımla" düğmesiyle ekran numarası. Ayarlar kararlı monitör kimliğine bağlıdır; ekran çıkarılıp takılınca geri gelir.
 - **Koyu / Açık tema** (ve "Sistem"), yarı saydam malzeme seçeneği, köşe yuvarlaklığı, animasyon hızı; Windows "animasyonları azalt" ve pil tasarrufuna uyum. Emojiler yerine tutarlı çizgi ikonlar, erişilebilirlik adları ve klavye odağı.
@@ -43,6 +49,9 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - Geliştirici aracı: `tools/Koy.UiSnapshots` (arayüzü ekrana çıkarmadan PNG'ye çizer).
 
 ### Değişenler (Changed)
+- **Bellek bütçesi:** boşta 100–150 MB private hedef, çok ekran ya da açık panellerle 200 MB'a kadar kabul (eski hedef 60 MB idi). Performans sayfasındaki gösterge yeni hedefe göre. Revizyon sonrası ölçüm: 63,9 MB (`docs/MEMORY.md`).
+- Yeni takılan ekranda çentik ve dock varsayılan açık; ayarlar ekran başına baştan yapılmıyor, genel ayarlar her ekrana uygulanıyor (Ekranlar sayfasından ekran seçilip kapatılır).
+- Dock kenar izleme zamanlayıcısı 50 ms yerine 100 ms ve yalnız dock gizliyken çalışıyor.
 - Dock ve çentik tek bir pencere izleyici ve tek bir medya servisini paylaşıyor; pencere olaylarında dock yenilemesi birleştiriliyor (daha az iş).
 - Koy penceresi, sihirbaz ve sağ alt menü ortak tema ve ölçü sözlüklerinden besleniyor; sabit renk ve emoji kalmadı.
 - Derleme tekrarlanabilir: yerel yollar PDB'ye gömülmüyor.
@@ -58,7 +67,7 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - GitHub Actions adımları commit SHA'sına sabitlendi (tedarik zinciri sertleştirmesi).
 
 ### Bilinen eksikler
-Dock tepsisi (#11) gerçek donanımda elle denenmedi ve bellek etkisi ölçülmedi; takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi; kontrol merkezi döşemelerini sürükleyerek sıralama; gerçek çok monitörlü ve karışık DPI donanımda doğrulama; bellek ölçümü (son ölçüm 82,7 MB, hedef 60 MB). Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Dock tepsisi (#11) gerçek donanımda elle denenmedi ve bellek etkisi ölçülmedi; takvimde gün/hafta görünümü, serbest zamanlayıcı ve kronometre; hava durumunda şehir seçimi; kontrol merkezi döşemelerini sürükleyerek sıralama; gerçek çok monitörlü ve karışık DPI donanımda doğrulama; dock/tepsi paketinden (gözcü süreç, son kullanılanlar, sabitli sıra, kenardan açma) sonra bellek ölçümü (son ölçüm 63,9 MB, hedef 100–150 MB); gözcü sürecin Native AOT paketinin elle sınanması; Windows'un UWP sabitlemeleri (Spotify, WhatsApp gibi) dock'ta henüz gösterilmiyor. Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## [0.1.0] - 2026-11-04
 

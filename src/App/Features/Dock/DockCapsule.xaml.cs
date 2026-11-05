@@ -8,13 +8,29 @@ public partial class DockCapsule : UserControl
 {
     private DockViewModel? ViewModel => DataContext as DockViewModel;
 
+    private readonly DockReorderHelper _reorder;
+
     public DockCapsule()
     {
+        _reorder = new DockReorderHelper(() => ViewModel);
         InitializeComponent();
     }
 
+    private void OnItemLeftDown(object sender, MouseButtonEventArgs e) => _reorder.OnMouseDown(sender, e);
+
+    private void OnItemMouseMove(object sender, MouseEventArgs e) => _reorder.OnMouseMove(sender, e);
+
+    private void OnItemLostCapture(object sender, MouseEventArgs e) => _reorder.OnLostCapture();
+
     private void OnItemLeftClick(object sender, MouseButtonEventArgs e)
     {
+        // Sürükleyerek sıralama bittiyse bu bırakma tıklama sayılmaz.
+        if (_reorder.TryFinish())
+        {
+            e.Handled = true;
+            return;
+        }
+
         if (sender is FrameworkElement { DataContext: DockItemViewModel item })
         {
             ViewModel?.ClosePreviewNow();

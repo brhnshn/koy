@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Gözcü süreç: Koy görev çubuğunu gizlediğinde başlar, Koy Görev Yöneticisi'nden öldürülürse görev çubuğunu geri getirir.
+    Pencere, konsol ve WPF yok. Yayın (publish) Native AOT: küçük ve .NET çalışma zamanı yüklemeden başlar.
+    Derleme (build) normal IL üretir; AOT yalnız `dotnet publish -r win-x64` ile (scripts/pack.ps1, release.yml).
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.22000.0</SupportedOSPlatformVersion>
+    <RootNamespace>Koy.Watchdog</RootNamespace>
+    <AssemblyName>Koy.Watchdog</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <OptimizationPreference>Size</OptimizationPreference>
+    <StackTraceSupport>false</StackTraceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <EventSourceSupport>false</EventSourceSupport>
+    <DebuggerSupport>false</DebuggerSupport>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Koy.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Görev çubuğu durumu mantığı tekrar yazılmaz: Platform'daki aynı dosyalar derlenir (CsWin32 türleri bu projede üretilir). -->
+    <Compile Include="..\Platform\Shell\TaskbarService.cs" Link="Shared\TaskbarService.cs" />
+    <Compile Include="..\Platform\Shell\ShellTrayLocator.cs" Link="Shared\ShellTrayLocator.cs" />
+  </ItemGroup>
+</Project>

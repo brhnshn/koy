@@ -8,7 +8,7 @@ Nectar'dan ilham alıyor ama kodu, tasarımı ve görselleri bize ait olacak; Ne
 | Konu | Karar |
 | --- | --- |
 | Kapsam | Notch + Dock. Önce notch, dock sonra. |
-| Bellek hedefi | 60 MB altı → C# + WPF |
+| Bellek hedefi | Boşta 100–150 MB (çok ekranla 200 MB'a kadar kabul) → C# + WPF. İlk hedef 60 MB idi; 2026-11-06 kararıyla gevşetildi (bkz. `docs/MEMORY.md`) |
 | Windows | Yalnız Windows 11 |
 | Yayın | Açık kaynak, GitHub, Türkçe + İngilizce |
 | Lisans | GPLv3 |
@@ -31,7 +31,7 @@ Nectar'dan ilham alıyor ama kodu, tasarımı ve görselleri bize ait olacak; Ne
 ### Ölçülebilir hedefler
 | Hedef | Değer | Nasıl ölçülür |
 | --- | --- | --- |
-| Bellek (tek monitör, boşta) | < 60 MB private bytes | Process Explorer / `dotnet-counters` |
+| Bellek (boşta) | 100–150 MB private bytes (200 MB'a kadar kabul) | Process Explorer / `dotnet-counters` / `scripts/measure-memory.ps1` |
 | CPU (boşta) | ~%0 | Görev Yöneticisi, 1 dk ortalama |
 | Açılış | < 1 sn | Uygulama içi zaman ölçümü |
 | Animasyon | 60 fps, takılma yok | PerfView / göz |
@@ -114,7 +114,7 @@ Kullanıcı tıklar → ViewModel komutu → Servis → Windows API
 - Workstation GC, eşzamanlı GC kapalı; GC ayarları ölçüme göre düzenlenir.
 - Albüm kapakları gösterilecek boyutta çözülür (`DecodePixelWidth`), dondurulur (`Freeze`).
 - Tek bir `ResourceDictionary`; stiller paylaşılır, pencere başına kopyalanmaz.
-- Her aşamanın sonunda bellek ölçülür, 60 MB'ı aşan değişiklik birleştirilmez.
+- Her aşamanın sonunda bellek ölçülür, 200 MB'ı aşan değişiklik birleştirilmez.
 
 ## 4. Aşamalar
 

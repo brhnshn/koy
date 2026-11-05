@@ -36,13 +36,28 @@ public sealed record AppSettings
     /// <summary>Tam ekran bir uygulama veya oyun devredeyken dock'u otomatik gizle.</summary>
     public bool DockHideInFullscreen { get; set; } = true;
 
+    /// <summary>
+    /// Büyütülmüş pencere dock'u gizlediğinde fare alt kenara (~300 ms, fare tuşu basılı değilken) gelince dock çıkar.
+    /// Kapalıysa dock büyütülmüş pencerede gizli kalır. Gerçek tam ekranda (oyun, F11, tam ekran video) hiçbir zaman çıkmaz.
+    /// </summary>
+    public bool DockEdgeReveal { get; set; } = true;
+
     public bool DockShowStartButton { get; set; } = true;
     public bool DockShowFolders { get; set; } = true;
     public bool DockShowMinimized { get; set; } = true;
 
+    /// <summary>Dock'ta son kullanılan dosyaların yığın düğmesi (Windows'un Son Kullanılanlar klasörü, en çok 10 öğe).</summary>
+    public bool DockShowRecents { get; set; } = true;
+
     /// <summary>Dock'ta sistem tepsisi düğmesi. Açıkken Koy uygulamaların tepsi simgelerini kendisi toplar.</summary>
     public bool DockShowTray { get; set; } = true;
     public bool DockShowBadges { get; set; } = true;
+
+    /// <summary>
+    /// Dock'taki sabitli uygulamaların sırası (kısayol dosya adları, örn. "Obsidian.lnk"). Boşsa ilk açılışta Windows'un
+    /// sırası tohum alınır; sonra dock'ta sürükleyerek değiştirilir. Yeni sabitlenen sona eklenir, kaldırılan düşer.
+    /// </summary>
+    public List<string> DockPinnedOrder { get; set; } = [];
     public bool DockThumbnailPreview { get; set; } = true;
     public int DockThumbnailDelayMs { get; set; } = 400;
     public int DockDodgeDelayMs { get; set; } = 150;
@@ -56,8 +71,11 @@ public sealed record AppSettings
     /// </summary>
     public Dictionary<string, MonitorSettings> Monitors { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>Daha önce hiç görülmemiş yeni bir ekran bağlanınca çentik/dock durumu.</summary>
-    public NewScreenMode NewScreenDefault { get; set; } = NewScreenMode.NotchAndDock;
+    /// <summary>
+    /// Daha önce hiç görülmemiş yeni bir ekran bağlanınca çentik/dock durumu. Varsayılan AÇIK
+    /// (<see cref="MonitorPolicy.DefaultNewScreenMode"/>): yeni ekran ayrı kurulum istemez.
+    /// </summary>
+    public NewScreenMode NewScreenDefault { get; set; } = MonitorPolicy.DefaultNewScreenMode;
     public string? AccentColor { get; set; }
 
     /// <summary>Açıksa vurgu rengi Windows vurgu renginden gelir, AccentColor yok sayılır.</summary>
@@ -128,9 +146,11 @@ public sealed record AppSettings
                DockStyle == other.DockStyle &&
                DockProximity == other.DockProximity &&
                DockHideInFullscreen == other.DockHideInFullscreen &&
+               DockEdgeReveal == other.DockEdgeReveal &&
                DockShowStartButton == other.DockShowStartButton &&
                DockShowFolders == other.DockShowFolders &&
                DockShowMinimized == other.DockShowMinimized &&
+               DockShowRecents == other.DockShowRecents &&
                DockShowTray == other.DockShowTray &&
                DockShowBadges == other.DockShowBadges &&
                DockThumbnailPreview == other.DockThumbnailPreview &&
@@ -174,7 +194,8 @@ public sealed record AppSettings
                WeatherLongitude.Equals(other.WeatherLongitude) &&
                WeatherCity == other.WeatherCity &&
                (ControlCenterLayout == other.ControlCenterLayout || (ControlCenterLayout is not null && other.ControlCenterLayout is not null && ControlCenterLayout.SequenceEqual(other.ControlCenterLayout))) &&
-               (EnabledPanels == other.EnabledPanels || (EnabledPanels is not null && other.EnabledPanels is not null && EnabledPanels.SequenceEqual(other.EnabledPanels)));
+               (EnabledPanels == other.EnabledPanels || (EnabledPanels is not null && other.EnabledPanels is not null && EnabledPanels.SequenceEqual(other.EnabledPanels))) &&
+               ListsEqual(DockPinnedOrder, other.DockPinnedOrder);
     }
 
     public override int GetHashCode()
@@ -190,9 +211,11 @@ public sealed record AppSettings
         hash.Add(DockStyle);
         hash.Add(DockProximity);
         hash.Add(DockHideInFullscreen);
+        hash.Add(DockEdgeReveal);
         hash.Add(DockShowStartButton);
         hash.Add(DockShowFolders);
         hash.Add(DockShowMinimized);
+        hash.Add(DockShowRecents);
         hash.Add(DockShowTray);
         hash.Add(DockShowBadges);
         hash.Add(DockThumbnailPreview);
@@ -245,8 +268,16 @@ public sealed record AppSettings
             foreach (var item in EnabledPanels)
                 hash.Add(item);
         }
+        if (DockPinnedOrder is not null)
+        {
+            foreach (var item in DockPinnedOrder)
+                hash.Add(item);
+        }
         return hash.ToHashCode();
     }
+
+    private static bool ListsEqual(List<string>? a, List<string>? b)
+        => ReferenceEquals(a, b) || ((a ?? []).SequenceEqual(b ?? []));
 
     private static bool MonitorsEqual(Dictionary<string, MonitorSettings>? a, Dictionary<string, MonitorSettings>? b)
     {
