@@ -64,6 +64,8 @@
     <!-- Beyazın %20'si ve %15'i: koyu yüzeyde basılı ve açık (seçili) düğme katmanı (dock tepsi düğmesi) -->
     <SolidColorBrush x:Key="KoyNotchPressed" Color="#33FFFFFF" />
     <SolidColorBrush x:Key="KoyNotchActive" Color="#26FFFFFF" />
+    <!-- Açılır pencerelerin gölgesi (DropShadowEffect fırça değil renk ister) -->
+    <Color x:Key="KoyShadowColor">#000000</Color>
 
     <!-- Yarı saydam gri: hem koyu hem açık yüzeyde okunur. -->
     <SolidColorBrush x:Key="KoyScrollThumb" Color="#66808088" />

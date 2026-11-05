@@ -68,7 +68,7 @@
                                       ShadowDepth="4"
                                       Opacity="0.45"
                                       Direction="270"
-                                      Color="Black"/>
+                                      Color="{DynamicResource KoyShadowColor}"/>
                 </Border.Effect>
 
                 <StackPanel>
