@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Koy.Core.Diagnostics;
 using Koy.Core.Radio;
 using Windows.Foundation;
 using WinRadio = Windows.Devices.Radios.Radio;
@@ -53,10 +54,13 @@ public sealed class RadioService : IRadioService
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Radyo yığını hata verirse radyo "yok" sayılır: döşeme sessizce "Kapalı" kalmak yerine
-            // nedenini yazar ve Windows ayarlarını açar.
+            // nedenini yazar ve Windows ayarlarını açar. Önceki taramadan kalan erişim durumu bayat
+            // kalmasın diye bilinmiyor yapılır.
+            CrashLog.Write("RadioService.RefreshCoreAsync", ex);
+            Access = RadioAccess.Unknown;
             wifi = null;
             bluetooth = null;
         }
@@ -89,8 +93,18 @@ public sealed class RadioService : IRadioService
 
     private void OnBluetoothStateChanged(WinRadio sender, object args) => Raise(RadioKind.Bluetooth, GetState(sender));
 
-    private void Raise(RadioKind kind, RadioState state) =>
-        StateChanged?.Invoke(this, new RadioStateChangedEventArgs(kind, state));
+    // Aboneden gelen istisna tarama görevini (fire-and-forget) ya da WinRT iş parçacığını bozmasın.
+    private void Raise(RadioKind kind, RadioState state)
+    {
+        try
+        {
+            StateChanged?.Invoke(this, new RadioStateChangedEventArgs(kind, state));
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("RadioService.StateChanged abonesi", ex);
+        }
+    }
 
     public async Task<bool> SetStateAsync(RadioKind kind, bool enable)
     {
@@ -117,8 +131,9 @@ public sealed class RadioService : IRadioService
             Raise(kind, MapState(radio.State));
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            CrashLog.Write("RadioService.SetStateAsync", ex);
             return false;
         }
     }

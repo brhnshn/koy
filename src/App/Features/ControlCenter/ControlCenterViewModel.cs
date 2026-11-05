@@ -2,6 +2,7 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Koy.Core.Audio;
+using Koy.Core.Diagnostics;
 using Koy.Core.Display;
 using Koy.Core.Radio;
 using Koy.Core.Settings;
@@ -20,6 +21,7 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     private IBrightnessService? _brightnessService;
     private readonly AppSettings _settings;
     private readonly Dispatcher _dispatcher;
+    private bool _brightnessStarted;
     private bool _disposed;
 
     // Son açma/kapama denemesi reddedildiyse döşeme bunu yazar; radyo durumu değişince silinir.
@@ -76,16 +78,25 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
         // Her açılışta yeniden taranır: USB Wi-Fi takılıp çıkarılmış ya da radyo izni ayarlardan
         // sonradan verilmiş olabilir. Yalnız tek seferlik sorgu; zamanlayıcı yok.
-        _ = _radioService.RefreshAsync();
+        Observe(_radioService.RefreshAsync(), "ControlCenter radyo taraması");
 
         EnsureAudioService();
 
-        // Ses tekerlekle önceden kurulmuş olabilir; radyo ve parlaklık yine de ilk açılışta başlar.
-        if (_radioService is not null)
+        // Ses tekerlekle önceden kurulmuş olabilir; parlaklık yine de ilk açılışta bir kez başlar.
+        if (_brightnessStarted)
             return;
 
-        _ = InitializeBrightnessAsync();
+        _brightnessStarted = true;
+        Observe(InitializeBrightnessAsync(), "ControlCenter parlaklık başlatma");
     }
+
+    // Fire-and-forget görevlerin istisnası yutulmasın: gözlenir ve günlüğe yazılır.
+    private static void Observe(Task task, string source) =>
+        _ = task.ContinueWith(
+            t => CrashLog.Write(source, t.Exception),
+            CancellationToken.None,
+            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
 
     private void EnsureAudioService()
     {
