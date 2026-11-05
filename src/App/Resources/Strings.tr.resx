@@ -906,4 +906,16 @@
   <data name="DockEdgeRevealDesc" xml:space="preserve">
     <value>Büyütülmüş pencere dock'u gizlediğinde fareyi alt kenara götürünce dock geri gelir. Oyunda ve tam ekran videoda asla çıkmaz.</value>
   </data>
+  <data name="DockShowRecentsTitle" xml:space="preserve">
+    <value>Son kullanılanlar</value>
+  </data>
+  <data name="DockShowRecentsDesc" xml:space="preserve">
+    <value>Dock'taki yığın düğmesi en son açtığınız 10 dosyayı listeler (Windows Son Kullanılanlar klasörü).</value>
+  </data>
+  <data name="RecentFiles" xml:space="preserve">
+    <value>Son kullanılanlar</value>
+  </data>
+  <data name="RecentEmpty" xml:space="preserve">
+    <value>Son kullanılan dosya yok</value>
+  </data>
 </root>

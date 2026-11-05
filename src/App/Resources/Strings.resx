@@ -906,4 +906,16 @@
   <data name="DockEdgeRevealDesc" xml:space="preserve">
     <value>When a maximized window hides the dock, moving the pointer to the bottom edge brings it back. Never in games or full-screen video.</value>
   </data>
+  <data name="DockShowRecentsTitle" xml:space="preserve">
+    <value>Recent files</value>
+  </data>
+  <data name="DockShowRecentsDesc" xml:space="preserve">
+    <value>A stack button in the dock lists the last 10 files you opened (Windows Recent folder).</value>
+  </data>
+  <data name="RecentFiles" xml:space="preserve">
+    <value>Recent files</value>
+  </data>
+  <data name="RecentEmpty" xml:space="preserve">
+    <value>No recent files</value>
+  </data>
 </root>

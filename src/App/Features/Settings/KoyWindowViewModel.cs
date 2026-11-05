@@ -150,6 +150,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _dockShowMinimized = true;
 
     [ObservableProperty]
+    private bool _dockShowRecents = true;
+
+    [ObservableProperty]
     private bool _dockShowTray = true;
 
     [ObservableProperty]
@@ -290,6 +293,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockShowStartButton = s.DockShowStartButton;
             DockShowFolders = s.DockShowFolders;
             DockShowMinimized = s.DockShowMinimized;
+            DockShowRecents = s.DockShowRecents;
             DockShowTray = s.DockShowTray;
             DockShowBadges = s.DockShowBadges;
             DockThumbnailPreview = s.DockThumbnailPreview;
@@ -474,6 +478,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockShowStartButton = DockShowStartButton,
             DockShowFolders = DockShowFolders,
             DockShowMinimized = DockShowMinimized,
+            DockShowRecents = DockShowRecents,
             DockShowTray = DockShowTray,
             DockShowBadges = DockShowBadges,
             DockThumbnailPreview = DockThumbnailPreview,

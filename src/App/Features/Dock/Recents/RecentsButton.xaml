@@ -1,0 +1,118 @@
+<UserControl x:Class="Koy.App.Features.Dock.Recents.RecentsButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:res="clr-namespace:Koy.App.Resources"
+             xmlns:dock="clr-namespace:Koy.App.Features.Dock"
+             Visibility="{Binding ShowRecents, Converter={x:Static dock:DockConverters.BoolToVisibilityConverter}}">
+
+    <Grid>
+        <!-- Yığın düğmesi. Liste açıkken tıklanamaz; dışarı tıklama listeyi kapatır ve aynı tıklama yeniden açmaz. -->
+        <Button x:Name="RecentsToggle"
+                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                Command="{Binding ToggleRecentsCommand}"
+                ToolTip="{Binding [RecentFiles], Source={x:Static res:Loc.Instance}}"
+                AutomationProperties.Name="{Binding [RecentFiles], Source={x:Static res:Loc.Instance}}"
+                Width="{Binding ItemSize}"
+                Height="{Binding ItemSize}"
+                Margin="1,0"
+                Background="Transparent"
+                BorderThickness="0"
+                Cursor="Hand"
+                IsHitTestVisible="{Binding IsOpen, ElementName=RecentsPopup, Converter={x:Static dock:DockConverters.InverseBoolConverter}}">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="Transparent"
+                            CornerRadius="10">
+                        <res:KoyIcon Data="{DynamicResource IconLayers}"
+                                     Size="16"
+                                     StrokeWidth="2"
+                                     Foreground="{DynamicResource KoyNotchTextSecondary}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource KoyNotchHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource KoyNotchPressed}"/>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding IsRecentsOpen}" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource KoyNotchActive}"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+
+        <!-- Liste: IsOpen koddan yönetilir (yüzen ve tam genişlik dock'ta birer düğme var, yalnız görünen açılır). -->
+        <Popup x:Name="RecentsPopup"
+               PlacementTarget="{Binding ElementName=RecentsToggle}"
+               Placement="Top"
+               VerticalOffset="-6"
+               AllowsTransparency="True"
+               StaysOpen="False"
+               PopupAnimation="None">
+            <Border Background="{DynamicResource KoyMenuBg}"
+                    BorderBrush="{DynamicResource KoyMenuBorder}"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Padding="6"
+                    Margin="12"
+                    MinWidth="240"
+                    MaxWidth="320"
+                    SnapsToDevicePixels="True">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24"
+                                      ShadowDepth="4"
+                                      Opacity="0.45"
+                                      Direction="270"
+                                      Color="{StaticResource KoyShadowColor}"/>
+                </Border.Effect>
+
+                <StackPanel>
+                    <TextBlock Text="{Binding [RecentFiles], Source={x:Static res:Loc.Instance}}"
+                               FontSize="11"
+                               Foreground="{DynamicResource KoyMenuTextMuted}"
+                               Margin="8,2,8,6"/>
+
+                    <ItemsControl ItemsSource="{Binding RecentFiles}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Height="32"
+                                        CornerRadius="8"
+                                        Cursor="Hand"
+                                        Padding="8,0"
+                                        ToolTip="{Binding Name}"
+                                        MouseLeftButtonUp="OnRecentClick">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource KoyMenuHover}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="12.5"
+                                               Foreground="{DynamicResource KoyMenuText}"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="{Binding [RecentEmpty], Source={x:Static res:Loc.Instance}}"
+                               FontSize="12"
+                               Foreground="{DynamicResource KoyMenuTextMuted}"
+                               Margin="8,2,8,4"
+                               Visibility="{Binding HasRecentFiles, Converter={x:Static dock:DockConverters.InverseBoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>

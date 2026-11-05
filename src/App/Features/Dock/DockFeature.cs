@@ -44,6 +44,7 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     private readonly Dictionary<string, DockWindowState> _windowStates = new(StringComparer.OrdinalIgnoreCase);
 
     private OrderedPinnedAppsService? _pinnedAppsService;
+    private readonly RecentFilesService _recentFiles = new();   // durumsuz; listeyi yalnız yığın açılınca okur
     private WindowTracker? _windowTracker;
     private ShellActionService? _shellActionService;
     private FullscreenDetector? _fullscreenDetector;
@@ -296,7 +297,8 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
             visibilityController,
             status: null,
             mediaService: _mediaService,
-            trayService: _trayService);
+            trayService: _trayService,
+            recentFiles: _recentFiles);
 
         viewModel.ReduceMotion = _reduceMotion;
 

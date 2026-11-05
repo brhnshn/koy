@@ -169,6 +169,17 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel VerticalAlignment="Center" Margin="0,0,60,0">
+                    <TextBlock Text="{Binding [DockShowRecentsTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [DockShowRecentsDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
+                </StackPanel>
+                <CheckBox AutomationProperties.Name="{Binding [DockShowRecentsTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding DockShowRecents}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                          Style="{StaticResource ToggleSwitchStyle}" />
+            </Grid>
+        </Border>
+
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center" Margin="0,0,60,0">
                     <TextBlock Text="{Binding [DockShowTrayTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                     <TextBlock Text="{Binding [DockShowTrayDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
                 </StackPanel>

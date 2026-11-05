@@ -46,6 +46,9 @@ public sealed record AppSettings
     public bool DockShowFolders { get; set; } = true;
     public bool DockShowMinimized { get; set; } = true;
 
+    /// <summary>Dock'ta son kullanılan dosyaların yığın düğmesi (Windows'un Son Kullanılanlar klasörü, en çok 10 öğe).</summary>
+    public bool DockShowRecents { get; set; } = true;
+
     /// <summary>Dock'ta sistem tepsisi düğmesi. Açıkken Koy uygulamaların tepsi simgelerini kendisi toplar.</summary>
     public bool DockShowTray { get; set; } = true;
     public bool DockShowBadges { get; set; } = true;
@@ -144,6 +147,7 @@ public sealed record AppSettings
                DockShowStartButton == other.DockShowStartButton &&
                DockShowFolders == other.DockShowFolders &&
                DockShowMinimized == other.DockShowMinimized &&
+               DockShowRecents == other.DockShowRecents &&
                DockShowTray == other.DockShowTray &&
                DockShowBadges == other.DockShowBadges &&
                DockThumbnailPreview == other.DockThumbnailPreview &&
@@ -208,6 +212,7 @@ public sealed record AppSettings
         hash.Add(DockShowStartButton);
         hash.Add(DockShowFolders);
         hash.Add(DockShowMinimized);
+        hash.Add(DockShowRecents);
         hash.Add(DockShowTray);
         hash.Add(DockShowBadges);
         hash.Add(DockThumbnailPreview);

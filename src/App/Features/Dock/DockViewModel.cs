@@ -118,7 +118,70 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     public bool HasTray => _trayService is { IsRunning: true };
 
     /// <summary>Ayırıcının sağında bir şey varsa (klasörler ya da tepsi) ayırıcı görünür.</summary>
-    public bool ShowRightSection => ShowFolders || HasTray;
+    public bool ShowRightSection => ShowFolders || HasTray || ShowRecents;
+
+    // Son kullanılanlar: yığın düğmesi; liste yalnız düğmeye tıklanınca okunur (sürekli izleme yok), kapanınca bırakılır.
+    private readonly IRecentFilesService? _recentFiles;
+
+    /// <summary>Son kullanılanlar düğmesi görünür mü (ayar açık ve servis var).</summary>
+    public bool ShowRecents => _settings.DockShowRecents && _recentFiles is not null;
+
+    [ObservableProperty]
+    private bool _isRecentsOpen;
+
+    public ObservableCollection<RecentFile> RecentFiles { get; } = [];
+
+    public bool HasRecentFiles => RecentFiles.Count > 0;
+
+    [RelayCommand]
+    private async Task ToggleRecentsAsync()
+    {
+        if (_recentFiles is null)
+            return;
+
+        if (IsRecentsOpen)
+        {
+            IsRecentsOpen = false;
+            return;
+        }
+
+        ClosePreviewNow();
+
+        IReadOnlyList<RecentFile> items;
+        try
+        {
+            items = await Task.Run(() => _recentFiles.GetRecent());
+        }
+        catch
+        {
+            items = [];
+        }
+
+        RecentFiles.Clear();
+        foreach (var item in items)
+            RecentFiles.Add(item);
+
+        OnPropertyChanged(nameof(HasRecentFiles));
+        IsRecentsOpen = true;
+    }
+
+    /// <summary>Listeden bir dosya seçildi: Windows ilişkili uygulamayla açar, liste kapanır.</summary>
+    public void OpenRecent(RecentFile file)
+    {
+        IsRecentsOpen = false;
+        _shellActionService.Launch(file.OpenPath);
+    }
+
+    partial void OnIsRecentsOpenChanged(bool value)
+    {
+        if (!value)
+        {
+            RecentFiles.Clear();
+            OnPropertyChanged(nameof(HasRecentFiles));
+        }
+
+        EvaluatePosition(_lastContentWidth);
+    }
 
     public ObservableCollection<TrayIconViewModel> TrayIcons { get; } = [];
 
@@ -172,9 +235,11 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         VisibilityController? visibilityController = null,
         DockStatusViewModel? status = null,
         IMediaService? mediaService = null,
-        ITrayService? trayService = null)
+        ITrayService? trayService = null,
+        IRecentFilesService? recentFiles = null)
     {
         _settings = settings;
+        _recentFiles = recentFiles;
         Status = status;
         _controller = controller;
         _shellActionService = shellActionService;
@@ -530,7 +595,7 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         if (contentWidth > 0)
             _lastContentWidth = contentWidth;
 
-        var effectiveMouseOver = _isMouseOverDock || _isMouseOverPopup || IsPreviewPopupOpen || IsTrayPopupOpen || DockContextMenuManager.HasActiveMenu;
+        var effectiveMouseOver = _isMouseOverDock || _isMouseOverPopup || IsPreviewPopupOpen || IsTrayPopupOpen || IsRecentsOpen || DockContextMenuManager.HasActiveMenu;
 
         var resolved = DockPositionResolver.Resolve(
             _currentMonitor,

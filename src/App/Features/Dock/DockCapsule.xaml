@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:res="clr-namespace:Koy.App.Resources"
              xmlns:local="clr-namespace:Koy.App.Features.Dock"
-             xmlns:tray="clr-namespace:Koy.App.Features.Dock.Tray">
+             xmlns:tray="clr-namespace:Koy.App.Features.Dock.Tray"
+             xmlns:recents="clr-namespace:Koy.App.Features.Dock.Recents">
 
     <!-- Seelen UI Yüzen Kapsül Tabanı: 60 px yükseklik (aşağı yapışınca 46 px), 18 px köşe yuvarlama (yapışınca 14,14,0,0) -->
     <Border Background="#E618181B"
@@ -318,6 +319,7 @@
             </StackPanel>
 
             <!-- 4b. Sistem Tepsisi: Windows görev çubuğu gizli olduğu için arka plan uygulamalarının simgeleri burada -->
+            <recents:RecentsButton/>
             <tray:TrayButton/>
 
             <!-- 5. Dikey Ayırıcı 2: 1×24 px, rgba(255,255,255,0.16) -->
