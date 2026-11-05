@@ -41,8 +41,9 @@ public sealed class NetworkService : INetworkService
             var hasInternet = profile.GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess;
             var bars = profile.GetSignalBars() ?? 0;
 
+            // ProfileName kablosuz ağın adıdır (SSID); konum izni gerektirmez.
             if (profile.IsWlanConnectionProfile)
-                return new NetworkStatus(NetworkKind.WiFi, hasInternet, bars);
+                return new NetworkStatus(NetworkKind.WiFi, hasInternet, bars, profile.ProfileName);
 
             if (profile.IsWwanConnectionProfile)
                 return new NetworkStatus(NetworkKind.Cellular, hasInternet, bars);

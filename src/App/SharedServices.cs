@@ -1,4 +1,5 @@
 using Koy.Platform.Media;
+using Koy.Platform.Network;
 using Koy.Platform.Radio;
 using Koy.Platform.Shell;
 
@@ -17,6 +18,8 @@ public sealed class SharedServices : IDisposable
     private int _mediaServiceUsers;
     private RadioService? _radioService;
     private int _radioServiceUsers;
+    private NetworkService? _networkService;
+    private int _networkServiceUsers;
     private TrayHostService? _trayHost;
     private int _trayHostUsers;
     private bool _disposed;
@@ -92,6 +95,29 @@ public sealed class SharedServices : IDisposable
     }
 
     /// <summary>
+    /// Ağ durumu servisi (olay tabanlı, yoklama yok). Her monitördeki çentik aynı örneği paylaşır; son kullanan
+    /// bıraktığında Dispose edilir ve Windows olay aboneliği kalkar.
+    /// </summary>
+    public NetworkService AcquireNetworkService()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _networkServiceUsers++;
+        return _networkService ??= new NetworkService();
+    }
+
+    public void ReleaseNetworkService()
+    {
+        if (_networkServiceUsers == 0)
+            return;
+
+        if (--_networkServiceUsers == 0)
+        {
+            _networkService?.Dispose();
+            _networkService = null;
+        }
+    }
+
+    /// <summary>
     /// Koy'un Shell_TrayWnd penceresi (sistem tepsisi barındırıcısı). Monitör başına ayrı pencere kurulmaz: bütün
     /// dock'lar aynı örneği paylaşır. Pencere kurulamazsa null döner (sayılmaz, bırakmaya gerek yok).
     /// </summary>
@@ -153,6 +179,9 @@ public sealed class SharedServices : IDisposable
         _mediaService = null;
         _radioService?.Dispose();
         _radioService = null;
+        _networkService?.Dispose();
+        _networkService = null;
+        _networkServiceUsers = 0;
         _trayHost?.Dispose();
         _trayHost = null;
         _trayHostUsers = 0;
