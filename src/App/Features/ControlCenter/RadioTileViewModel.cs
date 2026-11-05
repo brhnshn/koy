@@ -19,6 +19,10 @@ public sealed partial class RadioTileViewModel : ObservableObject
     [ObservableProperty]
     private bool _isUnavailable;
 
+    /// <summary>Kapalı çentikteki durum simgesi gösterilsin mi (radyo var ve durumu biliniyor).</summary>
+    [ObservableProperty]
+    private bool _isPresent;
+
     [ObservableProperty]
     private string _statusText = string.Empty;
 
@@ -37,6 +41,7 @@ public sealed partial class RadioTileViewModel : ObservableObject
         State = state;
         IsOn = state.IsOn;
         IsUnavailable = state.IsUnavailable;
+        IsPresent = state.IsPresent;
         StatusText = state.Status switch
         {
             RadioTileStatus.On => Strings.On,

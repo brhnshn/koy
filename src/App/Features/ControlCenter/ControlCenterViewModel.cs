@@ -65,20 +65,38 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
     }
 
+    /// <summary>
+    /// Kapalı çentikteki Wi-Fi / Bluetooth simgeleri için radyoları panel açılmadan izlemeye başlar.
+    /// Durum Radio.StateChanged olayıyla gelir; zamanlayıcı ya da yoklama yok.
+    /// </summary>
+    public void StartRadioStatus()
+    {
+        if (_disposed || _radioService is not null)
+            return;
+
+        EnsureRadioService();
+        _ = _radioService!.RefreshAsync();
+    }
+
+    private void EnsureRadioService()
+    {
+        if (_radioService is not null)
+            return;
+
+        _radioService = _radioFactory();
+        _radioService.StateChanged += OnRadioStateChanged;
+    }
+
     public void SetActive(bool active)
     {
         if (!active || _disposed)
             return;
 
-        if (_radioService is null)
-        {
-            _radioService = _radioFactory();
-            _radioService.StateChanged += OnRadioStateChanged;
-        }
+        EnsureRadioService();
 
         // Her açılışta yeniden taranır: USB Wi-Fi takılıp çıkarılmış ya da radyo izni ayarlardan
         // sonradan verilmiş olabilir. Yalnız tek seferlik sorgu; zamanlayıcı yok.
-        Observe(_radioService.RefreshAsync(), "ControlCenter radyo taraması");
+        Observe(_radioService!.RefreshAsync(), "ControlCenter radyo taraması");
 
         EnsureAudioService();
 

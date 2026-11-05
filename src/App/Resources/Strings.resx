@@ -870,4 +870,19 @@
   <data name="OpenInSettings" xml:space="preserve">
     <value>Open in Settings</value>
   </data>
+  <data name="TabMusic" xml:space="preserve">
+    <value>Music</value>
+  </data>
+  <data name="TabControlCenter" xml:space="preserve">
+    <value>Controls</value>
+  </data>
+  <data name="TabStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="TabCalendar" xml:space="preserve">
+    <value>Calendar</value>
+  </data>
+  <data name="TabShelf" xml:space="preserve">
+    <value>Shelf</value>
+  </data>
 </root>

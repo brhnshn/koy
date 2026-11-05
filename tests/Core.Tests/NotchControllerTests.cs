@@ -243,4 +243,36 @@ public class NotchControllerTests
         controller.Dispose();
         controller.Dispose(); // second call should be completely safe
     }
+
+    [Fact]
+    public void GoToPanel_SelectsPanelAndSlidesInPanelOrder()
+    {
+        using var controller = new NotchController();
+        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter, NotchPanel.Status, NotchPanel.Calendar]);
+        var directions = new List<int>();
+        controller.PanelTransitionTriggered += directions.Add;
+
+        controller.GoToPanel(NotchPanel.Status);
+        Assert.Equal(NotchPanel.Status, controller.CurrentPanel);
+
+        controller.GoToPanel(NotchPanel.ControlCenter);
+        Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
+
+        Assert.Equal([1, -1], directions);
+    }
+
+    [Fact]
+    public void GoToPanel_IgnoresCurrentAndDisabledPanels()
+    {
+        using var controller = new NotchController();
+        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter]);
+        var transitions = 0;
+        controller.PanelTransitionTriggered += _ => transitions++;
+
+        controller.GoToPanel(NotchPanel.Music);
+        controller.GoToPanel(NotchPanel.Shelf);
+
+        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(0, transitions);
+    }
 }

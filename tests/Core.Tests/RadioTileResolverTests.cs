@@ -95,4 +95,23 @@ public class RadioTileResolverTests
 
         Assert.Equal(RadioTileStatus.NotFound, tile.Status);
     }
+
+    [Theory]
+    [InlineData(RadioAccess.Allowed, RadioState.On, true)]
+    [InlineData(RadioAccess.Allowed, RadioState.Off, true)]
+    [InlineData(RadioAccess.Allowed, RadioState.Disabled, true)]
+    [InlineData(RadioAccess.Allowed, RadioState.NotPresent, false)]
+    [InlineData(RadioAccess.DeniedByUser, RadioState.On, false)]
+    [InlineData(RadioAccess.Unknown, RadioState.Unknown, false)]
+    public void IsPresent_ShowsNotchIconOnlyForKnownExistingRadio(RadioAccess access, RadioState state, bool expected)
+    {
+        // Çentikte simge yalnız radyo varsa çıkar; Bluetooth'suz kasada boş simge gösterilmez.
+        Assert.Equal(expected, RadioTileResolver.Resolve(access, state).IsPresent);
+    }
+
+    [Fact]
+    public void IsPresent_StaysTrueWhenToggleFailed()
+    {
+        Assert.True(RadioTileResolver.Resolve(RadioAccess.Allowed, RadioState.On, lastToggleFailed: true).IsPresent);
+    }
 }

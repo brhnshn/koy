@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -6,6 +7,7 @@ using Koy.App.Features.Calendar;
 using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Music;
 using Koy.App.Features.Notch.OSD;
+using Koy.App.Resources;
 using Koy.App.Features.Settings;
 using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
@@ -49,6 +51,12 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
 
     /// <summary>Müzik çalarken dalga simgesi gösterilsin mi.</summary>
     public bool ShowMusicWaveform => Settings.MusicShowWaveform;
+
+    /// <summary>Açık çentiğin üstündeki sekmeler; ayarlarda açık paneller, ayardaki sırayla.</summary>
+    public ObservableCollection<NotchTabViewModel> Tabs { get; } = [];
+
+    /// <summary>Kontrol paneli açıksa kapalı çentikte Wi-Fi / Bluetooth simgeleri gösterilir.</summary>
+    public bool ShowRadioStatus { get; }
 
     public ObservableObject CurrentPanelContent => CurrentPanel switch
     {
@@ -141,6 +149,14 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         Osd.CanShow = () => !_disposed && State != NotchState.Expanded;
         Osd.Activated += OnOsdActivated;
         Osd.Dismissed += OnOsdStateChanged;
+
+        foreach (var panel in _controller.EnabledPanels)
+            Tabs.Add(new NotchTabViewModel(panel, TabLabel(panel)) { IsSelected = panel == _controller.CurrentPanel });
+
+        // Windows tepsisi gizli olduğu için Wi-Fi ve Bluetooth'un durumunu gösteren tek yer çentik.
+        ShowRadioStatus = _controller.EnabledPanels.Contains(NotchPanel.ControlCenter);
+        if (ShowRadioStatus)
+            _controlCenter.StartRadioStatus();
 
         UpdateClock();
         UpdateBatteryState();
@@ -269,6 +285,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
 
     private void OnPanelChanged(object? sender, NotchPanel newPanel)
     {
+        foreach (var tab in Tabs)
+            tab.IsSelected = tab.Panel == newPanel;
+
         CurrentPanel = newPanel;
         OnPropertyChanged(nameof(CurrentPanelContent));
         UpdateTargetSize();
@@ -313,7 +332,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
             {
                 NotchState.Collapsed => (IsMusicPlaying ? 280 : 236, 34, 18),
                 NotchState.Peek => (300, 38, 20),
-                NotchState.Expanded => (420, CurrentPanel == NotchPanel.Music ? 112 : 140, 28),
+                // +30 DIP: üstteki sekme satırı. Sabit tuval 260 DIP olduğu için en yüksek panel de sığar.
+                NotchState.Expanded => (420, CurrentPanel == NotchPanel.Music ? 142 : 170, 28),
                 _ => (236, 34, 18)
             };
         }
@@ -331,6 +351,23 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private void NextPanel() => _controller.NextPanel();
+
+    [RelayCommand]
+    private void SelectTab(NotchPanel panel) => _controller.GoToPanel(panel);
+
+    /// <summary>Kapalı çentikteki Wi-Fi / Bluetooth simgesine tıklanınca çentik Kontrol sekmesinde açılır.</summary>
+    [RelayCommand]
+    private void OpenControlCenter() => _controller.Expand(NotchPanel.ControlCenter);
+
+    private static string TabLabel(NotchPanel panel) => panel switch
+    {
+        NotchPanel.Music => Strings.Get("TabMusic"),
+        NotchPanel.ControlCenter => Strings.Get("TabControlCenter"),
+        NotchPanel.Status => Strings.Get("TabStatus"),
+        NotchPanel.Calendar => Strings.Get("TabCalendar"),
+        NotchPanel.Shelf => Strings.Get("TabShelf"),
+        _ => panel.ToString()
+    };
 
     [RelayCommand]
     private void PreviousPanel() => _controller.PreviousPanel();
