@@ -51,9 +51,9 @@
             </Button.Template>
         </Button>
 
-        <!-- Tepsi penceresi: uygulamaların gerçek simgeleri; sol ve sağ tık uygulamaya iletilir. -->
+        <!-- Tepsi penceresi: uygulamaların gerçek simgeleri; sol ve sağ tık uygulamaya iletilir.
+             IsOpen koddan yönetilir: gizli dock biçimindeki düğmenin penceresi açılmasın. -->
         <Popup x:Name="TrayPopup"
-               IsOpen="{Binding IsTrayPopupOpen, Mode=TwoWay}"
                PlacementTarget="{Binding ElementName=TrayToggle}"
                Placement="Top"
                VerticalOffset="-6"

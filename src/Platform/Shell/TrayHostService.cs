@@ -34,13 +34,15 @@ public sealed class TrayHostService : ITrayService
     private const uint WmResync = 0x8000 + 0x4B; // WM_APP: başka bir iş parçacığından yeniden öne geçme isteği
 
     private const nuint ResyncTimerId = 1;
+    private const nuint CatchUpTimerId = 2;
     private const uint ResyncDelayMs = 1500;
+    private const uint CatchUpDelayMs = 2000;
     private const uint ForwardTimeoutMs = 2000;
 
     // Kendi "TaskbarCreated" yayınımız bize de gelir; bu süre içindekiler yok sayılır.
     private static readonly TimeSpan SelfBroadcastWindow = TimeSpan.FromSeconds(3);
-    // Öne geçmeyi kaybedince yeniden yayın; bütün uygulamalar simgelerini yeniden ekler, sık yapılmaz.
-    private static readonly TimeSpan MinResyncInterval = TimeSpan.FromSeconds(30);
+    // Yayın bütün uygulamalara simgelerini yeniden ekletir; Gezgin'le sıra kavgasında art arda yayın yapılmasın.
+    private static readonly TimeSpan MinResyncInterval = TimeSpan.FromSeconds(5);
 
     private readonly object _gate = new();
     private readonly TrayIconStore _store = new();
@@ -195,6 +197,11 @@ public sealed class TrayHostService : ITrayService
 
         BroadcastTaskbarCreated();
 
+        // Koy açılırken görev çubuğunu geri getirip hemen gizler; Gezgin buna tepki olarak kendi penceresini
+        // birkaç ms sonra yeniden öne alır ve ilk yayına cevap veren uygulamalar kaydı Windows'a yollar.
+        // Gezgin durulunca bir kez daha öne geçip yayın yapılır; kaçan kayıtlar böylece gelir.
+        PInvoke.SetTimer(_hwnd, CatchUpTimerId, CatchUpDelayMs, null);
+
         while (PInvoke.GetMessage(out var msg, HWND.Null, 0, 0) > 0)
         {
             PInvoke.TranslateMessage(msg);
@@ -276,13 +283,13 @@ public sealed class TrayHostService : ITrayService
                 case WmCopyData:
                     return OnCopyData(msg, wParam, lParam);
 
-                case WmTimer when wParam.Value == ResyncTimerId:
-                    PInvoke.KillTimer(hwnd, ResyncTimerId);
-                    Resync(force: true);
+                case WmTimer when wParam.Value is ResyncTimerId or CatchUpTimerId:
+                    PInvoke.KillTimer(hwnd, wParam.Value);
+                    Resync();
                     return default;
 
                 case WmResync:
-                    Resync(force: false);
+                    Resync();
                     return default;
 
                 case WmClose:
@@ -374,11 +381,23 @@ public sealed class TrayHostService : ITrayService
         return new LRESULT((nint)result);
     }
 
-    private void Resync(bool force)
+    /// <summary>
+    /// Öne geçer ve uygulamalardan simgelerini yeniden ister. Öne geçme kaybedildiyse arada gelen kayıtlar
+    /// Windows'a gitmiştir; yayın atlanmaz, yalnız son yayından kısa süre geçtiyse ertelenir.
+    /// </summary>
+    private void Resync()
     {
         MakeTopmost();
-        if (force || DateTime.UtcNow - _lastBroadcastUtc > MinResyncInterval)
+
+        var sinceLast = DateTime.UtcNow - _lastBroadcastUtc;
+        if (sinceLast >= MinResyncInterval)
+        {
             BroadcastTaskbarCreated();
+            return;
+        }
+
+        var wait = MinResyncInterval - sinceLast;
+        PInvoke.SetTimer(_hwnd, ResyncTimerId, (uint)Math.Ceiling(wait.TotalMilliseconds) + 50, null);
     }
 
     private void MakeTopmost()

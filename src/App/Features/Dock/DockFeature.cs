@@ -111,6 +111,8 @@ public sealed class DockFeature(AppSettings settings) : IFeature
 
         // Hide() sonrası Gezgin görev çubuğunu bir kez daha gösterebiliyor; açılışta hemen yakala.
         TaskbarService.EnsureHidden();
+        // Gezgin görev çubuğunu yeniden gösterip gizleyince kendi penceresini öne alabilir; tepsi geri alınır.
+        _trayService?.EnsureFirst();
         _controller.Start();
 
         UpdateEdgeTimer();
@@ -244,6 +246,8 @@ public sealed class DockFeature(AppSettings settings) : IFeature
 
         // Windows Explorer yeni monitör için ikincil görev çubuğu oluşturmuş olabilir (Shell_SecondaryTrayWnd)
         TaskbarService.EnsureHidden();
+        // Gezgin görev çubuğunu yeniden gösterip gizleyince kendi penceresini öne alabilir; tepsi geri alınır.
+        _trayService?.EnsureFirst();
         UpdateEdgeTimer();
     }
 
@@ -251,6 +255,8 @@ public sealed class DockFeature(AppSettings settings) : IFeature
     {
         // Bir pencere gösterildiğinde (görev çubuğu dahil) tetiklenir; görev çubuğu yeniden göründüyse gizle.
         TaskbarService.EnsureHidden();
+        // Gezgin görev çubuğunu yeniden gösterip gizleyince kendi penceresini öne alabilir; tepsi geri alınır.
+        _trayService?.EnsureFirst();
 
         if (_windowTracker?.CurrentForeground is { } fg && fg.Handle != 0)
         {
