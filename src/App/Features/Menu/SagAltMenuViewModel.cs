@@ -47,6 +47,10 @@ public sealed partial class SagAltMenuViewModel : ObservableObject
         NotchEnabled = settings.NotchEnabled;
         DockEnabled = settings.DockEnabled;
 
+        // Duraklatma süresi dolunca uygulama kendiliğinden devam eder; menü gerçek durumu göstermeli.
+        if (Application.Current is Koy.App.App app)
+            IsPaused = app.IsPaused;
+
         try
         {
             using var monitorService = new MonitorService();

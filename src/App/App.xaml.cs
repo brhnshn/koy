@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Koy.App.Features;
 using Koy.App.Features.Dock;
 using Koy.App.Features.Menu;
@@ -39,6 +40,12 @@ public partial class App : Application
     private readonly List<IFeature> _features = [];
     private TrayIconManager? _trayIconManager;
     private readonly SharedServices _services = new();
+
+    private static readonly TimeSpan PauseDuration = TimeSpan.FromHours(1);
+    private DispatcherTimer? _pauseTimer;
+
+    /// <summary>"1 saat duraklat" etkin mi: çentik ve dock kapalı, Windows görev çubuğu geri gelmiş durumda.</summary>
+    public bool IsPaused { get; private set; }
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -148,6 +155,9 @@ public partial class App : Application
 
     public void UpdateNotchState(bool enabled)
     {
+        if (IsPaused)
+            return;
+
         var existingNotch = _features.OfType<NotchFeature>().FirstOrDefault();
         if (enabled && existingNotch is null)
         {
@@ -165,6 +175,9 @@ public partial class App : Application
 
     public void UpdateDockState(bool enabled)
     {
+        if (IsPaused)
+            return;
+
         var existingDock = _features.OfType<DockFeature>().FirstOrDefault();
         if (enabled && existingDock is null)
         {
@@ -184,6 +197,9 @@ public partial class App : Application
     /// <summary>Çalışan dock'u durdurur, ayarlar açıksa yeni ayarlarla yeniden başlatır.</summary>
     public void ReloadDock()
     {
+        if (IsPaused)
+            return;
+
         var existingDock = _features.OfType<DockFeature>().FirstOrDefault();
         if (existingDock is not null)
         {
@@ -203,6 +219,9 @@ public partial class App : Application
     /// <summary>Çalışan çentiği durdurur, ayarlar açıksa yeni ayarlarla yeniden başlatır.</summary>
     public void ReloadNotch()
     {
+        if (IsPaused)
+            return;
+
         var existingNotch = _features.OfType<NotchFeature>().FirstOrDefault();
         if (existingNotch is not null)
         {
@@ -217,6 +236,43 @@ public partial class App : Application
             _features.Add(notch);
             notch.Start();
         }
+    }
+
+    /// <summary>
+    /// Duraklat: çentik ve dock durdurulur (dock Stop ile görev çubuğunu geri getirir), tepsi simgesi kalır.
+    /// Bir saat sonra ya da tekrar basılınca özellikler diskteki ayarlara göre yeniden başlar.
+    /// Ayar dosyasına dokunulmaz; duraklatma yalnız bu oturum için geçerlidir.
+    /// </summary>
+    public void SetPaused(bool paused)
+    {
+        if (IsPaused == paused)
+            return;
+
+        if (paused)
+        {
+            foreach (var feature in _features)
+                feature.Stop();
+            _features.Clear();
+            SafeRestoreTaskbar();
+
+            IsPaused = true;
+            _pauseTimer ??= new DispatcherTimer { Interval = PauseDuration };
+            _pauseTimer.Tick -= OnPauseTimerTick;
+            _pauseTimer.Tick += OnPauseTimerTick;
+            _pauseTimer.Stop();
+            _pauseTimer.Start();
+        }
+        else
+        {
+            IsPaused = false;
+            _pauseTimer?.Stop();
+            ReloadAllFeatures();
+        }
+    }
+
+    private void OnPauseTimerTick(object? sender, EventArgs e)
+    {
+        CrashLog.Guard("Duraklatma sona erdi", () => SetPaused(false));
     }
 
     /// <summary>Ayarlar sıfırlandığında iki özelliği de diskteki ayarlara göre yeniden kurar.</summary>

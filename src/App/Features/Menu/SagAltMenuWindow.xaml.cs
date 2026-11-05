@@ -24,6 +24,7 @@ public partial class SagAltMenuWindow : Window
         ViewModel.RequestOpenKoyWindow += OnOpenKoyWindow;
         ViewModel.NotchToggled += OnNotchToggled;
         ViewModel.DockToggled += OnDockToggled;
+        ViewModel.PauseToggled += OnPauseToggled;
 
         Loaded += OnLoaded;
     }
@@ -194,6 +195,14 @@ public partial class SagAltMenuWindow : Window
         if (Application.Current is App app)
         {
             app.UpdateDockState(enabled);
+        }
+    }
+
+    private static void OnPauseToggled(bool paused)
+    {
+        if (Application.Current is App app)
+        {
+            app.SetPaused(paused);
         }
     }
 
