@@ -36,7 +36,7 @@ public enum DockProximityMode
 public enum DockStyleMode
 {
     /// <summary>
-    /// Seelen UI Yüzen Kapsül (Varsayılan): 60 px yükseklik, alttan 10 px boşluk, 18 px köşe yuvarlama.
+    /// Yüzen kapsül (varsayılan): 60 px yükseklik, alttan 10 px boşluk, 18 px köşe yuvarlama.
     /// </summary>
     FloatingCapsule,
 

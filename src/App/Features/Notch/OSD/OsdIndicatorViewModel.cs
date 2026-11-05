@@ -56,7 +56,7 @@ public sealed partial class OsdIndicatorViewModel : ObservableObject, IDisposabl
     }
 
     /// <summary>
-    /// Ses seviyesi ve sessize alma durumunu gösterir (PROJECT.md OSD kontratı).
+    /// Ses seviyesi ve sessize alma durumunu gösterir.
     /// </summary>
     public void ShowVolume(float volume, bool isMuted)
     {
@@ -75,7 +75,7 @@ public sealed partial class OsdIndicatorViewModel : ObservableObject, IDisposabl
     }
 
     /// <summary>
-    /// Ekran parlaklık seviyesini gösterir (PROJECT.md OSD kontratı).
+    /// Ekran parlaklık seviyesini gösterir.
     /// </summary>
     public void ShowBrightness(int brightness)
     {
