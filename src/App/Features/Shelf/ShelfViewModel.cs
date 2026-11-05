@@ -69,8 +69,6 @@ public sealed partial class ShelfViewModel : ObservableObject, IDisposable
         }
     }
 
-    public void AddFiles(string[] filePaths) => AddFiles((IEnumerable<string>)filePaths);
-
     public void AddFiles(IEnumerable<string> filePaths)
     {
         foreach (var file in filePaths)
