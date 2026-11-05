@@ -26,9 +26,10 @@ public static class Program
     public static void Main(string[] args)
     {
         // Velopack kurulum ve güncelleme kancaları: kaldırma ve güncelleme sürecin ölmesiyle biter,
-        // OnExit çalışmayabilir; görev çubuğu bu kancalarda mutlaka geri getirilir (hata verse bile süreç düşmesin).
+        // OnExit çalışmayabilir; görev çubuğu bu kancalarda mutlaka geri getirilir. Kaldırma kancası ayrıca
+        // başlatma kaydını ve durum dosyalarını siler (30 sn sınırı, onay yok; ayarlara dokunmaz). (hata verse bile süreç düşmesin).
         VelopackApp.Build()
-            .OnBeforeUninstallFastCallback(_ => App.SafeRestoreTaskbar())
+            .OnBeforeUninstallFastCallback(_ => AppUninstaller.OnBeforeUninstallHook())
             .OnBeforeUpdateFastCallback(_ => App.SafeRestoreTaskbar())
             .OnAfterUpdateFastCallback(_ => App.SafeRestoreTaskbar())
             .Run();

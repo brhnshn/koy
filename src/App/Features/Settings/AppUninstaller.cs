@@ -88,4 +88,21 @@ internal static class AppUninstaller
         if (InProgress)
             UninstallCleaner.Run(RoamingDir, LocalDir, keepSettings: !_deleteSettings);
     }
+
+    /// <summary>
+    /// Velopack "kaldırmadan önce" kancası (Windows'un Yüklü uygulamalar'ı ya da uygulama içi kaldırma).
+    /// Onay ekranı yok: 30 sn sınırlı, iptal edilemez. Görev çubuğu geri gelir, otomatik başlatma kaydı silinir,
+    /// durum ve tanı dosyaları gider; ayarlar silinmez (<see cref="UninstallPlan.KeepSettingsOnExternalUninstall"/>).
+    /// Her adım ayrı korunur: biri patlasa diğerleri çalışır.
+    /// </summary>
+    public static void OnBeforeUninstallHook()
+    {
+        App.SafeRestoreTaskbar();
+
+        try { StartupService.SetEnabled(false); }
+        catch (Exception ex) { CrashLog.Write("Kaldırma kancası: başlatma kaydı silinemedi", ex); }
+
+        try { UninstallCleaner.Run(RoamingDir, LocalDir, UninstallPlan.KeepSettingsOnExternalUninstall); }
+        catch (Exception ex) { CrashLog.Write("Kaldırma kancası: dosyalar silinemedi", ex); }
+    }
 }
