@@ -249,6 +249,8 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockIconSize = s.DockIconSize > 0 ? s.DockIconSize : 28.0;
             DockIndicatorStyle = s.DockIndicatorStyle;
 
+            NotchHideInFullscreen = s.NotchHideInFullscreen;
+            MusicShowWaveform = s.MusicShowWaveform;
             IdleDisplayMode = s.IdleDisplayMode;
             NotchOpenBehavior = s.NotchOpenBehavior;
 
@@ -340,7 +342,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         {
             appReload.ReloadDock();
         }
-        else if (e.PropertyName is (nameof(NotchVisibility) or nameof(PanelMusic) or nameof(PanelCalendar) or nameof(PanelShelf) or nameof(PanelControlCenter) or nameof(PanelStatus)) && Application.Current is App appReloadNotch)
+        else if (e.PropertyName is (nameof(NotchVisibility) or nameof(NotchHideInFullscreen) or nameof(MusicShowWaveform) or nameof(IdleDisplayMode) or nameof(NotchOpenBehavior) or nameof(WheelAction) or nameof(PanelMusic) or nameof(PanelCalendar) or nameof(PanelShelf) or nameof(PanelControlCenter) or nameof(PanelStatus)) && Application.Current is App appReloadNotch)
         {
             appReloadNotch.ReloadNotch();
         }
@@ -399,6 +401,8 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockDodgeDelayMs = DockDodgeDelayMs,
             DockIconSize = DockIconSize,
             DockIndicatorStyle = DockIndicatorStyle,
+            NotchHideInFullscreen = NotchHideInFullscreen,
+            MusicShowWaveform = MusicShowWaveform,
             IdleDisplayMode = IdleDisplayMode,
             NotchOpenBehavior = NotchOpenBehavior,
             Theme = Theme,

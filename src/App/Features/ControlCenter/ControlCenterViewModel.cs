@@ -74,14 +74,11 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
         IsDoNotDisturbOn = _focusAssistService.IsActive;
 
-        if (_audioService is not null)
-            return;
+        EnsureAudioService();
 
-        _audioService = _audioFactory();
-        _audioService.StateChanged += OnAudioStateChanged;
-        Volume = _audioService.Volume;
-        VolumePercent = (int)Math.Round(Volume * 100);
-        IsMuted = _audioService.IsMuted;
+        // Ses tekerlekle önceden kurulmuş olabilir; radyo ve parlaklık yine de ilk açılışta başlar.
+        if (_radioService is not null)
+            return;
 
         // Radyo durumu StartAsync bitince StateChanged ile gelir.
         _radioService = _radioFactory();
@@ -89,6 +86,29 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         _ = _radioService.StartAsync();
 
         _ = InitializeBrightnessAsync();
+    }
+
+    private void EnsureAudioService()
+    {
+        if (_audioService is not null || _disposed)
+            return;
+
+        _audioService = _audioFactory();
+        _audioService.StateChanged += OnAudioStateChanged;
+        Volume = _audioService.Volume;
+        VolumePercent = (int)Math.Round(Volume * 100);
+        IsMuted = _audioService.IsMuted;
+    }
+
+    /// <summary>Çentik tekerlek eylemi "Ses" iken: panel açılmadan sistem sesini yüzde olarak artırır ya da azaltır.</summary>
+    public void AdjustVolume(int deltaPercent)
+    {
+        EnsureAudioService();
+        if (_audioService is null)
+            return;
+
+        var current = (int)Math.Round(_audioService.Volume * 100);
+        OnVolumeSliderChanged(Math.Clamp(current + deltaPercent, 0, 100));
     }
 
     private async Task InitializeBrightnessAsync()

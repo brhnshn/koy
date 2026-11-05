@@ -38,6 +38,15 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public VisibilityController Visibility => _visibility;
     public OsdIndicatorViewModel Osd { get; }
 
+    /// <summary>Boşta saat gösterilsin mi (ayar: Saat ve pil / Yalnız saat / Hiçbiri).</summary>
+    public bool ShowIdleClock => IdleDisplay.ShowClock(Settings.IdleDisplayMode);
+
+    /// <summary>Boşta pil gösterilsin mi.</summary>
+    public bool ShowIdleBattery => IdleDisplay.ShowBattery(Settings.IdleDisplayMode);
+
+    /// <summary>Müzik çalarken dalga simgesi gösterilsin mi.</summary>
+    public bool ShowMusicWaveform => Settings.MusicShowWaveform;
+
     public ObservableObject CurrentPanelContent => CurrentPanel switch
     {
         NotchPanel.Music => Music,

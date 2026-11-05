@@ -106,8 +106,12 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     {
         var controller = new NotchController();
         controller.SetEnabledPanels(ParseEnabledPanels(settings.EnabledPanels));
+        controller.OpenOnHover = settings.NotchOpenBehavior == 0;
 
-        var visibilityController = new VisibilityController(settings.NotchVisibility);
+        var visibilityController = new VisibilityController(settings.NotchVisibility)
+        {
+            HideInFullscreen = settings.NotchHideInFullscreen
+        };
 
         var musicVm = new MusicViewModel(_mediaService!);
         var controlCenterVm = new ControlCenterViewModel(
@@ -242,7 +246,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             state.VisibilityController.SetFullscreen(isFullscreen);
             state.VisibilityController.UpdateForegroundWindow(info.Handle, info.Bounds);
 
-            if (!isFullscreen && state.Hwnd != 0 && info.Handle != state.Hwnd)
+            // Tam ekranda gizlenmiyorsa (ayar kapalı) çentik tam ekran pencerenin üstünde kalmaya çalışır.
+            if ((!isFullscreen || !settings.NotchHideInFullscreen) && state.Hwnd != 0 && info.Handle != state.Hwnd)
             {
                 if (!FullscreenDetector.IsScreenClippingHost(info.Handle))
                 {

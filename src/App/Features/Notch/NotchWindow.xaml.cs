@@ -23,6 +23,8 @@ public partial class NotchWindow : Window
     private bool _isNotchVisible = true;
     private nint _hwnd;
 
+    private const int WheelVolumeStepPercent = 2;
+
     private NotchViewModel? ViewModel => DataContext as NotchViewModel;
 
     private DisplayMonitor? _targetMonitor;
@@ -165,10 +167,17 @@ public partial class NotchWindow : Window
         if (ViewModel is null)
             return;
 
-        if (e.Delta < 0)
+        // Tekerlek eylemi ayardan: 0 = panel değiştir, 1 = sistem sesi (yukarı = yükselt).
+        if (ViewModel.Settings.WheelAction == 1)
+        {
+            if (e.Delta != 0)
+                ViewModel.ControlCenter.AdjustVolume(e.Delta > 0 ? WheelVolumeStepPercent : -WheelVolumeStepPercent);
+        }
+        else if (e.Delta < 0)
             ViewModel.NextPanelCommand.Execute(null);
         else if (e.Delta > 0)
             ViewModel.PreviousPanelCommand.Execute(null);
+        e.Handled = true;
     }
 
     private void Notch_DragEnter(object sender, DragEventArgs e)

@@ -74,6 +74,10 @@ public sealed record AppSettings
     public string ShortcutToggleDock { get; set; } = "Ctrl+Alt+D";
     public string ShortcutOpenMenu { get; set; } = "Ctrl+Alt+K";
     public string ShortcutPlayPause { get; set; } = "Ctrl+Alt+Space";
+    /// <summary>Müzik çalarken çentikte dalga simgesi görünsün.</summary>
+    public bool MusicShowWaveform { get; set; } = true;
+    /// <summary>Tam ekran uygulama ya da oyun varken çentik gizlensin.</summary>
+    public bool NotchHideInFullscreen { get; set; } = true;
 
     public List<string> ControlCenterLayout { get; set; } = ["wifi", "bluetooth", "donotdisturb"];
     public List<string> EnabledPanels { get; set; } = ["music", "controlcenter", "status", "calendar", "shelf"];
@@ -128,6 +132,8 @@ public sealed record AppSettings
                ShortcutToggleDock == other.ShortcutToggleDock &&
                ShortcutOpenMenu == other.ShortcutOpenMenu &&
                ShortcutPlayPause == other.ShortcutPlayPause &&
+               MusicShowWaveform == other.MusicShowWaveform &&
+               NotchHideInFullscreen == other.NotchHideInFullscreen &&
                WeatherLatitude.Equals(other.WeatherLatitude) &&
                WeatherLongitude.Equals(other.WeatherLongitude) &&
                WeatherCity == other.WeatherCity &&
@@ -181,6 +187,8 @@ public sealed record AppSettings
         hash.Add(ShortcutToggleDock);
         hash.Add(ShortcutOpenMenu);
         hash.Add(ShortcutPlayPause);
+        hash.Add(MusicShowWaveform);
+        hash.Add(NotchHideInFullscreen);
         hash.Add(WeatherLatitude);
         hash.Add(WeatherLongitude);
         hash.Add(WeatherCity);
