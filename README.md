@@ -112,7 +112,7 @@ Dürüst durum: aşağıdakiler henüz yok ya da doğrulanmadı.
 git clone https://github.com/brhnshn/koy.git
 cd koy
 
-# 2. Derleyin ve birim testlerini çalıştırın (482 test)
+# 2. Derleyin ve birim testlerini çalıştırın (505 test)
 dotnet build Koy.slnx -c Release -warnaserror
 dotnet test Koy.slnx -c Release
 
@@ -161,7 +161,7 @@ koy/
 │   ├── Platform/      # Windows 11 API uygulamaları (CsWin32 NativeMethods.txt & WinRT). WPF YOK.
 │   └── App/           # WPF arayüzü, ince ViewModel'ler, 8 sayfalı KoyWindow, vektör ikonlar ve .resx dil dosyaları.
 ├── tests/
-│   └── Core.Tests/    # xUnit birim testleri (482 test: Spring, NotchController, DockPositionResolver, Pomodoro, kısayollar, ekran yerleşimi, kaldırma vb.).
+│   └── Core.Tests/    # xUnit birim testleri (505 test: Spring, NotchController, DockPositionResolver, Pomodoro, kısayollar, ekran yerleşimi, kaldırma vb.).
 ├── tools/
 │   └── Koy.UiSnapshots/ # Arayüzü ekrana çıkarmadan PNG'ye çizen yardımcı (görsel doğrulama).
 ├── assets/branding/   # Koy Rozeti (Konsept C) vektör SVG, PNG ve çok katmanlı ICO marka varlıkları.
