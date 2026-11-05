@@ -50,8 +50,8 @@ Ekranın üst ortasında (`Top = 0`), içbükey (*concave*) üst kulaklara sahip
   - **Müzik:** `GlobalSystemMediaTransportControls` ile Spotify, YouTube (Edge/Chrome/Firefox) ve medya oynatıcılar için kapak resmi, şarkı/sanatçı bilgisi, interaktif zaman çubuğu (`Seek`) ve çoklu oturum geçişi.
   - **Takvim & Pomodoro:** Pazartesi başlangıçlı ay görünümü ve çalışma/kısa mola/uzun mola durum makineli **Pomodoro** sayacı (süre bitiminde yay titreşimli Peek bildirimi).
   - **Raf (Shelf):** Dosya veya metinleri çentiğe sürükleyip bırakma (`%AppData%\Koy\shelf.json`). Bir dosyayı çentiğin üzerine sürüklediğinizde çentik kendiliğinden açılır ve Raf sekmesine geçer.
-  - **Kontrol Merkezi:** CoreAudio ses seviyesi, WMI (dahili) ve DDC/CI (harici monitör) donanım parlaklık kaydırıcıları, Wi-Fi ve Bluetooth radyo anahtarları, Rahatsız Etme durumu.
-  - **Durum:** Pil yüzdesi, şarj durumu ve API anahtarsız **Open-Meteo** hava durumu (30 dk önbellekli).
+  - **Kontrol Merkezi:** CoreAudio ses seviyesi, WMI (dahili) ve DDC/CI (harici monitör) donanım parlaklık kaydırıcıları, Rahatsız Etme durumu ve gerçekten açıp kapatan Wi-Fi ve Bluetooth anahtarları (radyo yoksa, kapalıysa ya da Windows izin vermiyorsa döşeme bunu söyler ve Windows ayarlarını açar).
+  - **Durum:** Pil yüzdesi (pili olmayan masaüstü bilgisayarlarda boşta çentikteki gösterge gizlenir), şarj durumu ve API anahtarsız **Open-Meteo** hava durumu (30 dk önbellekli).
 
 ### 2. Akıllı Masaüstü Dock'u (Smart Desktop Dock)
 Windows görev çubuğunun sıradan bir kopyası değildir; saat, pil ve ağ göstergelerini çentiğe devrederek yalnızca uygulama ve pencere yönetimine odaklanır:
@@ -63,7 +63,7 @@ Windows görev çubuğunun sıradan bir kopyası değildir; saat, pil ve ağ gö
   - **Çekil / Akıllı Gizlenme (`Dodge`):** Pencere yaklaştığında veya büyütüldüğünde dock ekranın altına çekilir; fare alt kenara indiğinde geri gelir.
   - **Yer Ayır (`ReserveSpace`):** `SHAppBarMessage` ile çalışma alanından 46 px yer ayırır; büyütülmüş pencereler tam dock'un üstünde biter.
   - **Hep Gizli (`AlwaysHidden`):** Yalnızca fare ekranın alt kenarına geldiğinde görünür.
-- **Canlı DWM Pencere Önizlemesi:** Simgenin üzerinde 400 ms durulduğunda `DwmRegisterThumbnail` ile gerçek zamanlı pencere önizlemesi.
+- **Canlı DWM Pencere Önizlemesi:** Simgenin üzerinde 400 ms durulduğunda `DwmRegisterThumbnail` ile gerçek zamanlı pencere önizlemesi (üst düzey pencereye kaydedilir; kayıt başarısız olursa bir sonraki düzende yeniden denenir).
 - **Z-Order Kararlılığı:** Alt+Tab ile pencereler arasında geçiş yaparken sabitlenmemiş açık uygulama simgelerinin sırası zıplamaz (`_stableUnpinnedOrder`).
 
 ### 3. Çoklu Ekran (Multi-Monitor) İzolasyonu
@@ -112,7 +112,7 @@ Dürüst durum: aşağıdakiler henüz yok ya da doğrulanmadı.
 git clone https://github.com/brhnshn/koy.git
 cd koy
 
-# 2. Derleyin ve birim testlerini çalıştırın (460 test)
+# 2. Derleyin ve birim testlerini çalıştırın (482 test)
 dotnet build Koy.slnx -c Release -warnaserror
 dotnet test Koy.slnx -c Release
 
@@ -161,7 +161,7 @@ koy/
 │   ├── Platform/      # Windows 11 API uygulamaları (CsWin32 NativeMethods.txt & WinRT). WPF YOK.
 │   └── App/           # WPF arayüzü, ince ViewModel'ler, 8 sayfalı KoyWindow, vektör ikonlar ve .resx dil dosyaları.
 ├── tests/
-│   └── Core.Tests/    # xUnit birim testleri (460 test: Spring, NotchController, DockPositionResolver, Pomodoro, kısayollar, ekran yerleşimi, kaldırma vb.).
+│   └── Core.Tests/    # xUnit birim testleri (482 test: Spring, NotchController, DockPositionResolver, Pomodoro, kısayollar, ekran yerleşimi, kaldırma vb.).
 ├── tools/
 │   └── Koy.UiSnapshots/ # Arayüzü ekrana çıkarmadan PNG'ye çizen yardımcı (görsel doğrulama).
 ├── assets/branding/   # Koy Rozeti (Konsept C) vektör SVG, PNG ve çok katmanlı ICO marka varlıkları.
