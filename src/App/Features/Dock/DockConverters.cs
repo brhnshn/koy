@@ -10,8 +10,6 @@ public static class DockConverters
     public static readonly IValueConverter InverseBoolToVisibilityConverter = new InverseBoolToVisibilityConverterImpl();
     public static readonly IValueConverter NullToVisibleConverter = new SimpleNullToVisibleConverter();
     public static readonly IValueConverter NotNullToVisibleConverter = new NotNullToVisibleConverterImpl();
-    public static readonly IValueConverter SingleWindowVisibilityConverter = new SingleWindowVisibilityConverterImpl();
-    public static readonly IValueConverter MultiWindowVisibilityConverter = new MultiWindowVisibilityConverterImpl();
     public static readonly IValueConverter InverseBoolConverter = new InverseBoolConverterImpl();
 
     private sealed class InverseBoolConverterImpl : IValueConverter
@@ -54,24 +52,6 @@ public static class DockConverters
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
             value is not null ? Visibility.Visible : Visibility.Collapsed;
-
-        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-            throw new NotSupportedException();
-    }
-
-    private sealed class SingleWindowVisibilityConverterImpl : IValueConverter
-    {
-        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-            value is int count && count == 1 ? Visibility.Visible : Visibility.Collapsed;
-
-        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-            throw new NotSupportedException();
-    }
-
-    private sealed class MultiWindowVisibilityConverterImpl : IValueConverter
-    {
-        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-            value is int count && count > 1 ? Visibility.Visible : Visibility.Collapsed;
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
             throw new NotSupportedException();

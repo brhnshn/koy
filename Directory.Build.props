@@ -14,4 +14,15 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
   </PropertyGroup>
+
+  <!-- Tekrarlanabilir derleme: PDB ve assembly içine yerel dizin yolu (C:\Users\...) gömülmesin. -->
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <!-- SourceLink eşlemesindeki yerel kök dizin de /_/ olarak yazılsın (yerel derlemede de). -->
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+    <PathMap>$(MSBuildThisFileDirectory)=/_/</PathMap>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' or '$(CI)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
 </Project>

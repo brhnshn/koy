@@ -20,7 +20,7 @@ namespace Koy.App.Features.Dock;
 
 /// <summary>
 /// Dock penceresi için ana ViewModel.
-/// Seelen UI Yüzen Kapsül ve Tam Genişlik modlarını, yakınlık davranışlarını (DockDown, ReserveSpace, Dodge, AlwaysHidden)
+/// Yüzen kapsül ve tam genişlik modlarını, yakınlık davranışlarını (DockDown, ReserveSpace, Dodge, AlwaysHidden)
 /// ve 400 ms DWM pencere küçük resim önizlemesini yönetir.
 /// </summary>
 public sealed partial class DockViewModel : ObservableObject, IDisposable
@@ -65,7 +65,7 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _accentColor;
 
-    // Seelen UI & M6.3 Mod Özellikleri
+    // Düzen ve yakınlık modu durumu
     [ObservableProperty]
     private bool _isFullWidthMode;
 

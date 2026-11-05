@@ -18,10 +18,3 @@
 | **Perch** | "Tünek": ekranın tepesine tünemiş | Sevimli, simgesi kolay (kuş) | Biraz uzun okunuş |
 | **Tepe** | Türkçe "tepe": en üstte | Çok kısa, Türkçe | İngilizcede anlamsız |
 | **Ridge** | "Sırt, çıkıntı" | Sade, teknik | Sık kullanılan bir kelime |
-
-**Önerim:** **Ada** ya da **Brim**. Ada hem Türkçe hem de "island" fikrini taşıyor; Brim ise İngilizce kitle için daha net.
-
-## Seçmeden önce kontrol
-- [ ] GitHub'da aynı adlı popüler bir Windows aracı var mı?
-- [ ] Microsoft Store ve winget'te aynı ad kullanılıyor mu?
-- [ ] Alan adı (ör. `<ad>.app`) ya da GitHub kullanıcı adı boşta mı (isteğe bağlı)?

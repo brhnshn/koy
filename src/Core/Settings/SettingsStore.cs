@@ -11,7 +11,7 @@ public sealed class SettingsStore(string path)
 
     public string Path { get; } = path;
 
-    /// <summary>Dosya yoksa ya da bozuksa varsayılan ayarları döner; uygulama ayar yüzünden açılmamazlık etmez.</summary>
+    /// <summary>Dosya yoksa ya da JSON'u bozuksa varsayılan ayarları döner. Okuma sırasındaki G/Ç hataları (kilitli dosya vb.) yakalanmaz.</summary>
     public AppSettings Load()
     {
         AppSettings? settings = null;

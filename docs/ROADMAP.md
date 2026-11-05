@@ -66,30 +66,30 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 
 ---
 
-## M2 — Kontrol Merkezi + Durum ✅ (2026-11-04)
+## M2 — Kontrol Merkezi + Durum (2026-11-04, kısmen tamamlandı)
 - [x] Sözleşmeler: `Core/Audio/IAudioService.cs`, `Core/Radio/IRadioService.cs`, `Core/Display/IBrightnessService.cs`, `Core/Power/IPowerService.cs`, `Core/Weather/IWeatherService.cs` (+ modeller).
 - [x] `Platform/Audio/AudioService.cs`: CoreAudio `IMMDeviceEnumerator` → `IAudioEndpointVolume` (seviye, sessiz, değişim bildirimi `IAudioEndpointVolumeCallback`). CsWin32 ile COM.
 - [x] `Platform/Radio/RadioService.cs`: `Windows.Devices.Radios.Radio.GetRadiosAsync()` — Wi-Fi ve Bluetooth aç/kapa. İlk çağrıda `RequestAccessAsync()`.
 - [x] `Platform/Display/BrightnessService.cs`: dahili ekran WMI `WmiMonitorBrightness` / `WmiMonitorBrightnessMethods`; harici ekran DDC/CI (`GetPhysicalMonitorsFromHMONITOR`, `SetVCPFeature` kod 0x10). Desteklenmiyorsa kaydırıcı gizlenir.
 - [x] `Platform/Shell/FocusAssistService.cs`: Rahatsız Etme durumu (okuma); açma/kapama için resmi API yoksa yalnız Windows ayarını açan kısayol.
 - [x] `Platform/Power/PowerService.cs`: `Windows.System.Power.PowerManager` (pil yüzdesi, şarj); pil yoksa panelde gizle.
-- [x] `Platform/Weather/WeatherService.cs`: Open-Meteo (`https://api.open-meteo.com/v1/forecast?latitude=..&longitude=..&current=temperature_2m,weather_code`). Konum: ayarlardan şehir (Open-Meteo geocoding API) — konum izni isteme. 30 dk önbellek, `HttpClient` tek örnek.
+- [ ] `Platform/Weather/WeatherService.cs`: Open-Meteo (`https://api.open-meteo.com/v1/forecast?latitude=..&longitude=..&current=temperature_2m,weather_code`). Konum: ayarlardan şehir (Open-Meteo geocoding API) — konum izni isteme. 30 dk önbellek, `HttpClient` tek örnek. **Kısmi:** servis, önbellek ve gösterim var; konum sabit (İstanbul), şehir seçimi ve geocoding yok.
 - [x] `App/Features/ControlCenter/ControlCenterPanel.xaml` + ViewModel: döşemeler (Wi-Fi, BT, Rahatsız Etme), kaydırıcılar (ses, parlaklık).
-- [x] Döşeme düzenini sürükleyerek değiştirme: düzen `AppSettings.ControlCenterLayout` (liste) olarak saklanır.
+- [ ] Döşeme düzenini sürükleyerek değiştirme: düzen `AppSettings.ControlCenterLayout` (liste) olarak saklanır. **Kısmi:** ayar alanı var, ama hiçbir yerde okunmuyor ve sürükleme yok.
 - [x] `App/Features/Status/StatusPanel.xaml` + ViewModel: pil, hava durumu, saat.
 - [x] Kabul: her kontrol gerçek donanımda denendi; bellek ölçüldü (40.9 MB < 60 MB bütçe).
 
 ---
 
-## M3 — Takvim, Pomodoro, Raf, Ayarlar, Dil ✅ (2026-11-04)
+## M3 — Takvim, Pomodoro, Raf, Ayarlar, Dil (2026-11-04, kısmen tamamlandı)
 - [x] `Core/Calendar/MonthGrid.cs`: ay görünümü için gün ızgarası (Pazartesi başlangıçlı, kültüre göre). Testli.
-- [x] `Core/Timers/Pomodoro.cs`: durum makinesi (çalışma / kısa mola / uzun mola), süreler ayardan. Testli; zaman `TimeProvider` ile verilir ki test edilebilsin.
-- [x] `App/Features/Calendar/CalendarPanel.xaml`: gün / hafta / ay, zamanlayıcı, kronometre, Pomodoro. Yalnız yerel; Google/Outlook sonraki sürüm.
+- [ ] `Core/Timers/Pomodoro.cs`: durum makinesi (çalışma / kısa mola / uzun mola), süreler ayardan. Testli; zaman `TimeProvider` ile verilir ki test edilebilsin. **Kısmi:** makine ve testler var; süreler ayardan gelmiyor, 25/5/15 dk sabit.
+- [ ] `App/Features/Calendar/CalendarPanel.xaml`: gün / hafta / ay, zamanlayıcı, kronometre, Pomodoro. Yalnız yerel; Google/Outlook sonraki sürüm. **Kısmi:** yalnız ay görünümü ve Pomodoro var; gün/hafta görünümü, serbest geri sayım zamanlayıcısı ve kronometre yok.
 - [x] Bildirim: zamanlayıcı bitince notch kısa süre Peek durumuna geçer ve titrer (yay animasyonu).
 - [x] `App/Features/Shelf/ShelfPanel.xaml`: notch'a dosya / metin sürükle-bırak (`AllowDrop`), listeden dışarı sürükleme (`DragDrop.DoDragDrop`). Dosyalar kopyalanmaz, yol tutulur; liste `%AppData%\Koy\shelf.json`.
-- [x] `App/Features/Settings/SettingsWindow.xaml`: genel (dil, başlangıçta çalış), notch (görünürlük modu, hangi paneller), dock (M4), görünüm (vurgu rengi, katı / cam), hakkında (sürüm, tanılama kopyala). Yalnız açılınca oluşturulur.
+- [ ] `App/Features/Settings/SettingsWindow.xaml`: genel (dil, başlangıçta çalış), notch (görünürlük modu, hangi paneller), dock (M4), görünüm (vurgu rengi, katı / cam), hakkında (sürüm, tanılama kopyala). Yalnız açılınca oluşturulur. **Kısmi:** pencere M6.5'te `KoyWindow` ile değişti ve eski `SettingsWindow` silindi; dil, başlangıçta çalış, sürüm ve tanılama çalışıyor, vurgu rengi ve katı/cam görünüme etki etmiyor.
 - [x] Başlangıçta çalış: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
-- [x] Cam görünüm: `DwmSetWindowAttribute(DWMWA_SYSTEMBACKDROP_TYPE)` yalnız Ayarlar penceresinde; notch katı renk kalır (yazılımla çizimde DWM arka planı saydam pencerede çalışmaz, deneyip ölç).
+- [ ] Cam görünüm: `DwmSetWindowAttribute(DWMWA_SYSTEMBACKDROP_TYPE)` yalnız Ayarlar penceresinde; notch katı renk kalır (yazılımla çizimde DWM arka planı saydam pencerede çalışmaz, deneyip ölç). **Kısmi:** `BackdropService` yazıldı ama hiçbir pencerede kullanılmıyor; `Material` ayarı okunmuyor.
 - [x] Dil: `Resources/Strings.resx` (en) + `Strings.tr.resx`; XAML'de `{x:Static res:Strings.Key}`. Bütün sabit Türkçe metinler buraya taşınır.
 - [x] Tepsi simgesi yerine: notch sağ tık menüsü (Ayarlar, Çıkış). Ayrı `NotifyIcon` eklenmez (WinForms gerektirir).
 
@@ -110,9 +110,9 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 
 ---
 
-## M5 — Çoklu monitör, kurulum, ilk sürüm ✅ (2026-11-04)
+## M5 — Çoklu monitör, kurulum, ilk sürüm (2026-11-04, kısmen tamamlandı)
 - [x] `Platform/Display/MonitorService.cs`: `EnumDisplayMonitors`, `GetMonitorInfo`, `GetDpiForMonitor`; ekran değişince (`WM_DISPLAYCHANGE`) pencereleri yeniden yerleştir. Pencere konumları fiziksel pikselden DIP'e çevrilir.
-- [x] Ayar: notch / dock için `Primary`, `All`, `Specific(monitorId)`.
+- [ ] Ayar: notch / dock için `Primary`, `All`, `Specific(monitorId)`. **Kısmi:** çözümleyici ve testler var; ayar varsayılanı `Primary` ve Koy penceresinde seçim arayüzü yok.
 - [x] Velopack: `vpk pack` ile kurulum + `UpdateManager` ile GitHub Releases'tan güncelleme. Kaldırma kancasında `TaskbarService.Restore()`.
 - [x] `.github/workflows/release.yml`: etiket (`v*`) itilince derle, `vpk pack`, `SHA256SUMS.txt`, GitHub Release'e yükle.
 - [x] README'ye ekran görüntüleri, kurulum, SHA256 doğrulama.
@@ -121,38 +121,38 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 ---
 
 ## M6 — Koy'u Windows'tan ayır: dock yeniden, çoklu ekran, kendi arayüzü (2026-11-04, açık)
-**Neden:** Burhan, Windows görev çubuğunun aynısı olan tam genişlik çubuğu sevmedi ("aynıysa insanlar neden kullansın"). Çoklu ekranda yalnız birincil ekranda çalışıyor. M5'teki `All` monitör ayarı kodda yok: `MonitorTarget` yalnız tek bir ekran seçiyor. Kararlar vault'ta `projects/notch-dock/Kurallar.md`, araştırma `Arastirma-dock-notch.md`.
+**Neden:** Windows görev çubuğunun aynısı olan tam genişlik çubuk, Koy'u ayırt edici kılmıyor. Çoklu ekranda yalnız birincil ekranda çalışıyor. M5'teki `All` monitör ayarı kodda yok: `MonitorTarget` yalnız tek bir ekran seçiyor. 
 
-### 6.1 Arayüz tasarımı (önce bu, Burhan seçer)
-- [x] Dock, çentik HUD'u ve Koy penceresi için tasarım taslakları: Burhan onayladı (2026-11-04). Özet ve ölçüler `docs/DESIGN.md`'de, tuval https://claude.ai/artifact/N38DJr48ogJn8sZYS3HsoE.
+### 6.1 Arayüz tasarımı (önce bu, proje sahibi seçer)
+- [x] Dock, çentik HUD'u ve Koy penceresi için tasarım taslakları: proje sahibi onayladı (2026-11-04). Özet ve ölçüler `docs/DESIGN.md`'de, görseller `docs/design/index.html`'de.
 
 ### 6.2 Çoklu ekran
 - [x] `Core`: monitör başına durum modeli. Hangi ekranda ne gösterileceği (`Primary` / `All` / `Specific`) saf mantıkla belirlenir ve test edilir.
-- [x] Her monitörde ayrı `NotchWindow` ve `DockWindow`, her biri kendi DPI'ında. Ekran takılıp çıkarılınca (`WM_DISPLAYCHANGE`) pencereler eklenir, kaldırılır ve yeniden yerleşir.
+- [ ] Her monitörde ayrı `NotchWindow` ve `DockWindow`, her biri kendi DPI'ında. Ekran takılıp çıkarılınca (`WM_DISPLAYCHANGE`) pencereler eklenir, kaldırılır ve yeniden yerleşir. **Kısmi:** kod var, ama hedef varsayılan olarak yalnız birincil ekran ve seçim arayüzü yok; kullanıcı çoklu ekranı açamıyor.
 - [x] Tam ekran algılama monitör başına: yan ekrandaki tam ekran, ana ekrandaki Koy'u gizlemez. `SHQueryUserNotificationState` tüm sistemi kapsıyor, bu yüzden tek başına karar vermemeli. Testli.
 - [x] Görev çubuğu gizleme bütün ekranlarda geçerli olmalı (`Shell_SecondaryTrayWnd` da). Geri yükleme de hepsinde çalışmalı.
 
 ### 6.3 Dock yeniden (Seelen modeli)
 - [x] Dock düzeni ayardan seçilir: yüzen kapsül ya da tam genişlik.
-- [x] "Pencere yaklaşınca" davranışı ayardan seçilir: **Yer ayır** (dock alt kenara oturur, çalışma alanı ayrılır), **Aşağı yapış** (normal boy pencere yaklaşınca dock alt kenara iner, incelir, pencereyi örtmez; varsayılan), **Çekil** (büyütülmüş pencerede gizlenir, fare alt kenara inince gelir), **Hep gizli**. Tam ekranda her modda gizli. Büyütülmüş pencere ile dock arasında boşluk kalmamalı.
+- [ ] "Pencere yaklaşınca" davranışı ayardan seçilir: **Yer ayır** (dock alt kenara oturur, çalışma alanı ayrılır), **Aşağı yapış** (normal boy pencere yaklaşınca dock alt kenara iner, incelir, pencereyi örtmez; varsayılan), **Çekil** (büyütülmüş pencerede gizlenir, fare alt kenara inince gelir), **Hep gizli**. Tam ekranda her modda gizli. Büyütülmüş pencere ile dock arasında boşluk kalmamalı. **Kısmi:** dört mod kodda var; varsayılan `Dodge` (Aşağı yapış değil) ve kayıtlı `DockDown` her yüklemede `Dodge`'a çevriliyor, yani Aşağı yapış fiilen seçilemiyor.
 - [x] Simgenin üzerine gelince pencere önizlemesi (DWM thumbnail, `DwmRegisterThumbnail`). Yalnız üzerine gelindiğinde kurulur, bellek ölçülür.
-- [x] İsteğe bağlı ayırıcı: solda uygulamalar, sağda klasörler, son kullanılanlar ve küçültülmüş pencereler.
-- [x] Saat, pil, ses ve ağ dock'tan çentiğe taşınır (tasarıma göre).
+- [ ] İsteğe bağlı ayırıcı: solda uygulamalar, sağda klasörler, son kullanılanlar ve küçültülmüş pencereler. **Kısmi:** ayırıcı, tek klasör (İndirilenler) ve küçültülmüş pencereler var; son kullanılanlar yok, ayar arayüzü yok.
+- [ ] Saat, pil, ses ve ağ dock'tan çentiğe taşınır (tasarıma göre). **Kısmi:** dock'ta durum alanı yok; saat ve pil çentikte, ses kontrol merkezinde. Ağ durumu hiçbir yerde gösterilmiyor (`INetworkService` / `NetworkService` bağlı değil).
 
 ### 6.4 Çentik genişler
-- [x] Ses ve parlaklık değişince çentikte gösterge (Windows'un kendi göstergesinin yerine).
+- [ ] Ses ve parlaklık değişince çentikte gösterge (Windows'un kendi göstergesinin yerine). **Yok (bağlı değil):** `OsdView` ve `OsdIndicatorViewModel` yazıldı ama ses/parlaklık olaylarına hiç bağlanmadı; gösterge hiç açılmıyor.
 - [x] Dosya rafı ve takvim çentikte zaten var (M3). Kapalı çentikten erişimi gözden geçirilir.
 
 ### 6.5 Koy'un kendi arayüzü
-- [x] Sağ altta Koy simgesi: dock açıkken dock'un sağ ucunda, dock kapalıyken bildirim alanında (`Shell_NotifyIcon`, CsWin32 ile, WinForms yok). Tıklayınca Koy penceresi açılır.
-- [x] Çıkış yalnız buradan yapılır. Çentik ve dock sağ tık menülerindeki "Çıkış" kaldırılır.
-- [x] Ayarlar penceresi yeni tasarıma göre "Koy penceresi" olur: orta boy (880 px), sekiz sayfa (Genel, Çentik, Dock, Ekranlar, Görünüm, Kısayollar, Performans, Hakkında). Sayfaların ayarları tasarım tuvalinde. "Hakkında"da "Windows görev çubuğunu geri getir" acil durum düğmesi bulunur.
+- [ ] Sağ altta Koy simgesi: dock açıkken dock'un sağ ucunda, dock kapalıyken bildirim alanında (`Shell_NotifyIcon`, CsWin32 ile, WinForms yok). Tıklayınca Koy penceresi açılır. **Kısmi:** simge ve menü çalışıyor, ama tepsi simgesi dock durumundan bağımsız hep gösteriliyor; dock açıkken iki simge olabilir. "1 saat duraklat" yalnız bayrağı değiştiriyor, Çentik ve Dock'u duraklatmıyor.
+- [ ] Çıkış yalnız buradan yapılır. Çentik ve dock sağ tık menülerindeki "Çıkış" kaldırılır. **Yapılmadı:** `NotchWindow` ve `DockWindow` bağlam menülerinde "Çıkış" duruyor.
+- [x] Ayarlar penceresi yeni tasarıma göre "Koy penceresi" olur: orta boy (880 px), sekiz sayfa (Genel, Çentik, Dock, Ekranlar, Görünüm, Kısayollar, Performans, Hakkında). Sayfaların ayarları tasarım galerisinde. "Hakkında"da "Windows görev çubuğunu geri getir" acil durum düğmesi bulunur. **Kısmi:** pencere, sekiz sayfa ve acil durum düğmesi var; ayarların yaklaşık yarısı kaydedilmiyor ya da hiçbir davranışa bağlı değil (tema, vurgu, malzeme, animasyon, boşta görünüm, açılma, kısayollar, tekerlek/orta tık, pil tasarrufu, Ekranlar sayfası vb.).
 - [x] İlk açılış: üç adımlık kurulum (ne gösterilsin: çentik ve dock / yalnız çentik / yalnız dock).
 
 ### 6.6 Kabul
-- [x] İki ekranla dene: yan ekranda tam ekran video oynarken ana ekranda çentik ve dock duruyor.
-- [x] Ekranı çıkar ve tak: pencereler doğru yere geliyor, görev çubuğu bütün ekranlarda gizli.
-- [x] Bellek ölçüldü: 82.7 MB private (< 85 MB bütçe sağlandı).
+- [ ] İki ekranla dene: yan ekranda tam ekran video oynarken ana ekranda çentik ve dock duruyor. **Kısmi:** mantık monitör başına ve testli, ama varsayılan yapılandırmada çoklu ekran kapalı; bu kabul testi kullanıcı tarafından yapılamıyor.
+- [ ] Ekranı çıkar ve tak: pencereler doğru yere geliyor, görev çubuğu bütün ekranlarda gizli. **Kısmi:** kod var, çoklu ekran açıkken denenmeli (yukarıdaki kısıt).
+- [x] Bellek ölçüldü: 82.7 MB private. Bütçe kararı revizyon sonrasına bırakıldı: AGENTS.md'deki < 60 MB hedefi geçerli, 85 MB eşiği resmi karar değil (bkz. `docs/MEMORY.md`).
 
 ---
 

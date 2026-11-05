@@ -1,7 +1,6 @@
 """Tasarım tuvalinin kaynaklarından (source/) çevrimdışı açılan tek dosyalık bir galeri (index.html) üretir.
 
-Tuval claude.ai'de: https://claude.ai/artifact/N38DJr48ogJn8sZYS3HsoE
-Tuval değişince: dosyaları source/ altına yeniden kopyala, sonra `python docs/design/build.py`.
+Kaynak: docs/design/source. Kaynak dosyalar değişince `python docs/design/build.py` ile yeniden üretilir.
 """
 
 import json
