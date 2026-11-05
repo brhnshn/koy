@@ -1,5 +1,8 @@
+using System.Diagnostics;
 using Koy.Core.Radio;
+using Windows.Foundation;
 using WinRadio = Windows.Devices.Radios.Radio;
+using WinRadioAccessStatus = Windows.Devices.Radios.RadioAccessStatus;
 using WinRadioKind = Windows.Devices.Radios.RadioKind;
 using WinRadioState = Windows.Devices.Radios.RadioState;
 
@@ -7,73 +10,112 @@ namespace Koy.Platform.Radio;
 
 public sealed class RadioService : IRadioService
 {
+    private readonly Lock _gate = new();
+    private Task? _refreshTask;
     private WinRadio? _wifiRadio;
     private WinRadio? _bluetoothRadio;
+    private bool _scanned;
     private bool _disposed;
 
-    public RadioState WiFiState => MapState(_wifiRadio?.State);
-    public RadioState BluetoothState => MapState(_bluetoothRadio?.State);
+    public RadioAccess Access { get; private set; }
+    public RadioState WiFiState => GetState(_wifiRadio);
+    public RadioState BluetoothState => GetState(_bluetoothRadio);
 
     public event EventHandler<RadioStateChangedEventArgs>? StateChanged;
 
-    public async Task StartAsync()
+    public Task RefreshAsync()
     {
+        lock (_gate)
+        {
+            if (_refreshTask is { IsCompleted: false })
+                return _refreshTask;
+
+            return _refreshTask = RefreshCoreAsync();
+        }
+    }
+
+    private async Task RefreshCoreAsync()
+    {
+        WinRadio? wifi = null;
+        WinRadio? bluetooth = null;
+
         try
         {
-            var access = await WinRadio.RequestAccessAsync();
-            if (access != Windows.Devices.Radios.RadioAccessStatus.Allowed)
-                return;
-
-            var radios = await WinRadio.GetRadiosAsync();
-            foreach (var radio in radios)
+            Access = MapAccess(await WinRadio.RequestAccessAsync());
+            if (Access == RadioAccess.Allowed)
             {
-                if (radio.Kind == WinRadioKind.WiFi)
+                foreach (var radio in await WinRadio.GetRadiosAsync())
                 {
-                    _wifiRadio = radio;
-                    radio.StateChanged += OnWiFiStateChanged;
-                }
-                else if (radio.Kind == WinRadioKind.Bluetooth)
-                {
-                    _bluetoothRadio = radio;
-                    radio.StateChanged += OnBluetoothStateChanged;
+                    if (radio.Kind == WinRadioKind.WiFi)
+                        wifi ??= radio;
+                    else if (radio.Kind == WinRadioKind.Bluetooth)
+                        bluetooth ??= radio;
                 }
             }
-
-            StateChanged?.Invoke(this, new RadioStateChangedEventArgs(RadioKind.WiFi, WiFiState));
-            StateChanged?.Invoke(this, new RadioStateChangedEventArgs(RadioKind.Bluetooth, BluetoothState));
         }
         catch
         {
-            // Radyo erişim hatası veya donanım yok
+            // Radyo yığını hata verirse radyo "yok" sayılır: döşeme sessizce "Kapalı" kalmak yerine
+            // nedenini yazar ve Windows ayarlarını açar.
+            wifi = null;
+            bluetooth = null;
         }
+
+        if (_disposed)
+            return;
+
+        // Her taramada yeni RCW örnekleri gelir; eski abonelik bırakılmazsa çıkarılan USB adaptör tutulur.
+        Rebind(ref _wifiRadio, wifi, OnWiFiStateChanged);
+        Rebind(ref _bluetoothRadio, bluetooth, OnBluetoothStateChanged);
+        _scanned = true;
+
+        Raise(RadioKind.WiFi, WiFiState);
+        Raise(RadioKind.Bluetooth, BluetoothState);
     }
 
-    private void OnWiFiStateChanged(WinRadio sender, object args)
+    private static void Rebind(ref WinRadio? field, WinRadio? next, TypedEventHandler<WinRadio, object> handler)
     {
-        StateChanged?.Invoke(this, new RadioStateChangedEventArgs(RadioKind.WiFi, MapState(sender.State)));
+        if (field is not null)
+            field.StateChanged -= handler;
+
+        field = next;
+
+        if (field is not null)
+            field.StateChanged += handler;
     }
 
-    private void OnBluetoothStateChanged(WinRadio sender, object args)
-    {
-        StateChanged?.Invoke(this, new RadioStateChangedEventArgs(RadioKind.Bluetooth, MapState(sender.State)));
-    }
+    // WinRT olayı iş parçacığı havuzundan gelir; adaptör çıkarılmışsa State okuması hata verebilir.
+    private void OnWiFiStateChanged(WinRadio sender, object args) => Raise(RadioKind.WiFi, GetState(sender));
+
+    private void OnBluetoothStateChanged(WinRadio sender, object args) => Raise(RadioKind.Bluetooth, GetState(sender));
+
+    private void Raise(RadioKind kind, RadioState state) =>
+        StateChanged?.Invoke(this, new RadioStateChangedEventArgs(kind, state));
 
     public async Task<bool> SetStateAsync(RadioKind kind, bool enable)
     {
-        var targetRadio = kind == RadioKind.WiFi ? _wifiRadio : _bluetoothRadio;
-        if (targetRadio is null)
+        // Panel açılır açılmaz tıklanırsa tarama henüz bitmemiş olabilir; tıklama yutulmasın.
+        if (!_scanned)
+            await RefreshAsync();
+
+        var radio = kind == RadioKind.WiFi ? _wifiRadio : _bluetoothRadio;
+        if (radio is null)
             return false;
 
         try
         {
-            var targetState = enable ? WinRadioState.On : WinRadioState.Off;
-            var result = await targetRadio.SetStateAsync(targetState);
-            var success = result == Windows.Devices.Radios.RadioAccessStatus.Allowed;
-            if (success)
+            var result = await radio.SetStateAsync(enable ? WinRadioState.On : WinRadioState.Off);
+            if (result != WinRadioAccessStatus.Allowed)
             {
-                StateChanged?.Invoke(this, new RadioStateChangedEventArgs(kind, MapState(targetRadio.State)));
+                if (result is WinRadioAccessStatus.DeniedByUser or WinRadioAccessStatus.DeniedBySystem)
+                    Access = MapAccess(result);
+
+                Raise(kind, MapState(radio.State));
+                return false;
             }
-            return success;
+
+            Raise(kind, MapState(radio.State));
+            return true;
         }
         catch
         {
@@ -83,17 +125,60 @@ public sealed class RadioService : IRadioService
 
     public async Task<bool> ToggleAsync(RadioKind kind)
     {
+        if (!_scanned)
+            await RefreshAsync();
+
         var current = kind == RadioKind.WiFi ? WiFiState : BluetoothState;
-        var newState = current != RadioState.On;
-        return await SetStateAsync(kind, newState);
+        return await SetStateAsync(kind, current != RadioState.On);
     }
 
-    private static RadioState MapState(WinRadioState? state) => state switch
+    public void OpenSettings(RadioKind kind) =>
+        OpenUri(kind == RadioKind.WiFi ? "ms-settings:network-wifi" : "ms-settings:bluetooth");
+
+    public void OpenPrivacySettings() => OpenUri("ms-settings:privacy-radios");
+
+    private static void OpenUri(string uri)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true });
+        }
+        catch
+        {
+            // Ayarlar uygulaması kaldırılmış ya da politika ile engellenmiş olabilir.
+        }
+    }
+
+    private RadioState GetState(WinRadio? radio)
+    {
+        if (radio is null)
+            return _scanned ? RadioState.NotPresent : RadioState.Unknown;
+
+        try
+        {
+            return MapState(radio.State);
+        }
+        catch
+        {
+            // Adaptör çıkarıldıysa eski nesne hata verir.
+            return RadioState.NotPresent;
+        }
+    }
+
+    private static RadioState MapState(WinRadioState state) => state switch
     {
         WinRadioState.On => RadioState.On,
         WinRadioState.Off => RadioState.Off,
         WinRadioState.Disabled => RadioState.Disabled,
         _ => RadioState.Unknown
+    };
+
+    private static RadioAccess MapAccess(WinRadioAccessStatus status) => status switch
+    {
+        WinRadioAccessStatus.Allowed => RadioAccess.Allowed,
+        WinRadioAccessStatus.DeniedByUser => RadioAccess.DeniedByUser,
+        WinRadioAccessStatus.DeniedBySystem => RadioAccess.DeniedBySystem,
+        _ => RadioAccess.Unknown
     };
 
     public void Dispose()
@@ -102,14 +187,7 @@ public sealed class RadioService : IRadioService
             return;
 
         _disposed = true;
-
-        if (_wifiRadio is not null)
-            _wifiRadio.StateChanged -= OnWiFiStateChanged;
-
-        if (_bluetoothRadio is not null)
-            _bluetoothRadio.StateChanged -= OnBluetoothStateChanged;
-
-        _wifiRadio = null;
-        _bluetoothRadio = null;
+        Rebind(ref _wifiRadio, null, OnWiFiStateChanged);
+        Rebind(ref _bluetoothRadio, null, OnBluetoothStateChanged);
     }
 }
