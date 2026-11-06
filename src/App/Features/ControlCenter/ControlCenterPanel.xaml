@@ -28,7 +28,7 @@
             <Border x:Name="TileBorder"
                     Background="{TemplateBinding Background}"
                     CornerRadius="18"
-                    Padding="12,0">
+                    Padding="10,0">
               <ContentPresenter VerticalAlignment="Center" />
             </Border>
             <ControlTemplate.Triggers>
@@ -50,21 +50,72 @@
       </Style.Triggers>
     </Style>
 
-    <!-- Döşemenin sağındaki ok: Windows'taki ağ / cihaz sayfasını açar -->
+    <!-- Bölünmüş döşemenin sağ bölümü: küçük ok. Hover'da hafif parlar, basınca vurgulanır; basınca Wi-Fi / Bluetooth listesi açılır.
+         Zemin döşemeyle aynı (açıkken mavi); Tag döşemenin açık olup olmadığını taşır. -->
     <Style x:Key="TileChevronStyle" TargetType="Button">
+      <Setter Property="Background" Value="{DynamicResource KoyNotchControlTile}" />
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Width" Value="22" />
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border x:Name="ChevronBorder" Background="Transparent" CornerRadius="6" Width="18" Height="30">
-              <Path Width="5" Height="9" Stretch="Uniform" Data="M 0,0 L 4,4 L 0,8"
-                    Stroke="#99FFFFFF" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
-                    HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Border x:Name="Zone" Background="{TemplateBinding Background}" CornerRadius="0,18,18,0">
+              <Grid>
+                <Rectangle x:Name="Divider" Width="1" Height="30" HorizontalAlignment="Left" Fill="#26FFFFFF" />
+                <Border x:Name="Glow" Background="Transparent" CornerRadius="0,18,18,0" />
+                <res:KoyIcon x:Name="Chevron" Data="{DynamicResource IconChevronRight}" Size="14" StrokeWidth="2.6"
+                             Foreground="#99FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,0" />
+              </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+              <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                <Setter TargetName="Divider" Property="Fill" Value="#26000000" />
+                <Setter TargetName="Chevron" Property="Foreground" Value="#B30A0A0B" />
+              </DataTrigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Glow" Property="Background" Value="#26FFFFFF" />
+                <Setter TargetName="Chevron" Property="Foreground" Value="#FFFFFFFF" />
+              </Trigger>
+              <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                  <Condition Binding="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Value="True" />
+                  <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource TemplatedParent}}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter TargetName="Glow" Property="Background" Value="#1F000000" />
+                <Setter TargetName="Chevron" Property="Foreground" Value="#FF0A0A0B" />
+              </MultiDataTrigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Glow" Property="Background" Value="#47FFFFFF" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True">
+          <Setter Property="Background" Value="{DynamicResource KoyNotchAccentControl}" />
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+
+    <!-- Bölünmüş döşemenin sol bölümü: aç/kapa. Köşeler yalnız solda yuvarlak; hover yalnız bu bölümü soldurur. -->
+    <Style x:Key="TileMainStyle" TargetType="Button" BasedOn="{StaticResource TileButtonStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="TileBorder"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="18,0,0,18"
+                    Padding="8,0,2,0">
+              <ContentPresenter VerticalAlignment="Center" />
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="ChevronBorder" Property="Background" Value="#26FFFFFF" />
+                <Setter TargetName="TileBorder" Property="Opacity" Value="0.88" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="TileBorder" Property="Opacity" Value="0.75" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -74,12 +125,12 @@
 
     <!-- Wi-Fi / Bluetooth döşemesinin içeriği: simge, ad ve durum (Açık, Kapalı, Bulunamadı, İzin yok...) -->
     <DataTemplate x:Key="RadioTileTemplate" DataType="{x:Type local:RadioTileViewModel}">
-      <Grid Margin="0,0,16,0">
+      <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border x:Name="IconBorder" Width="30" Height="30" CornerRadius="10" VerticalAlignment="Center" Background="#20FFFFFF">
+        <Border x:Name="IconBorder" Width="26" Height="26" CornerRadius="9" VerticalAlignment="Center" Background="#20FFFFFF">
           <Path x:Name="Icon" Width="13" Height="13" Stretch="Uniform"
                 Stroke="#FFFFFFFF" StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                 HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -96,8 +147,11 @@
         </DataTrigger>
         <DataTrigger Binding="{Binding Kind}" Value="{x:Static radio:RadioKind.Bluetooth}">
           <Setter TargetName="Title" Property="Text" Value="{x:Static res:Strings.Bluetooth}" />
-          <Setter TargetName="Icon" Property="Width" Value="11" />
-          <Setter TargetName="Icon" Property="Data" Value="M 7,2 L 7,22 L 13,17 L 2,8 L 13,7 L 7,2 Z M 7,7 L 10,9.5 L 7,12 Z M 7,12 L 10,14.5 L 7,17 Z" />
+          <Setter TargetName="Icon" Property="Width" Value="9" />
+          <Setter TargetName="Icon" Property="Height" Value="14" />
+          <Setter TargetName="Icon" Property="StrokeThickness" Value="1.5" />
+          <Setter TargetName="Icon" Property="StrokeLineJoin" Value="Round" />
+          <Setter TargetName="Icon" Property="Data" Value="{DynamicResource IconBluetooth}" />
         </DataTrigger>
         <!-- Açık: mavi zeminde koyu yazı (tasarımdaki gibi) -->
         <DataTrigger Binding="{Binding IsOn}" Value="True">
@@ -159,6 +213,14 @@
   </UserControl.Resources>
 
   <Grid>
+   <!-- Ana görünüm: döşemeler + kaydırıcılar, sağda "Bağlı cihazlar" -->
+   <Grid x:Name="MainView" Visibility="{Binding IsMainPage, Converter={StaticResource BoolToVis}}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+
+    <Grid Grid.Column="0">
     <Grid.RowDefinitions>
       <RowDefinition Height="62" />
       <RowDefinition Height="*" />
@@ -173,32 +235,44 @@
           PreviewMouseLeftButtonUp="TilesHost_PreviewMouseLeftButtonUp"
           LostMouseCapture="TilesHost_LostMouseCapture">
 
-      <!-- Wi-Fi: tıklayınca açar/kapatır; ok, Windows'taki ağ listesini açar -->
-      <Grid x:Name="TileWifi" Tag="wifi" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Button Style="{StaticResource TileButtonStyle}" Height="62"
+      <!-- Wi-Fi: sol bölüm açar/kapatır; sağdaki ok, Wi-Fi listesini çentik içinde açar -->
+      <Grid x:Name="TileWifi" Tag="wifi" HorizontalAlignment="Left" VerticalAlignment="Top" Height="62">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Button Style="{StaticResource TileMainStyle}"
                 CommandParameter="{x:Static radio:RadioKind.WiFi}"
                 Command="{Binding ActivateRadioCommand}"
                 ToolTip="{Binding WiFi.ToolTip}"
                 Content="{Binding WiFi}"
                 ContentTemplate="{StaticResource RadioTileTemplate}" />
-        <Button Style="{StaticResource TileChevronStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"
+        <Button Grid.Column="1" Style="{StaticResource TileChevronStyle}"
+                Tag="{Binding WiFi.IsOn}"
                 CommandParameter="{x:Static radio:RadioKind.WiFi}"
-                Command="{Binding OpenRadioSettingsCommand}"
-                ToolTip="{x:Static res:Strings.OpenInSettings}" />
+                Command="{Binding OpenPageCommand}"
+                ToolTip="{x:Static res:Strings.ControlOpenWifiList}"
+                AutomationProperties.Name="{x:Static res:Strings.ControlOpenWifiList}" />
       </Grid>
 
-      <!-- Bluetooth: tıklayınca açar/kapatır; ok, Windows'taki cihaz listesini açar -->
-      <Grid x:Name="TileBluetooth" Tag="bluetooth" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Button Style="{StaticResource TileButtonStyle}" Height="62"
+      <!-- Bluetooth: sol bölüm açar/kapatır; sağdaki ok, Bluetooth cihaz listesini çentik içinde açar -->
+      <Grid x:Name="TileBluetooth" Tag="bluetooth" HorizontalAlignment="Left" VerticalAlignment="Top" Height="62">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Button Style="{StaticResource TileMainStyle}"
                 CommandParameter="{x:Static radio:RadioKind.Bluetooth}"
                 Command="{Binding ActivateRadioCommand}"
                 ToolTip="{Binding Bluetooth.ToolTip}"
                 Content="{Binding Bluetooth}"
                 ContentTemplate="{StaticResource RadioTileTemplate}" />
-        <Button Style="{StaticResource TileChevronStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"
+        <Button Grid.Column="1" Style="{StaticResource TileChevronStyle}"
+                Tag="{Binding Bluetooth.IsOn}"
                 CommandParameter="{x:Static radio:RadioKind.Bluetooth}"
-                Command="{Binding OpenRadioSettingsCommand}"
-                ToolTip="{x:Static res:Strings.OpenInSettings}" />
+                Command="{Binding OpenPageCommand}"
+                ToolTip="{x:Static res:Strings.ControlOpenBluetoothList}"
+                AutomationProperties.Name="{x:Static res:Strings.ControlOpenBluetoothList}" />
       </Grid>
 
       <!-- Rahatsız Etme: resmi açma/kapama ya da güvenilir okuma API'si yok; uydurma durum yerine
@@ -305,5 +379,43 @@
         </Grid>
       </StackPanel>
     </Border>
+    </Grid>
+
+    <!-- Bağlı cihazlar (tasarımdaki sağ sütun): ad + pil. Yalnız Bluetooth radyosu varsa görünür. -->
+    <Border Grid.Column="1" Width="156" Margin="8,0,0,0" CornerRadius="18" Background="{DynamicResource KoyNotchCard}" Padding="12"
+            Visibility="{Binding ShowConnectedCard, Converter={StaticResource BoolToVis}}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="{x:Static res:Strings.BluetoothConnectedDevices}" FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" />
+        <ScrollViewer Grid.Row="1" Margin="0,8,0,0" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl ItemsSource="{Binding BluetoothDevices.Connected}" Focusable="False">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="{x:Type local:BluetoothDeviceRowViewModel}">
+                <Grid Margin="0,0,0,8">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="{Binding Name}" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" />
+                  <TextBlock Grid.Column="1" Text="{Binding BatteryText}" FontSize="12" Foreground="{DynamicResource KoyNotchControlBattery}" Margin="8,0,0,0"
+                             Visibility="{Binding HasBattery, Converter={StaticResource BoolToVis}}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+        <TextBlock Grid.Row="1" Margin="0,8,0,0" VerticalAlignment="Top" TextWrapping="Wrap" FontSize="11.5" Foreground="{DynamicResource KoyNotchDim}"
+                   Text="{Binding ConnectedEmptyText}"
+                   Visibility="{Binding ShowConnectedEmpty, Converter={StaticResource BoolToVis}}" />
+      </Grid>
+    </Border>
+   </Grid>
+
+   <!-- Liste sayfaları: sekme çubuğu kalır, bu alan değişir -->
+   <local:WifiListPage Visibility="{Binding IsWifiPage, Converter={StaticResource BoolToVis}}" />
+   <local:BluetoothListPage Visibility="{Binding IsBluetoothPage, Converter={StaticResource BoolToVis}}" />
   </Grid>
 </UserControl>

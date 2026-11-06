@@ -1,4 +1,5 @@
 using Koy.Core.Bluetooth;
+using Koy.Core.Radio;
 
 namespace Koy.Core.Tests;
 
@@ -145,6 +146,19 @@ public class BluetoothListTests
         Assert.Equal("BluetoothErrConnect", BluetoothList.ErrorKey(BluetoothActionResult.NotConfirmed, true));
         Assert.Equal("BluetoothErrDisconnect", BluetoothList.ErrorKey(BluetoothActionResult.Failed, false));
     }
+
+    [Theory]
+    [InlineData(RadioTileStatus.NoAccess, true, 3, BluetoothListState.NoAccess)]
+    [InlineData(RadioTileStatus.NotFound, true, 3, BluetoothListState.NotFound)]
+    [InlineData(RadioTileStatus.Off, true, 3, BluetoothListState.RadioOff)]
+    [InlineData(RadioTileStatus.HardwareOff, true, 3, BluetoothListState.RadioOff)]
+    [InlineData(RadioTileStatus.Loading, true, 3, BluetoothListState.Loading)]
+    [InlineData(RadioTileStatus.On, false, 0, BluetoothListState.Loading)]
+    [InlineData(RadioTileStatus.On, true, 0, BluetoothListState.Empty)]
+    [InlineData(RadioTileStatus.On, true, 2, BluetoothListState.Ready)]
+    [InlineData(RadioTileStatus.Failed, true, 2, BluetoothListState.Ready)]
+    public void Resolve_RadyoVeServisDurumundan(RadioTileStatus radio, bool ready, int count, BluetoothListState expected) =>
+        Assert.Equal(expected, BluetoothList.Resolve(radio, ready, count));
 
     [Fact]
     public void StatusKey_BagliBagliDegil()

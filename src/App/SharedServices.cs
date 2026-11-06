@@ -5,12 +5,14 @@ using Koy.Core.QuickLaunch;
 using Koy.Core.Settings;
 using Koy.Core.SystemStats;
 using Koy.Core.Tasks;
+using Koy.Platform.Bluetooth;
 using Koy.Platform.Clipboard;
 using Koy.Platform.Media;
 using Koy.Platform.Network;
 using Koy.Platform.Radio;
 using Koy.Platform.Shell;
 using Koy.Platform.SystemStats;
+using Koy.Platform.Wireless;
 
 namespace Koy.App;
 
@@ -29,6 +31,10 @@ public sealed class SharedServices : IDisposable
     private int _radioServiceUsers;
     private NetworkService? _networkService;
     private int _networkServiceUsers;
+    private WifiService? _wifiService;
+    private int _wifiServiceUsers;
+    private BluetoothService? _bluetoothService;
+    private int _bluetoothServiceUsers;
     private TrayHostService? _trayHost;
     private readonly TrayHostLease _trayHostLease = new();
     private ClipboardHistoryService? _clipboard;
@@ -106,6 +112,52 @@ public sealed class SharedServices : IDisposable
         {
             _radioService?.Dispose();
             _radioService = null;
+        }
+    }
+
+    /// <summary>
+    /// Wi-Fi ağ listesi servisi. Yalnız çentikte Wi-Fi listesi sayfası açıkken alınır; sayfa kapanınca bırakılır
+    /// ve son kullanan bıraktığında Dispose edilir (adaptör nesneleri tutulmaz).
+    /// </summary>
+    public WifiService AcquireWifiService()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _wifiServiceUsers++;
+        return _wifiService ??= new WifiService();
+    }
+
+    public void ReleaseWifiService()
+    {
+        if (_wifiServiceUsers == 0)
+            return;
+
+        if (--_wifiServiceUsers == 0)
+        {
+            _wifiService?.Dispose();
+            _wifiService = null;
+        }
+    }
+
+    /// <summary>
+    /// Bluetooth cihaz listesi servisi (DeviceWatcher). Ana'daki kulaklık kartı, Kontrol'deki "Bağlı cihazlar" ve
+    /// Bluetooth listesi için yalnız çentik açıkken ve ilgili sayfa görünürken alınır; son kullanan bırakınca izleyiciler durur.
+    /// </summary>
+    public BluetoothService AcquireBluetoothService()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _bluetoothServiceUsers++;
+        return _bluetoothService ??= new BluetoothService();
+    }
+
+    public void ReleaseBluetoothService()
+    {
+        if (_bluetoothServiceUsers == 0)
+            return;
+
+        if (--_bluetoothServiceUsers == 0)
+        {
+            _bluetoothService?.Dispose();
+            _bluetoothService = null;
         }
     }
 
@@ -292,6 +344,12 @@ public sealed class SharedServices : IDisposable
         _networkService?.Dispose();
         _networkService = null;
         _networkServiceUsers = 0;
+        _wifiService?.Dispose();
+        _wifiService = null;
+        _wifiServiceUsers = 0;
+        _bluetoothService?.Dispose();
+        _bluetoothService = null;
+        _bluetoothServiceUsers = 0;
         _trayHost?.Dispose();
         _trayHost = null;
         _trayHostLease.Reset();

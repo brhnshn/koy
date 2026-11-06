@@ -55,4 +55,15 @@ public static class Strings
     public static string RadioOpenSettingsHint => Get(nameof(RadioOpenSettingsHint));
     public static string RadioPrivacyHint => Get(nameof(RadioPrivacyHint));
     public static string OpenInSettings => Get(nameof(OpenInSettings));
+    public static string WifiConnect => Get(nameof(WifiConnect));
+    public static string WifiDisconnect => Get(nameof(WifiDisconnect));
+    public static string WifiPasswordHint => Get(nameof(WifiPasswordHint));
+    public static string WifiLocationLink => Get(nameof(WifiLocationLink));
+    public static string WifiMoreSettings => Get(nameof(WifiMoreSettings));
+    public static string BluetoothMoreSettings => Get(nameof(BluetoothMoreSettings));
+    public static string BluetoothConnectedDevices => Get(nameof(BluetoothConnectedDevices));
+    public static string BluetoothNoConnected => Get(nameof(BluetoothNoConnected));
+    public static string ControlBack => Get(nameof(ControlBack));
+    public static string ControlOpenWifiList => Get(nameof(ControlOpenWifiList));
+    public static string ControlOpenBluetoothList => Get(nameof(ControlOpenBluetoothList));
 }

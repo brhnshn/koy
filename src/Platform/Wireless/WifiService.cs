@@ -23,19 +23,19 @@ public sealed class WifiService : IWifiService
 
     public async Task<WifiScanResult> ScanAsync()
     {
-        await _gate.WaitAsync();
+        await _gate.WaitAsync().ConfigureAwait(false);
         try
         {
             if (_disposed)
                 return new WifiScanResult(WifiAccess.Unknown, true, true, []);
 
-            if (!await EnsureAdapterAsync())
+            if (!await EnsureAdapterAsync().ConfigureAwait(false))
                 return new WifiScanResult(_access, _access is WifiAccess.DeniedByUser or WifiAccess.DeniedBySystem, false, []);
 
             var adapter = _adapter!;
-            await adapter.ScanAsync();
+            await adapter.ScanAsync().AsTask().ConfigureAwait(false);
 
-            var connectedSsid = await GetConnectedSsidAsync(adapter);
+            var connectedSsid = await GetConnectedSsidAsync(adapter).ConfigureAwait(false);
             var profiles = WlanProfiles.GetNames(adapter.NetworkAdapter.NetworkAdapterId);
 
             _lastNetworks.Clear();
@@ -80,7 +80,7 @@ public sealed class WifiService : IWifiService
     {
         if (!_accessChecked)
         {
-            _access = MapAccess(await WiFiAdapter.RequestAccessAsync());
+            _access = MapAccess(await WiFiAdapter.RequestAccessAsync().AsTask().ConfigureAwait(false));
             _accessChecked = true;
         }
 
@@ -90,7 +90,7 @@ public sealed class WifiService : IWifiService
         if (_adapter is not null)
             return true;
 
-        var adapters = await WiFiAdapter.FindAllAdaptersAsync();
+        var adapters = await WiFiAdapter.FindAllAdaptersAsync().AsTask().ConfigureAwait(false);
         _adapter = adapters.Count > 0 ? adapters[0] : null;
         return _adapter is not null;
     }
@@ -99,7 +99,7 @@ public sealed class WifiService : IWifiService
     {
         try
         {
-            var profile = await adapter.NetworkAdapter.GetConnectedProfileAsync();
+            var profile = await adapter.NetworkAdapter.GetConnectedProfileAsync().AsTask().ConfigureAwait(false);
             if (profile is { IsWlanConnectionProfile: true })
             {
                 var ssid = profile.WlanConnectionProfileDetails.GetConnectedSsid();
@@ -116,7 +116,7 @@ public sealed class WifiService : IWifiService
 
     public async Task<WifiConnectStatus> ConnectAsync(string ssid, string? password)
     {
-        await _gate.WaitAsync();
+        await _gate.WaitAsync().ConfigureAwait(false);
         try
         {
             if (_disposed || _adapter is null || !_lastNetworks.TryGetValue(ssid, out var network))
@@ -124,8 +124,8 @@ public sealed class WifiService : IWifiService
 
             // Şifre yalnız bu çağrıda kimlik bilgisi nesnesine konur; saklanmaz ve günlüğe yazılmaz.
             var result = string.IsNullOrEmpty(password)
-                ? await _adapter.ConnectAsync(network, WiFiReconnectionKind.Automatic)
-                : await _adapter.ConnectAsync(network, WiFiReconnectionKind.Automatic, new PasswordCredential { Password = password });
+                ? await _adapter.ConnectAsync(network, WiFiReconnectionKind.Automatic).AsTask().ConfigureAwait(false)
+                : await _adapter.ConnectAsync(network, WiFiReconnectionKind.Automatic, new PasswordCredential { Password = password }).AsTask().ConfigureAwait(false);
 
             return result.ConnectionStatus switch
             {

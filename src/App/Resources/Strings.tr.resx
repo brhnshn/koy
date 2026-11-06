@@ -1380,4 +1380,127 @@
   <data name="TaskEmpty" xml:space="preserve">
     <value>Henüz görev yok</value>
   </data>
+  <data name="WifiConnectedSecure" xml:space="preserve">
+    <value>Bağlı, güvenli</value>
+  </data>
+  <data name="WifiConnectedOpen" xml:space="preserve">
+    <value>Bağlı, açık ağ</value>
+  </data>
+  <data name="WifiSaved" xml:space="preserve">
+    <value>Kayıtlı</value>
+  </data>
+  <data name="WifiHidden" xml:space="preserve">
+    <value>Gizli ağ</value>
+  </data>
+  <data name="WifiConnecting" xml:space="preserve">
+    <value>Bağlanıyor…</value>
+  </data>
+  <data name="WifiConnect" xml:space="preserve">
+    <value>Bağlan</value>
+  </data>
+  <data name="WifiDisconnect" xml:space="preserve">
+    <value>Bağlantıyı kes</value>
+  </data>
+  <data name="WifiPasswordHint" xml:space="preserve">
+    <value>Ağ şifresi</value>
+  </data>
+  <data name="WifiErrPassword" xml:space="preserve">
+    <value>Şifre yanlış</value>
+  </data>
+  <data name="WifiErrNotAvailable" xml:space="preserve">
+    <value>Ağa şu an ulaşılamıyor</value>
+  </data>
+  <data name="WifiErrTimeout" xml:space="preserve">
+    <value>Zaman aşımı</value>
+  </data>
+  <data name="WifiErrUnsupported" xml:space="preserve">
+    <value>Bu güvenlik türü desteklenmiyor</value>
+  </data>
+  <data name="WifiErrAccess" xml:space="preserve">
+    <value>Wi-Fi erişimi reddedildi</value>
+  </data>
+  <data name="WifiErrFailed" xml:space="preserve">
+    <value>Bağlanamadı</value>
+  </data>
+  <data name="WifiRadioOff" xml:space="preserve">
+    <value>Wi-Fi kapalı</value>
+  </data>
+  <data name="WifiNoAdapter" xml:space="preserve">
+    <value>Wi-Fi adaptörü bulunamadı</value>
+  </data>
+  <data name="WifiNoAccess" xml:space="preserve">
+    <value>Wi-Fi erişimine izin verilmedi. Ayarlar &gt; Gizlilik &gt; Konum'dan masaüstü uygulamalarına izin ver.</value>
+  </data>
+  <data name="WifiLocationBlocked" xml:space="preserve">
+    <value>Ağ adları gizli: Windows, masaüstü uygulamalarına Wi-Fi adlarını konum izniyle gösterir. Ayarlar &gt; Gizlilik &gt; Konum'da "Masaüstü uygulamalarının konumunuza erişmesine izin ver" seçeneğini aç.</value>
+  </data>
+  <data name="WifiEmpty" xml:space="preserve">
+    <value>Çevrede ağ bulunamadı</value>
+  </data>
+  <data name="WifiScanFailed" xml:space="preserve">
+    <value>Ağlar taranamadı</value>
+  </data>
+  <data name="WifiLocationLink" xml:space="preserve">
+    <value>Konum ayarlarını aç</value>
+  </data>
+  <data name="WifiMoreSettings" xml:space="preserve">
+    <value>Diğer Wi-Fi ayarları</value>
+  </data>
+  <data name="BluetoothMoreSettings" xml:space="preserve">
+    <value>Diğer Bluetooth ayarları</value>
+  </data>
+  <data name="BluetoothConnected" xml:space="preserve">
+    <value>Bağlı</value>
+  </data>
+  <data name="BluetoothNotConnected" xml:space="preserve">
+    <value>Bağlı değil</value>
+  </data>
+  <data name="BluetoothConnect" xml:space="preserve">
+    <value>Bağlan</value>
+  </data>
+  <data name="BluetoothDisconnect" xml:space="preserve">
+    <value>Bağlantıyı kes</value>
+  </data>
+  <data name="BluetoothConnecting" xml:space="preserve">
+    <value>Bağlanıyor…</value>
+  </data>
+  <data name="BluetoothDisconnecting" xml:space="preserve">
+    <value>Bağlantı kesiliyor…</value>
+  </data>
+  <data name="BluetoothErrConnect" xml:space="preserve">
+    <value>Bağlanamadı</value>
+  </data>
+  <data name="BluetoothErrDisconnect" xml:space="preserve">
+    <value>Bağlantı kesilemedi</value>
+  </data>
+  <data name="BluetoothErrUnsupported" xml:space="preserve">
+    <value>Koy bu cihaza bağlanamıyor; Windows ayarlarını kullan</value>
+  </data>
+  <data name="BluetoothOpenSettingsHint" xml:space="preserve">
+    <value>Tıklayınca Windows Bluetooth ayarları açılır</value>
+  </data>
+  <data name="BluetoothRadioOff" xml:space="preserve">
+    <value>Bluetooth kapalı</value>
+  </data>
+  <data name="BluetoothNotFound" xml:space="preserve">
+    <value>Bluetooth bulunamadı</value>
+  </data>
+  <data name="BluetoothEmpty" xml:space="preserve">
+    <value>Eşleşmiş cihaz yok</value>
+  </data>
+  <data name="BluetoothConnectedDevices" xml:space="preserve">
+    <value>Bağlı cihazlar</value>
+  </data>
+  <data name="BluetoothNoConnected" xml:space="preserve">
+    <value>Bağlı cihaz yok</value>
+  </data>
+  <data name="ControlBack" xml:space="preserve">
+    <value>Geri</value>
+  </data>
+  <data name="ControlOpenWifiList" xml:space="preserve">
+    <value>Wi-Fi ağlarını göster</value>
+  </data>
+  <data name="ControlOpenBluetoothList" xml:space="preserve">
+    <value>Bluetooth cihazlarını göster</value>
+  </data>
 </root>

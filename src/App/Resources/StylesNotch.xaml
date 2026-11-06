@@ -38,6 +38,112 @@
         </Setter>
     </Style>
 
+    <!-- Çentik anahtarı (Kontrol liste sayfalarının başlığı): 36x20 iz, açıkken Kontrol vurgu rengi (mavi). -->
+    <Style x:Key="NotchSwitchStyle" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Width="36" Height="20" Background="Transparent" SnapsToDevicePixels="True">
+                        <Border x:Name="Track" CornerRadius="10" Background="{DynamicResource KoyNotchControlTrack}" />
+                        <Ellipse x:Name="Knob" Width="14" Height="14" HorizontalAlignment="Left" Margin="3,0,0,0"
+                                 Fill="{DynamicResource KoyNotchMuted}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource KoyNotchAccentControl}" />
+                            <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right" />
+                            <Setter TargetName="Knob" Property="Margin" Value="0,0,3,0" />
+                            <Setter TargetName="Knob" Property="Fill" Value="{DynamicResource KoyNotchText}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Liste satırı düğmesi: etkinken fareyle üstüne gelince hafif aydınlanır; etkin değilse (tıklanamaz satır) sade ve imleç ok. -->
+    <Style x:Key="NotchRowButtonStyle" TargetType="Button">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Foreground" Value="{DynamicResource KoyNotchText}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Hover" CornerRadius="12" Background="Transparent" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Background" Value="{DynamicResource KoyNotchRowHover}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Küçük pill düğme (Bağlan / Bağlantıyı kes). -->
+    <Style x:Key="NotchPillButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource KoyNotchText}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Pill" CornerRadius="11" Height="22" Padding="10,0" Background="{DynamicResource KoyNotchChip}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchAccentControl}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Pill" Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Satır içi şifre kutusu (Wi-Fi). -->
+    <Style x:Key="NotchPasswordStyle" TargetType="PasswordBox">
+        <Setter Property="Foreground" Value="{DynamicResource KoyNotchText}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource KoyNotchText}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Height" Value="28" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="PasswordBox">
+                    <Border x:Name="Box" CornerRadius="14" Background="{DynamicResource KoyNotchSurface}"
+                            BorderThickness="1" BorderBrush="Transparent" Padding="12,0">
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource KoyNotchCheckBorder}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Kart içi düz düğme: yalnız tıklanabilir yüzey, görünüm içeriğin kendisinde. -->
     <Style x:Key="NotchPlainButtonStyle" TargetType="Button">
         <Setter Property="Foreground" Value="{DynamicResource KoyNotchText}" />

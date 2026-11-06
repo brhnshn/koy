@@ -1,4 +1,5 @@
 using System.Globalization;
+using Koy.Core.Radio;
 
 namespace Koy.Core.Bluetooth;
 
@@ -141,6 +142,16 @@ public static class BluetoothList
 
         return device.IsConnected ? BluetoothRowAction.Disconnect : BluetoothRowAction.Connect;
     }
+
+    /// <summary>Radyo durumu ve servis hazırlığından listenin hangi hâlde gösterileceği.</summary>
+    public static BluetoothListState Resolve(RadioTileStatus radio, bool serviceReady, int deviceCount) => radio switch
+    {
+        RadioTileStatus.NoAccess => BluetoothListState.NoAccess,
+        RadioTileStatus.NotFound => BluetoothListState.NotFound,
+        RadioTileStatus.Off or RadioTileStatus.HardwareOff => BluetoothListState.RadioOff,
+        RadioTileStatus.Loading => BluetoothListState.Loading,
+        _ => !serviceReady ? BluetoothListState.Loading : deviceCount == 0 ? BluetoothListState.Empty : BluetoothListState.Ready
+    };
 
     /// <summary>Bağlan / kes sonucu için hata metni anahtarı; doğrulanmış başarıda null.</summary>
     public static string? ErrorKey(BluetoothActionResult result, bool connecting) => result switch

@@ -1,0 +1,175 @@
+<UserControl x:Class="Koy.App.Features.ControlCenter.WifiListPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Koy.App.Features.ControlCenter"
+             xmlns:res="clr-namespace:Koy.App.Resources"
+             xmlns:radio="clr-namespace:Koy.Core.Radio;assembly=Koy.Core"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance local:ControlCenterViewModel}"
+             Foreground="{DynamicResource KoyNotchText}"
+             FontSize="12">
+
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+    <!-- Metin bağlantısı: küçük, soluk; üzerine gelince vurgulanır (işlevli: Windows ayarlarını açar) -->
+    <Style x:Key="LinkTextStyle" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="10.5" />
+      <Setter Property="Foreground" Value="{DynamicResource KoyNotchMuted}" />
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+          <Setter Property="Foreground" Value="{DynamicResource KoyNotchText}" />
+          <Setter Property="TextDecorations" Value="Underline" />
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+
+    <DataTemplate x:Key="WifiRowTemplate" DataType="{x:Type local:WifiRowViewModel}">
+      <Border x:Name="Card" CornerRadius="12" Background="{DynamicResource KoyNotchControlTile}" Margin="0,0,0,4"
+              BorderThickness="1" BorderBrush="Transparent">
+        <StackPanel>
+          <Grid MinHeight="40">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Style="{StaticResource NotchRowButtonStyle}" Padding="10,0"
+                    Command="{Binding DataContext.Wifi.ActivateCommand, RelativeSource={RelativeSource AncestorType=local:WifiListPage}}"
+                    CommandParameter="{Binding}"
+                    IsEnabled="{Binding IsClickable}"
+                    AutomationProperties.Name="{Binding DisplayName}">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <local:SignalBarsIcon x:Name="Signal" Bars="{Binding Bars}" Foreground="{DynamicResource KoyNotchText}"
+                                      VerticalAlignment="Center" Margin="0,0,10,0" />
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding DisplayName}" FontSize="12.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="260" HorizontalAlignment="Left" />
+                    <res:KoyIcon Data="{DynamicResource IconLock}" Size="11" StrokeWidth="2.2" Foreground="{DynamicResource KoyNotchMuted}"
+                                 Margin="6,0,0,0" VerticalAlignment="Center"
+                                 Visibility="{Binding IsSecured, Converter={StaticResource BoolToVis}}" />
+                  </StackPanel>
+                  <TextBlock x:Name="Status" Text="{Binding DisplayStatus}" FontSize="10.5" Foreground="{DynamicResource KoyNotchMuted}"
+                             TextTrimming="CharacterEllipsis" Margin="0,1,0,0"
+                             Visibility="{Binding HasStatus, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+              </Grid>
+            </Button>
+
+            <!-- Bağlı ağda: Bağlantıyı kes -->
+            <Button Grid.Column="1" Margin="0,0,10,0" Style="{StaticResource NotchPillButtonStyle}"
+                    Content="{x:Static res:Strings.WifiDisconnect}"
+                    Command="{Binding DataContext.Wifi.DisconnectCommand, RelativeSource={RelativeSource AncestorType=local:WifiListPage}}"
+                    CommandParameter="{Binding}"
+                    Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}" />
+          </Grid>
+
+          <!-- Güvenli ve kayıtsız ağ: satırın içinde şifre kutusu -->
+          <Grid Margin="10,0,10,8" Visibility="{Binding IsPasswordOpen, Converter={StaticResource BoolToVis}}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid>
+              <PasswordBox Style="{StaticResource NotchPasswordStyle}"
+                           PasswordChanged="Password_PasswordChanged"
+                           IsVisibleChanged="Password_IsVisibleChanged"
+                           PreviewKeyDown="Password_PreviewKeyDown"
+                           AutomationProperties.Name="{x:Static res:Strings.WifiPasswordHint}" />
+              <TextBlock Text="{x:Static res:Strings.WifiPasswordHint}" Foreground="{DynamicResource KoyNotchMuted}" FontSize="12"
+                         Margin="13,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding CanConnect}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+            </Grid>
+            <Button Grid.Column="1" Margin="8,0,0,0" Style="{StaticResource NotchPillButtonStyle}" Height="28"
+                    Content="{x:Static res:Strings.WifiConnect}"
+                    IsEnabled="{Binding CanConnect}"
+                    Command="{Binding DataContext.Wifi.ConnectWithPasswordCommand, RelativeSource={RelativeSource AncestorType=local:WifiListPage}}"
+                    CommandParameter="{Binding}" />
+          </Grid>
+        </StackPanel>
+      </Border>
+      <DataTemplate.Triggers>
+        <!-- Bağlı satır: mavi çerçeve ve koyu mavi zemin (Kontrol vurgu rengi) -->
+        <DataTrigger Binding="{Binding IsConnected}" Value="True">
+          <Setter TargetName="Card" Property="Background" Value="{DynamicResource KoyNotchControlCard}" />
+          <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource KoyNotchAccentControl}" />
+          <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource KoyNotchControlSoft}" />
+        </DataTrigger>
+        <DataTrigger Binding="{Binding ErrorText, Converter={x:Static local:HasTextConverter.Instance}}" Value="True">
+          <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource KoyNotchRowError}" />
+        </DataTrigger>
+      </DataTemplate.Triggers>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="32" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="22" />
+    </Grid.RowDefinitions>
+
+    <!-- Başlık: geri oku, ad, aç/kapa anahtarı -->
+    <Grid Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Button Style="{StaticResource NotchRowButtonStyle}" Width="32" Height="32" Command="{Binding BackCommand}"
+              ToolTip="{x:Static res:Strings.ControlBack}" AutomationProperties.Name="{x:Static res:Strings.ControlBack}">
+        <res:KoyIcon Data="{DynamicResource IconChevronLeft}" Size="16" StrokeWidth="2.2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Foreground="{DynamicResource KoyNotchText}" />
+      </Button>
+      <TextBlock Grid.Column="1" Text="{x:Static res:Strings.WiFi}" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center" Margin="4,0,0,0" />
+      <CheckBox Grid.Column="2" Style="{StaticResource NotchSwitchStyle}" Margin="0,0,4,0"
+                IsChecked="{Binding WiFi.IsOn, Mode=OneWay}"
+                IsEnabled="{Binding WiFi.IsUnavailable, Converter={x:Static local:InverseBoolConverter.Instance}}"
+                Command="{Binding ActivateRadioCommand}" CommandParameter="{x:Static radio:RadioKind.WiFi}"
+                AutomationProperties.Name="{x:Static res:Strings.WiFi}" />
+    </Grid>
+
+    <!-- Liste ya da açıklama -->
+    <Grid Grid.Row="1" Margin="0,8,0,0">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                    Visibility="{Binding Wifi.ShowList, Converter={StaticResource BoolToVis}}">
+        <ItemsControl ItemsSource="{Binding Wifi.Rows}" ItemTemplate="{StaticResource WifiRowTemplate}" Focusable="False" Margin="0,0,4,0" />
+      </ScrollViewer>
+
+      <Border CornerRadius="12" Background="{DynamicResource KoyNotchControlTile}" Padding="14,10" VerticalAlignment="Top"
+              Visibility="{Binding Wifi.ShowMessage, Converter={StaticResource BoolToVis}}">
+        <StackPanel>
+          <TextBlock Text="{Binding Wifi.MessageText}" TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource KoyNotchControlSoft}" />
+          <Button Style="{StaticResource NotchPlainButtonStyle}" HorizontalAlignment="Left" Margin="0,8,0,0"
+                  Command="{Binding Wifi.OpenLocationSettingsCommand}"
+                  Visibility="{Binding Wifi.ShowLocationLink, Converter={StaticResource BoolToVis}}">
+            <TextBlock Text="{x:Static res:Strings.WifiLocationLink}" Style="{StaticResource LinkTextStyle}" FontSize="11.5"
+                       Foreground="{DynamicResource KoyNotchControlBattery}" />
+          </Button>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- Alt: Windows'un tam Wi-Fi ayarları -->
+    <Button Grid.Row="2" Style="{StaticResource NotchPlainButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="4,0,0,0"
+            Command="{Binding Wifi.OpenSettingsCommand}">
+      <TextBlock Text="{x:Static res:Strings.WifiMoreSettings}" Style="{StaticResource LinkTextStyle}" />
+    </Button>
+  </Grid>
+</UserControl>

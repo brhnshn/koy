@@ -1380,4 +1380,127 @@
   <data name="TaskEmpty" xml:space="preserve">
     <value>No tasks yet</value>
   </data>
+  <data name="WifiConnectedSecure" xml:space="preserve">
+    <value>Connected, secured</value>
+  </data>
+  <data name="WifiConnectedOpen" xml:space="preserve">
+    <value>Connected, open network</value>
+  </data>
+  <data name="WifiSaved" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="WifiHidden" xml:space="preserve">
+    <value>Hidden network</value>
+  </data>
+  <data name="WifiConnecting" xml:space="preserve">
+    <value>Connecting…</value>
+  </data>
+  <data name="WifiConnect" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="WifiDisconnect" xml:space="preserve">
+    <value>Disconnect</value>
+  </data>
+  <data name="WifiPasswordHint" xml:space="preserve">
+    <value>Network password</value>
+  </data>
+  <data name="WifiErrPassword" xml:space="preserve">
+    <value>Wrong password</value>
+  </data>
+  <data name="WifiErrNotAvailable" xml:space="preserve">
+    <value>The network isn't reachable right now</value>
+  </data>
+  <data name="WifiErrTimeout" xml:space="preserve">
+    <value>Timed out</value>
+  </data>
+  <data name="WifiErrUnsupported" xml:space="preserve">
+    <value>This security type isn't supported</value>
+  </data>
+  <data name="WifiErrAccess" xml:space="preserve">
+    <value>Wi-Fi access was denied</value>
+  </data>
+  <data name="WifiErrFailed" xml:space="preserve">
+    <value>Couldn't connect</value>
+  </data>
+  <data name="WifiRadioOff" xml:space="preserve">
+    <value>Wi-Fi is off</value>
+  </data>
+  <data name="WifiNoAdapter" xml:space="preserve">
+    <value>No Wi-Fi adapter found</value>
+  </data>
+  <data name="WifiNoAccess" xml:space="preserve">
+    <value>Wi-Fi access isn't allowed. Allow desktop apps in Settings &gt; Privacy &gt; Location.</value>
+  </data>
+  <data name="WifiLocationBlocked" xml:space="preserve">
+    <value>Network names are hidden: Windows shows Wi-Fi names to desktop apps only with location access. Turn on "Let desktop apps access your location" in Settings &gt; Privacy &gt; Location.</value>
+  </data>
+  <data name="WifiEmpty" xml:space="preserve">
+    <value>No networks found nearby</value>
+  </data>
+  <data name="WifiScanFailed" xml:space="preserve">
+    <value>Couldn't scan for networks</value>
+  </data>
+  <data name="WifiLocationLink" xml:space="preserve">
+    <value>Open location settings</value>
+  </data>
+  <data name="WifiMoreSettings" xml:space="preserve">
+    <value>More Wi-Fi settings</value>
+  </data>
+  <data name="BluetoothMoreSettings" xml:space="preserve">
+    <value>More Bluetooth settings</value>
+  </data>
+  <data name="BluetoothConnected" xml:space="preserve">
+    <value>Connected</value>
+  </data>
+  <data name="BluetoothNotConnected" xml:space="preserve">
+    <value>Not connected</value>
+  </data>
+  <data name="BluetoothConnect" xml:space="preserve">
+    <value>Connect</value>
+  </data>
+  <data name="BluetoothDisconnect" xml:space="preserve">
+    <value>Disconnect</value>
+  </data>
+  <data name="BluetoothConnecting" xml:space="preserve">
+    <value>Connecting…</value>
+  </data>
+  <data name="BluetoothDisconnecting" xml:space="preserve">
+    <value>Disconnecting…</value>
+  </data>
+  <data name="BluetoothErrConnect" xml:space="preserve">
+    <value>Couldn't connect</value>
+  </data>
+  <data name="BluetoothErrDisconnect" xml:space="preserve">
+    <value>Couldn't disconnect</value>
+  </data>
+  <data name="BluetoothErrUnsupported" xml:space="preserve">
+    <value>Koy can't connect to this device; use Windows settings</value>
+  </data>
+  <data name="BluetoothOpenSettingsHint" xml:space="preserve">
+    <value>Click to open Windows Bluetooth settings</value>
+  </data>
+  <data name="BluetoothRadioOff" xml:space="preserve">
+    <value>Bluetooth is off</value>
+  </data>
+  <data name="BluetoothNotFound" xml:space="preserve">
+    <value>Bluetooth not found</value>
+  </data>
+  <data name="BluetoothEmpty" xml:space="preserve">
+    <value>No paired devices</value>
+  </data>
+  <data name="BluetoothConnectedDevices" xml:space="preserve">
+    <value>Connected devices</value>
+  </data>
+  <data name="BluetoothNoConnected" xml:space="preserve">
+    <value>No connected devices</value>
+  </data>
+  <data name="ControlBack" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="ControlOpenWifiList" xml:space="preserve">
+    <value>Show Wi-Fi networks</value>
+  </data>
+  <data name="ControlOpenBluetoothList" xml:space="preserve">
+    <value>Show Bluetooth devices</value>
+  </data>
 </root>

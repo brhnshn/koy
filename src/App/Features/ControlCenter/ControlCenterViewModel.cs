@@ -1,15 +1,26 @@
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.App.Resources;
 using Koy.Core.Audio;
+using Koy.Core.Bluetooth;
 using Koy.Core.Diagnostics;
 using Koy.Core.Display;
 using Koy.Core.Notch;
 using Koy.Core.Radio;
 using Koy.Core.Settings;
 using Koy.Core.Shell;
+using Koy.Core.Wireless;
 
 namespace Koy.App.Features.ControlCenter;
+
+/// <summary>Kontrol sekmesinde açık olan sayfa: ana döşemeler ya da bir ağ / cihaz listesi.</summary>
+public enum ControlPage
+{
+    Main,
+    WiFi,
+    Bluetooth
+}
 
 public sealed partial class ControlCenterViewModel : ObservableObject, IDisposable
 {
@@ -57,6 +68,41 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
     public RadioTileViewModel Bluetooth { get; } = new(RadioKind.Bluetooth);
 
+    /// <summary>Wi-Fi listesi sayfası (servis yalnız sayfa açıkken alınır).</summary>
+    public WifiPageViewModel Wifi { get; }
+
+    /// <summary>Bluetooth cihazları: Bluetooth listesi, "Bağlı cihazlar" kartı ve Ana'daki kulaklık kartı ortak kullanır.</summary>
+    public BluetoothDevicesViewModel BluetoothDevices { get; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsMainPage), nameof(IsWifiPage), nameof(IsBluetoothPage))]
+    private ControlPage _page = ControlPage.Main;
+
+    public bool IsMainPage => Page == ControlPage.Main;
+    public bool IsWifiPage => Page == ControlPage.WiFi;
+    public bool IsBluetoothPage => Page == ControlPage.Bluetooth;
+
+    /// <summary>Bluetooth sayfasında / kartında liste yerine gösterilen açıklama (kapalı, bulunamadı, izin yok, boş).</summary>
+    [ObservableProperty]
+    private string _bluetoothMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool _showBluetoothMessage;
+
+    [ObservableProperty]
+    private bool _showBluetoothList;
+
+    /// <summary>"Bağlı cihazlar" kartı görünür mü (Bluetooth radyosu var).</summary>
+    [ObservableProperty]
+    private bool _showConnectedCard;
+
+    /// <summary>Kartta bağlı cihaz yokken gösterilen yazı ("Bağlı cihaz yok" ya da "Bluetooth kapalı").</summary>
+    [ObservableProperty]
+    private string _connectedEmptyText = string.Empty;
+
+    [ObservableProperty]
+    private bool _showConnectedEmpty;
+
     [ObservableProperty]
     private float _volume;
 
@@ -85,7 +131,10 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         IFocusAssistService focusAssistService,
         AppSettings settings,
         Dispatcher? dispatcher = null,
-        SettingsStore? store = null)
+        SettingsStore? store = null,
+        Func<IWifiService>? wifiFactory = null,
+        Action? wifiRelease = null,
+        BluetoothDevicesViewModel? bluetoothDevices = null)
     {
         _store = store;
         TileOrder = ControlCenterTiles.Resolve(settings.ControlCenterLayout);
@@ -96,6 +145,37 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         _focusAssistService = focusAssistService;
         _settings = settings;
         _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
+        Wifi = new WifiPageViewModel(wifiFactory ?? (() => throw new InvalidOperationException("Wi-Fi servisi tanımlı değil")), wifiRelease, () => WiFi.IsOn, _dispatcher);
+        BluetoothDevices = bluetoothDevices ?? new BluetoothDevicesViewModel(() => throw new InvalidOperationException("Bluetooth servisi tanımlı değil"), null, _dispatcher);
+        BluetoothDevices.PropertyChanged += OnBluetoothDevicesChanged;
+        BluetoothDevices.Devices.CollectionChanged += (_, _) => UpdateBluetoothView();
+        UpdateBluetoothView();
+    }
+
+    private void OnBluetoothDevicesChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(BluetoothDevicesViewModel.IsReady) or nameof(BluetoothDevicesViewModel.HasConnected))
+            UpdateBluetoothView();
+    }
+
+    // Bluetooth sayfası ve kart, radyo döşemesinin durumundan ve cihaz listesinden beslenir.
+    private void UpdateBluetoothView()
+    {
+        var radio = Bluetooth.State.Status;
+        var state = BluetoothDevices.StateFor(radio);
+        ShowBluetoothList = state == BluetoothListState.Ready;
+        ShowBluetoothMessage = !ShowBluetoothList;
+        BluetoothMessage = state switch
+        {
+            BluetoothListState.RadioOff => Strings.Get("BluetoothRadioOff"),
+            BluetoothListState.NotFound => Strings.Get("BluetoothNotFound"),
+            BluetoothListState.NoAccess => Strings.Get("RadioNoAccess"),
+            BluetoothListState.Empty => Strings.Get("BluetoothEmpty"),
+            _ => Strings.Get("Loading")
+        };
+        ShowConnectedCard = radio is not (RadioTileStatus.NotFound or RadioTileStatus.NoAccess or RadioTileStatus.Loading);
+        ShowConnectedEmpty = !BluetoothDevices.HasConnected;
+        ConnectedEmptyText = Strings.Get(state == BluetoothListState.RadioOff ? "BluetoothRadioOff" : "BluetoothNoConnected");
     }
 
     /// <summary>
@@ -130,8 +210,16 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
     public void SetActive(bool active)
     {
-        if (!active || _disposed)
+        if (_disposed)
             return;
+
+        // Sekme değişince ya da çentik kapanınca liste sayfaları kapanır; servisler yalnız görünürken çalışır.
+        BluetoothDevices.SetViewing("control", active);
+        if (!active)
+        {
+            ClosePage();
+            return;
+        }
 
         EnsureRadioService();
 
@@ -215,6 +303,8 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
                 _toggleFailed[e.Kind] = false;
 
             UpdateRadioTile(e.Kind);
+            if (e.Kind == RadioKind.WiFi)
+                Wifi.OnRadioChanged();
         });
     }
 
@@ -227,6 +317,8 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
         var state = kind == RadioKind.WiFi ? _radioService.WiFiState : _radioService.BluetoothState;
         GetTile(kind).Apply(RadioTileResolver.Resolve(_radioService.Access, state, _toggleFailed[kind]));
+        if (kind == RadioKind.Bluetooth)
+            UpdateBluetoothView();
     }
 
     private void OnBrightnessChanged(object? sender, int e)
@@ -253,6 +345,8 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
                 var ok = await _radioService.ToggleAsync(kind);
                 _toggleFailed[kind] = !ok;
                 UpdateRadioTile(kind);
+                // Başlık anahtarı tek yönlü bağlı; reddedilen denemede kullanıcının çevirdiği hâli gerçek duruma döndür.
+                GetTile(kind).NotifyToggle();
                 break;
             case RadioTileAction.OpenSettings:
                 _radioService.OpenSettings(kind);
@@ -263,9 +357,27 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         }
     }
 
-    /// <summary>Ağ listesi ve cihaz eşleştirme için Windows'un kendi sayfası.</summary>
+    /// <summary>Döşemenin okuna basınca: Wi-Fi ya da Bluetooth listesi sayfası çentik içinde açılır.</summary>
     [RelayCommand]
-    private void OpenRadioSettings(RadioKind kind) => _radioService?.OpenSettings(kind);
+    private void OpenPage(RadioKind kind)
+    {
+        if (_disposed)
+            return;
+
+        Page = kind == RadioKind.WiFi ? ControlPage.WiFi : ControlPage.Bluetooth;
+        Wifi.SetActive(Page == ControlPage.WiFi);
+        UpdateBluetoothView();
+    }
+
+    /// <summary>Geri oku: Kontrol'ün ana görünümüne döner ve liste servislerini bırakır.</summary>
+    [RelayCommand]
+    private void Back() => ClosePage();
+
+    private void ClosePage()
+    {
+        Wifi.SetActive(false);
+        Page = ControlPage.Main;
+    }
 
     /// <summary>
     /// Rahatsız Etme'yi açıp kapatan ve durumunu güvenilir okuyan resmi bir API yok; döşeme yalnız
@@ -301,6 +413,10 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
             return;
 
         _disposed = true;
+
+        Wifi.Dispose();
+        BluetoothDevices.PropertyChanged -= OnBluetoothDevicesChanged;
+        BluetoothDevices.Dispose();
 
         if (_audioService is not null)
         {

@@ -38,6 +38,18 @@ public enum BluetoothActionResult
     Failed
 }
 
+/// <summary>Bluetooth listesinin görünümü: radyo kapalı, bulunamadı, izin yok, boş ya da cihazlar.</summary>
+public enum BluetoothListState
+{
+    Loading,
+    Ready,
+    /// <summary>Eşleşmiş cihaz yok.</summary>
+    Empty,
+    RadioOff,
+    NotFound,
+    NoAccess
+}
+
 public enum BluetoothRowAction
 {
     Connect,

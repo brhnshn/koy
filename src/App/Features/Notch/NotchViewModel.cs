@@ -187,7 +187,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _shelf = shelf;
         _calendar = calendar;
         _clipboard = clipboard;
-        Home = new HomeViewModel(music, status, focus, systemStats, quickLaunch, shellActions, () => _controller.GoToPanel(NotchPanel.Focus));
+        Home = new HomeViewModel(music, status, focus, systemStats, quickLaunch, shellActions, () => _controller.GoToPanel(NotchPanel.Focus),
+            controlCenter.BluetoothDevices);
         quickLaunch.HoldOpen = HoldOpenForPicker;
         _visibility = visibility ?? new VisibilityController(settings.NotchVisibility);
         _dispatcher = dispatcher ?? (System.Windows.Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher);
@@ -397,6 +398,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         var shown = isExpanded && IsNotchVisible;
         SystemStats.SetActive(shown && CurrentPanel is NotchPanel.Home or NotchPanel.System);
         Home.QuickLaunch.SetActive(shown && CurrentPanel == NotchPanel.Home);
+        // Kulaklık kartı yalnız Ana görünürken Bluetooth izleyicisini ister (Kontrol kendi "control" sahibiyle ister).
+        _controlCenter.BluetoothDevices.SetViewing("home", shown && CurrentPanel == NotchPanel.Home);
         _focus.Tasks?.SetActive(shown && CurrentPanel == NotchPanel.Focus);
         _calendar.SetActive(shown && CurrentPanel == NotchPanel.Calendar);
         _clipboard?.SetActive(shown && CurrentPanel == NotchPanel.Clipboard);

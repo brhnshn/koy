@@ -12,6 +12,13 @@
              FontSize="12">
 
   <UserControl.Resources>
+    <Style x:Key="HideWithAudioCard" TargetType="TextBlock">
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding Bluetooth.HasPrimaryAudio}" Value="True">
+          <Setter Property="Visibility" Value="Collapsed" />
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
     <!-- Müzik düğmeleri: yuvarlak, fare üstünde hafif ışık -->
@@ -226,16 +233,46 @@
       </Grid>
     </Border>
 
-    <!-- SAĞ SÜTUN (tasarımdaki gibi, kulaklık kartı olmadan): CPU / RAM ile ağ kartı yan yana, altta hızlı başlat şeridi.
-         Hava durumu yalnız üstteki durum satırındadır. -->
+    <!-- SAĞ SÜTUN (tasarımdaki gibi): üstte kulaklık kartı (yalnız bağlı ses cihazı varsa; yoksa hiç yer kaplamaz),
+         CPU / RAM ile ağ kartı yan yana, altta hızlı başlat şeridi. Hava durumu yalnız üstteki durum satırındadır. -->
     <Grid Grid.Column="2">
       <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
         <RowDefinition Height="8" />
         <RowDefinition Height="Auto" />
       </Grid.RowDefinitions>
 
-      <Grid Grid.Row="0">
+      <!-- Kulaklık kartı: bağlı ses cihazının adı ve (varsa) pili. Pil bilinmiyorsa yüzde gösterilmez. -->
+      <Border Grid.Row="0" Height="40" Margin="0,0,0,8" CornerRadius="18" Background="{DynamicResource KoyNotchControlCard}" Padding="14,0"
+              Visibility="{Binding Bluetooth.HasPrimaryAudio, Converter={StaticResource BoolToVis}}">
+        <Grid DataContext="{Binding Bluetooth.PrimaryAudio}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource KoyNotchControlIconBg}" VerticalAlignment="Center">
+            <res:KoyIcon Size="15" StrokeWidth="2" Foreground="{DynamicResource KoyNotchControlBattery}" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <res:KoyIcon.Style>
+                <Style TargetType="res:KoyIcon">
+                  <Setter Property="Data" Value="{DynamicResource IconHeadphones}" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding Kind}" Value="Speaker">
+                      <Setter Property="Data" Value="{DynamicResource IconSpeaker}" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </res:KoyIcon.Style>
+            </res:KoyIcon>
+          </Border>
+          <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" Margin="10,0,8,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+          <TextBlock Grid.Column="2" Text="{Binding BatteryText}" FontSize="12" Foreground="{DynamicResource KoyNotchControlSoft}" VerticalAlignment="Center"
+                     Visibility="{Binding HasBattery, Converter={StaticResource BoolToVis}}" />
+        </Grid>
+      </Border>
+
+      <Grid Grid.Row="1">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
           <ColumnDefinition Width="8" />
@@ -251,15 +288,17 @@
             </Grid>
             <ProgressBar Minimum="0" Maximum="1" Value="{Binding Stats.CpuProgress, Mode=OneWay}" Height="4" Margin="0,5,0,0" BorderThickness="0"
                          Background="{DynamicResource KoyNotchSystemTrack}" Foreground="{DynamicResource KoyNotchAccentSystem}" />
+            <!-- Kulaklık kartı görünürken sütun alçalır: tasarımdaki gibi yalnız yüzde ve çubuk kalır, ayrıntı satırları gizlenir -->
             <TextBlock Text="{Binding Stats.TopProcessText}" FontSize="10" Foreground="{DynamicResource KoyNotchSystemSoft}" Opacity="0.8" Margin="0,4,0,0"
-                       TextTrimming="CharacterEllipsis" />
+                       TextTrimming="CharacterEllipsis" Style="{StaticResource HideWithAudioCard}" />
             <Grid Margin="0,12,0,0">
               <TextBlock Text="{Binding [HomeRam], Source={x:Static res:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource KoyNotchSystemSoft}" VerticalAlignment="Bottom" />
               <TextBlock Text="{Binding Stats.RamText}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Right" />
             </Grid>
             <ProgressBar Minimum="0" Maximum="1" Value="{Binding Stats.RamProgress, Mode=OneWay}" Height="4" Margin="0,5,0,0" BorderThickness="0"
                          Background="{DynamicResource KoyNotchSystemTrack}" Foreground="{DynamicResource KoyNotchAccentSystem}" />
-            <TextBlock Text="{Binding Stats.MemoryDetailText}" FontSize="10" Foreground="{DynamicResource KoyNotchSystemSoft}" Opacity="0.8" Margin="0,4,0,0" />
+            <TextBlock Text="{Binding Stats.MemoryDetailText}" FontSize="10" Foreground="{DynamicResource KoyNotchSystemSoft}" Opacity="0.8" Margin="0,4,0,0"
+                       Style="{StaticResource HideWithAudioCard}" />
           </StackPanel>
         </Border>
 
@@ -274,7 +313,7 @@
       </Grid>
 
       <!-- Hızlı başlat -->
-      <Border Grid.Row="2" CornerRadius="18" Background="{DynamicResource KoyNotchCard}" Padding="14,8,10,9">
+      <Border Grid.Row="3" CornerRadius="18" Background="{DynamicResource KoyNotchCard}" Padding="14,8,10,9">
         <StackPanel>
           <TextBlock Text="{Binding [QuickLaunchTitle], Source={x:Static res:Loc.Instance}}" FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" />
           <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
