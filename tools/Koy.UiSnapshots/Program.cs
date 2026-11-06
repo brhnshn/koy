@@ -143,7 +143,7 @@ public static class Program
 
     private static NotchSet MakeNotch(bool music, IReadOnlyList<Koy.Core.Shelf.ShelfItem>? shelf = null, List<string>? tileOrder = null,
         bool locationBlocked = false, bool audioConnected = true, Func<Koy.Core.SystemStats.ISystemStatsService>? statsFactory = null,
-        bool brightnessSupported = true)
+        bool brightnessSupported = true, bool wideCover = false)
     {
         var settings = new AppSettings
         {
@@ -158,7 +158,7 @@ public static class Program
         var controller = new Koy.Core.Notch.NotchController();
         controller.SetEnabledPanels(Koy.Core.Notch.NotchPanels.Order);
         var timers = new Koy.Core.Timers.FocusTimers(Koy.Core.Timers.PomodoroConfig.Default);
-        var info = music ? new Koy.Core.Media.MediaInfo("Gece Yolculuğu", "Mor ve Ötesi", "Spotify.exe", true, FakeCover()) : null;
+        var info = music ? new Koy.Core.Media.MediaInfo("Gece Yolculuğu", "Mor ve Ötesi", "Spotify.exe", true, wideCover ? FakeCover(150, 83) : FakeCover(300, 300)) : null;
 
         var vm = new Koy.App.Features.Notch.NotchViewModel(
             settings,
@@ -182,21 +182,20 @@ public static class Program
     }
 
     // Deneme kapağı: 300 px desenli PNG (gerçek kapaklar 300–640 px); keskinlik ve yuvarlak köşe kontrolü için ince çizgiler.
-    private static byte[] FakeCover()
+    private static byte[] FakeCover(int width, int height)
     {
-        const int size = 300;
-        var pixels = new byte[size * size * 4];
-        for (var y = 0; y < size; y++)
-            for (var x = 0; x < size; x++)
+        var pixels = new byte[width * height * 4];
+        for (var y = 0; y < height; y++)
+            for (var x = 0; x < width; x++)
             {
-                var i = (y * size + x) * 4;
+                var i = (y * width + x) * 4;
                 var line = x % 20 == 0 || y % 20 == 0;
                 pixels[i] = (byte)(line ? 255 : 80 + x / 3);
                 pixels[i + 1] = (byte)(line ? 255 : 40 + y / 3);
                 pixels[i + 2] = (byte)(line ? 255 : 140);
                 pixels[i + 3] = 255;
             }
-        var bitmap = System.Windows.Media.Imaging.BitmapSource.Create(size, size, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, pixels, size * 4);
+        var bitmap = System.Windows.Media.Imaging.BitmapSource.Create(width, height, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, pixels, width * 4);
         var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
         encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
         using var stream = new MemoryStream();
@@ -302,6 +301,14 @@ public static class Program
         // Müzik kartına tıklanınca: büyük kart Ana gövdesini kaplar.
         set.Vm.Home.ToggleMusicExpandedCommand.Execute(null);
         ShotNotch(set, name("ana-muzik-buyuk"), expanded: true);
+        set.Vm.Dispose();
+
+        // Video kapağı (Chrome/YouTube Windows'a ~150×83 verir): kırpılmadan tamamı, arkada bulanık hâli.
+        set = MakeNotch(music: true, wideCover: true);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Home);
+        ShotNotch(set, name("ana-muzik-video"), expanded: true);
+        set.Vm.Home.ToggleMusicExpandedCommand.Execute(null);
+        ShotNotch(set, name("ana-muzik-video-buyuk"), expanded: true);
         set.Vm.Dispose();
 
         set = MakeNotch(music: false);

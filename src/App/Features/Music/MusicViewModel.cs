@@ -37,7 +37,14 @@ public sealed partial class MusicViewModel : ObservableObject, IDisposable
     private bool _isPlaying;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsWideCover))]
     private ImageSource? _thumbnail;
+
+    /// <summary>
+    /// Kapak yatay mı (video küçük resmi: Chrome/YouTube Windows'a ~150×83 verir). Yataysa kare alana kırpılıp
+    /// iki katından fazla büyütülmez; tamamı gösterilir, arkasını aynı resmin bulanık hâli doldurur.
+    /// </summary>
+    public bool IsWideCover => Thumbnail is BitmapSource b && b.PixelHeight > 0 && b.PixelWidth > b.PixelHeight * 1.15;
 
     [ObservableProperty]
     private TimeSpan _position = TimeSpan.Zero;
