@@ -69,14 +69,20 @@
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
 
-    <!-- SOL KART: müzik çalıyorsa müzik kartı, çalmıyorsa selamlama + saat. Görünürlük yalnız stilden gelir. -->
-    <Border Grid.Column="0" CornerRadius="22" Padding="16">
+    <!-- SOL KART: müzik çalıyorsa müzik kartı, çalmıyorsa selamlama + saat. Görünürlük yalnız stilden gelir.
+         Müzik kartına (düğme ve ilerleme dışında) tıklanınca büyür: Ana gövdesinin tamamını kaplar, sağ sütun gizlenir. -->
+    <Border Grid.Column="0" CornerRadius="22" Padding="16" MouseLeftButtonDown="MusicCard_MouseLeftButtonDown">
       <Border.Style>
         <Style TargetType="Border">
           <Setter Property="Background" Value="{DynamicResource KoyNotchFocusCard}" />
+          <Setter Property="Grid.ColumnSpan" Value="1" />
           <Style.Triggers>
             <DataTrigger Binding="{Binding ShowMusic}" Value="True">
               <Setter Property="Background" Value="{DynamicResource KoyNotchMusicCard}" />
+              <Setter Property="Cursor" Value="Hand" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ShowMusicLarge}" Value="True">
+              <Setter Property="Grid.ColumnSpan" Value="3" />
             </DataTrigger>
           </Style.Triggers>
         </Style>
@@ -118,13 +124,13 @@
           </Button>
         </Grid>
 
-        <!-- Müzik çalıyor -->
+        <!-- Müzik çalıyor: küçük kart -->
         <Grid>
           <Grid.Style>
             <Style TargetType="Grid">
               <Setter Property="Visibility" Value="Collapsed" />
               <Style.Triggers>
-                <DataTrigger Binding="{Binding ShowMusic}" Value="True">
+                <DataTrigger Binding="{Binding ShowMusicCompact}" Value="True">
                   <Setter Property="Visibility" Value="Visible" />
                 </DataTrigger>
               </Style.Triggers>
@@ -240,12 +246,104 @@
             </Border>
           </Button>
         </Grid>
+
+        <!-- Müzik çalıyor: büyük kart (Ana gövdesinin tamamı). Solda büyük kapak; sağda tam başlık, geniş çubuklar,
+             ilerleme ve denetimler. Çentik boyutu değişmez. -->
+        <Grid Visibility="{Binding ShowMusicLarge, Converter={StaticResource BoolToVis}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <Border Width="172" Height="172" CornerRadius="22" Background="{DynamicResource KoyNotchMusicCover}" ClipToBounds="True" VerticalAlignment="Center">
+            <Grid>
+              <Path Width="52" Height="52" Stretch="Uniform" Fill="#60FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Data="M 12,3 L 6,5 L 6,11 A 2.5,2.5 0 1 1 3.5,8.5 L 5,8.5 L 5,4 L 12,2 Z" />
+              <Image Source="{Binding Music.Thumbnail}" Stretch="UniformToFill" />
+            </Grid>
+          </Border>
+
+          <Grid Grid.Column="1" Margin="22,0,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0">
+              <TextBlock Text="{Binding Music.Title}" FontSize="20" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding Music.Artist}" FontSize="14" Foreground="{DynamicResource KoyNotchMusicSub}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Music.Artist}" Value="">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
+              <TextBlock Text="{Binding Music.SourceAppId}" FontSize="11" Foreground="{DynamicResource KoyNotchMusicSub}" Opacity="0.7" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+
+            <music:SpectrumBars Grid.Row="1" Height="34" BarWidth="7" Gap="5" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Feed="{Binding Music.Spectrum}" Fill="#BFBBF7D0" IsHitTestVisible="False"
+                                Visibility="{Binding Music.ShowSpectrum, Converter={StaticResource BoolToVis}}" />
+
+            <Grid Grid.Row="2" Margin="0,0,0,10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="{Binding Music.PositionText}" FontSize="11" Foreground="{DynamicResource KoyNotchTextSecondary}" VerticalAlignment="Center" />
+              <ProgressBar Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding Music.Progress, Mode=OneWay}" Height="5" Margin="10,0"
+                           VerticalAlignment="Center" Background="#38F4F4F5" Foreground="{DynamicResource KoyNotchText}" BorderThickness="0"
+                           Cursor="Hand" MouseLeftButtonDown="ProgressBar_MouseLeftButtonDown" />
+              <TextBlock Grid.Column="2" Text="{Binding Music.DurationText}" FontSize="11" Foreground="{DynamicResource KoyNotchTextSecondary}" VerticalAlignment="Center" />
+            </Grid>
+
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+              <Button Style="{StaticResource MusicButtonStyle}" Width="40" Height="46" Command="{Binding Music.PreviousCommand}"
+                      ToolTip="{Binding [MusicPrevious], Source={x:Static res:Loc.Instance}}"
+                      AutomationProperties.Name="{Binding [MusicPrevious], Source={x:Static res:Loc.Instance}}">
+                <Path Width="20" Height="20" Stretch="Uniform" Fill="{DynamicResource KoyNotchText}" Data="M6 5h2v14H6zM20 5v14L9 12z" />
+              </Button>
+              <Button Style="{StaticResource MusicButtonStyle}" Width="46" Height="46" Margin="18,0" Background="{DynamicResource KoyNotchText}"
+                      Command="{Binding Music.PlayPauseCommand}"
+                      ToolTip="{Binding [MusicPlayPause], Source={x:Static res:Loc.Instance}}"
+                      AutomationProperties.Name="{Binding [MusicPlayPause], Source={x:Static res:Loc.Instance}}">
+                <Grid>
+                  <Path Width="20" Height="20" Stretch="Uniform" Fill="{DynamicResource KoyNotchSurface}" Data="M7 4l12 8-12 8z">
+                    <Path.Style>
+                      <Style TargetType="Path">
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding Music.IsPlaying}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </Path.Style>
+                  </Path>
+                  <Path Width="20" Height="20" Stretch="Uniform" Fill="{DynamicResource KoyNotchSurface}" Data="M7 5h4v14H7zM13 5h4v14h-4z"
+                        Visibility="{Binding Music.IsPlaying, Converter={StaticResource BoolToVis}}" />
+                </Grid>
+              </Button>
+              <Button Style="{StaticResource MusicButtonStyle}" Width="40" Height="46" Command="{Binding Music.NextCommand}"
+                      ToolTip="{Binding [MusicNext], Source={x:Static res:Loc.Instance}}"
+                      AutomationProperties.Name="{Binding [MusicNext], Source={x:Static res:Loc.Instance}}">
+                <Path Width="20" Height="20" Stretch="Uniform" Fill="{DynamicResource KoyNotchText}" Data="M16 5h2v14h-2zM4 5v14l11-7z" />
+              </Button>
+            </StackPanel>
+          </Grid>
+        </Grid>
       </Grid>
     </Border>
 
     <!-- SAĞ SÜTUN (tasarımdaki gibi): üstte kulaklık kartı (yalnız bağlı ses cihazı varsa; yoksa hiç yer kaplamaz),
          CPU / RAM ile ağ kartı yan yana, altta hızlı başlat şeridi. Hava durumu yalnız üstteki durum satırındadır. -->
-    <Grid Grid.Column="2">
+    <Grid Grid.Column="2" Visibility="{Binding ShowSideColumn, Converter={StaticResource BoolToVis}}">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />

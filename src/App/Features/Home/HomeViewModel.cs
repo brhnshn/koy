@@ -41,6 +41,31 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
     /// <summary>Sol kartta selamlama ve büyük saat gösterilir (parça yok).</summary>
     public bool ShowIdle => !Music.HasTrack;
 
+    /// <summary>
+    /// Kullanıcı müzik kartını büyüttü mü (karta tıklayınca açılır/kapanır). Çentik kapanıp açılınca korunur;
+    /// parça yokken etkisizdir (kartta saat vardır), parça gelince son seçim geri gelir.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowMusicCompact), nameof(ShowMusicLarge), nameof(ShowSideColumn))]
+    private bool _isMusicExpanded;
+
+    /// <summary>Müzik kartı küçük düzende (sol sütun).</summary>
+    public bool ShowMusicCompact => Music.HasTrack && !IsMusicExpanded;
+
+    /// <summary>Müzik kartı büyük düzende: Ana gövdesinin tamamını kaplar, sağ sütun gizlenir. Çentik boyutu değişmez.</summary>
+    public bool ShowMusicLarge => Music.HasTrack && IsMusicExpanded;
+
+    /// <summary>Sağ sütun (kulaklık, CPU/RAM, ağ, hızlı başlat) yalnız müzik kartı büyük değilken görünür.</summary>
+    public bool ShowSideColumn => !ShowMusicLarge;
+
+    /// <summary>Müzik kartına (düğme ve ilerleme çubuğu dışında) tıklanınca büyür ya da eski boyutuna döner.</summary>
+    [RelayCommand]
+    private void ToggleMusicExpanded()
+    {
+        if (Music.HasTrack)
+            IsMusicExpanded = !IsMusicExpanded;
+    }
+
     /// <summary>Hava durumu kartı konum seçilmişse hava gösterir, seçilmemişse konum seçmeye yönlendirir.</summary>
     public bool ShowWeather => Status.HasWeatherLocation;
 
@@ -67,6 +92,9 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
         {
             OnPropertyChanged(nameof(ShowMusic));
             OnPropertyChanged(nameof(ShowIdle));
+            OnPropertyChanged(nameof(ShowMusicCompact));
+            OnPropertyChanged(nameof(ShowMusicLarge));
+            OnPropertyChanged(nameof(ShowSideColumn));
         }
     }
 

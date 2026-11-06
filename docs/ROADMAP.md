@@ -278,6 +278,11 @@ Kontrol'deki Wi-Fi / Bluetooth döşemeleri Windows 11 hızlı ayarları gibi b�
 - [ ] Elle sınama (gerçek donanım; uygulama çalıştırılmadı): Wi-Fi listesi ve sinyal; bağlı ağ üstte; kayıtlı ağa doğrudan bağlanma (WiFiAdapter kayıtlı profili şifresiz kullanıyor mu); şifre kutusuyla yeni ağ, yanlış şifre; açık ağ; bağlantıyı kes; konum izni kapalıyken mesaj; profil adı SSID'den farklıysa "Kayıtlı" doğru mu; Bluetooth listesi, tür simgeleri, pil yüzdesi; kulaklık bağlan/kes (KS yolu belgesiz ortamda; hangi sürücülerde çalıştığı belirsiz, çalışmazsa "Bağlanamadı"/"Koy bu cihaza bağlanamıyor" görünür); fare/klavye satırı Ayarlar'ı açıyor mu; LE ses cihazları; çift modlu cihaz tek satır mı; çentik kapanınca/sekme değişince Wi-Fi taramasının ve izleyicilerin durması (CPU %0); sekme çubuğu liste sayfasında kalıyor mu; tekerlek.
 - [ ] Bellek ve CPU ölçümü (AGENTS #1): ölçülmedi (measure-memory çalıştırılmadı).
 
+## Müzik kartını büyütme (2026-11-07)
+- [x] Ana'daki müzik kartına (düğme ve ilerleme dışında) tıklanınca kart Ana gövdesinin tamamını kaplar: 172 px kapak, tam başlık, geniş çubuklar, büyük denetimler; sağ sütun gizlenir, çentik boyutu değişmez. Tekrar tıklayınca eski boyutuna döner. Seçim çentik kapanıp açılınca korunur; parça yokken kartta saat vardır, büyütme etkisizdir.
+- [x] Ana kart düğmelerinin boşlukları da tıklanır (hızlı başlat "+" ortasına tıklayınca çentik kapanıyordu).
+- [ ] Elle sınama: büyütme/küçültme tıklaması, düğmeler ve ilerlemeye tıklayınca kartın büyümemesi, hızlı başlata ekleme.
+
 ## Dock'ta uygulama bazlı sağ tık menüsü (atlama listesi) — AÇIK, almak isteyen alabilir
 
 Windows görev çubuğunda bir uygulamaya sağ tıklayınca açılan menünün aynısı. Örnekler: VS Code'da "Yeni Pencere" ve son klasörler, Edge'de "Yeni InPrivate penceresi", Steam'de Mağaza, Kütüphane ve son oynanan oyunlar. Bugün dock menüsünde yalnız yeni pencere, kapat ve görevi sonlandır var.

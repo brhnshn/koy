@@ -63,9 +63,29 @@ public sealed class SpectrumFeed
 /// </summary>
 public sealed class SpectrumBars : FrameworkElement
 {
-    private const double BarWidth = 4;
-    private const double Gap = 3;
     private const double MinBar = 3;
+
+    /// <summary>Çubuk genişliği (küçük kart 4, büyük kart daha geniş).</summary>
+    public static readonly DependencyProperty BarWidthProperty = DependencyProperty.Register(
+        nameof(BarWidth), typeof(double), typeof(SpectrumBars),
+        new FrameworkPropertyMetadata(4.0, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+    /// <summary>Çubuklar arası boşluk.</summary>
+    public static readonly DependencyProperty GapProperty = DependencyProperty.Register(
+        nameof(Gap), typeof(double), typeof(SpectrumBars),
+        new FrameworkPropertyMetadata(3.0, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public double BarWidth
+    {
+        get => (double)GetValue(BarWidthProperty);
+        set => SetValue(BarWidthProperty, value);
+    }
+
+    public double Gap
+    {
+        get => (double)GetValue(GapProperty);
+        set => SetValue(GapProperty, value);
+    }
 
     public static readonly DependencyProperty FeedProperty = DependencyProperty.Register(
         nameof(Feed), typeof(SpectrumFeed), typeof(SpectrumBars),
@@ -129,13 +149,16 @@ public sealed class SpectrumBars : FrameworkElement
             return;
 
         var height = ActualHeight;
-        var total = levels.Length * BarWidth + (levels.Length - 1) * Gap;
+        var barWidth = BarWidth;
+        var gap = Gap;
+        var radius = barWidth / 2;
+        var total = levels.Length * barWidth + (levels.Length - 1) * gap;
         var x = Math.Max(0, (ActualWidth - total) / 2);
         var fill = Fill;
-        for (var i = 0; i < levels.Length; i++, x += BarWidth + Gap)
+        for (var i = 0; i < levels.Length; i++, x += barWidth + gap)
         {
             var barHeight = Math.Max(MinBar, Math.Round(levels[i] * height));
-            dc.DrawRoundedRectangle(fill, null, new Rect(x, height - barHeight, BarWidth, barHeight), 2, 2);
+            dc.DrawRoundedRectangle(fill, null, new Rect(x, height - barHeight, barWidth, barHeight), radius, radius);
         }
     }
 }
