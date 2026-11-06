@@ -267,6 +267,37 @@ Kontrol'deki Wi-Fi / Bluetooth döşemeleri Windows 11 hızlı ayarları gibi b�
 - [ ] Elle sınama (gerçek donanım; uygulama çalıştırılmadı): Wi-Fi listesi ve sinyal; bağlı ağ üstte; kayıtlı ağa doğrudan bağlanma (WiFiAdapter kayıtlı profili şifresiz kullanıyor mu); şifre kutusuyla yeni ağ, yanlış şifre; açık ağ; bağlantıyı kes; konum izni kapalıyken mesaj; profil adı SSID'den farklıysa "Kayıtlı" doğru mu; Bluetooth listesi, tür simgeleri, pil yüzdesi; kulaklık bağlan/kes (KS yolu belgesiz ortamda; hangi sürücülerde çalıştığı belirsiz, çalışmazsa "Bağlanamadı"/"Koy bu cihaza bağlanamıyor" görünür); fare/klavye satırı Ayarlar'ı açıyor mu; LE ses cihazları; çift modlu cihaz tek satır mı; çentik kapanınca/sekme değişince Wi-Fi taramasının ve izleyicilerin durması (CPU %0); sekme çubuğu liste sayfasında kalıyor mu; tekerlek.
 - [ ] Bellek ve CPU ölçümü (AGENTS #1): ölçülmedi (measure-memory çalıştırılmadı).
 
+## Dock'ta uygulama bazlı sağ tık menüsü (atlama listesi) — AÇIK, almak isteyen alabilir
+
+Windows görev çubuğunda bir uygulamaya sağ tıklayınca açılan menünün aynısı. Örnekler: VS Code'da "Yeni Pencere" ve son klasörler, Edge'de "Yeni InPrivate penceresi", Steam'de Mağaza, Kütüphane ve son oynanan oyunlar. Bugün dock menüsünde yalnız yeni pencere, kapat ve görevi sonlandır var.
+
+Araştırma bitti; Windows 11 build 26200'de deneme programıyla doğrulandı. Kod yazılmadı. Tahmini iş ~1,5 gün.
+
+**Doğrulanan bilgiler:**
+- **Son / sık kullanılanlar:** belgeli `IApplicationDocumentLists` ile okunuyor (CLSID `86bec222-30f2-47e0-9f25-60d11cd75c28`; `SetAppID`, sonra `GetList(ADLT_RECENT | ADLT_FREQUENT)`).
+  - Öğeler `IShellItem` olarak geliyor.
+  - Explorer, Chrome, Edge ve VS Code'da dolu; Notepad ve Terminal'de boş.
+- **Görevler ve uygulamanın kendi kategorileri:** `%APPDATA%\Microsoft\Windows\Recent\CustomDestinations\<hash>.customDestinations-ms`.
+  - Dosya adı, AppID'nin büyük harfe çevrilmiş UTF-16LE hâlinin CRC-64'ü: polinom `0x92C64265D32139A4`, yansıtılmış, başlangıç değeri tümü 1, son XOR yok. Doğrulanan örnekler: `Chrome` → `5d696d521de238c3`, `MSEdge` → `ccba5a5986c77e43`, `Microsoft.VisualStudioCode` → `1ced32d74a95c7bc`.
+  - Biçim (sürüm 2): başlıkta sürüm, kategori sayısı ve ayrılmış alan (3 × int32). Kategori türleri:
+    - 0: özel kategori. Ad uzunluğu (int16), UTF-16 ad, sayı, öğeler.
+    - 1: bilinen kategori. 1 sık kullanılanlar, 2 son kullanılanlar; öğesi yok.
+    - 2: görevler. Sayı ve öğeler.
+  - Öğe yapısı: CLSID (16 bayt) ve ardından nesnenin `IPersistStream` verisi. Windows'un ShellLink'iyle `Load` edilir. Her kategori `0xBABFFBAB` ile biter.
+  - Başlık `PKEY_Title`'da; `@dll,-id` biçimindeyse `SHLoadIndirectString` ile çözülür. Başlığı ve hedefi boş öğe ayırıcıdır.
+- **Pencereden AppID'ye:** önce `SHGetPropertyStoreForWindow` → `PKEY_AppUserModel_ID` (Koy'da var). Sabitli uygulamada kısayolun AUMID'i. İkisi de yoksa Windows'un exe yolundan türettiği kimlik; bu yol doğrulanmadı.
+
+**Yapılacaklar:**
+- [ ] Core: AppID hash'i, customDestinations okuyucu (bilinmeyen biçimde boş döner, uydurma öğe yok), bölüm sırası ve sınırlar. Testleriyle.
+- [ ] Platform: `JumpListService`. Yalnız menü açılınca okunur, dosya zamanına göre önbelleklenir; boşta %0 CPU.
+- [ ] App: dock menüsü bölümlere ayrılır. Sıra: uygulamanın kategorileri → son kullanılanlar → görevler → Koy'un kendi öğeleri. Tıklanınca ShellLink ya da shell item çalıştırılır.
+- [ ] Snapshot: VS Code ve Steam örnekleriyle bölümlü menü.
+
+**Açık sorular:**
+- Spotify öğelerinde `PKEY_Title` boş; başlık başka bir anahtarda olmalı.
+- Listeye iğnelenmiş öğeler belgesiz DestList akışında; bu ilk sürümün dışında.
+- AUMID'siz klasik uygulamalar için exe yolundan AppID türetme doğrulanmadı.
+
 ## Sonraya kalanlar
 - Bildirimleri çentikte gösterme: Windows bildirimleri gelince çentik kısa süre gösterir (Claude Code gibi ajanların "iş bitti" bildirimleri de bu yoldan gelir). `UserNotificationListener` paket kimliği ister; Velopack kurulumu için seyrek (sparse) paket ve imza gerekir. Ara çözüm: Claude Code kancasının çağırdığı yerel komutla doğrudan bildirim.
 - Kullanıcının düzenleyebildiği çentik arayüzü: sayfaların ve kartların sırası, hangilerinin görüneceği kullanıcı tarafından seçilir.
