@@ -195,7 +195,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             HideInFullscreen = settings.NotchHideInFullscreen
         };
 
-        var musicVm = new MusicViewModel(_mediaService!);
+        // Müzik kartı çubukları: ses yakalama yalnız kart görünür ve müzik çalarken (MusicViewModel.UpdateSpectrum).
+        var musicVm = new MusicViewModel(_mediaService!, spectrumAcquire: () => services.AcquireSpectrumService(), spectrumRelease: services.ReleaseSpectrumService);
         var controlCenterVm = new ControlCenterViewModel(
             () => new AudioService(),
             () => services.AcquireRadioService(),

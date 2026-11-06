@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Koy.Core.Media;
+using Koy.Platform.Audio;
 
 namespace Koy.App.Features.Music;
 
@@ -61,10 +62,27 @@ public sealed partial class MusicViewModel : ObservableObject, IDisposable
 
     public event Action? TrackChanged;
 
-    public MusicViewModel(IMediaService mediaService, Dispatcher? dispatcher = null)
+    // Müzik kartındaki ses çubukları: yakalama servisi yalnız kart görünür ve müzik çalarken alınır.
+    private readonly Func<SpectrumCaptureService>? _spectrumAcquire;
+    private readonly Action? _spectrumRelease;
+    private SpectrumCaptureService? _spectrum;
+    private bool _spectrumAllowed;
+
+    /// <summary>Çubukların düzeyleri (arayüz iş parçacığında güncellenir).</summary>
+    public SpectrumFeed Spectrum { get; }
+
+    /// <summary>Kartta çubuk satırı gösterilsin mi (ayar açık, pil tasarrufu hareketi kısmıyor, yakalama mümkün).</summary>
+    [ObservableProperty]
+    private bool _showSpectrum;
+
+    public MusicViewModel(IMediaService mediaService, Dispatcher? dispatcher = null,
+        Func<SpectrumCaptureService>? spectrumAcquire = null, Action? spectrumRelease = null)
     {
         _mediaService = mediaService;
         _dispatcher = dispatcher ?? System.Windows.Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+        _spectrumAcquire = spectrumAcquire;
+        _spectrumRelease = spectrumRelease;
+        Spectrum = new SpectrumFeed(SpectrumCaptureService.BandCount, _dispatcher);
 
         _progressTimer = new DispatcherTimer(DispatcherPriority.Background, _dispatcher)
         {
@@ -91,8 +109,43 @@ public sealed partial class MusicViewModel : ObservableObject, IDisposable
         UpdateProgressTimer();
     }
 
+    /// <summary>Ses çubukları izinli mi (Çentik ayarındaki "kapak ve dalga" açık ve pil tasarrufu hareketi kısmıyor).</summary>
+    public void SetSpectrumAllowed(bool allowed)
+    {
+        _spectrumAllowed = allowed;
+        ShowSpectrum = allowed && _spectrumAcquire is not null;
+        UpdateSpectrum();
+    }
+
+    // Yakalama yalnız kart görünür (çentik açık, Ana sekmesi) ve müzik çalarken sürer; aksi halde %0 CPU.
+    private void UpdateSpectrum()
+    {
+        var want = !_disposed && _isActive && HasTrack && IsPlaying && _spectrumAllowed && _spectrumAcquire is not null;
+        if (want && _spectrum is null)
+        {
+            try
+            {
+                _spectrum = _spectrumAcquire!();
+                _spectrum.LevelsUpdated += Spectrum.Push;
+            }
+            catch (Exception ex)
+            {
+                Koy.Core.Diagnostics.CrashLog.Write("Müzik çubukları başlatılamadı", ex);
+                _spectrum = null;
+            }
+        }
+        else if (!want && _spectrum is not null)
+        {
+            _spectrum.LevelsUpdated -= Spectrum.Push;
+            _spectrum = null;
+            _spectrumRelease?.Invoke();
+            Spectrum.Clear();
+        }
+    }
+
     private void UpdateProgressTimer()
     {
+        UpdateSpectrum();
         if (_isActive && HasTrack && IsPlaying)
         {
             if (!_progressTimer.IsEnabled)
@@ -262,6 +315,7 @@ public sealed partial class MusicViewModel : ObservableObject, IDisposable
             return;
 
         _disposed = true;
+        UpdateSpectrum();
         _progressTimer.Stop();
         _progressTimer.Tick -= OnProgressTick;
         _mediaService.Changed -= OnMediaChanged;

@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:Koy.App.Features.Home"
              xmlns:status="clr-namespace:Koy.App.Features.Status"
+             xmlns:music="clr-namespace:Koy.App.Features.Music"
              xmlns:res="clr-namespace:Koy.App.Resources"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:HomeViewModel}"
@@ -162,6 +163,11 @@
               <TextBlock Text="{Binding Music.SourceAppId}" FontSize="10" Foreground="{DynamicResource KoyNotchMusicSub}" Opacity="0.7" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
             </StackPanel>
           </Grid>
+
+          <!-- Ses çubukları (tasarım H): çalan sesten 24 bant; yakalama yalnız kart görünür ve müzik çalarken sürer -->
+          <music:SpectrumBars Grid.Row="1" Height="26" VerticalAlignment="Center" HorizontalAlignment="Center"
+                              Feed="{Binding Music.Spectrum}" Fill="#BFBBF7D0" IsHitTestVisible="False"
+                              Visibility="{Binding Music.ShowSpectrum, Converter={StaticResource BoolToVis}}" />
 
           <!-- İlerleme (tıklayınca o yere atlar) -->
           <Grid Grid.Row="2" Margin="0,0,0,12">

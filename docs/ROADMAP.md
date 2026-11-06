@@ -48,7 +48,7 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 - [x] Birden fazla oturum: `GetSessions()` listesi, panelde küçük uygulama simgeleri arasında geçiş.
 - [x] `App/Features/Music/MusicPanel.xaml` + `MusicViewModel.cs`: kapak, başlık, sanatçı, önceki / oynat-duraklat / sonraki, ilerleme çubuğu (`TimelineProperties`; saniyede bir güncelleme yalnız panel açıkken).
 - [x] Collapsed durumda müzik çalıyorsa hapın iki yanında küçük kapak + basit dalga simgesi (gerçek ses analizi değil; M1'de animasyonlu çubuk yeter).
-- [ ] Ses görselleştirici (isteğe bağlı, bütçe izin verirse): WASAPI loopback, yalnız Expanded + Music panelinde açık. Bellek ölç; 5 MB'tan fazla eklerse ertele.
+- [x] Ses görselleştirici: Ana müzik kartında 24 çubuk (tasarım H). WASAPI loopback (`SpectrumCaptureService`, ayrı iş parçacığı, ~30 kare/sn) + `SpectrumAnalyzer` (1024 FFT, log bantlar, testli). Yalnız çentik açık, Ana görünür ve müzik çalarken; "kapak ve dalga" ayarına bağlı, pil tasarrufunda kapalı. Ses inince olay kesilir (çizim yok). Deneme programında ölçüm: +1 MB özel bellek, çalarken 3 sn'de 16 ms CPU. Gerçek müzikle Koy içinde elle sınanmadı; varsayılan çıkış aygıtı değişince yakalama eski aygıtta kalır (kart yeniden açılınca düzelir).
 
 ### 1.4 Görünürlük modları
 - [x] `Core/Shell/IWindowTracker.cs` + `IFullscreenDetector.cs` (sözleşmeler, pencere kimliği `nint`).

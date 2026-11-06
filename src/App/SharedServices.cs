@@ -5,6 +5,7 @@ using Koy.Core.QuickLaunch;
 using Koy.Core.Settings;
 using Koy.Core.SystemStats;
 using Koy.Core.Tasks;
+using Koy.Platform.Audio;
 using Koy.Platform.Bluetooth;
 using Koy.Platform.Clipboard;
 using Koy.Platform.Media;
@@ -35,6 +36,8 @@ public sealed class SharedServices : IDisposable
     private int _wifiServiceUsers;
     private BluetoothService? _bluetoothService;
     private int _bluetoothServiceUsers;
+    private SpectrumCaptureService? _spectrumService;
+    private int _spectrumUsers;
     private TrayHostService? _trayHost;
     private readonly TrayHostLease _trayHostLease = new();
     private ClipboardHistoryService? _clipboard;
@@ -158,6 +161,31 @@ public sealed class SharedServices : IDisposable
         {
             _bluetoothService?.Dispose();
             _bluetoothService = null;
+        }
+    }
+
+    /// <summary>
+    /// Müzik kartındaki çubuklar için ses yakalama (WASAPI loopback). Yalnız çentik açık, Ana görünür ve müzik
+    /// çalarken alınır; son kullanan bırakınca yakalama iş parçacığı durur.
+    /// </summary>
+    public SpectrumCaptureService AcquireSpectrumService()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _spectrumUsers++;
+        var service = _spectrumService ??= new SpectrumCaptureService();
+        service.Start();
+        return service;
+    }
+
+    public void ReleaseSpectrumService()
+    {
+        if (_spectrumUsers == 0)
+            return;
+
+        if (--_spectrumUsers == 0)
+        {
+            _spectrumService?.Dispose();
+            _spectrumService = null;
         }
     }
 
@@ -350,6 +378,9 @@ public sealed class SharedServices : IDisposable
         _bluetoothService?.Dispose();
         _bluetoothService = null;
         _bluetoothServiceUsers = 0;
+        _spectrumService?.Dispose();
+        _spectrumService = null;
+        _spectrumUsers = 0;
         _trayHost?.Dispose();
         _trayHost = null;
         _trayHostLease.Reset();
