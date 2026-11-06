@@ -286,13 +286,13 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
-          <Border Width="30" Height="30" CornerRadius="10" VerticalAlignment="Center" Background="#20FFFFFF">
-            <Path Width="13" Height="13" Stretch="Uniform" Fill="{DynamicResource KoyNotchText}"
+          <Border Width="26" Height="26" CornerRadius="9" VerticalAlignment="Center" Background="#20FFFFFF">
+            <Path Width="12" Height="12" Stretch="Uniform" Fill="{DynamicResource KoyNotchText}"
                   Data="M 12 3 A 9 9 0 1 0 21 12 A 7 7 0 0 1 12 3 Z"
                   HorizontalAlignment="Center" VerticalAlignment="Center" />
           </Border>
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
-            <TextBlock Text="{x:Static res:Strings.DoNotDisturb}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource KoyNotchText}" TextTrimming="CharacterEllipsis" />
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="5,0,0,0">
+            <TextBlock Text="{x:Static res:Strings.DoNotDisturb}" FontSize="11.5" FontWeight="SemiBold" Foreground="{DynamicResource KoyNotchText}" TextTrimming="CharacterEllipsis" />
             <TextBlock Text="{x:Static res:Strings.OpenInSettings}" FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" TextTrimming="CharacterEllipsis" />
           </StackPanel>
         </Grid>
