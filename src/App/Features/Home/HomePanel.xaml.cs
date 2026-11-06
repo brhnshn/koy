@@ -31,7 +31,7 @@ public partial class HomePanel : UserControl
         if (DataContext is not HomeViewModel vm || !vm.ShowMusic)
             return;
 
-        for (var node = e.OriginalSource as DependencyObject; node is not null && !ReferenceEquals(node, sender); node = Parent(node))
+        for (var node = e.OriginalSource as DependencyObject; node is not null && !ReferenceEquals(node, sender); node = ParentOf(node))
         {
             if (node is ButtonBase or RangeBase)
                 return;
@@ -41,6 +41,6 @@ public partial class HomePanel : UserControl
         e.Handled = true;
     }
 
-    private static DependencyObject? Parent(DependencyObject node) =>
+    private static DependencyObject? ParentOf(DependencyObject node) =>
         node is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(node) : LogicalTreeHelper.GetParent(node);
 }
