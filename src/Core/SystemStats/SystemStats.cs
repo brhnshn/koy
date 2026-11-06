@@ -6,6 +6,10 @@ namespace Koy.Core.SystemStats;
 /// <param name="TopProcessCpuPercent">O sürecin toplam işlemci içindeki payı, 0-100.</param>
 /// <param name="NetworkName">Bağlı ağ adı (INetworkService), yoksa null.</param>
 /// <param name="KoyMemoryBytes">Koy'un özel çalışma kümesi (Görev Yöneticisi "Bellek" ile aynı ölçü).</param>
+/// <param name="RatesReady">
+/// CPU yüzdesi, en çok CPU kullanan süreç ve ağ hızı iki örnek arası fark ister. Servis yeni başlayınca yalnız anlık
+/// değerler (RAM, Koy belleği, ağ adı) hemen okunur ve bu false olur; ilk gerçek örnekle true olur.
+/// </param>
 public sealed record SystemSnapshot(
     double CpuPercent,
     string? TopProcessName,
@@ -16,9 +20,10 @@ public sealed record SystemSnapshot(
     long NetDownBytesPerSec,
     long NetUpBytesPerSec,
     string? NetworkName,
-    long KoyMemoryBytes)
+    long KoyMemoryBytes,
+    bool RatesReady = true)
 {
-    public static SystemSnapshot Empty { get; } = new(0, null, 0, 0, 0, 0, 0, 0, null, 0);
+    public static SystemSnapshot Empty { get; } = new(0, null, 0, 0, 0, 0, 0, 0, null, 0, RatesReady: false);
 }
 
 /// <summary>
