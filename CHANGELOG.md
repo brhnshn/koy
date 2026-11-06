@@ -9,9 +9,27 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 
 <!-- release-please sürüm girdisini kendisi üretir. Bu bölüm elle yazılmış ayrıntılı özettir: sürüm PR'ında bu bölümün içeriği yeni sürüm başlığının altına taşınır ve [Unreleased] başlığı silinir (bkz. CONTRIBUTING.md, "Sürüm Nasıl Çıkar"). -->
 
-0.1.0'dan sonraki revizyon: kod incelemesinden çıkan çökmelerin giderilmesi, etkisiz ayarların gerçekten bağlanması, çoklu ekran, kısayollar, Koyu/Açık tema ve kaldırma ekranı.
+0.1.0'dan sonraki ilk büyük sürüm. Öne çıkanlar:
+- Yeni çentik tasarımı: 7 sekme (Ana, Odak, Takvim, Raf, Pano, Sistem, Kontrol).
+- Windows'taki gibi Wi-Fi ve Bluetooth listeleri.
+- Çalan müziğe göre hareket eden çubuklar ve büyütülebilen müzik kartı.
+- Görev çubuğunu her koşulda geri getiren gözcü süreç ve tek örnek koruması.
+- Çoklu ekran, kısayollar, Koyu/Açık tema, kaldırma ekranı.
+- 0.1.0'da yalnız görüntü olan ayarların gerçekten çalışması.
+
+> **v0.1.0'dan geçenler için:** v0.1.0'da otomatik güncelleme denetimi yoktu. Bu sürümü Ayarlar › Hakkında › "Şimdi denetle" ile ya da yeni kurulum dosyasıyla kurun; sonraki sürümler otomatik gelir. v0.1.0 ile başka bir Koy kopyasını aynı anda çalıştırmayın: eski sürüm ikinci ekranda çökebiliyor ve görev çubuğu geri gelmiyordu (bu sürümde düzeltildi).
 
 ### Düzeltmeler (Fixed)
+- **Aynı anda iki Koy çalışmıyor:** ikinci açılış yeni bir kopya başlatmak yerine çalışan Koy'un penceresini öne getirir. İki kopya birlikte çalışınca eski sürüm ikinci ekranda çöküyor ve görev çubuğu geri gelmiyordu.
+- **İki ekranda dock'lar birbirini etkilemiyor:** bir ekranda büyütülen pencere, kenardan taşan birkaç pikseliyle yan ekrandaki dock'u "yapışık" moda geçiriyordu. Ön plandaki pencere artık yalnız kendi ekranının dock'unu etkiliyor.
+- **Başlat ve Arama açılınca dock görünüyor:** Windows tuşuyla açılan Başlat menüsü, Arama ve hızlı ayarlar dock'u gizlemiyor; dock o ekranda görev çubuğu gibi görünür kalıyor. Koy menüsünü açmak da dock'u gizlemiyor.
+- **Parlaklık donması:** ikinci ekran kapatılınca parlaklık kaydırıcısı artık olmayan ekrana yazmaya çalışıyor ve çentik donuyordu. Parlaklık yolu ekran düzeni değişince yeniden seçiliyor (dizüstü ekranında Windows, harici ekranda DDC/CI), yazma arka planda yapılıyor; hiçbir yol yoksa kaydırıcı devre dışı ve nedeni yazıyor.
+- **Sistem sayfası:** sekmeye geri dönünce değerler 1–2 saniye "–" görünüyordu; artık son bilinen değerler hemen görünüyor.
+- **Hızlı başlat "+" düğmesi:** düğmenin ortasına tıklanınca çentik kapanıyordu; dosya seçici açıkken çentik açık kalıyor ve seçici çentiğin önünde açılıyor.
+- **Tepsi simgeleri net:** simgeler kendi boyutunda (16 px) çiziliyor, saydamlık doğru okunuyor. Başlat düğmesinde gerçek Windows logosu.
+- **Koy penceresinde sayfa geçişi** kesik kesik değil, tek bir yumuşak solma.
+- **Bellek göstergesi** Görev Yöneticisi ile aynı ölçüyü (özel çalışma kümesi) gösteriyor.
+- **Otomatik güncelleme durumu:** yeni sürüm bulunup indirildiğinde "güncel" yerine "yeni sürüm hazır; Koy kapanınca kurulacak" yazıyor.
 - **Görev çubuğu Koy öldürülünce geri geliyor:** Görev Yöneticisi'nden sonlandırılan Koy'un gizlediği görev çubuğu otomatik gizlemede kalıyordu. Dock görev çubuğunu gizlediği sürece küçük bir gözcü süreç (`Koy.Watchdog.exe`, Native AOT, pencere yok) Koy'u izliyor; Koy ölürse görev çubuğunu önceki haline döndürüyor, düzgün kapanışta dokunmuyor.
 - **Dock alt kenardan açılıyor:** büyütülmüş pencere dock'u gizlediğinde fare alt kenarda ~300 ms (tuş basılı değilken) durunca dock çıkıyor; Dock sayfasındaki "Alt kenardan aç" ile kapatılır. Oyunda, F11 tarayıcıda ve tam ekran videoda dock hiçbir koşulda çıkmıyor. Tam ekran artık Windows'un tam ekran bildirimi, başlık çubuğunun olmayışı ve monitörü kaplama işaretlerinin birleşimiyle ve monitör başına belirleniyor (yan ekrandaki oyun bu ekrandaki dock'u gizlemiyor).
 - **Tepsi açılır penceresi sağ tıkta kapanmıyor:** uygulamanın bağlam menüsü açıkken pencere açık kalıyor; menüden seçim yapılınca ya da pencere ve menünün dışına tıklanınca kısa bir yay animasyonuyla kapanıyor.
@@ -23,7 +41,7 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
   - Ses ve parlaklık göstergesi (OSD HUD) çentiğe hiç bağlı değildi; artık sistem ses ve parlaklık değişimlerinde açılıyor.
   - Çoklu ekran kullanıcı tarafından açılamıyordu (yalnız birincil ekran); artık Ekranlar sayfasından ekran başına seçiliyor.
   - "1 saat duraklat" yalnızca bir bayrağı değiştiriyordu; artık çentik ve dock'u durduruyor, görev çubuğunu geri getiriyor ve süre bitince devam ediyor.
-  - Dock'un varsayılanı "Aşağı yapış" olarak belgelenmişti ama her açılışta "Çekil"e çevriliyordu; artık Aşağı yapış varsayılan ve seçilebilir.
+  - "Pencere yaklaşınca" ayarı her açılışta "Çekil"e çevriliyordu; artık seçilen değer kalıyor.
   - "Güncellemeleri otomatik denetle", Pomodoro süreleri, hava durumu yenileme sıklığı, dock orta tık eylemi ve çalışan göstergesi (nokta/çizgi), pil tasarrufunda animasyon azaltma, çentikte tam ekranda gizleme, boşta gösterim, açılma davranışı ve tekerlek eylemi ayarları davranışa bağlandı.
   - "Windows görev çubuğunu gizle" anahtarı kapalıyken dock görev çubuğuna dokunmuyor.
 - **Çökmeler:** sağ alt menü ilk tıklamada kapanıyordu (`FailFast`); dock ve çentik kenar zamanlayıcılarındaki başka iş parçacığı erişimi çökmesi giderildi; `crash.log` artık gerçekten yazılıyor ve gözlenmeyen görev hataları süreci düşürmüyor.
@@ -37,9 +55,25 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
   - Pili olmayan bilgisayarlarda çentikteki pil göstergesi gizleniyor (#8).
   - Dock pencere önizlemesi üst düzey pencereye kaydediliyor; önizleme güncellemesi başarısız olursa sonraki düzende yeniden deneniyor (#10).
   - Açılışta kapalı çentiğin zemini çiziliyor (#13).
-  - Açık çentiğin üstünde Müzik, Kontrol, Durum, Takvim ve Raf sekmeleri; kapalı çentikte saatin yanında Wi-Fi ve Bluetooth durum simgeleri (tıklayınca Kontrol sekmesi açılır). Simgeler yalnız Kontrol paneli açıkken ve boşta görünüm "Saat, pil ve bağlantılar" iken çıkar (#14).
+  - Açık çentikte sekme çubuğu ve kapalı çentikte saatin yanında Wi-Fi ve Bluetooth durum simgeleri (#14). Sekmeler bu sürümde yeni çentik tasarımıyla yeniden düzenlendi.
 
 ### Eklenenler (Added)
+- **Yeni çentik (tasarım H):** üstte saat, tarih, hava durumu, pil, bildirim ve iğne düğmesiyle durum satırı; altta ikonlu 7 sekme. Hangi sekmelerin görüneceği Ayarlar › Çentik'ten seçilir.
+  - **Ana:** müzik kartı ya da selamlama ve büyük saat. Sağda bağlı kulaklığın pili, CPU/RAM, ağ hızı ve hızlı başlat şeridi (en çok 8 uygulama).
+  - **Odak:** Pomodoro, serbest zamanlayıcı ve kronometre; günlük ve haftalık görev listesi. Çalışan zamanlayıcı kapalı çentikte de görünür.
+  - **Takvim:** ay, hafta ve gün görünümü, yerel etkinlikler.
+  - **Raf:** dosya ve metin sürükle-bırak.
+  - **Pano:** kopyalanan metinlerin geçmişi (bağlantı, kod, metin süzgeci; sabitleme). Geçmiş yalnız bellekte tutulur, diske yalnız sabitlenen öğeler yazılır. Parola yöneticilerinin "geçmişe alma" işaretli içerikleri alınmaz. Ayarlardan kapatılabilir.
+  - **Sistem:** CPU, bellek, en çok kaynak kullanan süreç, ağ hızı ve Koy'un kendi belleği.
+  - **Kontrol:** Wi-Fi, Bluetooth, Rahatsız Etme, ses, parlaklık ve bağlı cihazlar.
+  - Veriler yalnız ilgili sekme görünürken toplanır; çentik kapalıyken işlemci kullanımı sıfırdır.
+- **Wi-Fi ve Bluetooth listeleri:** Windows hızlı ayarlarındaki gibi. Döşemenin solu aç/kapa, sağdaki ok listeyi çentiğin içinde açar.
+  - **Wi-Fi:** sinyal gücü, kilit ve "Kayıtlı" işaretleriyle ağlar; bağlan ve bağlantıyı kes; şifre kutusu satırın içinde açılır. Ağ adları için Windows konum izni istiyorsa bunu söyler ve ayara götürür.
+  - **Bluetooth:** eşleşmiş cihazlar türüne göre simge ve pil yüzdesiyle. Kulaklık ve hoparlörde bağlan/kes; diğer cihazlarda Windows'un Bluetooth ayarları açılır.
+  - Listenin altında küçük bir "Diğer … ayarları" bağlantısı var. Bluetooth simgesi yeniden çizildi.
+- **Müzik çubukları:** Ana'daki müzik kartında çalan sesten hesaplanan 24 çubuk. Yalnız kart görünür ve müzik çalarken çalışır; "kapak ve dalga" ayarına bağlıdır, pil tasarrufunda kapanır. Ses kaydedilmez, hiçbir yere gönderilmez.
+- **Müzik kartını büyütme:** karta tıklayınca Ana'nın tamamını kaplar: büyük kapak, tam şarkı adı, geniş çubuklar. Tekrar tıklayınca eski boyutuna döner.
+- **Cihaz konumunda şehir adı:** konum kullanılıyorsa çentikte "Konumum" yerine şehir adı yazar (OpenStreetMap). Koordinat yaklaşık 1 km'ye yuvarlanarak gönderilir; hava durumu isteği de artık yuvarlanmış koordinatla gider. Hakkında sayfasında OpenStreetMap atfı.
 - **Sabitli uygulama sırası:** sıra Koy'un ayarlarında tutuluyor (`DockPinnedOrder`); ilk açılışta Windows'un sırası (Taskband `Favorites`) tohum olarak okunuyor, okunamazsa klasör sırası kullanılıyor. Simgeler dock'ta sürüklenerek sıralanıyor (yay animasyonuyla kayma), yeni sabitlenen sona ekleniyor, kaldırılan listeden düşüyor.
 - **Dock'ta son kullanılanlar:** ayırıcının sağında yığın simgesi; Windows'un Son Kullanılanlar klasöründen en çok 10 dosya, yalnız tıklanınca okunur (izleme yok). Dock sayfasından kapatılır.
 - **Genel kısayollar:** çentik, raf, dock, Koy menüsü ve oynat/duraklat için `Ctrl+Alt+N/R/D/K/Space`; tuş yakalama kutusuyla değiştirilir, Windows'un ayırdığı ya da başka uygulamanın tuttuğu kombinasyonlar satırda bildirilir.
@@ -56,7 +90,9 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - Çentikte yazı yazılacak alanlara (takvimde etkinlik adı) tıklanınca pencere geçici olarak etkinleşir ki klavye çalışsın; odak gidince yine odak çalmaz.
 
 ### Değişenler (Changed)
-- **Bellek bütçesi:** boşta 100–150 MB private hedef, çok ekran ya da açık panellerle 200 MB'a kadar kabul (eski hedef 60 MB idi). Performans sayfasındaki gösterge yeni hedefe göre. Revizyon sonrası ölçüm: 63,9 MB (`docs/MEMORY.md`).
+- **Dock varsayılanı "Yer ayır":** yeni kurulumlarda dock Windows görev çubuğu gibi hep görünür, pencereler onun üstünde biter. Mevcut ayar korunur. "Pencere dock'a yaklaşınca" seçicisinin altında seçili seçeneğin ne yaptığı yazıyor.
+- **Müzik kapakları net:** kapak kendi çözünürlüğünde (en çok 320 px) çözülüyor ve köşeleri yuvarlak. Video kapakları (Chrome, Windows'a yalnız ~150×83 px veriyor) kırpılıp büyütülmüyor; resmin tamamı görünüyor, arkasını bulanık hâli dolduruyor.
+- **Bellek bütçesi:** boşta 100–150 MB private hedef, çok ekran ya da açık panellerle 200 MB'a kadar kabul (eski hedef 60 MB idi). Performans sayfasındaki gösterge yeni hedefe göre. Bu sürümün geliştirme ölçümü: açılışta ~66 MB private.
 - Yeni takılan ekranda çentik ve dock varsayılan açık; ayarlar ekran başına baştan yapılmıyor, genel ayarlar her ekrana uygulanıyor (Ekranlar sayfasından ekran seçilip kapatılır).
 - Dock kenar izleme zamanlayıcısı 50 ms yerine 100 ms ve yalnız dock gizliyken çalışıyor.
 - Dock ve çentik tek bir pencere izleyici ve tek bir medya servisini paylaşıyor; pencere olaylarında dock yenilemesi birleştiriliyor (daha az iş).
@@ -65,20 +101,30 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - Sürüm ve CI: release-please ile otomatik sürüm PR'ı, GitHub Actions adımları commit SHA'sına sabit, `vpk` sürümü Velopack paket sürümüne bağlı.
 
 ### Kaldırılanlar (Removed)
+- Dock'taki küçültülmüş pencereler düğmesi ve ayarı (bir işe yaramıyordu).
 - Çentik ve dock sağ tık menülerindeki "Çıkış". Çıkış yalnız Koy penceresindeki "Koy'dan çık" düğmesi ve sağ alt menüden yapılır.
-- Hiçbir davranışa bağlı olmayan ayarlar: ses görselleştirici, "müzik dalgasını durdur", "Windows'un kendi göstergesini gizle", çentik boyutu, dock'ta pencere gruplama ve "son kullanılanlar".
+- Hiçbir davranışa bağlı olmayan ayarlar: eski ses görselleştirici anahtarı (çubuklar bu sürümde "kapak ve dalga" ayarına bağlı olarak geldi), "müzik dalgasını durdur", "Windows'un kendi göstergesini gizle", çentik boyutu ve dock'ta pencere gruplama.
 - Eski Ayarlar penceresi ve kullanılmayan kod, marka konseptleri ve sunum dosyaları.
 
 ### Güvenlik (Security)
+- Depo kuralları: `main` dalına zorla push ve dal silme, yayınlanmış `v*` etiketlerinin taşınması ve silinmesi engellendi.
+- README'de kod imzası olmadığı, SmartScreen uyarısında ne yapılacağı ve `SHA256SUMS.txt` ile otomatik güncellemenin neyi doğruladığı açıkça yazıldı.
 - Yayımlanan ikili dosyalara geliştirici makinesinin yerel yolları artık gömülmüyor.
 - GitHub Actions adımları commit SHA'sına sabitlendi (tedarik zinciri sertleştirmesi).
 
 ### Bilinen eksikler
-Dock tepsisi (#11) gerçek donanımda elle denenmedi; iki sütunlu çentik ana görünümünün arayüzü tasarım bekliyor; gerçek çok monitörlü ve karışık DPI donanımda doğrulama; dock/tepsi ve çentik paketlerinden sonra bellek ölçümü (son ölçüm 63,9 MB, hedef 100–150 MB); gözcü sürecin Native AOT paketinin elle sınanması; Windows'un UWP sabitlemeleri (Spotify, WhatsApp gibi) dock'ta henüz gösterilmiyor. Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+- Kurulum dosyası ve güncellemeler henüz kod imzalı değil (SmartScreen uyarısı).
+- Dock tepsisi (#11), Wi-Fi/Bluetooth bağlanma, kulaklık bağla/kes, parlaklık ve gözcü süreç her donanım çeşidinde denenmedi.
+- Karışık DPI'lı çok monitör düzenlerinde doğrulama.
+- Windows'un UWP sabitlemeleri (Spotify, WhatsApp gibi) dock'ta henüz gösterilmiyor.
+- Hızlı başlata klasör eklenemiyor.
+- Dock'ta uygulamaya özel sağ tık menüsü (atlama listesi) araştırıldı, yapılmadı.
+
+Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## [0.1.0] - 2026-11-04
 
-> **Not (sonradan eklendi):** Aşağıdaki listede bu sürümde bile eksik ya da bağlı olmayan şeyler vardı: ekran seçimi arayüzü olmadığı için çoklu ekran kullanıcıya açık değildi, OSD HUD çentiğe bağlı değildi, kısayollar ve ayarların çoğu davranışa bağlı değildi, "Aşağı yapış" seçilemiyordu, "1 saat duraklat" duraklatmıyordu, takvimde kronometre ve serbest zamanlayıcı hiç yoktu (hâlâ yok). Düzeltmeler için [Unreleased](#unreleased) bölümüne bakın.
+> **Not (sonradan eklendi):** Aşağıdaki listede bu sürümde bile eksik ya da bağlı olmayan şeyler vardı: ekran seçimi arayüzü olmadığı için çoklu ekran kullanıcıya açık değildi, OSD HUD çentiğe bağlı değildi, kısayollar ve ayarların çoğu davranışa bağlı değildi, "Aşağı yapış" seçilemiyordu, "1 saat duraklat" duraklatmıyordu, takvimde kronometre ve serbest zamanlayıcı hiç yoktu (sonradan eklendi). Düzeltmeler için [Unreleased](#unreleased) bölümüne bakın.
 
 **Koy**'un ilk halka açık sürümü! Windows 11 için sıfır tarayıcı (WebView2/Electron içermeyen), tek süreçte çalışan, yay fiziği animasyonlu **Notch (Çentik)** ve Seelen UI modelinde **Dock**.
 
