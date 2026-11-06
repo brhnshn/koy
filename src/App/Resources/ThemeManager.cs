@@ -36,6 +36,7 @@ public static class ThemeManager
         _themeDictionary = merged[0];
         merged.Add(Load("Tokens.xaml"));
         merged.Add(Load("Icons.xaml"));
+        merged.Add(Load("IconsNotch.xaml"));
         merged.Add(Load("Styles.xaml"));
         _overrides = new ResourceDictionary();
         merged.Add(_overrides);

@@ -16,7 +16,14 @@ public sealed partial class ShelfViewModel : ObservableObject, IDisposable
     public ObservableCollection<ShelfItem> Items { get; } = [];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotEmpty))]
     private bool _isEmpty = true;
+
+    public bool IsNotEmpty => !IsEmpty;
+
+    /// <summary>Başlıktaki "3 öğe".</summary>
+    [ObservableProperty]
+    private string _countText = "";
 
     public ShelfViewModel(IShelfService shelfService, Dispatcher? dispatcher = null)
     {
@@ -40,6 +47,7 @@ public sealed partial class ShelfViewModel : ObservableObject, IDisposable
             Items.Add(item);
         }
         IsEmpty = Items.Count == 0;
+        CountText = string.Format(Koy.App.Resources.Strings.Get("ShelfCount"), Items.Count);
     }
 
     [RelayCommand]

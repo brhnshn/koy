@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Çentik H sekme ve durum satırı simgeleri. Geometriler onaylı tasarımdan (docs/design/source/CentikH.dc.html,
+        `defs` dizisi ve durum satırı) alındı; 24x24 tuvalde çizgi simgesidir (KoyIcon). Icons.xaml üreteçle yazıldığı
+        için elle eklenenler ayrı dosyada tutulur.
+    -->
+    <Geometry x:Key="IconTabHome">M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z</Geometry>
+    <Geometry x:Key="IconTabFocus">M12 8v5l3 2M9 2h6M12 22a9 9 0 1 0 0-18 9 9 0 0 0 0 18z</Geometry>
+    <Geometry x:Key="IconTabShelf">M21 8l-9-5-9 5 9 5zM3 8v8l9 5 9-5V8</Geometry>
+    <Geometry x:Key="IconTabClipboard">M9 3h6v4H9zM16 5h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2M8 12h8M8 16h5</Geometry>
+    <Geometry x:Key="IconTabSystem">M3 12h4l3-8 4 16 3-8h4</Geometry>
+    <Geometry x:Key="IconTabControl">M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M16 4v4M8 10v4M18 16v4</Geometry>
+    <Geometry x:Key="IconBell">M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0</Geometry>
+    <Geometry x:Key="IconPin">M12 17v5M9 3h6l-1 6 3 4H7l3-4z</Geometry>
+</ResourceDictionary>

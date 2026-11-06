@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.Core.Notch;
 using Koy.App.Resources;
 using Koy.Core.Appearance;
 using Koy.Core.Dock;
@@ -95,19 +96,13 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _showBrightnessOsd = true;
 
     [ObservableProperty]
-    private bool _panelMusic = true;
-
-    [ObservableProperty]
-    private bool _panelCalendar = true;
+    private bool _panelFocus = true;
 
     [ObservableProperty]
     private bool _panelShelf = true;
 
     [ObservableProperty]
     private bool _panelControlCenter = true;
-
-    [ObservableProperty]
-    private bool _panelStatus;
 
     [ObservableProperty]
     private int _notchOpenBehavior = 1; // 0: Üzerine gelince, 1: Tıklayınca
@@ -333,12 +328,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             Shortcuts.Load(s);
             Weather.Load(s);
 
-            var panels = s.EnabledPanels ?? ["music", "calendar", "shelf", "controlcenter"];
-            PanelMusic = panels.Contains("music", StringComparer.OrdinalIgnoreCase);
-            PanelCalendar = panels.Contains("calendar", StringComparer.OrdinalIgnoreCase);
-            PanelShelf = panels.Contains("shelf", StringComparer.OrdinalIgnoreCase);
-            PanelControlCenter = panels.Contains("controlcenter", StringComparer.OrdinalIgnoreCase);
-            PanelStatus = panels.Contains("status", StringComparer.OrdinalIgnoreCase);
+            var panels = NotchPanels.ParseEnabled(s.EnabledPanels ?? ["home", "focus", "shelf", "controlcenter"]);
+            PanelFocus = panels.Contains(NotchPanel.Focus);
+            PanelShelf = panels.Contains(NotchPanel.Shelf);
+            PanelControlCenter = panels.Contains(NotchPanel.ControlCenter);
 
             RefreshMemory();
 
@@ -432,8 +425,8 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             or nameof(ShowVolumeOsd) or nameof(ShowBrightnessOsd) or nameof(IdleDisplayMode)
             or nameof(NotchOpenBehavior) or nameof(WheelAction) or nameof(BatterySaverReduceMotion)
             or nameof(WeatherRefreshInterval) or nameof(PomodoroWorkMinutes) or nameof(PomodoroShortBreakMinutes) or nameof(PomodoroLongBreakMinutes)
-            or nameof(PanelMusic) or nameof(PanelCalendar) or nameof(PanelShelf)
-            or nameof(PanelControlCenter) or nameof(PanelStatus);
+            or nameof(PanelFocus) or nameof(PanelShelf)
+            or nameof(PanelControlCenter);
 
     partial void OnLanguageChanged(string value)
     {
@@ -461,13 +454,11 @@ public sealed partial class KoyWindowViewModel : ObservableObject
 
         StartupService.SetEnabled(RunAtStartup);
 
-        var enabledPanels = new List<string>();
-        if (PanelMusic) enabledPanels.Add("music");
-        if (PanelCalendar) enabledPanels.Add("calendar");
-        if (PanelShelf) enabledPanels.Add("shelf");
-        if (PanelControlCenter) enabledPanels.Add("controlcenter");
-        if (PanelStatus) enabledPanels.Add("status");
-        if (enabledPanels.Count == 0) enabledPanels.Add("music");
+        // Ana her zaman açık; sekme sırası sabit (NotchPanels.Order), ayar yalnız hangilerinin açık olduğunu tutar.
+        var enabledPanels = new List<string> { NotchPanels.ToKey(NotchPanel.Home) };
+        if (PanelFocus) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.Focus));
+        if (PanelShelf) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.Shelf));
+        if (PanelControlCenter) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.ControlCenter));
 
         var current = _store.Load();
         var updated = current with

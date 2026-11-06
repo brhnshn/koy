@@ -281,7 +281,7 @@ public partial class NotchWindow : Window
             _panelTranslateX.SnapTo(0);
             _panelOpacity.SnapTo(1);
             PanelTranslate.X = 0;
-            ExpandedView.Opacity = 1;
+            BodyHost.Opacity = 1;
             return;
         }
 
@@ -392,7 +392,7 @@ public partial class NotchWindow : Window
         Notch.CornerRadius = _cornerRadius.Value;
         NotchTranslate.Y = _translateY.Value;
         PanelTranslate.X = _panelTranslateX.Value;
-        ExpandedView.Opacity = _panelOpacity.Value;
+        BodyHost.Opacity = _panelOpacity.Value;
 
         if (moving)
             return;
