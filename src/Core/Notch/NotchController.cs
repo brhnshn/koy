@@ -6,7 +6,7 @@ namespace Koy.Core.Notch;
 public sealed class NotchController : IDisposable
 {
     private readonly TimeProvider _timeProvider;
-    private readonly List<NotchPanel> _enabledPanels = [NotchPanel.Music];
+    private readonly List<NotchPanel> _enabledPanels = [NotchPanel.Home];
     private ITimer? _autoPeekTimer;
     private ITimer? _mouseLeaveTimer;
     private bool _disposed;
@@ -19,7 +19,7 @@ public sealed class NotchController : IDisposable
     public event EventHandler? EnabledPanelsChanged;
 
     public NotchState State { get; private set; } = NotchState.Collapsed;
-    public NotchPanel CurrentPanel { get; private set; } = NotchPanel.Music;
+    public NotchPanel CurrentPanel { get; private set; } = NotchPanel.Home;
     public bool IsMouseOver { get; private set; }
     public IReadOnlyList<NotchPanel> EnabledPanels => _enabledPanels;
 
@@ -39,7 +39,7 @@ public sealed class NotchController : IDisposable
         _enabledPanels.Clear();
         _enabledPanels.AddRange(panels);
         if (_enabledPanels.Count == 0)
-            _enabledPanels.Add(NotchPanel.Music);
+            _enabledPanels.Add(NotchPanel.Home);
 
         EnabledPanelsChanged?.Invoke(this, EventArgs.Empty);
 
@@ -106,6 +106,7 @@ public sealed class NotchController : IDisposable
             {
                 // Ayarlarda kapalı panel (ör. sürükle-bırakta Raf) geçici olarak listeye girer; sekme çubuğu da bilsin.
                 _enabledPanels.Add(panel.Value);
+                _enabledPanels.Sort((a, b) => NotchPanels.SortIndex(a).CompareTo(NotchPanels.SortIndex(b)));
                 EnabledPanelsChanged?.Invoke(this, EventArgs.Empty);
             }
             SelectPanel(panel.Value);
@@ -137,15 +138,42 @@ public sealed class NotchController : IDisposable
             _autoPeekTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             SetState(NotchStateTransitions.Transition(State, NotchTrigger.MouseLeave));
         }
-        else if (State == NotchState.Expanded)
+        else if (State == NotchState.Expanded && !IsPinned)
         {
-            _mouseLeaveTimer?.Dispose();
-            _mouseLeaveTimer = _timeProvider.CreateTimer(
-                _ => OnMouseLeaveTimeout(),
-                null,
-                TimeSpan.FromMilliseconds(400),
-                Timeout.InfiniteTimeSpan);
+            StartMouseLeaveTimer();
         }
+    }
+
+    private void StartMouseLeaveTimer()
+    {
+        _mouseLeaveTimer?.Dispose();
+        _mouseLeaveTimer = _timeProvider.CreateTimer(
+            _ => OnMouseLeaveTimeout(),
+            null,
+            TimeSpan.FromMilliseconds(400),
+            Timeout.InfiniteTimeSpan);
+    }
+
+    /// <summary>"Çentiği açık tut": açıkken fare çıkınca kapanmaz. Çentik kapanınca (tıklamayla) kendiliğinden kalkar.</summary>
+    public bool IsPinned { get; private set; }
+
+    public event EventHandler? PinnedChanged;
+
+    public void TogglePinned() => SetPinned(!IsPinned);
+
+    public void SetPinned(bool pinned)
+    {
+        // Yalnız açık çentik tutulabilir; kapalıyken sabitlemenin anlamı yok.
+        pinned &= State == NotchState.Expanded;
+        if (IsPinned == pinned)
+            return;
+
+        IsPinned = pinned;
+        PinnedChanged?.Invoke(this, EventArgs.Empty);
+
+        // Sabit kalkarken fare zaten dışarıdaysa her zamanki gecikmeyle kapansın.
+        if (!pinned && State == NotchState.Expanded && !IsMouseOver)
+            StartMouseLeaveTimer();
     }
 
     public void OnClick()
@@ -186,7 +214,7 @@ public sealed class NotchController : IDisposable
 
     public void OnMouseLeaveTimeout()
     {
-        if (State == NotchState.Expanded && !IsMouseOver)
+        if (State == NotchState.Expanded && !IsMouseOver && !IsPinned)
             SetState(NotchStateTransitions.Transition(State, NotchTrigger.MouseLeaveDelayTimeout));
     }
 
@@ -196,6 +224,8 @@ public sealed class NotchController : IDisposable
             return;
 
         State = newState;
+        if (State != NotchState.Expanded)
+            SetPinned(false);
         StateChanged?.Invoke(this, State);
     }
 

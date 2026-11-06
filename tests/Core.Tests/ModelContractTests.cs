@@ -49,12 +49,12 @@ public sealed class ModelContractTests
     }
 
     [Fact]
-    public void NotchController_CyclesThroughAllThreePanels()
+    public void NotchController_CyclesThroughThreePanels()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter, NotchPanel.Status]);
+        controller.SetEnabledPanels([NotchPanel.Home, NotchPanel.ControlCenter, NotchPanel.Focus]);
 
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
 
         var transitions = new List<int>();
         controller.PanelTransitionTriggered += dir => transitions.Add(dir);
@@ -63,48 +63,39 @@ public sealed class ModelContractTests
         Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
 
         controller.NextPanel();
-        Assert.Equal(NotchPanel.Status, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Focus, controller.CurrentPanel);
 
         controller.NextPanel();
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
 
         controller.PreviousPanel();
-        Assert.Equal(NotchPanel.Status, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Focus, controller.CurrentPanel);
 
         Assert.Equal([1, 1, 1, -1], transitions);
     }
 
     [Fact]
-    public void NotchController_CyclesThroughAllFivePanels()
+    public void NotchController_CyclesThroughAllFourPanels()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([
-            NotchPanel.Music,
-            NotchPanel.ControlCenter,
-            NotchPanel.Status,
-            NotchPanel.Calendar,
-            NotchPanel.Shelf
-        ]);
+        controller.SetEnabledPanels(NotchPanels.Order);
 
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.Focus, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
 
         controller.NextPanel();
         Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
 
         controller.NextPanel();
-        Assert.Equal(NotchPanel.Status, controller.CurrentPanel);
-
-        controller.NextPanel();
-        Assert.Equal(NotchPanel.Calendar, controller.CurrentPanel);
-
-        controller.NextPanel();
-        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
-
-        controller.NextPanel();
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
 
         controller.PreviousPanel();
-        Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
     }
 
     [Fact]

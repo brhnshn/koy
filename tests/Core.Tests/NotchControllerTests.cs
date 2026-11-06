@@ -6,11 +6,11 @@ namespace Koy.Core.Tests;
 public class NotchControllerTests
 {
     [Fact]
-    public void InitialState_IsCollapsed_AndPanelIsMusic()
+    public void InitialState_IsCollapsed_AndPanelIsHome()
     {
         using var controller = new NotchController();
         Assert.Equal(NotchState.Collapsed, controller.State);
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
     }
 
     [Fact]
@@ -95,21 +95,21 @@ public class NotchControllerTests
     public void PanelCycling_WorksAcrossEnabledPanels()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter, NotchPanel.Status]);
+        controller.SetEnabledPanels([NotchPanel.Home, NotchPanel.ControlCenter, NotchPanel.Focus]);
 
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
 
         controller.NextPanel();
         Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
 
         controller.NextPanel();
-        Assert.Equal(NotchPanel.Status, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Focus, controller.CurrentPanel);
 
         controller.NextPanel();
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
 
         controller.PreviousPanel();
-        Assert.Equal(NotchPanel.Status, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Focus, controller.CurrentPanel);
     }
 
     [Fact]
@@ -124,24 +124,24 @@ public class NotchControllerTests
     }
 
     [Fact]
-    public void SetEnabledPanels_Empty_DefaultsToMusic()
+    public void SetEnabledPanels_Empty_DefaultsToHome()
     {
         using var controller = new NotchController();
         controller.SetEnabledPanels([]);
         Assert.Single(controller.EnabledPanels);
-        Assert.Equal(NotchPanel.Music, controller.EnabledPanels[0]);
+        Assert.Equal(NotchPanel.Home, controller.EnabledPanels[0]);
     }
 
     [Fact]
     public void SetEnabledPanels_WhenCurrentRemoved_SwitchesToFirst()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.Shelf]);
+        controller.SetEnabledPanels([NotchPanel.Home, NotchPanel.Shelf]);
         controller.SelectPanel(NotchPanel.Shelf);
         Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
 
         // Remove Shelf
-        controller.SetEnabledPanels([NotchPanel.ControlCenter, NotchPanel.Status]);
+        controller.SetEnabledPanels([NotchPanel.ControlCenter, NotchPanel.Focus]);
         Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
     }
 
@@ -149,11 +149,11 @@ public class NotchControllerTests
     public void NextPreviousPanel_WithSinglePanel_DoesNotChange()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music]);
+        controller.SetEnabledPanels([NotchPanel.Home]);
         controller.NextPanel();
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
         controller.PreviousPanel();
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public class NotchControllerTests
     public void Expand_WithPanel_SelectsSpecifiedPanel()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.Shelf]);
+        controller.SetEnabledPanels([NotchPanel.Home, NotchPanel.Shelf]);
 
         controller.Expand(NotchPanel.Shelf);
         Assert.Equal(NotchState.Expanded, controller.State);
@@ -215,7 +215,7 @@ public class NotchControllerTests
     public void Expand_WhenAlreadyExpanded_StaysExpandedAndDoesNotToggle()
     {
         using var controller = new NotchController();
-        controller.Expand(NotchPanel.Music);
+        controller.Expand(NotchPanel.Home);
         Assert.Equal(NotchState.Expanded, controller.State);
 
         // Subsequent drag or expand call must keep it Expanded (must NOT toggle like OnClick)
@@ -228,7 +228,7 @@ public class NotchControllerTests
     public void Expand_WithUnenabledPanel_AddsToEnabledAndSelects()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music]); // Shelf is not enabled
+        controller.SetEnabledPanels([NotchPanel.Home]); // Shelf is not enabled
 
         controller.Expand(NotchPanel.Shelf);
         Assert.Equal(NotchState.Expanded, controller.State);
@@ -248,12 +248,12 @@ public class NotchControllerTests
     public void GoToPanel_SelectsPanelAndSlidesInPanelOrder()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter, NotchPanel.Status, NotchPanel.Calendar]);
+        controller.SetEnabledPanels([NotchPanel.Home, NotchPanel.ControlCenter, NotchPanel.Focus, NotchPanel.Shelf]);
         var directions = new List<int>();
         controller.PanelTransitionTriggered += directions.Add;
 
-        controller.GoToPanel(NotchPanel.Status);
-        Assert.Equal(NotchPanel.Status, controller.CurrentPanel);
+        controller.GoToPanel(NotchPanel.Focus);
+        Assert.Equal(NotchPanel.Focus, controller.CurrentPanel);
 
         controller.GoToPanel(NotchPanel.ControlCenter);
         Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);
@@ -265,14 +265,14 @@ public class NotchControllerTests
     public void GoToPanel_IgnoresCurrentAndDisabledPanels()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter]);
+        controller.SetEnabledPanels([NotchPanel.Home, NotchPanel.ControlCenter]);
         var transitions = 0;
         controller.PanelTransitionTriggered += _ => transitions++;
 
-        controller.GoToPanel(NotchPanel.Music);
+        controller.GoToPanel(NotchPanel.Home);
         controller.GoToPanel(NotchPanel.Shelf);
 
-        Assert.Equal(NotchPanel.Music, controller.CurrentPanel);
+        Assert.Equal(NotchPanel.Home, controller.CurrentPanel);
         Assert.Equal(0, transitions);
     }
 
@@ -283,24 +283,24 @@ public class NotchControllerTests
         var raised = 0;
         controller.EnabledPanelsChanged += (_, _) => raised++;
 
-        controller.SetEnabledPanels([NotchPanel.Calendar, NotchPanel.Music]);
+        controller.SetEnabledPanels([NotchPanel.Focus, NotchPanel.Home]);
 
         Assert.Equal(1, raised);
-        Assert.Equal([NotchPanel.Calendar, NotchPanel.Music], controller.EnabledPanels);
+        Assert.Equal([NotchPanel.Focus, NotchPanel.Home], controller.EnabledPanels);
     }
 
     [Fact]
     public void Expand_ToDisabledPanel_AddsItAndRaisesEnabledPanelsChanged()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.Calendar]);
+        controller.SetEnabledPanels([NotchPanel.Home, NotchPanel.Focus]);
         var raised = 0;
         controller.EnabledPanelsChanged += (_, _) => raised++;
 
         controller.Expand(NotchPanel.Shelf);
 
         Assert.Equal(1, raised);
-        Assert.Equal([NotchPanel.Music, NotchPanel.Calendar, NotchPanel.Shelf], controller.EnabledPanels);
+        Assert.Equal([NotchPanel.Home, NotchPanel.Focus, NotchPanel.Shelf], controller.EnabledPanels);
         Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
     }
 
@@ -308,7 +308,7 @@ public class NotchControllerTests
     public void Expand_ToEnabledPanel_DoesNotRaiseEnabledPanelsChanged()
     {
         using var controller = new NotchController();
-        controller.SetEnabledPanels([NotchPanel.Music, NotchPanel.ControlCenter]);
+        controller.SetEnabledPanels([NotchPanel.Home, NotchPanel.ControlCenter]);
         var raised = 0;
         controller.EnabledPanelsChanged += (_, _) => raised++;
 
