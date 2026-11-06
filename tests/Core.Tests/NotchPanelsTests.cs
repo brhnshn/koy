@@ -32,8 +32,79 @@ public sealed class NotchPanelsTests
     {
         // Eski varsayılan: music, controlcenter, status, calendar, shelf.
         Assert.Equal(
-            [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Shelf, NotchPanel.ControlCenter],
+            [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar, NotchPanel.Shelf, NotchPanel.ControlCenter],
             NotchPanels.ParseEnabled(["music", "controlcenter", "status", "calendar", "shelf"]));
+    }
+
+    [Fact]
+    public void ParseEnabled_CalendarKey_GoesToCalendar_AndOnlyLegacyFilesAlsoGetFocus()
+    {
+        // H dosyası: "calendar" yalnız Takvim sekmesini açar, Odak kendiliğinden gelmez.
+        Assert.Equal([NotchPanel.Home, NotchPanel.Calendar], NotchPanels.ParseEnabled(["home", "calendar"]));
+        // H öncesi dosya ("music"/"status" var): eski takvim paneli Pomodoro da taşıdığı için Odak da açılır.
+        Assert.Equal([NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar], NotchPanels.ParseEnabled(["music", "calendar"]));
+        Assert.Equal([NotchPanel.Home], NotchPanels.ParseEnabled(["music", "status"]));
+    }
+
+    [Fact]
+    public void ParseEnabled_OldSettingsFiles_DoNotGetNewTabs()
+    {
+        // H öncesi varsayılan: Pano ve Sistem anahtarı yok, sekmeler kendiliğinden açılmaz.
+        var panels = NotchPanels.ParseEnabled(["home", "focus", "shelf", "controlcenter"]);
+        Assert.DoesNotContain(NotchPanel.Clipboard, panels);
+        Assert.DoesNotContain(NotchPanel.System, panels);
+    }
+
+    [Fact]
+    public void ParseEnabled_ReadsClipboardAndSystemKeys_InTabOrder()
+    {
+        Assert.Equal(
+            [NotchPanel.Home, NotchPanel.Clipboard, NotchPanel.System, NotchPanel.ControlCenter],
+            NotchPanels.ParseEnabled(["controlcenter", "system", "clipboard"]));
+    }
+
+    [Fact]
+    public void ParseEnabled_ClipboardHistoryOff_HidesClipboardTabOnly()
+    {
+        Assert.Equal(
+            [NotchPanel.Home, NotchPanel.System],
+            NotchPanels.ParseEnabled(["clipboard", "system"], clipboardHistoryEnabled: false));
+        Assert.Equal(
+            [NotchPanel.Home, NotchPanel.Clipboard, NotchPanel.System],
+            NotchPanels.ParseEnabled(["clipboard", "system"], clipboardHistoryEnabled: true));
+    }
+
+    [Fact]
+    public void DefaultSettings_IncludeClipboardAndSystem()
+    {
+        var keys = new AppSettings().EnabledPanels;
+        Assert.Contains("clipboard", keys);
+        Assert.Contains("system", keys);
+        Assert.True(new AppSettings().ClipboardHistoryEnabled);
+    }
+
+    [Fact]
+    public void SettingsFile_WithoutNewPanelKeys_LoadsAndKeepsItsList()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "koy-panels-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var path = Path.Combine(dir, "settings.json");
+            File.WriteAllText(path, """{ "EnabledPanels": ["home", "focus", "shelf", "controlcenter"] }""");
+
+            var loaded = new SettingsStore(path).Load();
+
+            Assert.Equal(["home", "focus", "shelf", "controlcenter"], loaded.EnabledPanels);
+            Assert.True(loaded.ClipboardHistoryEnabled);
+            Assert.Equal(
+                [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Shelf, NotchPanel.ControlCenter],
+                NotchPanels.ParseEnabled(loaded.EnabledPanels, loaded.ClipboardHistoryEnabled));
+        }
+        finally
+        {
+            try { Directory.Delete(dir, true); } catch { }
+        }
     }
 
     [Fact]
@@ -41,7 +112,7 @@ public sealed class NotchPanelsTests
     {
         Assert.Equal(
             [NotchPanel.Home, NotchPanel.ControlCenter],
-            NotchPanels.ParseEnabled(["status", "clipboard", "", "ControlCenter"]));
+            NotchPanels.ParseEnabled(["status", "pano", "", "ControlCenter"]));
     }
 
     [Fact]

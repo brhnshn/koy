@@ -127,7 +127,7 @@ public sealed record AppSettings
     public bool NotchHideInFullscreen { get; set; } = true;
 
     public List<string> ControlCenterLayout { get; set; } = ["wifi", "bluetooth", "donotdisturb"];
-    public List<string> EnabledPanels { get; set; } = ["home", "focus", "shelf", "controlcenter"];
+    public List<string> EnabledPanels { get; set; } = ["home", "focus", "calendar", "shelf", "clipboard", "system", "controlcenter"];
     /// <summary>
     /// Hava durumu koordinatı. Yalnız <see cref="WeatherLocationSource"/> "Yok" değilse geçerlidir; eski sürümlerde
     /// burada sabit İstanbul vardı, kaynak "Yok" olduğu için artık okunmaz.

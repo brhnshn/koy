@@ -152,6 +152,48 @@
             </Grid>
         </Border>
 
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding [PanelCalendarTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                </StackPanel>
+                <CheckBox AutomationProperties.Name="{Binding [PanelCalendarTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelCalendar}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                          Style="{StaticResource ToggleSwitchStyle}" />
+            </Grid>
+        </Border>
+
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding [PanelClipboardTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [PanelClipboardDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
+                </StackPanel>
+                <CheckBox AutomationProperties.Name="{Binding [PanelClipboardTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelClipboard}" IsEnabled="{Binding ClipboardHistoryEnabled}"
+                          HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ToggleSwitchStyle}" />
+            </Grid>
+        </Border>
+
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding [ClipboardHistoryTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [ClipboardHistoryDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" />
+                </StackPanel>
+                <CheckBox AutomationProperties.Name="{Binding [ClipboardHistoryTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding ClipboardHistoryEnabled}"
+                          HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ToggleSwitchStyle}" />
+            </Grid>
+        </Border>
+
+        <Border Style="{StaticResource SettingRowStyle}">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding [PanelSystemTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                </StackPanel>
+                <CheckBox AutomationProperties.Name="{Binding [PanelSystemTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelSystem}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                          Style="{StaticResource ToggleSwitchStyle}" />
+            </Grid>
+        </Border>
+
         <!-- DAVRANIŞ -->
         <TextBlock Text="{Binding [OpenBehaviorTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 

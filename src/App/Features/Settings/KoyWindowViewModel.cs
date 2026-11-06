@@ -102,7 +102,23 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _panelShelf = true;
 
     [ObservableProperty]
+    private bool _panelCalendar = true;
+
+    [ObservableProperty]
     private bool _panelControlCenter = true;
+
+    [ObservableProperty]
+    private bool _panelClipboard = true;
+
+    [ObservableProperty]
+    private bool _panelSystem = true;
+
+    /// <summary>
+    /// Pano geçmişi (<c>AppSettings.ClipboardHistoryEnabled</c>). Kapalıyken pano dinlenmez ve Pano sekmesi görünmez;
+    /// değişince çentik yeniden kurulur (servis alınır ya da bırakılır).
+    /// </summary>
+    [ObservableProperty]
+    private bool _clipboardHistoryEnabled = true;
 
     [ObservableProperty]
     private int _notchOpenBehavior = 1; // 0: Üzerine gelince, 1: Tıklayınca
@@ -328,10 +344,14 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             Shortcuts.Load(s);
             Weather.Load(s);
 
-            var panels = NotchPanels.ParseEnabled(s.EnabledPanels ?? ["home", "focus", "shelf", "controlcenter"]);
+            var panels = NotchPanels.ParseEnabled(s.EnabledPanels ?? ["home", "focus", "calendar", "shelf", "clipboard", "system", "controlcenter"]);
             PanelFocus = panels.Contains(NotchPanel.Focus);
             PanelShelf = panels.Contains(NotchPanel.Shelf);
+            PanelCalendar = panels.Contains(NotchPanel.Calendar);
             PanelControlCenter = panels.Contains(NotchPanel.ControlCenter);
+            PanelClipboard = panels.Contains(NotchPanel.Clipboard);
+            PanelSystem = panels.Contains(NotchPanel.System);
+            ClipboardHistoryEnabled = s.ClipboardHistoryEnabled;
 
             RefreshMemory();
 
@@ -425,8 +445,8 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             or nameof(ShowVolumeOsd) or nameof(ShowBrightnessOsd) or nameof(IdleDisplayMode)
             or nameof(NotchOpenBehavior) or nameof(WheelAction) or nameof(BatterySaverReduceMotion)
             or nameof(WeatherRefreshInterval) or nameof(PomodoroWorkMinutes) or nameof(PomodoroShortBreakMinutes) or nameof(PomodoroLongBreakMinutes)
-            or nameof(PanelFocus) or nameof(PanelShelf)
-            or nameof(PanelControlCenter);
+            or nameof(PanelFocus) or nameof(PanelShelf) or nameof(PanelCalendar)
+            or nameof(PanelControlCenter) or nameof(PanelClipboard) or nameof(PanelSystem) or nameof(ClipboardHistoryEnabled);
 
     partial void OnLanguageChanged(string value)
     {
@@ -457,7 +477,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         // Ana her zaman açık; sekme sırası sabit (NotchPanels.Order), ayar yalnız hangilerinin açık olduğunu tutar.
         var enabledPanels = new List<string> { NotchPanels.ToKey(NotchPanel.Home) };
         if (PanelFocus) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.Focus));
+        if (PanelCalendar) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.Calendar));
         if (PanelShelf) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.Shelf));
+        if (PanelClipboard) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.Clipboard));
+        if (PanelSystem) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.System));
         if (PanelControlCenter) enabledPanels.Add(NotchPanels.ToKey(NotchPanel.ControlCenter));
 
         var current = _store.Load();
@@ -505,6 +528,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             PomodoroLongBreakMinutes = PomodoroLongBreakMinutes,
             WheelAction = WheelAction,
             MiddleClickAction = MiddleClickAction,
+            ClipboardHistoryEnabled = ClipboardHistoryEnabled,
             EnabledPanels = enabledPanels
         };
 

@@ -2,6 +2,7 @@ using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Koy.App.Features.Focus;
+using Koy.App.Features.SystemInfo;
 using Koy.App.Features.Music;
 using Koy.App.Features.Settings;
 using Koy.App.Features.Status;
@@ -24,6 +25,12 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
     public StatusViewModel Status { get; }
     public FocusViewModel Focus { get; }
 
+    /// <summary>CPU / RAM ve ağ kartlarının verisi (servis yalnız Ana ya da Sistem görünürken alınır).</summary>
+    public SystemStatsViewModel Stats { get; }
+
+    /// <summary>Hızlı başlat şeridi.</summary>
+    public QuickLaunchViewModel QuickLaunch { get; }
+
     /// <summary>Sol kartta müzik gösterilir (parça var).</summary>
     public bool ShowMusic => Music.HasTrack;
 
@@ -35,8 +42,11 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
 
     public bool ShowNoLocation => !Status.HasWeatherLocation;
 
-    public HomeViewModel(MusicViewModel music, StatusViewModel status, FocusViewModel focus, IShellActionService? shell = null, Action? openFocus = null)
+    public HomeViewModel(MusicViewModel music, StatusViewModel status, FocusViewModel focus, SystemStatsViewModel stats, QuickLaunchViewModel quickLaunch,
+        IShellActionService? shell = null, Action? openFocus = null)
     {
+        Stats = stats;
+        QuickLaunch = quickLaunch;
         Music = music;
         Status = status;
         Focus = focus;
@@ -94,5 +104,7 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
         _disposed = true;
         Music.PropertyChanged -= OnMusicPropertyChanged;
         Status.PropertyChanged -= OnStatusPropertyChanged;
+        QuickLaunch.Dispose();
+        Stats.Dispose();
     }
 }

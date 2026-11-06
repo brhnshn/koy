@@ -58,9 +58,10 @@ src/Platform/   Core'daki sözleşmelerin Windows 11 uygulamaları (WinRT / CsWi
 src/App/        WPF. Yalnız görseller ve ince ViewModel'ler, özellik klasörleriyle:
                 Features/IFeature.cs           özellik giriş noktası (Start / Stop)
                 Features/Notch/                NotchFeature, NotchWindow, NotchShape, NotchViewModel
-                Features/Home/, Focus/, Shelf/, ControlCenter/   çentik sayfaları (Ana, Odak, Raf, Kontrol); Music/ ve Status/
-                                               Ana'nın ve durum satırının veri kaynağı (kendi paneli yok); Calendar/ H'de sekmesi
-                                               olmayan eski takvim paneli (çentikte gösterilmez)
+                Features/Home/, Focus/, Calendar/, Shelf/, ClipboardPanel/, SystemInfo/, ControlCenter/   çentik sayfaları (Ana, Odak, Takvim, Raf, Pano,
+                                               Sistem, Kontrol); Music/ ve Status/ Ana'nın ve durum satırının veri kaynağı (kendi paneli yok).
+                                               Servisler yalnız sayfası görünürken alınır: SystemStatsViewModel.SetActive (Ana + Sistem),
+                                               Pano / Takvim / görevler / hızlı başlat kendi SetActive'leri; pano dinleyicisi NotchFeature'da yalnız ayar açıkken alınır
                 Features/Dock/                 DockFeature, DockWindow… (kapalıyken hiç yüklenmez)
                 Features/Settings/             KoyWindow (ayarlar), sayfaları, AppUninstaller (kaldırma)
                 Features/Shortcuts/            ShortcutController: genel kısayolların kaydı ve dağıtımı

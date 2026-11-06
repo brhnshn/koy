@@ -1,11 +1,16 @@
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
+using Koy.App.Features.Calendar;
+using Koy.App.Features.ClipboardPanel;
 using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Focus;
+using Koy.App.Features.Home;
 using Koy.App.Features.Music;
 using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
+using Koy.App.Features.SystemInfo;
+using Koy.Core.Clipboard;
 using Koy.Core.Diagnostics;
 using Koy.Core.Display;
 using Koy.Core.Notch;
@@ -58,6 +63,11 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     private FocusTimers? _focusTimers;
     private readonly ShellActionService _shellActions = new();
 
+    // Pano geçmişi yalnız ayar açıkken alınır (dinleyici ancak o zaman kurulur); Stop'ta bırakılır. Etkinlik defteri
+    // bütün monitörlerde tek örnektir ve ilk Takvim açılışında diskten okunur.
+    private IClipboardHistoryService? _clipboardHistory;
+    private readonly SharedEvents _sharedEvents = new();
+
     private MediaService? _mediaService;
     private PowerService? _powerService;
     private NetworkService? _networkService;
@@ -88,6 +98,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
         _powerService = new PowerService();
         _networkService = services.AcquireNetworkService();
+        if (settings.ClipboardHistoryEnabled)
+            _clipboardHistory = services.AcquireClipboardHistory();
         _weatherService = new WeatherService(cacheDuration: WeatherRefreshPolicy.CacheDuration(settings.WeatherRefreshInterval));
         _focusAssistService = new FocusAssistService();
         _shelfService = new ShelfService();
@@ -173,7 +185,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     private void CreateNotchWindow(DisplayMonitor monitor)
     {
         var controller = new NotchController();
-        controller.SetEnabledPanels(NotchPanels.ParseEnabled(settings.EnabledPanels));
+        controller.SetEnabledPanels(NotchPanels.ParseEnabled(settings.EnabledPanels, settings.ClipboardHistoryEnabled));
         controller.OpenOnHover = settings.NotchOpenBehavior == 0;
 
         var visibilityController = new VisibilityController(settings.NotchVisibility)
@@ -190,8 +202,14 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             _focusAssistService!,
             settings);
         var statusVm = new StatusViewModel(_powerService!, _weatherService!, settings, networkService: _networkService);
-        var focusVm = new FocusViewModel(_focusTimers!, settings);
+        var tasksVm = new TasksViewModel(services.Tasks);
+        var focusVm = new FocusViewModel(_focusTimers!, settings, tasks: tasksVm);
         var shelfVm = new ShelfViewModel(_shelfService!);
+        var calendarVm = new CalendarViewModel(settings, _sharedEvents);
+        // Sistem verisi çentik açıkken ve Ana ya da Sistem görünürken alınır, yoksa bırakılır (SystemStatsViewModel.SetActive).
+        var systemVm = new SystemStatsViewModel(() => services.AcquireSystemStats(_networkService), services.ReleaseSystemStats);
+        var quickLaunchVm = new QuickLaunchViewModel(services.QuickLaunch);
+        var clipboardVm = _clipboardHistory is null ? null : new ClipboardViewModel(_clipboardHistory);
 
         var viewModel = new NotchViewModel(
             settings,
@@ -201,6 +219,10 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             statusVm,
             focusVm,
             shelfVm,
+            calendarVm,
+            systemVm,
+            quickLaunchVm,
+            clipboardVm,
             visibilityController,
             shellActions: _shellActions);
 
@@ -536,5 +558,12 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
         _focusTimers?.Dispose();
         _focusTimers = null;
+
+        // Pencereler yukarıda Dispose edildi (olay abonelikleri kalktı); pano dinleyicisi şimdi bırakılır.
+        if (_clipboardHistory is not null)
+        {
+            _clipboardHistory = null;
+            services.ReleaseClipboardHistory();
+        }
     }
 }

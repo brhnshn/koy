@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.App.Features.Calendar;
+using Koy.App.Features.ClipboardPanel;
 using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Focus;
 using Koy.App.Features.Home;
@@ -12,6 +14,7 @@ using Koy.App.Resources;
 using Koy.App.Features.Settings;
 using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
+using Koy.App.Features.SystemInfo;
 using Koy.Core.Notch;
 using Koy.Core.Settings;
 using Koy.Core.Visibility;
@@ -26,6 +29,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private readonly StatusViewModel _status;
     private readonly FocusViewModel _focus;
     private readonly ShelfViewModel _shelf;
+    private readonly CalendarViewModel _calendar;
+    private readonly ClipboardViewModel? _clipboard;
+    private bool _pinnedByPicker;
     private readonly VisibilityController _visibility;
     private readonly Dispatcher _dispatcher;
     private DispatcherTimer? _clockTimer;
@@ -38,6 +44,13 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public StatusViewModel Status => _status;
     public FocusViewModel Focus => _focus;
     public ShelfViewModel Shelf => _shelf;
+    public CalendarViewModel Calendar => _calendar;
+
+    /// <summary>Pano sayfası; pano geçmişi ayarı kapalıysa null (sekme de yoktur).</summary>
+    public ClipboardViewModel? Clipboard => _clipboard;
+
+    /// <summary>Sistem sayfası ve Ana'daki kartlar aynı örneği paylaşır.</summary>
+    public SystemStatsViewModel SystemStats => Home.Stats;
 
     /// <summary>Ana sayfanın verisi (müzik ya da selamlama, hava, çalışan zamanlayıcı, bildirim komutu).</summary>
     public HomeViewModel Home { get; }
@@ -81,6 +94,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     {
         NotchPanel.Home => Home,
         NotchPanel.Focus => Focus,
+        NotchPanel.Calendar => Calendar,
+        NotchPanel.Clipboard => (ObservableObject?)Clipboard ?? Home,
+        NotchPanel.System => SystemStats,
         NotchPanel.Shelf => Shelf,
         NotchPanel.ControlCenter => ControlCenter,
         _ => Home
@@ -153,6 +169,10 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         StatusViewModel status,
         FocusViewModel focus,
         ShelfViewModel shelf,
+        CalendarViewModel calendar,
+        SystemStatsViewModel systemStats,
+        QuickLaunchViewModel quickLaunch,
+        ClipboardViewModel? clipboard = null,
         VisibilityController? visibility = null,
         OsdIndicatorViewModel? osd = null,
         Dispatcher? dispatcher = null,
@@ -165,7 +185,10 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _status = status;
         _focus = focus;
         _shelf = shelf;
-        Home = new HomeViewModel(music, status, focus, shellActions, () => _controller.GoToPanel(NotchPanel.Focus));
+        _calendar = calendar;
+        _clipboard = clipboard;
+        Home = new HomeViewModel(music, status, focus, systemStats, quickLaunch, shellActions, () => _controller.GoToPanel(NotchPanel.Focus));
+        quickLaunch.HoldOpen = HoldOpenForPicker;
         _visibility = visibility ?? new VisibilityController(settings.NotchVisibility);
         _dispatcher = dispatcher ?? (System.Windows.Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher);
         Osd = osd ?? new OsdIndicatorViewModel(_dispatcher);
@@ -368,6 +391,15 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _controlCenter.SetActive(isExpanded && CurrentPanel == NotchPanel.ControlCenter);
         // Zamanlayıcı süresi görünür çentikte (kapalıysa pil yerine, açıksa Ana satırında) ve Odak sayfasında tazelenir.
         _focus.SetViewing(isExpanded && CurrentPanel == NotchPanel.Focus, IsNotchVisible);
+
+        // Her servis yalnız sayfası görünürken çalışır (boşta %0 CPU): sistem verisi Ana ve Sistem'de (kartlar orada),
+        // pano, görevler, takvim ve hızlı başlat kendi sayfalarında.
+        var shown = isExpanded && IsNotchVisible;
+        SystemStats.SetActive(shown && CurrentPanel is NotchPanel.Home or NotchPanel.System);
+        Home.QuickLaunch.SetActive(shown && CurrentPanel == NotchPanel.Home);
+        _focus.Tasks?.SetActive(shown && CurrentPanel == NotchPanel.Focus);
+        _calendar.SetActive(shown && CurrentPanel == NotchPanel.Calendar);
+        _clipboard?.SetActive(shown && CurrentPanel == NotchPanel.Clipboard);
     }
 
     private void OnVisibilityChanged(object? sender, VisibilityResult result)
@@ -408,6 +440,24 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         }
 
         TargetSizeChanged?.Invoke(TargetWidth, TargetHeight);
+    }
+
+    // Dosya seçici açıkken fare çentikten ayrılır; çentik kapanıp seçiciyi yetim bırakmasın diye geçici olarak açık tutulur.
+    private void HoldOpenForPicker(bool hold)
+    {
+        if (hold)
+        {
+            if (!_controller.IsPinned)
+            {
+                _controller.SetPinned(true);
+                _pinnedByPicker = true;
+            }
+        }
+        else if (_pinnedByPicker)
+        {
+            _pinnedByPicker = false;
+            _controller.SetPinned(false);
+        }
     }
 
     public void ShowVolume(float volume, bool isMuted) => Osd.ShowVolume(volume, isMuted);
@@ -469,6 +519,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _status.Dispose();
         _focus.Dispose();
         _shelf.Dispose();
+        _calendar.Dispose();
+        _clipboard?.Dispose();
         Home.Dispose();
     }
 }

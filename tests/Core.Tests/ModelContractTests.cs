@@ -75,7 +75,7 @@ public sealed class ModelContractTests
     }
 
     [Fact]
-    public void NotchController_CyclesThroughAllFourPanels()
+    public void NotchController_CyclesThroughAllPanels()
     {
         using var controller = new NotchController();
         controller.SetEnabledPanels(NotchPanels.Order);
@@ -86,7 +86,16 @@ public sealed class ModelContractTests
         Assert.Equal(NotchPanel.Focus, controller.CurrentPanel);
 
         controller.NextPanel();
+        Assert.Equal(NotchPanel.Calendar, controller.CurrentPanel);
+
+        controller.NextPanel();
         Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.Clipboard, controller.CurrentPanel);
+
+        controller.NextPanel();
+        Assert.Equal(NotchPanel.System, controller.CurrentPanel);
 
         controller.NextPanel();
         Assert.Equal(NotchPanel.ControlCenter, controller.CurrentPanel);

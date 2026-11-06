@@ -10,6 +10,9 @@
         xmlns:cc="clr-namespace:Koy.App.Features.ControlCenter"
         xmlns:status="clr-namespace:Koy.App.Features.Status"
         xmlns:shelf="clr-namespace:Koy.App.Features.Shelf"
+        xmlns:calendar="clr-namespace:Koy.App.Features.Calendar"
+        xmlns:clip="clr-namespace:Koy.App.Features.ClipboardPanel"
+        xmlns:sysinfo="clr-namespace:Koy.App.Features.SystemInfo"
         xmlns:res="clr-namespace:Koy.App.Resources"
         xmlns:core="clr-namespace:Koy.Core.Notch;assembly=Koy.Core"
         mc:Ignorable="d"
@@ -390,14 +393,24 @@
             </TextBlock>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-              <!-- Hava: yalnız konum seçilmişse -->
-              <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0"
-                          Visibility="{Binding Status.HasWeatherLocation, Converter={StaticResource BoolToVis}}">
-                <Viewbox Width="15" Height="15" Margin="0,0,5,0" VerticalAlignment="Center">
-                  <status:WeatherGlyph DataContext="{Binding Status}" />
-                </Viewbox>
-                <TextBlock Text="{Binding Status.TemperatureShort}" FontSize="12" Foreground="{DynamicResource KoyNotchText}" VerticalAlignment="Center" />
-              </StackPanel>
+              <!-- Hava: konum seçilmişse sıcaklık ve küçük yer adı (tıklayınca yenilenir); seçilmemişse konum seçtirir -->
+              <Button Style="{StaticResource NotchPlainButtonStyle}" Margin="0,0,12,0" VerticalAlignment="Center"
+                      Command="{Binding Status.RefreshWeatherCommand}"
+                      Visibility="{Binding Status.HasWeatherLocation, Converter={StaticResource BoolToVis}}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <Viewbox Width="15" Height="15" Margin="0,0,5,0" VerticalAlignment="Center">
+                    <status:WeatherGlyph DataContext="{Binding Status}" />
+                  </Viewbox>
+                  <TextBlock Text="{Binding Status.TemperatureShort}" FontSize="12" Foreground="{DynamicResource KoyNotchText}" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding Status.PlaceName}" FontSize="10" Foreground="{DynamicResource KoyNotchMuted}" Margin="6,2,0,0"
+                             MaxWidth="96" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <Button Style="{StaticResource NotchPlainButtonStyle}" Margin="0,0,12,0" VerticalAlignment="Center"
+                      Command="{Binding Home.ChooseWeatherLocationCommand}"
+                      Visibility="{Binding Home.ShowNoLocation, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{Binding [WeatherPickLocation], Source={x:Static res:Loc.Instance}}" FontSize="12" Foreground="{DynamicResource KoyNotchMuted}" />
+              </Button>
 
               <!-- Pil: yalnız pil varsa -->
               <TextBlock Text="{Binding BatteryPercent, StringFormat='%{0}'}" FontSize="12" FontWeight="SemiBold"
@@ -440,6 +453,15 @@
               <DataTemplate DataType="{x:Type focus:FocusViewModel}">
                 <focus:FocusPanel />
               </DataTemplate>
+              <DataTemplate DataType="{x:Type calendar:CalendarViewModel}">
+                <calendar:CalendarPanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type clip:ClipboardViewModel}">
+                <clip:ClipboardPanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type sysinfo:SystemStatsViewModel}">
+                <sysinfo:SystemPanel />
+              </DataTemplate>
               <DataTemplate DataType="{x:Type shelf:ShelfViewModel}">
                 <shelf:ShelfPanel />
               </DataTemplate>
@@ -458,7 +480,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="{x:Type local:NotchTabViewModel}">
-                <Button Margin="2,0" Height="44" Cursor="Hand"
+                <Button Margin="1,0" Height="42" Cursor="Hand"
                         FocusVisualStyle="{x:Null}"
                         Command="{Binding DataContext.SelectTabCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                         CommandParameter="{Binding Panel}"
@@ -467,9 +489,9 @@
                     <ControlTemplate TargetType="Button">
                       <Border x:Name="Pill" CornerRadius="14" Background="Transparent">
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                          <res:KoyIcon x:Name="Glyph" Data="{Binding Icon}" Size="17" HorizontalAlignment="Center"
+                          <res:KoyIcon x:Name="Glyph" Data="{Binding Icon}" Size="16" HorizontalAlignment="Center"
                                        Foreground="{DynamicResource KoyNotchDim}" />
-                          <TextBlock x:Name="Label" Text="{Binding Label}" FontSize="11" FontWeight="SemiBold" Margin="0,3,0,0"
+                          <TextBlock x:Name="Label" Text="{Binding Label}" FontSize="10.5" FontWeight="SemiBold" Margin="0,3,0,0"
                                      HorizontalAlignment="Center" Foreground="{DynamicResource KoyNotchMuted}" />
                         </StackPanel>
                       </Border>

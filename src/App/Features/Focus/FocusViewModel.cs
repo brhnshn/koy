@@ -40,6 +40,9 @@ public sealed partial class FocusViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<FocusTabViewModel> Tabs { get; }
 
+    /// <summary>Odak / Mola sekmelerinin sağ kartı: görev listesi.</summary>
+    public TasksViewModel? Tasks { get; }
+
     public IReadOnlyList<FocusPreset> Presets { get; } =
         CountdownPresets.Minutes.Select(m => new FocusPreset(m, string.Format(Strings.Get("TimerPresetMinutes"), m))).ToList();
 
@@ -104,8 +107,9 @@ public sealed partial class FocusViewModel : ObservableObject, IDisposable
     /// <summary>Pomodoro oturumu ya da sayaç bitti: çentik kısa süre Peek'e geçer ve titrer.</summary>
     public event Action? TimerFinished;
 
-    public FocusViewModel(FocusTimers timers, Core.Settings.AppSettings settings, Dispatcher? dispatcher = null)
+    public FocusViewModel(FocusTimers timers, Core.Settings.AppSettings settings, Dispatcher? dispatcher = null, TasksViewModel? tasks = null)
     {
+        Tasks = tasks;
         _timers = timers;
         _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
 
@@ -322,5 +326,6 @@ public sealed partial class FocusViewModel : ObservableObject, IDisposable
         _displayTimer.Tick -= OnDisplayTick;
         _timers.Changed -= OnTimersChanged;
         _timers.Finished -= OnTimersFinished;
+        Tasks?.Dispose();
     }
 }

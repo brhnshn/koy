@@ -19,10 +19,10 @@ internal static class NotchTabs
     [
         new(NotchPanel.Home, "TabHome", "IconTabHome", "KoyNotchAccentHome"),
         new(NotchPanel.Focus, "TabFocus", "IconTabFocus", "KoyNotchAccentFocus"),
+        new(NotchPanel.Calendar, "TabCalendar", "IconTabCalendar", "KoyNotchAccentCalendar"),
         new(NotchPanel.Shelf, "TabShelf", "IconTabShelf", "KoyNotchAccentShelf"),
-        // Pano ve Sistem servisleri gelince açılır (simgeler ve renkler hazır):
-        // new(NotchPanel.Clipboard, "TabClipboard", "IconTabClipboard", "KoyNotchAccentClipboard"),
-        // new(NotchPanel.System, "TabSystem", "IconTabSystem", "KoyNotchAccentSystem"),
+        new(NotchPanel.Clipboard, "TabClipboard", "IconTabClipboard", "KoyNotchAccentClipboard"),
+        new(NotchPanel.System, "TabSystem", "IconTabSystem", "KoyNotchAccentSystem"),
         new(NotchPanel.ControlCenter, "TabControlCenter", "IconTabControl", "KoyNotchAccentControl"),
     ];
 

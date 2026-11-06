@@ -115,4 +115,25 @@
     <SolidColorBrush x:Key="KoyNotchControlTrack" Color="#1E2A44" />
     <SolidColorBrush x:Key="KoyNotchControlSoft" Color="#BFDBFE" />
     <SolidColorBrush x:Key="KoyNotchControlTile" Color="#1F1F23" />
-    <SolidColorBrush x:Key="KoyNotchBrightness" Color="#FACC15" /></ResourceDictionary>
+    <SolidColorBrush x:Key="KoyNotchBrightness" Color="#FACC15" />
+    <!-- Takvim -->
+    <SolidColorBrush x:Key="KoyNotchAccentCalendar" Color="#38BDF8" />
+    <SolidColorBrush x:Key="KoyNotchCalendarCard" Color="#0E1A24" />
+    <SolidColorBrush x:Key="KoyNotchCalendarChip" Color="#16293A" />
+    <SolidColorBrush x:Key="KoyNotchCalendarSoft" Color="#BAE6FD" />
+    <!-- Pano -->
+    <SolidColorBrush x:Key="KoyNotchClipCard" Color="#18132B" />
+    <SolidColorBrush x:Key="KoyNotchClipChip" Color="#241D3D" />
+    <SolidColorBrush x:Key="KoyNotchClipChipText" Color="#DDD6FE" />
+    <SolidColorBrush x:Key="KoyNotchClipSoft" Color="#C4B5FD" />
+    <!-- Sistem ve Ana'daki sistem kartları -->
+    <SolidColorBrush x:Key="KoyNotchSystemCard" Color="#0F1F19" />
+    <SolidColorBrush x:Key="KoyNotchSystemTrack" Color="#1E3A2F" />
+    <SolidColorBrush x:Key="KoyNotchSystemSoft" Color="#A7F3D0" />
+    <SolidColorBrush x:Key="KoyNotchNetCard" Color="#18132B" />
+    <SolidColorBrush x:Key="KoyNotchNetSoft" Color="#C4B5FD" />
+    <!-- Hızlı başlat boş yuva çerçevesi -->
+    <SolidColorBrush x:Key="KoyNotchDash" Color="#3F3F46" />
+    <!-- Görev onay kutusu çerçevesi, tamamlanan görev yazısı -->
+    <SolidColorBrush x:Key="KoyNotchCheckBorder" Color="#52525B" />
+    <SolidColorBrush x:Key="KoyNotchDoneText" Color="#71717A" /></ResourceDictionary>
