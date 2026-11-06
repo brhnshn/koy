@@ -5,6 +5,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:Koy.App.Features.Focus"
              xmlns:res="clr-namespace:Koy.App.Resources"
+             xmlns:tasks="clr-namespace:Koy.Core.Tasks;assembly=Koy.Core"
+             xmlns:cal="clr-namespace:Koy.App.Features.Calendar"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:FocusViewModel}"
              Foreground="{DynamicResource KoyNotchText}"
@@ -12,6 +14,29 @@
 
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    <cal:SelectedTagConverter x:Key="SelectedTag" />
+
+    <!-- Gün · Hafta · Ay: düz yazı bağlantıları, seçili olan açık renk -->
+    <Style x:Key="ScopeLinkStyle" TargetType="Button">
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <TextBlock x:Name="Label" Text="{TemplateBinding Content}" FontSize="11" Margin="6,0,0,0" Foreground="{DynamicResource KoyNotchMuted}" />
+            <ControlTemplate.Triggers>
+              <Trigger Property="Tag" Value="Selected">
+                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource KoyNotchFocusSoft}" />
+                <Setter TargetName="Label" Property="FontWeight" Value="SemiBold" />
+              </Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource KoyNotchText}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
 
     <!-- Yuvarlak simge düğmesi (sıfırla, başlat / duraklat) -->
     <Style x:Key="RoundButtonStyle" TargetType="Button">
@@ -159,6 +184,12 @@
               </Path>
             </Grid>
           </Button>
+          <Button Style="{StaticResource RoundButtonStyle}" Margin="12,0,0,0" Command="{Binding SkipCommand}"
+                  Visibility="{Binding CanSkip, Converter={StaticResource BoolToVis}}"
+                  ToolTip="{Binding [FocusSkip], Source={x:Static res:Loc.Instance}}"
+                  AutomationProperties.Name="{Binding [FocusSkip], Source={x:Static res:Loc.Instance}}">
+            <Path Width="16" Height="16" Stretch="Uniform" Fill="{DynamicResource KoyNotchText}" Data="M16 5h2v14h-2zM4 5v14l11-7z" />
+          </Button>
         </StackPanel>
       </StackPanel>
     </Border>
@@ -166,25 +197,154 @@
     <!-- SAĞ KART: seçili sekmeye göre. Görev listesi bağlanınca Odak / Mola sekmelerinde bu kartın yerini alır. -->
     <Border Grid.Column="2" CornerRadius="22" Background="{DynamicResource KoyNotchCard}" Padding="14">
       <Grid>
-        <!-- Odak / Mola: oturum sayısı ve süreler -->
-        <Grid>
+        <!-- Odak / Mola: görev listesi (Bugün · Hafta · Ay) -->
+        <Grid DataContext="{Binding Tasks}">
           <Grid.Style>
             <Style TargetType="Grid" BasedOn="{StaticResource PageVisibility}">
               <Style.Triggers>
-                <DataTrigger Binding="{Binding IsPomodoroTab}" Value="True">
+                <DataTrigger Binding="{Binding DataContext.IsPomodoroTab, RelativeSource={RelativeSource AncestorType=local:FocusPanel}}" Value="True">
                   <Setter Property="Visibility" Value="Visible" />
                 </DataTrigger>
               </Style.Triggers>
             </Style>
           </Grid.Style>
-          <StackPanel>
-            <TextBlock Text="{Binding [FocusSessions], Source={x:Static res:Loc.Instance}}" FontSize="13" FontWeight="SemiBold" />
-            <TextBlock Text="{Binding SessionsText}" FontSize="44" FontWeight="SemiBold" Foreground="{DynamicResource KoyNotchAccentFocus}" Margin="0,4,0,0" />
-            <TextBlock Text="{Binding DurationsText}" FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" TextWrapping="Wrap" Margin="0,4,0,0" />
-          </StackPanel>
-          <Button Style="{StaticResource ChipButtonStyle}" Command="{Binding SkipCommand}" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-            <TextBlock Text="{Binding [FocusSkip], Source={x:Static res:Loc.Instance}}" FontSize="12" />
-          </Button>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+              <Button Style="{StaticResource ScopeLinkStyle}" Command="{Binding SetScopeCommand}" CommandParameter="{x:Static tasks:TaskScope.Day}"
+                      Content="{Binding [TaskScopeDay], Source={x:Static res:Loc.Instance}}">
+                <Button.Tag><Binding Path="IsDayScope" Converter="{StaticResource SelectedTag}" /></Button.Tag>
+              </Button>
+              <Button Style="{StaticResource ScopeLinkStyle}" Command="{Binding SetScopeCommand}" CommandParameter="{x:Static tasks:TaskScope.Week}"
+                      Content="{Binding [TaskScopeWeek], Source={x:Static res:Loc.Instance}}">
+                <Button.Tag><Binding Path="IsWeekScope" Converter="{StaticResource SelectedTag}" /></Button.Tag>
+              </Button>
+              <Button Style="{StaticResource ScopeLinkStyle}" Command="{Binding SetScopeCommand}" CommandParameter="{x:Static tasks:TaskScope.Month}"
+                      Content="{Binding [TaskScopeMonth], Source={x:Static res:Loc.Instance}}">
+                <Button.Tag><Binding Path="IsMonthScope" Converter="{StaticResource SelectedTag}" /></Button.Tag>
+              </Button>
+            </StackPanel>
+          </Grid>
+
+          <Grid Grid.Row="1">
+            <TextBlock Text="{Binding [TaskEmpty], Source={x:Static res:Loc.Instance}}" FontSize="12" Foreground="{DynamicResource KoyNotchMuted}"
+                       Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}" />
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <ItemsControl ItemsSource="{Binding Rows}" Focusable="False">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate DataType="{x:Type local:TaskRowViewModel}">
+                    <Grid Margin="0,0,0,2" Height="26">
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <!-- Satırın tamamı düğme: tıklayınca tamamlandı / geri al (çentik boş alana tıklayınca kapanır) -->
+                      <Button Style="{StaticResource NotchPlainButtonStyle}" HorizontalContentAlignment="Stretch"
+                              Command="{Binding DataContext.ToggleCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                              CommandParameter="{Binding}"
+                              ToolTip="{Binding [TaskToggle], Source={x:Static res:Loc.Instance}}">
+                        <Grid>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                          </Grid.ColumnDefinitions>
+                          <Border x:Name="Box" Width="16" Height="16" CornerRadius="5" BorderThickness="1.5" BorderBrush="{DynamicResource KoyNotchCheckBorder}"
+                                  Background="Transparent" VerticalAlignment="Center">
+                            <res:KoyIcon x:Name="Tick" Data="{DynamicResource IconCheck}" Size="10" StrokeWidth="3" Foreground="{DynamicResource KoyNotchSurface}" Visibility="Collapsed" />
+                          </Border>
+                          <TextBlock x:Name="TitleText" Grid.Column="1" Text="{Binding Title}" Margin="10,0,6,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                          <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DayText}" FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" Margin="0,0,6,0"
+                                       Visibility="{Binding HasDay, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock x:Name="TimeLabel" Text="{Binding TimeText}" FontSize="11" Foreground="{DynamicResource KoyNotchMuted}"
+                                       Visibility="{Binding HasTime, Converter={StaticResource BoolToVis}}" />
+                            <TextBlock x:Name="NowLabel" Text="{Binding [TaskNow], Source={x:Static res:Loc.Instance}}" FontSize="11"
+                                       Foreground="{DynamicResource KoyNotchFocusSoft}" Visibility="Collapsed" />
+                          </StackPanel>
+                        </Grid>
+                      </Button>
+                      <Button Grid.Column="1" Style="{StaticResource NotchPlainButtonStyle}" Margin="4,0,0,0" Width="22" Height="22" VerticalAlignment="Center"
+                              Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                              CommandParameter="{Binding}"
+                              ToolTip="{Binding [TaskDelete], Source={x:Static res:Loc.Instance}}"
+                              AutomationProperties.Name="{Binding [TaskDelete], Source={x:Static res:Loc.Instance}}">
+                        <res:KoyIcon Data="{DynamicResource IconX}" Size="12" Foreground="{DynamicResource KoyNotchMuted}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Button>
+                    </Grid>
+                    <DataTemplate.Triggers>
+                      <DataTrigger Binding="{Binding Done}" Value="True">
+                        <Setter TargetName="Box" Property="Background" Value="{DynamicResource KoyNotchAccentFocus}" />
+                        <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource KoyNotchAccentFocus}" />
+                        <Setter TargetName="Tick" Property="Visibility" Value="Visible" />
+                        <Setter TargetName="TitleText" Property="Foreground" Value="{DynamicResource KoyNotchDoneText}" />
+                        <Setter TargetName="TitleText" Property="TextDecorations" Value="Strikethrough" />
+                      </DataTrigger>
+                      <DataTrigger Binding="{Binding IsNow}" Value="True">
+                        <Setter TargetName="NowLabel" Property="Visibility" Value="Visible" />
+                      </DataTrigger>
+                    </DataTemplate.Triggers>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </Grid>
+
+          <!-- Görev ekle: başlık, isteğe bağlı saat, + -->
+          <Grid Grid.Row="2" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="72" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Height="32" MaxLength="80" Text="{Binding NewTitle, UpdateSourceTrigger=PropertyChanged}"
+                     Tag="{Binding [TaskAdd], Source={x:Static res:Loc.Instance}}"
+                     AutomationProperties.Name="{Binding [TaskAdd], Source={x:Static res:Loc.Instance}}">
+              <TextBox.Style>
+                <Style TargetType="TextBox" BasedOn="{StaticResource NotchInputStyle}">
+                  <Setter Property="Background" Value="{DynamicResource KoyNotchChip}" />
+                </Style>
+              </TextBox.Style>
+              <TextBox.InputBindings>
+                <KeyBinding Key="Return" Command="{Binding AddCommand}" />
+              </TextBox.InputBindings>
+            </TextBox>
+            <TextBox Grid.Column="1" Height="32" Margin="6,0,0,0" MaxLength="5" Text="{Binding NewTime, UpdateSourceTrigger=PropertyChanged}"
+                     Tag="{Binding [TaskTimeHint], Source={x:Static res:Loc.Instance}}"
+                     ToolTip="{Binding [TaskTimeInvalid], Source={x:Static res:Loc.Instance}}"
+                     AutomationProperties.Name="{Binding [TaskTimeHint], Source={x:Static res:Loc.Instance}}">
+              <TextBox.Style>
+                <Style TargetType="TextBox" BasedOn="{StaticResource NotchInputStyle}">
+                  <Setter Property="Background" Value="{DynamicResource KoyNotchChip}" />
+                  <Style.Triggers>
+                    <DataTrigger Binding="{Binding NewTimeInvalid}" Value="True">
+                      <Setter Property="Foreground" Value="{DynamicResource KoyNotchAccentFocus}" />
+                    </DataTrigger>
+                  </Style.Triggers>
+                </Style>
+              </TextBox.Style>
+              <TextBox.InputBindings>
+                <KeyBinding Key="Return" Command="{Binding AddCommand}" />
+              </TextBox.InputBindings>
+            </TextBox>
+            <Button Grid.Column="2" Style="{StaticResource NotchPlainButtonStyle}" Margin="6,0,0,0" Command="{Binding AddCommand}"
+                    ToolTip="{Binding [TaskAddButton], Source={x:Static res:Loc.Instance}}"
+                    AutomationProperties.Name="{Binding [TaskAddButton], Source={x:Static res:Loc.Instance}}">
+              <Border Width="32" Height="32" CornerRadius="16" Background="{DynamicResource KoyNotchText}">
+                <res:KoyIcon Data="{DynamicResource IconPlus}" Size="16" StrokeWidth="2.4" Foreground="{DynamicResource KoyNotchSurface}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+            </Button>
+          </Grid>
         </Grid>
 
         <!-- Sayaç: süre ve hazır süreler -->

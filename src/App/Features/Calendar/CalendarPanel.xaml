@@ -1,0 +1,397 @@
+<UserControl x:Class="Koy.App.Features.Calendar.CalendarPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Koy.App.Features.Calendar"
+             xmlns:cal="clr-namespace:Koy.Core.Calendar;assembly=Koy.Core"
+             xmlns:res="clr-namespace:Koy.App.Resources"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance local:CalendarViewModel}"
+             Foreground="{DynamicResource KoyNotchText}"
+             FontSize="12">
+
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+    <!-- Yuvarlak simge düğmesi (önceki / sonraki / bugün) -->
+    <Style x:Key="CalIconButton" TargetType="Button">
+      <Setter Property="Width" Value="26" />
+      <Setter Property="Height" Value="26" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bg" CornerRadius="13" Background="Transparent">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource KoyNotchCalendarChip}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Görünüm seçici hapı (Ay / Hafta / Gün); seçili olan Tag="Selected" -->
+    <Style x:Key="CalPill" TargetType="Button">
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Pill" CornerRadius="11" Padding="10,4" Background="{DynamicResource KoyNotchCalendarChip}">
+              <TextBlock x:Name="Label" Text="{TemplateBinding Content}" FontSize="11" Foreground="{DynamicResource KoyNotchCalendarSoft}" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="Tag" Value="Selected">
+                <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchAccentCalendar}" />
+                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource KoyNotchTextOnLight}" />
+                <Setter TargetName="Label" Property="FontWeight" Value="SemiBold" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- Ay hücresi ve hafta satırı düğmeleri -->
+    <Style x:Key="CalCellButton" TargetType="Button">
+      <Setter Property="Foreground" Value="{DynamicResource KoyNotchText}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bg" CornerRadius="8" Background="Transparent" Padding="{TemplateBinding Padding}">
+              <ContentPresenter />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource KoyNotchCalendarChip}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <!-- SOL KART: başlık, görünüm seçici, ay ızgarası ya da hafta satırları (Gün görünümünde gizli) -->
+    <Border Grid.Column="0" Width="298" Margin="0,0,10,0" CornerRadius="22" Background="{DynamicResource KoyNotchCalendarCard}" Padding="12"
+            Visibility="{Binding ShowGrid, Converter={StaticResource BoolToVis}}">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Button Style="{StaticResource CalIconButton}" Command="{Binding PreviousCommand}"
+                  ToolTip="{Binding [CalPrevious], Source={x:Static res:Loc.Instance}}"
+                  AutomationProperties.Name="{Binding [CalPrevious], Source={x:Static res:Loc.Instance}}">
+            <res:KoyIcon Data="{DynamicResource IconChevronLeft}" Size="14" Foreground="{DynamicResource KoyNotchCalendarSoft}" />
+          </Button>
+          <TextBlock Grid.Column="1" Text="{Binding HeaderTitle}" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+          <Button Grid.Column="2" Style="{StaticResource CalIconButton}" Command="{Binding GoTodayCommand}"
+                  ToolTip="{Binding [CalToday], Source={x:Static res:Loc.Instance}}"
+                  AutomationProperties.Name="{Binding [CalToday], Source={x:Static res:Loc.Instance}}">
+            <res:KoyIcon Data="{DynamicResource IconCalendar}" Size="14" Foreground="{DynamicResource KoyNotchCalendarSoft}" />
+          </Button>
+          <Button Grid.Column="3" Style="{StaticResource CalIconButton}" Command="{Binding NextCommand}"
+                  ToolTip="{Binding [CalNext], Source={x:Static res:Loc.Instance}}"
+                  AutomationProperties.Name="{Binding [CalNext], Source={x:Static res:Loc.Instance}}">
+            <res:KoyIcon Data="{DynamicResource IconChevronRight}" Size="14" Foreground="{DynamicResource KoyNotchCalendarSoft}" />
+          </Button>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,6">
+          <Button Style="{StaticResource CalPill}" Command="{Binding SetViewCommand}" CommandParameter="{x:Static cal:CalendarViewMode.Month}"
+                  Content="{Binding [CalViewMonth], Source={x:Static res:Loc.Instance}}">
+            <Button.Tag>
+              <Binding Path="IsMonthView">
+                <Binding.Converter>
+                  <local:SelectedTagConverter />
+                </Binding.Converter>
+              </Binding>
+            </Button.Tag>
+          </Button>
+          <Button Style="{StaticResource CalPill}" Margin="4,0" Command="{Binding SetViewCommand}" CommandParameter="{x:Static cal:CalendarViewMode.Week}"
+                  Content="{Binding [CalViewWeek], Source={x:Static res:Loc.Instance}}">
+            <Button.Tag>
+              <Binding Path="IsWeekView">
+                <Binding.Converter>
+                  <local:SelectedTagConverter />
+                </Binding.Converter>
+              </Binding>
+            </Button.Tag>
+          </Button>
+          <Button Style="{StaticResource CalPill}" Command="{Binding SetViewCommand}" CommandParameter="{x:Static cal:CalendarViewMode.Day}"
+                  Content="{Binding [CalViewDay], Source={x:Static res:Loc.Instance}}">
+            <Button.Tag>
+              <Binding Path="IsDayView">
+                <Binding.Converter>
+                  <local:SelectedTagConverter />
+                </Binding.Converter>
+              </Binding>
+            </Button.Tag>
+          </Button>
+        </StackPanel>
+
+        <!-- AY: gün başlıkları ve 6x7 ızgara -->
+        <Grid Grid.Row="2">
+          <Grid.Style>
+            <Style TargetType="Grid">
+              <Setter Property="Visibility" Value="Collapsed" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMonthView}" Value="True">
+                  <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Grid.Style>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <ItemsControl ItemsSource="{Binding WeekdayHeaders}" Focusable="False">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Rows="1" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding}" FontSize="10" Foreground="{DynamicResource KoyNotchCalendarSoft}" Opacity="0.7" HorizontalAlignment="Center" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <ItemsControl Grid.Row="1" ItemsSource="{Binding Cells}" Focusable="False">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Columns="7" Rows="6" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="{x:Type local:CalendarCell}">
+                <Button Style="{StaticResource CalCellButton}" Margin="1"
+                        Command="{Binding DataContext.SelectDayCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                        CommandParameter="{Binding Date}">
+                  <Border x:Name="Cell" CornerRadius="8" Background="Transparent">
+                    <Grid>
+                      <TextBlock x:Name="Num" Text="{Binding Day}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,4" />
+                      <Ellipse x:Name="Dot" Width="4" Height="4" Fill="{DynamicResource KoyNotchAccentCalendar}" Visibility="Collapsed"
+                               HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,2" />
+                    </Grid>
+                  </Border>
+                </Button>
+                <DataTemplate.Triggers>
+                  <DataTrigger Binding="{Binding IsCurrentMonth}" Value="False">
+                    <Setter TargetName="Num" Property="Opacity" Value="0.35" />
+                  </DataTrigger>
+                  <DataTrigger Binding="{Binding HasEvents}" Value="True">
+                    <Setter TargetName="Dot" Property="Visibility" Value="Visible" />
+                  </DataTrigger>
+                  <DataTrigger Binding="{Binding IsToday}" Value="True">
+                    <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource KoyNotchAccentCalendar}" />
+                    <Setter TargetName="Num" Property="FontWeight" Value="Bold" />
+                  </DataTrigger>
+                  <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter TargetName="Cell" Property="Background" Value="{DynamicResource KoyNotchAccentCalendar}" />
+                    <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource KoyNotchTextOnLight}" />
+                    <Setter TargetName="Num" Property="FontWeight" Value="Bold" />
+                    <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource KoyNotchTextOnLight}" />
+                  </DataTrigger>
+                </DataTemplate.Triggers>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Grid>
+
+        <!-- HAFTA: 7 satır -->
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding WeekDays}" Focusable="False">
+          <ItemsControl.Style>
+            <Style TargetType="ItemsControl">
+              <Setter Property="Visibility" Value="Collapsed" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsWeekView}" Value="True">
+                  <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </ItemsControl.Style>
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <UniformGrid Columns="1" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="{x:Type local:WeekDayRow}">
+              <Button Style="{StaticResource CalCellButton}" Padding="8,0" Margin="0,1"
+                      Command="{Binding DataContext.SelectDayCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                      CommandParameter="{Binding Date}">
+                <Grid x:Name="Row">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="52" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock x:Name="Day" Text="{Binding Label}" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1" Text="{Binding Summary}" FontSize="11" Foreground="{DynamicResource KoyNotchCalendarSoft}"
+                             TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                </Grid>
+              </Button>
+              <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsToday}" Value="True">
+                  <Setter TargetName="Day" Property="Foreground" Value="{DynamicResource KoyNotchAccentCalendar}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                  <Setter TargetName="Row" Property="Opacity" Value="1" />
+                  <Setter TargetName="Day" Property="TextDecorations" Value="Underline" />
+                </DataTrigger>
+              </DataTemplate.Triggers>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Grid>
+    </Border>
+
+    <!-- SAĞ KART: seçili günün gündemi ve etkinlik ekleme (Gün görünümünde ayrıca gezinme başlığı) -->
+    <Border Grid.Column="1" CornerRadius="22" Background="{DynamicResource KoyNotchCard}" Padding="14">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <!-- Gün görünümünde gezinme ve görünüm seçici bu kartın başlığındadır -->
+          <StackPanel Grid.Column="0" Orientation="Horizontal" Visibility="{Binding IsDayView, Converter={StaticResource BoolToVis}}" Margin="0,0,6,0">
+            <Button Style="{StaticResource CalIconButton}" Command="{Binding PreviousCommand}"
+                    ToolTip="{Binding [CalPrevious], Source={x:Static res:Loc.Instance}}"
+                    AutomationProperties.Name="{Binding [CalPrevious], Source={x:Static res:Loc.Instance}}">
+              <res:KoyIcon Data="{DynamicResource IconChevronLeft}" Size="14" Foreground="{DynamicResource KoyNotchCalendarSoft}" />
+            </Button>
+            <Button Style="{StaticResource CalIconButton}" Command="{Binding NextCommand}"
+                    ToolTip="{Binding [CalNext], Source={x:Static res:Loc.Instance}}"
+                    AutomationProperties.Name="{Binding [CalNext], Source={x:Static res:Loc.Instance}}">
+              <res:KoyIcon Data="{DynamicResource IconChevronRight}" Size="14" Foreground="{DynamicResource KoyNotchCalendarSoft}" />
+            </Button>
+          </StackPanel>
+          <TextBlock Grid.Column="1" Text="{Binding DayTitle}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Visibility="{Binding IsDayView, Converter={StaticResource BoolToVis}}">
+            <Button Style="{StaticResource CalPill}" Command="{Binding SetViewCommand}" CommandParameter="{x:Static cal:CalendarViewMode.Month}"
+                    Content="{Binding [CalViewMonth], Source={x:Static res:Loc.Instance}}" />
+            <Button Style="{StaticResource CalPill}" Margin="4,0,0,0" Command="{Binding SetViewCommand}" CommandParameter="{x:Static cal:CalendarViewMode.Week}"
+                    Content="{Binding [CalViewWeek], Source={x:Static res:Loc.Instance}}" />
+            <Button Style="{StaticResource CalPill}" Margin="4,0,0,0" Command="{Binding SetViewCommand}" CommandParameter="{x:Static cal:CalendarViewMode.Day}"
+                    Content="{Binding [CalViewDay], Source={x:Static res:Loc.Instance}}" Tag="Selected" />
+          </StackPanel>
+        </Grid>
+
+        <TextBlock Grid.Row="1" Text="{Binding [CalNoEvents], Source={x:Static res:Loc.Instance}}" FontSize="12"
+                   Foreground="{DynamicResource KoyNotchMuted}" TextWrapping="Wrap">
+          <TextBlock.Style>
+            <Style TargetType="TextBlock">
+              <Setter Property="Visibility" Value="Visible" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding HasDayEvents}" Value="True">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      Visibility="{Binding HasDayEvents, Converter={StaticResource BoolToVis}}">
+          <ItemsControl ItemsSource="{Binding DayEvents}" Focusable="False">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="{x:Type local:EventRow}">
+                <Grid Margin="0,0,0,6" Height="24">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="46" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="{Binding TimeText}" Foreground="{DynamicResource KoyNotchAccentCalendar}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                  <Button Grid.Column="2" Style="{StaticResource CalIconButton}" Width="24" Height="24"
+                          Command="{Binding DataContext.DeleteEventCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                          CommandParameter="{Binding Id}"
+                          ToolTip="{Binding [CalDeleteEvent], Source={x:Static res:Loc.Instance}}"
+                          AutomationProperties.Name="{Binding [CalDeleteEvent], Source={x:Static res:Loc.Instance}}">
+                    <res:KoyIcon Data="{DynamicResource IconX}" Size="12" Foreground="{DynamicResource KoyNotchMuted}" />
+                  </Button>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Etkinlik ekle: başlık, saat, + -->
+        <Grid Grid.Row="2" Margin="0,8,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="72" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBox Style="{StaticResource NotchInputStyle}" Height="32" MaxLength="60" Text="{Binding NewEventTitle, UpdateSourceTrigger=PropertyChanged}"
+                   Tag="{Binding [CalEventTitleHint], Source={x:Static res:Loc.Instance}}"
+                   AutomationProperties.Name="{Binding [CalEventTitleHint], Source={x:Static res:Loc.Instance}}">
+            <TextBox.InputBindings>
+              <KeyBinding Key="Return" Command="{Binding AddEventCommand}" />
+            </TextBox.InputBindings>
+          </TextBox>
+          <TextBox Grid.Column="1" Height="32" Margin="6,0,0,0" MaxLength="5"
+                   Text="{Binding NewEventTime, UpdateSourceTrigger=PropertyChanged}"
+                   Tag="{Binding [TaskTimeHint], Source={x:Static res:Loc.Instance}}"
+                   AutomationProperties.Name="{Binding [CalEventTimeHint], Source={x:Static res:Loc.Instance}}"
+                   ToolTip="{Binding [CalEventTimeHint], Source={x:Static res:Loc.Instance}}">
+            <TextBox.Style>
+              <Style TargetType="TextBox" BasedOn="{StaticResource NotchInputStyle}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding NewEventTimeInvalid}" Value="True">
+                    <Setter Property="Foreground" Value="{DynamicResource KoyNotchAccentFocus}" />
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBox.Style>
+            <TextBox.InputBindings>
+              <KeyBinding Key="Return" Command="{Binding AddEventCommand}" />
+            </TextBox.InputBindings>
+          </TextBox>
+          <Button Grid.Column="2" Style="{StaticResource NotchPlainButtonStyle}" Margin="6,0,0,0" Command="{Binding AddEventCommand}"
+                  ToolTip="{Binding [CalAddEvent], Source={x:Static res:Loc.Instance}}"
+                  AutomationProperties.Name="{Binding [CalAddEvent], Source={x:Static res:Loc.Instance}}">
+            <Border Width="32" Height="32" CornerRadius="16" Background="{DynamicResource KoyNotchText}">
+              <res:KoyIcon Data="{DynamicResource IconPlus}" Size="16" StrokeWidth="2.4" Foreground="{DynamicResource KoyNotchSurface}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+          </Button>
+        </Grid>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

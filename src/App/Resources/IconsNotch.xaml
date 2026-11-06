@@ -7,6 +7,7 @@
     -->
     <Geometry x:Key="IconTabHome">M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z</Geometry>
     <Geometry x:Key="IconTabFocus">M12 8v5l3 2M9 2h6M12 22a9 9 0 1 0 0-18 9 9 0 0 0 0 18z</Geometry>
+    <Geometry x:Key="IconTabCalendar">M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z</Geometry>
     <Geometry x:Key="IconTabShelf">M21 8l-9-5-9 5 9 5zM3 8v8l9 5 9-5V8</Geometry>
     <Geometry x:Key="IconTabClipboard">M9 3h6v4H9zM16 5h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2M8 12h8M8 16h5</Geometry>
     <Geometry x:Key="IconTabSystem">M3 12h4l3-8 4 16 3-8h4</Geometry>

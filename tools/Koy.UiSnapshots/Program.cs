@@ -165,11 +165,61 @@ public static class Program
             new Koy.App.Features.ControlCenter.ControlCenterViewModel(
                 () => new FakeAudio(), () => new FakeRadio(), null, () => new FakeBrightness(), new FakeFocusAssist(), settings),
             new Koy.App.Features.Status.StatusViewModel(new FakePower(), new FakeWeather(), settings),
-            new Koy.App.Features.Focus.FocusViewModel(timers, settings),
-            new Koy.App.Features.Shelf.ShelfViewModel(new FakeShelf(shelf ?? [])));
+            new Koy.App.Features.Focus.FocusViewModel(timers, settings, tasks: MakeTasks()),
+            new Koy.App.Features.Shelf.ShelfViewModel(new FakeShelf(shelf ?? [])),
+            MakeCalendar(settings),
+            new Koy.App.Features.SystemInfo.SystemStatsViewModel(() => new FakeSystemStats(), () => { }),
+            MakeQuickLaunch(),
+            new Koy.App.Features.ClipboardPanel.ClipboardViewModel(new FakeClipboard()));
 
         var window = new Koy.App.Features.Notch.NotchWindow { DataContext = vm };
         return new NotchSet(window, vm, timers);
+    }
+
+    // Tek kullanımlık geçici dosyalar: gerçek tasks.json / events.json'a dokunulmaz.
+    private static string TempFile(string name) => Path.Combine(Path.GetTempPath(), "koy-uisnap-h-" + Guid.NewGuid().ToString("N") + "-" + name);
+
+    private static Koy.App.Features.Focus.TasksViewModel MakeTasks()
+    {
+        var service = new Koy.Core.Tasks.TaskService(TempFile("tasks.json"));
+        var done = service.Add("Sunumu gönder");
+        service.Add("Raporu gözden geçir");
+        service.Add("Toplantı notlarını yaz", new TimeOnly(16, 0));
+        service.Add("Spor", new TimeOnly(18, 30));
+        service.SetDone(done!.Id, true);
+        return new Koy.App.Features.Focus.TasksViewModel(service);
+    }
+
+    private static Koy.App.Features.Calendar.CalendarViewModel MakeCalendar(AppSettings settings)
+    {
+        var events = new Koy.App.Features.Calendar.SharedEvents(new Koy.Core.Calendar.EventStore(TempFile("events.json")));
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        events.Book.Add("Takım toplantısı", today, new TimeOnly(14, 0));
+        events.Book.Add("Diş randevusu", today, new TimeOnly(17, 30));
+        events.Book.Add("Sunum", today.AddDays(2), new TimeOnly(10, 0));
+        events.Book.Add("Doğum günü", today.AddDays(5), new TimeOnly(19, 0));
+        events.Book.Add("Fatura son gün", today.AddDays(-3), new TimeOnly(12, 0));
+        return new Koy.App.Features.Calendar.CalendarViewModel(settings, events);
+    }
+
+    private static Koy.App.Features.Home.QuickLaunchViewModel MakeQuickLaunch()
+    {
+        var win = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        var service = new Koy.Core.QuickLaunch.QuickLaunchService(
+            [Path.Combine(win, "notepad.exe"), Path.Combine(win, "System32", "calc.exe"), Path.Combine(win, "System32", "mspaint.exe"),
+             Path.Combine(win, "explorer.exe"), Path.Combine(win, "System32", "cmd.exe")],
+            _ => { }, new FakeShellActions());
+        return new Koy.App.Features.Home.QuickLaunchViewModel(service);
+    }
+
+    // Simgeler arka planda çözülür: kısa süre bekleyip iş parçacığı kuyruğunu boşalt.
+    private static void Settle()
+    {
+        for (var i = 0; i < 8; i++)
+        {
+            Thread.Sleep(120);
+            Flush();
+        }
     }
 
     private static void ShotNotch(NotchSet set, string path, bool expanded)
@@ -188,7 +238,7 @@ public static class Program
             shape.CornerRadius = 18;
         }
 
-        Flush();
+        Settle();
         RenderElement((FrameworkElement)set.Window.Content, Koy.Core.Notch.NotchLayout.CanvasWidth, Koy.Core.Notch.NotchLayout.CanvasHeight, path);
     }
 
@@ -231,6 +281,9 @@ public static class Program
         // Odak: Odak (çalışıyor), Mola, Sayaç, Kronometre (turlarla).
         set.Vm.Controller.GoToPanel(Koy.Core.Notch.NotchPanel.Focus);
         ShotNotch(set, name("odak"), expanded: true);
+        set.Vm.Focus.Tasks!.SetScopeCommand.Execute(Koy.Core.Tasks.TaskScope.Week);
+        ShotNotch(set, name("odak-gorevler-hafta"), expanded: true);
+        set.Vm.Focus.Tasks!.SetScopeCommand.Execute(Koy.Core.Tasks.TaskScope.Day);
         set.Vm.Focus.SelectTabCommand.Execute(Koy.Core.Timers.FocusKind.Break);
         ShotNotch(set, name("odak-mola"), expanded: true);
         set.Vm.Focus.SelectTabCommand.Execute(Koy.Core.Timers.FocusKind.Countdown);
@@ -243,6 +296,26 @@ public static class Program
         set.Vm.Focus.LapCommand.Execute(null);
         Flush();
         ShotNotch(set, name("odak-kronometre"), expanded: true);
+        set.Vm.Dispose();
+
+        // Pano, Sistem, Takvim (ay, hafta, gün).
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Clipboard);
+        ShotNotch(set, name("pano"), expanded: true);
+        set.Vm.Dispose();
+
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.System);
+        ShotNotch(set, name("sistem"), expanded: true);
+        set.Vm.Dispose();
+
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Calendar);
+        ShotNotch(set, name("takvim-ay"), expanded: true);
+        set.Vm.Calendar.SetViewCommand.Execute(Koy.Core.Calendar.CalendarViewMode.Week);
+        ShotNotch(set, name("takvim-hafta"), expanded: true);
+        set.Vm.Calendar.SetViewCommand.Execute(Koy.Core.Calendar.CalendarViewMode.Day);
+        ShotNotch(set, name("takvim-gun"), expanded: true);
         set.Vm.Dispose();
 
         // Raf: dolu ve boş. Kontrol: varsayılan sıra ve kayıtlı özel sıra.

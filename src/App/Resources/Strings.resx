@@ -361,7 +361,7 @@
     <value>Music</value>
   </data>
   <data name="PanelCalendarTitle" xml:space="preserve">
-    <value>Calendar &amp; Pomodoro</value>
+    <value>Calendar</value>
   </data>
   <data name="PanelShelfTitle" xml:space="preserve">
     <value>Shelf (Drag &amp; drop)</value>
@@ -1208,5 +1208,176 @@
   </data>
   <data name="MusicPlayPause" xml:space="preserve">
     <value>Play / Pause</value>
+  </data>
+  <data name="TabClipboard" xml:space="preserve">
+    <value>Clipboard</value>
+  </data>
+  <data name="TabSystem" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="PanelClipboardTitle" xml:space="preserve">
+    <value>Clipboard</value>
+  </data>
+  <data name="PanelClipboardDesc" xml:space="preserve">
+    <value>Shows the Clipboard tab (needs clipboard history).</value>
+  </data>
+  <data name="PanelSystemTitle" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="ClipboardHistoryTitle" xml:space="preserve">
+    <value>Clipboard history</value>
+  </data>
+  <data name="ClipboardHistoryDesc" xml:space="preserve">
+    <value>Remembers copied text (last 50) while on. Off: the clipboard is not listened to and the Clipboard tab is hidden. Pinned items are saved on disk as plain text.</value>
+  </data>
+  <data name="ClipSearch" xml:space="preserve">
+    <value>Search clipboard</value>
+  </data>
+  <data name="ClipFilterAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="ClipFilterPinned" xml:space="preserve">
+    <value>Pinned</value>
+  </data>
+  <data name="ClipFilterLink" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="ClipFilterColor" xml:space="preserve">
+    <value>Colors</value>
+  </data>
+  <data name="ClipFilterCode" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="ClipClear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="ClipKindText" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="ClipKindLink" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="ClipKindColor" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="ClipKindCode" xml:space="preserve">
+    <value>Code</value>
+  </data>
+  <data name="ClipPinnedLabel" xml:space="preserve">
+    <value>pinned</value>
+  </data>
+  <data name="ClipCopied" xml:space="preserve">
+    <value>Copied</value>
+  </data>
+  <data name="ClipCopyBack" xml:space="preserve">
+    <value>Copy back to clipboard</value>
+  </data>
+  <data name="ClipPin" xml:space="preserve">
+    <value>Pin</value>
+  </data>
+  <data name="ClipUnpin" xml:space="preserve">
+    <value>Unpin</value>
+  </data>
+  <data name="ClipDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ClipEmpty" xml:space="preserve">
+    <value>Nothing copied yet</value>
+  </data>
+  <data name="ClipNoMatch" xml:space="preserve">
+    <value>No matching items</value>
+  </data>
+  <data name="ClipFooter" xml:space="preserve">
+    <value>Text, links, colors and code only; last 50 items; pinned items stay.</value>
+  </data>
+  <data name="AgeNow" xml:space="preserve">
+    <value>now</value>
+  </data>
+  <data name="AgeMinutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="AgeHours" xml:space="preserve">
+    <value>{0} h</value>
+  </data>
+  <data name="AgeDays" xml:space="preserve">
+    <value>{0} d</value>
+  </data>
+  <data name="SystemProcessor" xml:space="preserve">
+    <value>processor</value>
+  </data>
+  <data name="SystemMemory" xml:space="preserve">
+    <value>memory</value>
+  </data>
+  <data name="SystemTopProcess" xml:space="preserve">
+    <value>Top: {0}</value>
+  </data>
+  <data name="SystemNoNetwork" xml:space="preserve">
+    <value>No network</value>
+  </data>
+  <data name="SystemKoySelf" xml:space="preserve">
+    <value>Koy itself</value>
+  </data>
+  <data name="HomeCpu" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="HomeRam" xml:space="preserve">
+    <value>RAM</value>
+  </data>
+  <data name="QuickLaunchTitle" xml:space="preserve">
+    <value>Quick launch</value>
+  </data>
+  <data name="QuickLaunchAdd" xml:space="preserve">
+    <value>Add a file or app to quick launch</value>
+  </data>
+  <data name="QuickLaunchRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="QuickLaunchPickTitle" xml:space="preserve">
+    <value>Add to quick launch</value>
+  </data>
+  <data name="QuickLaunchPickFilter" xml:space="preserve">
+    <value>Apps and shortcuts|*.exe;*.lnk;*.bat;*.cmd|All files|*.*</value>
+  </data>
+  <data name="TaskToday" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="TaskThisWeek" xml:space="preserve">
+    <value>This week</value>
+  </data>
+  <data name="TaskThisMonth" xml:space="preserve">
+    <value>This month</value>
+  </data>
+  <data name="TaskScopeDay" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="TaskScopeWeek" xml:space="preserve">
+    <value>Week</value>
+  </data>
+  <data name="TaskScopeMonth" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="TaskAdd" xml:space="preserve">
+    <value>Add task</value>
+  </data>
+  <data name="TaskAddButton" xml:space="preserve">
+    <value>Add the task</value>
+  </data>
+  <data name="TaskTimeHint" xml:space="preserve">
+    <value>HH:mm</value>
+  </data>
+  <data name="TaskTimeInvalid" xml:space="preserve">
+    <value>Enter a time like 14:30</value>
+  </data>
+  <data name="TaskNow" xml:space="preserve">
+    <value>now</value>
+  </data>
+  <data name="TaskDelete" xml:space="preserve">
+    <value>Delete the task</value>
+  </data>
+  <data name="TaskToggle" xml:space="preserve">
+    <value>Mark as done / not done</value>
+  </data>
+  <data name="TaskEmpty" xml:space="preserve">
+    <value>No tasks yet</value>
   </data>
 </root>

@@ -361,7 +361,7 @@
     <value>Müzik</value>
   </data>
   <data name="PanelCalendarTitle" xml:space="preserve">
-    <value>Takvim ve Pomodoro</value>
+    <value>Takvim</value>
   </data>
   <data name="PanelShelfTitle" xml:space="preserve">
     <value>Raf (sürükle-bırak)</value>
@@ -1208,5 +1208,176 @@
   </data>
   <data name="MusicPlayPause" xml:space="preserve">
     <value>Oynat / Duraklat</value>
+  </data>
+  <data name="TabClipboard" xml:space="preserve">
+    <value>Pano</value>
+  </data>
+  <data name="TabSystem" xml:space="preserve">
+    <value>Sistem</value>
+  </data>
+  <data name="PanelClipboardTitle" xml:space="preserve">
+    <value>Pano</value>
+  </data>
+  <data name="PanelClipboardDesc" xml:space="preserve">
+    <value>Pano sekmesini gösterir (pano geçmişi açık olmalı).</value>
+  </data>
+  <data name="PanelSystemTitle" xml:space="preserve">
+    <value>Sistem</value>
+  </data>
+  <data name="ClipboardHistoryTitle" xml:space="preserve">
+    <value>Pano geçmişi</value>
+  </data>
+  <data name="ClipboardHistoryDesc" xml:space="preserve">
+    <value>Açıkken kopyalanan metinleri (son 50) hatırlar. Kapalıyken pano dinlenmez ve Pano sekmesi görünmez. Sabitlenen öğeler diske düz metin olarak yazılır.</value>
+  </data>
+  <data name="ClipSearch" xml:space="preserve">
+    <value>Panoda ara</value>
+  </data>
+  <data name="ClipFilterAll" xml:space="preserve">
+    <value>Tümü</value>
+  </data>
+  <data name="ClipFilterPinned" xml:space="preserve">
+    <value>Sabit</value>
+  </data>
+  <data name="ClipFilterLink" xml:space="preserve">
+    <value>Bağlantı</value>
+  </data>
+  <data name="ClipFilterColor" xml:space="preserve">
+    <value>Renk</value>
+  </data>
+  <data name="ClipFilterCode" xml:space="preserve">
+    <value>Kod</value>
+  </data>
+  <data name="ClipClear" xml:space="preserve">
+    <value>Temizle</value>
+  </data>
+  <data name="ClipKindText" xml:space="preserve">
+    <value>Metin</value>
+  </data>
+  <data name="ClipKindLink" xml:space="preserve">
+    <value>Bağlantı</value>
+  </data>
+  <data name="ClipKindColor" xml:space="preserve">
+    <value>Renk</value>
+  </data>
+  <data name="ClipKindCode" xml:space="preserve">
+    <value>Kod</value>
+  </data>
+  <data name="ClipPinnedLabel" xml:space="preserve">
+    <value>sabit</value>
+  </data>
+  <data name="ClipCopied" xml:space="preserve">
+    <value>Kopyalandı</value>
+  </data>
+  <data name="ClipCopyBack" xml:space="preserve">
+    <value>Panoya geri kopyala</value>
+  </data>
+  <data name="ClipPin" xml:space="preserve">
+    <value>Sabitle</value>
+  </data>
+  <data name="ClipUnpin" xml:space="preserve">
+    <value>Sabitlemeyi kaldır</value>
+  </data>
+  <data name="ClipDelete" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="ClipEmpty" xml:space="preserve">
+    <value>Henüz kopyalanan bir şey yok</value>
+  </data>
+  <data name="ClipNoMatch" xml:space="preserve">
+    <value>Eşleşen öğe yok</value>
+  </data>
+  <data name="ClipFooter" xml:space="preserve">
+    <value>Yalnız metin, bağlantı, renk ve kod; son 50 öğe; sabitlenenler kalır.</value>
+  </data>
+  <data name="AgeNow" xml:space="preserve">
+    <value>şimdi</value>
+  </data>
+  <data name="AgeMinutes" xml:space="preserve">
+    <value>{0} dk</value>
+  </data>
+  <data name="AgeHours" xml:space="preserve">
+    <value>{0} sa</value>
+  </data>
+  <data name="AgeDays" xml:space="preserve">
+    <value>{0} gün</value>
+  </data>
+  <data name="SystemProcessor" xml:space="preserve">
+    <value>işlemci</value>
+  </data>
+  <data name="SystemMemory" xml:space="preserve">
+    <value>bellek</value>
+  </data>
+  <data name="SystemTopProcess" xml:space="preserve">
+    <value>En çok: {0}</value>
+  </data>
+  <data name="SystemNoNetwork" xml:space="preserve">
+    <value>Ağ yok</value>
+  </data>
+  <data name="SystemKoySelf" xml:space="preserve">
+    <value>Koy'un kendisi</value>
+  </data>
+  <data name="HomeCpu" xml:space="preserve">
+    <value>CPU</value>
+  </data>
+  <data name="HomeRam" xml:space="preserve">
+    <value>RAM</value>
+  </data>
+  <data name="QuickLaunchTitle" xml:space="preserve">
+    <value>Hızlı başlat</value>
+  </data>
+  <data name="QuickLaunchAdd" xml:space="preserve">
+    <value>Hızlı başlata dosya ya da uygulama ekle</value>
+  </data>
+  <data name="QuickLaunchRemove" xml:space="preserve">
+    <value>Kaldır</value>
+  </data>
+  <data name="QuickLaunchPickTitle" xml:space="preserve">
+    <value>Hızlı başlata ekle</value>
+  </data>
+  <data name="QuickLaunchPickFilter" xml:space="preserve">
+    <value>Uygulamalar ve kısayollar|*.exe;*.lnk;*.bat;*.cmd|Tüm dosyalar|*.*</value>
+  </data>
+  <data name="TaskToday" xml:space="preserve">
+    <value>Bugün</value>
+  </data>
+  <data name="TaskThisWeek" xml:space="preserve">
+    <value>Bu hafta</value>
+  </data>
+  <data name="TaskThisMonth" xml:space="preserve">
+    <value>Bu ay</value>
+  </data>
+  <data name="TaskScopeDay" xml:space="preserve">
+    <value>Gün</value>
+  </data>
+  <data name="TaskScopeWeek" xml:space="preserve">
+    <value>Hafta</value>
+  </data>
+  <data name="TaskScopeMonth" xml:space="preserve">
+    <value>Ay</value>
+  </data>
+  <data name="TaskAdd" xml:space="preserve">
+    <value>Görev ekle</value>
+  </data>
+  <data name="TaskAddButton" xml:space="preserve">
+    <value>Görevi ekle</value>
+  </data>
+  <data name="TaskTimeHint" xml:space="preserve">
+    <value>SS:dd</value>
+  </data>
+  <data name="TaskTimeInvalid" xml:space="preserve">
+    <value>14:30 gibi bir saat yazın</value>
+  </data>
+  <data name="TaskNow" xml:space="preserve">
+    <value>şimdi</value>
+  </data>
+  <data name="TaskDelete" xml:space="preserve">
+    <value>Görevi sil</value>
+  </data>
+  <data name="TaskToggle" xml:space="preserve">
+    <value>Tamamlandı olarak işaretle ya da geri al</value>
+  </data>
+  <data name="TaskEmpty" xml:space="preserve">
+    <value>Henüz görev yok</value>
   </data>
 </root>
