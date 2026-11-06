@@ -118,6 +118,10 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
     [ObservableProperty]
     private bool _isBrightnessSupported;
 
+    // Kaynak ilk kez belirlenene kadar satır gizli kalır (açılışta sahte "desteklenmiyor" yazısı çıkmasın).
+    [ObservableProperty]
+    private bool _isBrightnessResolved;
+
     // Servisler panel ilk açıldığında kurulur (AGENTS.md #5): WMI parlaklık sorgusu, CoreAudio ve
     // radyo erişimi açılışta birkaç MB tutuyor ve panel hiç açılmayabilir. Kurulduktan sonra
     // notch kapanana kadar yaşar ve bu ViewModel tarafından bırakılır. İstisna: radyo servisi
@@ -231,7 +235,11 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
         // Ses tekerlekle önceden kurulmuş olabilir; parlaklık yine de ilk açılışta bir kez başlar.
         if (_brightnessStarted)
+        {
+            // Ekran düzeni çentik kapalıyken değişmiş olabilir; kaynak her açılışta arka planda yeniden belirlenir.
+            RefreshBrightness();
             return;
+        }
 
         _brightnessStarted = true;
         Observe(InitializeBrightnessAsync(), "ControlCenter parlaklık başlatma");
@@ -280,8 +288,38 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
         _brightnessService = service;
         _brightnessService.BrightnessChanged += OnBrightnessChanged;
+        _brightnessService.AvailabilityChanged += OnBrightnessAvailabilityChanged;
+        ApplyBrightnessState();
+    }
+
+    private void ApplyBrightnessState()
+    {
+        if (_brightnessService is null)
+            return;
+
         IsBrightnessSupported = _brightnessService.IsSupported;
         Brightness = _brightnessService.Brightness;
+        IsBrightnessResolved = true;
+    }
+
+    private void OnBrightnessAvailabilityChanged(object? sender, EventArgs e) =>
+        _dispatcher.InvokeAsync(() =>
+        {
+            if (!_disposed)
+                ApplyBrightnessState();
+        });
+
+    /// <summary>
+    /// Parlaklık kaynağını arka planda yeniden belirler (ekran eklendi/çıkarıldı, çentik başka ekrana geçti).
+    /// Sonuç AvailabilityChanged ile UI'ye döner; UI iş parçacığı WMI/DDC sorgusunu beklemez.
+    /// </summary>
+    public void RefreshBrightness()
+    {
+        var service = _brightnessService;
+        if (service is null || _disposed)
+            return;
+
+        Observe(Task.Run(service.Refresh), "ControlCenter parlaklık yenileme");
     }
 
     private void OnAudioStateChanged(object? sender, AudioStateChangedEventArgs e)
@@ -402,7 +440,11 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
 
     public void OnBrightnessSliderChanged(double newBrightness)
     {
+        if (!IsBrightnessSupported)
+            return;
+
         var intBrightness = (int)Math.Clamp(newBrightness, 0, 100);
+        // Bloklamaz: servis değeri arka planda uygular, art arda gelenleri birleştirir.
         _brightnessService?.SetBrightness(intBrightness);
         Brightness = intBrightness;
     }
@@ -438,6 +480,7 @@ public sealed partial class ControlCenterViewModel : ObservableObject, IDisposab
         if (_brightnessService is not null)
         {
             _brightnessService.BrightnessChanged -= OnBrightnessChanged;
+            _brightnessService.AvailabilityChanged -= OnBrightnessAvailabilityChanged;
             _brightnessService.Dispose();
             _brightnessService = null;
         }

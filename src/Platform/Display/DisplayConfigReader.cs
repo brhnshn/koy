@@ -5,7 +5,7 @@ using Windows.Win32.Foundation;
 namespace Koy.Platform.Display;
 
 /// <summary>Bir monitörün DisplayConfig'ten okunan kararlı kimliği ve dostça adı.</summary>
-internal readonly record struct DisplayConfigInfo(string DevicePath, string FriendlyName);
+internal readonly record struct DisplayConfigInfo(string DevicePath, string FriendlyName, bool IsInternal = false);
 
 /// <summary>
 /// QueryDisplayConfig + DisplayConfigGetDeviceInfo ile her etkin ekranın <c>monitorDevicePath</c> (kararlı kimlik) ve
@@ -69,7 +69,10 @@ internal static class DisplayConfigReader
                     if (gdiName.Length == 0)
                         continue;
 
-                    result[gdiName] = new DisplayConfigInfo(devicePath, friendly);
+                    // Dahili (dizüstü paneli): INTERNAL (0x80000000), DISPLAYPORT_EMBEDDED (11), UDI_EMBEDDED (13).
+                    var tech = (int)target.outputTechnology;
+                    var isInternal = tech == int.MinValue || tech == 11 || tech == 13;
+                    result[gdiName] = new DisplayConfigInfo(devicePath, friendly, isInternal);
                 }
 
                 break;
