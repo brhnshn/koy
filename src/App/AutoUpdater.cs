@@ -31,12 +31,16 @@ internal static class AutoUpdater
                 return;
 
             var update = await manager.CheckForUpdatesAsync();
-            UpdateStatus.Record(UpdateCheckResult.UpToDate);
             if (update is null)
+            {
+                UpdateStatus.Record(UpdateCheckResult.UpToDate);
                 return;
+            }
 
             await manager.DownloadUpdatesAsync(update);
             manager.WaitExitThenApplyUpdates(update, silent: true, restart: false);
+            // Yeni sürüm bulunduysa "güncel" yazılmaz: indirildi, Koy kapanınca kurulacak.
+            UpdateStatus.Record(UpdateCheckResult.UpdateReady);
         }
         catch (Exception ex)
         {

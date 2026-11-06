@@ -6,6 +6,8 @@ public enum UpdateCheckResult
 {
     None,
     UpToDate,
+    /// <summary>Yeni sürüm indirildi; Koy kapanınca kurulacak.</summary>
+    UpdateReady,
     Failed,
     NotInstalled
 }
