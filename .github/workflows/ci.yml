@@ -83,7 +83,7 @@ jobs:
         shell: pwsh
         run: |
           vpk pack --packId Koy `
-                   --packVersion 0.0.0-ci `
+                   --packVersion 0.0.1-ci `
                    --packDir publish/win-x64 `
                    --mainExe Koy.exe `
                    --packTitle "Koy" `
