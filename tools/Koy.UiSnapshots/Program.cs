@@ -142,7 +142,8 @@ public static class Program
         Koy.Core.Timers.FocusTimers Timers);
 
     private static NotchSet MakeNotch(bool music, IReadOnlyList<Koy.Core.Shelf.ShelfItem>? shelf = null, List<string>? tileOrder = null,
-        bool locationBlocked = false, bool audioConnected = true)
+        bool locationBlocked = false, bool audioConnected = true, Func<Koy.Core.SystemStats.ISystemStatsService>? statsFactory = null,
+        bool brightnessSupported = true)
     {
         var settings = new AppSettings
         {
@@ -165,14 +166,14 @@ public static class Program
             // Yakalama başlatılmayan servis: çubuklar aşağıda sahte düzeylerle doldurulur, gerçek ses okunmaz.
             new Koy.App.Features.Music.MusicViewModel(new FakeMedia(info), spectrumAcquire: () => new Koy.Platform.Audio.SpectrumCaptureService()),
             new Koy.App.Features.ControlCenter.ControlCenterViewModel(
-                () => new FakeAudio(), () => new FakeRadio(), null, () => new FakeBrightness(), new FakeFocusAssist(), settings,
+                () => new FakeAudio(), () => new FakeRadio(), null, () => new FakeBrightness(brightnessSupported), new FakeFocusAssist(), settings,
                 wifiFactory: () => new FakeWifi(locationBlocked),
                 bluetoothDevices: new Koy.App.Features.ControlCenter.BluetoothDevicesViewModel(() => new FakeBluetooth(audioConnected), null)),
             new Koy.App.Features.Status.StatusViewModel(new FakePower(), new FakeWeather(), settings),
             new Koy.App.Features.Focus.FocusViewModel(timers, settings, tasks: MakeTasks()),
             new Koy.App.Features.Shelf.ShelfViewModel(new FakeShelf(shelf ?? [])),
             MakeCalendar(settings),
-            new Koy.App.Features.SystemInfo.SystemStatsViewModel(() => new FakeSystemStats(), () => { }),
+            new Koy.App.Features.SystemInfo.SystemStatsViewModel(statsFactory ?? (() => new FakeSystemStats()), () => { }),
             MakeQuickLaunch(),
             new Koy.App.Features.ClipboardPanel.ClipboardViewModel(new FakeClipboard()));
 
@@ -316,6 +317,24 @@ public static class Program
         ShotNotch(set, name("sistem"), expanded: true);
         set.Vm.Dispose();
 
+        // Sekmeden dönüş: servis yeni kurulur, yalnız anlık değerler (RAM) hazırdır; CPU ve hız son bilinen değerle görünür.
+        var instant = false;
+        set = MakeNotch(music: false, statsFactory: () => new FakeSystemStats(instantOnly: instant));
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.System);
+        set.Vm.Controller.GoToPanel(Koy.Core.Notch.NotchPanel.Shelf);
+        instant = true;
+        set.Vm.Controller.GoToPanel(Koy.Core.Notch.NotchPanel.System);
+        ShotNotch(set, name("sistem-geri-donus"), expanded: true);
+        set.Vm.Controller.GoToPanel(Koy.Core.Notch.NotchPanel.Home);
+        ShotNotch(set, name("ana-geri-donus"), expanded: true);
+        set.Vm.Dispose();
+
+        // İlk açılış: hiç oran yokken CPU ve hız "–", RAM hemen dolu.
+        set = MakeNotch(music: false, statsFactory: () => new FakeSystemStats(instantOnly: true));
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.System);
+        ShotNotch(set, name("sistem-ilk-acilis"), expanded: true);
+        set.Vm.Dispose();
+
         set = MakeNotch(music: false);
         set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Calendar);
         ShotNotch(set, name("takvim-ay"), expanded: true);
@@ -340,6 +359,13 @@ public static class Program
         set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.ControlCenter);
         Flush();
         ShotNotch(set, name("kontrol"), expanded: true);
+        set.Vm.Dispose();
+
+        // Parlaklık yolu yoksa kaydırıcı devre dışı ve neden yazılı.
+        set = MakeNotch(music: false, brightnessSupported: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.ControlCenter);
+        Flush();
+        ShotNotch(set, name("kontrol-parlaklik-yok"), expanded: true);
         set.Vm.Dispose();
 
         // Kayıtlı özel döşeme sırası korunuyor mu

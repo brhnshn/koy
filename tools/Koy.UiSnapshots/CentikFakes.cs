@@ -77,10 +77,15 @@ internal sealed class FakeAudio : IAudioService
 
 internal sealed class FakeBrightness : IBrightnessService
 {
-    public bool IsSupported => true;
+    private readonly bool _supported;
+    public FakeBrightness(bool supported = true) => _supported = supported;
+    public bool IsSupported => _supported;
     public int Brightness => 64;
+    public Koy.Core.Display.BrightnessSourceKind Source => _supported ? Koy.Core.Display.BrightnessSourceKind.Wmi : Koy.Core.Display.BrightnessSourceKind.None;
     public event EventHandler<int>? BrightnessChanged { add { } remove { } }
+    public event EventHandler? AvailabilityChanged { add { } remove { } }
     public void SetBrightness(int brightness) { }
+    public void Refresh() { }
     public void Dispose() { }
 }
 
