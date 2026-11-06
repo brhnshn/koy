@@ -15,6 +15,11 @@ public sealed class SpectrumAnalyzer
     private const float Attack = 0.65f;
     private const float Decay = 0.18f;
 
+    // Müzikte enerji frekans arttıkça düşer (oktav başına birkaç dB); düzeltilmezse sağdaki tiz çubuklar hep dipte kalır.
+    // Bant ortası 250 Hz'den uzaklaştıkça oktav başına bu kadar dB eklenir (altında aynı oranda düşülür).
+    private const double TiltDbPerOctave = 3.5;
+    private const double TiltPivotHz = 250;
+
     private readonly float[] _ring = new float[FftSize];
     private int _ringPos;
     private readonly double[] _window = new double[FftSize];
@@ -22,6 +27,7 @@ public sealed class SpectrumAnalyzer
     private readonly double[] _im = new double[FftSize];
     private readonly float[] _levels;
     private int[] _bandEdges = [];
+    private double[] _bandTiltDb = [];
     private int _edgesForRate;
 
     public SpectrumAnalyzer(int bandCount)
@@ -91,6 +97,7 @@ public sealed class SpectrumAnalyzer
         if (_edgesForRate != sampleRate)
         {
             _bandEdges = BandEdges(_levels.Length, sampleRate);
+            _bandTiltDb = BandTilt(_bandEdges, sampleRate);
             _edgesForRate = sampleRate;
         }
 
@@ -114,7 +121,7 @@ public sealed class SpectrumAnalyzer
                     peak = magnitude;
             }
 
-            var db = peak > 0 ? 20 * Math.Log10(peak) : FloorDb;
+            var db = peak > 0 ? 20 * Math.Log10(peak) + _bandTiltDb[band] : FloorDb;
             var target = (float)Math.Clamp((db - FloorDb) / (CeilingDb - FloorDb), 0, 1);
             var current = _levels[band];
             _levels[band] = target > current
@@ -143,6 +150,20 @@ public sealed class SpectrumAnalyzer
         }
 
         return edges;
+    }
+
+    /// <summary>Her bandın eğim düzeltmesi (dB): bant ortasının 250 Hz'e göre oktav farkı × oktav başına dB.</summary>
+    public static double[] BandTilt(int[] edges, int sampleRate)
+    {
+        var binHz = (double)sampleRate / FftSize;
+        var tilt = new double[edges.Length - 1];
+        for (var i = 0; i < tilt.Length; i++)
+        {
+            var center = Math.Sqrt(edges[i] * (double)Math.Max(edges[i + 1], edges[i] + 1)) * binHz;
+            tilt[i] = Math.Log2(center / TiltPivotHz) * TiltDbPerOctave;
+        }
+
+        return tilt;
     }
 
     // Yerinde radix-2 Cooley–Tukey FFT.

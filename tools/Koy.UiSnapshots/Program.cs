@@ -158,7 +158,7 @@ public static class Program
         var controller = new Koy.Core.Notch.NotchController();
         controller.SetEnabledPanels(Koy.Core.Notch.NotchPanels.Order);
         var timers = new Koy.Core.Timers.FocusTimers(Koy.Core.Timers.PomodoroConfig.Default);
-        var info = music ? new Koy.Core.Media.MediaInfo("Gece Yolculuğu", "Mor ve Ötesi", "Spotify.exe", true, null) : null;
+        var info = music ? new Koy.Core.Media.MediaInfo("Gece Yolculuğu", "Mor ve Ötesi", "Spotify.exe", true, FakeCover()) : null;
 
         var vm = new Koy.App.Features.Notch.NotchViewModel(
             settings,
@@ -179,6 +179,29 @@ public static class Program
 
         var window = new Koy.App.Features.Notch.NotchWindow { DataContext = vm };
         return new NotchSet(window, vm, timers);
+    }
+
+    // Deneme kapağı: 300 px desenli PNG (gerçek kapaklar 300–640 px); keskinlik ve yuvarlak köşe kontrolü için ince çizgiler.
+    private static byte[] FakeCover()
+    {
+        const int size = 300;
+        var pixels = new byte[size * size * 4];
+        for (var y = 0; y < size; y++)
+            for (var x = 0; x < size; x++)
+            {
+                var i = (y * size + x) * 4;
+                var line = x % 20 == 0 || y % 20 == 0;
+                pixels[i] = (byte)(line ? 255 : 80 + x / 3);
+                pixels[i + 1] = (byte)(line ? 255 : 40 + y / 3);
+                pixels[i + 2] = (byte)(line ? 255 : 140);
+                pixels[i + 3] = 255;
+            }
+        var bitmap = System.Windows.Media.Imaging.BitmapSource.Create(size, size, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, pixels, size * 4);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using var stream = new MemoryStream();
+        encoder.Save(stream);
+        return stream.ToArray();
     }
 
     // Tek kullanımlık geçici dosyalar: gerçek tasks.json / events.json'a dokunulmaz.
