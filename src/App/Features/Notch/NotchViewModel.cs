@@ -3,8 +3,9 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Koy.App.Features.Calendar;
 using Koy.App.Features.ControlCenter;
+using Koy.App.Features.Focus;
+using Koy.App.Features.Home;
 using Koy.App.Features.Music;
 using Koy.App.Features.Notch.OSD;
 using Koy.App.Resources;
@@ -23,7 +24,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private readonly MusicViewModel _music;
     private readonly ControlCenterViewModel _controlCenter;
     private readonly StatusViewModel _status;
-    private readonly CalendarViewModel _calendar;
+    private readonly FocusViewModel _focus;
     private readonly ShelfViewModel _shelf;
     private readonly VisibilityController _visibility;
     private readonly Dispatcher _dispatcher;
@@ -35,19 +36,28 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public MusicViewModel Music => _music;
     public ControlCenterViewModel ControlCenter => _controlCenter;
     public StatusViewModel Status => _status;
-    public CalendarViewModel Calendar => _calendar;
+    public FocusViewModel Focus => _focus;
     public ShelfViewModel Shelf => _shelf;
 
-    /// <summary>Ana görünümün verisi (saat, tarih, ağ, hava, bildirim komutu). Arayüzü tasarım onayını bekliyor, henüz çizilmez.</summary>
-    public Koy.App.Features.Home.HomeViewModel Home { get; }
+    /// <summary>Ana sayfanın verisi (müzik ya da selamlama, hava, çalışan zamanlayıcı, bildirim komutu).</summary>
+    public HomeViewModel Home { get; }
     public VisibilityController Visibility => _visibility;
     public OsdIndicatorViewModel Osd { get; }
 
     /// <summary>Boşta saat gösterilsin mi (ayar: Saat ve pil / Yalnız saat / Hiçbiri).</summary>
     public bool ShowIdleClock => IdleDisplay.ShowClock(Settings.IdleDisplayMode);
 
-    /// <summary>Boşta pil gösterilsin mi (ayar izin veriyorsa ve bilgisayarda pil varsa).</summary>
-    public bool ShowIdleBattery => HasBattery && IdleDisplay.ShowBattery(Settings.IdleDisplayMode);
+    /// <summary>
+    /// Boşta pil gösterilsin mi (ayar izin veriyorsa ve bilgisayarda pil varsa). Bir zamanlayıcı çalışırken pilin yerine
+    /// kalan süre yazılır.
+    /// </summary>
+    public bool ShowIdleBattery => HasBattery && IdleDisplay.ShowBattery(Settings.IdleDisplayMode) && !_focus.HasRunning;
+
+    /// <summary>Kapalı çentikte pil / Wi-Fi / Bluetooth yerine zamanlayıcının süresi görünsün mü.</summary>
+    public bool ShowIdleTimer => _focus.HasRunning;
+
+    /// <summary>Kapalı çentikteki süre ("18:24"); saniyede bir yalnız zamanlayıcı çalışırken değişir.</summary>
+    public string IdleTimerText => _focus.RunningText;
 
     /// <summary>Pil tasarrufu: pille çalışırken çentik animasyonsuz (anında) geçer.</summary>
     public bool ReduceMotion => Settings.BatterySaverReduceMotion && _status.IsOnBattery;
@@ -62,23 +72,25 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     public bool ShowRadioStatus { get; }
 
     /// <summary>Boşta Wi-Fi / Bluetooth simgeleri gösterilsin mi (Kontrol paneli açık ve boşta görünüm "saat, pil ve bağlantılar").</summary>
-    public bool ShowIdleRadio => ShowRadioStatus && IdleDisplay.ShowRadio(Settings.IdleDisplayMode);
+    public bool ShowIdleRadio => ShowRadioStatus && IdleDisplay.ShowRadio(Settings.IdleDisplayMode) && !_focus.HasRunning;
+
+    /// <summary>"Çentiği açık tut" açık: fare çıkınca kapanmaz.</summary>
+    public bool IsPinned => _controller.IsPinned;
 
     public ObservableObject CurrentPanelContent => CurrentPanel switch
     {
-        NotchPanel.Music => Music,
-        NotchPanel.ControlCenter => ControlCenter,
-        NotchPanel.Status => Status,
-        NotchPanel.Calendar => Calendar,
+        NotchPanel.Home => Home,
+        NotchPanel.Focus => Focus,
         NotchPanel.Shelf => Shelf,
-        _ => Music
+        NotchPanel.ControlCenter => ControlCenter,
+        _ => Home
     };
 
     [ObservableProperty]
     private NotchState _state = NotchState.Collapsed;
 
     [ObservableProperty]
-    private NotchPanel _currentPanel = NotchPanel.Music;
+    private NotchPanel _currentPanel = NotchPanel.Home;
 
     [ObservableProperty]
     private double _targetWidth = 236;
@@ -139,21 +151,21 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         MusicViewModel music,
         ControlCenterViewModel controlCenter,
         StatusViewModel status,
-        CalendarViewModel calendar,
+        FocusViewModel focus,
         ShelfViewModel shelf,
         VisibilityController? visibility = null,
         OsdIndicatorViewModel? osd = null,
         Dispatcher? dispatcher = null,
         Koy.Core.Shell.IShellActionService? shellActions = null)
     {
-        Home = new Koy.App.Features.Home.HomeViewModel(music, status, calendar, shellActions);
         Settings = settings;
         _controller = controller;
         _music = music;
         _controlCenter = controlCenter;
         _status = status;
-        _calendar = calendar;
+        _focus = focus;
         _shelf = shelf;
+        Home = new HomeViewModel(music, status, focus, shellActions, () => _controller.GoToPanel(NotchPanel.Focus));
         _visibility = visibility ?? new VisibilityController(settings.NotchVisibility);
         _dispatcher = dispatcher ?? (System.Windows.Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher);
         Osd = osd ?? new OsdIndicatorViewModel(_dispatcher);
@@ -166,7 +178,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _visibility.Changed += OnVisibilityChanged;
         _music.TrackChanged += OnTrackChanged;
         _music.PropertyChanged += OnMusicPropertyChanged;
-        _calendar.TimerFinished += OnCalendarTimerFinished;
+        _focus.TimerFinished += OnFocusTimerFinished;
+        _focus.PropertyChanged += OnFocusPropertyChanged;
+        _controller.PinnedChanged += OnPinnedChanged;
         _status.PropertyChanged += OnStatusPropertyChanged;
         Osd.CanShow = () => !_disposed && State != NotchState.Expanded;
         Osd.Activated += OnOsdActivated;
@@ -183,6 +197,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         UpdateClock();
         UpdateBatteryState();
         UpdateTargetSize();
+        UpdateActivePanels();
 
         if (_isNotchVisible)
         {
@@ -248,7 +263,24 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         ClockTime = DateTime.Now.ToString("HH:mm");
     }
 
-    private void OnCalendarTimerFinished()
+    private void OnPinnedChanged(object? sender, EventArgs e) => RunOnUi(() => OnPropertyChanged(nameof(IsPinned)));
+
+    // Zamanlayıcı çalışmaya başlayınca / durunca kapalı çentikte pil ve simgeler ile süre yer değiştirir.
+    private void OnFocusPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(FocusViewModel.HasRunning))
+        {
+            OnPropertyChanged(nameof(ShowIdleTimer));
+            OnPropertyChanged(nameof(ShowIdleBattery));
+            OnPropertyChanged(nameof(ShowIdleRadio));
+        }
+        else if (e.PropertyName == nameof(FocusViewModel.RunningText))
+        {
+            OnPropertyChanged(nameof(IdleTimerText));
+        }
+    }
+
+    private void OnFocusTimerFinished()
     {
         _controller.OnTrackChanged(); // Kısa süre Peek moduna geçirir
         ShakeRequested?.Invoke();
@@ -324,17 +356,18 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     {
         Tabs.Clear();
         foreach (var panel in _controller.EnabledPanels)
-            Tabs.Add(new NotchTabViewModel(panel, TabLabel(panel)) { IsSelected = panel == _controller.CurrentPanel });
+            Tabs.Add(NotchTabs.Create(panel, panel == _controller.CurrentPanel));
     }
 
     private void UpdateActivePanels()
     {
         var isExpanded = State == NotchState.Expanded;
-        _music.SetActive(isExpanded && CurrentPanel == NotchPanel.Music);
-        _status.SetActive(isExpanded && CurrentPanel == NotchPanel.Status);
+        _music.SetActive(isExpanded && CurrentPanel == NotchPanel.Home);
+        // Saat, hava ve pil her sekmede üstteki durum satırında görünür.
+        _status.SetActive(isExpanded);
         _controlCenter.SetActive(isExpanded && CurrentPanel == NotchPanel.ControlCenter);
-        // Takvim zamanlayıcıları yalnız takvim sekmesi görünürken ekranı tazeler; ana görünüm bağlanınca homeVisible olur.
-        _calendar.SetVisible(isExpanded && CurrentPanel == NotchPanel.Calendar, false);
+        // Zamanlayıcı süresi görünür çentikte (kapalıysa pil yerine, açıksa Ana satırında) ve Odak sayfasında tazelenir.
+        _focus.SetViewing(isExpanded && CurrentPanel == NotchPanel.Focus, IsNotchVisible);
     }
 
     private void OnVisibilityChanged(object? sender, VisibilityResult result)
@@ -345,6 +378,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private void ApplyVisibility(VisibilityResult result)
     {
         IsNotchVisible = result.IsVisible;
+        UpdateActivePanels();
         if (IsNotchVisible)
             StartClockTimer();
         else
@@ -367,8 +401,8 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
             {
                 NotchState.Collapsed => (IsMusicPlaying ? 280 : 236, 34, 18),
                 NotchState.Peek => (300, 38, 20),
-                // +30 DIP: üstteki sekme satırı. Sabit tuval 260 DIP olduğu için en yüksek panel de sığar.
-                NotchState.Expanded => (NotchLayout.ExpandedWidth, NotchLayout.ExpandedHeight(CurrentPanel), 28),
+                // Her sekmede aynı sabit gövde: sekme değişince çentik boyut değiştirmez (bkz. NotchLayout).
+                NotchState.Expanded => (NotchLayout.ExpandedWidth, NotchLayout.ExpandedHeight, 34),
                 _ => (236, 34, 18)
             };
         }
@@ -394,15 +428,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenControlCenter() => _controller.Expand(NotchPanel.ControlCenter);
 
-    private static string TabLabel(NotchPanel panel) => panel switch
-    {
-        NotchPanel.Music => Strings.Get("TabMusic"),
-        NotchPanel.ControlCenter => Strings.Get("TabControlCenter"),
-        NotchPanel.Status => Strings.Get("TabStatus"),
-        NotchPanel.Calendar => Strings.Get("TabCalendar"),
-        NotchPanel.Shelf => Strings.Get("TabShelf"),
-        _ => panel.ToString()
-    };
+    /// <summary>"Çentiği açık tut" düğmesi.</summary>
+    [RelayCommand]
+    private void TogglePinned() => _controller.TogglePinned();
 
     [RelayCommand]
     private void PreviousPanel() => _controller.PreviousPanel();
@@ -427,7 +455,9 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _visibility.Changed -= OnVisibilityChanged;
         _music.TrackChanged -= OnTrackChanged;
         _music.PropertyChanged -= OnMusicPropertyChanged;
-        _calendar.TimerFinished -= OnCalendarTimerFinished;
+        _focus.TimerFinished -= OnFocusTimerFinished;
+        _focus.PropertyChanged -= OnFocusPropertyChanged;
+        _controller.PinnedChanged -= OnPinnedChanged;
         _status.PropertyChanged -= OnStatusPropertyChanged;
         Osd.Activated -= OnOsdActivated;
         Osd.Dismissed -= OnOsdStateChanged;
@@ -437,7 +467,7 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
         _music.Dispose();
         _controlCenter.Dispose();
         _status.Dispose();
-        _calendar.Dispose();
+        _focus.Dispose();
         _shelf.Dispose();
         Home.Dispose();
     }

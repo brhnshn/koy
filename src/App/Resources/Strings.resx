@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -1088,5 +1088,125 @@
   </data>
   <data name="RecentEmpty" xml:space="preserve">
     <value>No recent files</value>
+  </data>
+  <data name="TabHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="TabFocus" xml:space="preserve">
+    <value>Focus</value>
+  </data>
+  <data name="GreetMorning" xml:space="preserve">
+    <value>Good morning</value>
+  </data>
+  <data name="GreetAfternoon" xml:space="preserve">
+    <value>Good afternoon</value>
+  </data>
+  <data name="GreetEvening" xml:space="preserve">
+    <value>Good evening</value>
+  </data>
+  <data name="GreetNight" xml:space="preserve">
+    <value>Good night</value>
+  </data>
+  <data name="WeatherPlaceDevice" xml:space="preserve">
+    <value>My location</value>
+  </data>
+  <data name="WeatherNoLocation" xml:space="preserve">
+    <value>No location set for weather</value>
+  </data>
+  <data name="WeatherPickLocation" xml:space="preserve">
+    <value>Choose location</value>
+  </data>
+  <data name="PanelFocusTitle" xml:space="preserve">
+    <value>Focus</value>
+  </data>
+  <data name="FocusTabFocus" xml:space="preserve">
+    <value>Focus</value>
+  </data>
+  <data name="FocusTabBreak" xml:space="preserve">
+    <value>Break</value>
+  </data>
+  <data name="FocusTabTimer" xml:space="preserve">
+    <value>Timer</value>
+  </data>
+  <data name="FocusTabStopwatch" xml:space="preserve">
+    <value>Stopwatch</value>
+  </data>
+  <data name="FocusRound" xml:space="preserve">
+    <value>Round {0} / {1}</value>
+  </data>
+  <data name="FocusSessions" xml:space="preserve">
+    <value>Completed sessions</value>
+  </data>
+  <data name="FocusPause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="FocusSkip" xml:space="preserve">
+    <value>Skip to next phase</value>
+  </data>
+  <data name="FocusLap" xml:space="preserve">
+    <value>Lap</value>
+  </data>
+  <data name="FocusLapsEmpty" xml:space="preserve">
+    <value>Start the stopwatch to add laps</value>
+  </data>
+  <data name="FocusDurations" xml:space="preserve">
+    <value>Focus {0} min · Break {1} min · Long break {2} min</value>
+  </data>
+  <data name="FocusShorter" xml:space="preserve">
+    <value>Shorten</value>
+  </data>
+  <data name="FocusLonger" xml:space="preserve">
+    <value>Lengthen</value>
+  </data>
+  <data name="FocusElapsed" xml:space="preserve">
+    <value>Elapsed</value>
+  </data>
+  <data name="FocusCountdown" xml:space="preserve">
+    <value>Countdown</value>
+  </data>
+  <data name="FocusTimeUp" xml:space="preserve">
+    <value>Time is up</value>
+  </data>
+  <data name="HomeMinutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="HomeUnderMinute" xml:space="preserve">
+    <value>under 1 min</value>
+  </data>
+  <data name="HomeLeft" xml:space="preserve">
+    <value>{0} · {1} left</value>
+  </data>
+  <data name="HomeElapsed" xml:space="preserve">
+    <value>{0} · {1} elapsed</value>
+  </data>
+  <data name="NotchNotifications" xml:space="preserve">
+    <value>Open Notification Center</value>
+  </data>
+  <data name="NotchPin" xml:space="preserve">
+    <value>Keep notch open</value>
+  </data>
+  <data name="ShelfCount" xml:space="preserve">
+    <value>{0} items</value>
+  </data>
+  <data name="ShelfDropHere" xml:space="preserve">
+    <value>Drop here</value>
+  </data>
+  <data name="ShelfClear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="ControlVolume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="ControlBrightness" xml:space="preserve">
+    <value>Brightness</value>
+  </data>
+  <data name="MusicPrevious" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="MusicNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="MusicPlayPause" xml:space="preserve">
+    <value>Play / Pause</value>
   </data>
 </root>

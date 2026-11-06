@@ -35,7 +35,15 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _shortDate = "";
 
-    /// <summary>Uzun tarih ("6 Kasım 2026 Cuma"): boşta ana görünümde büyük saatin altında.</summary>
+    /// <summary>"Perşembe, 6 Kasım": açık çentiğin durum satırında ve boşta Ana kartında saatin altında.</summary>
+    [ObservableProperty]
+    private string _dayDate = "";
+
+    /// <summary>Günün dilimine göre selamlama ("Günaydın"): müzik çalmıyorken Ana kartında.</summary>
+    [ObservableProperty]
+    private string _greeting = "";
+
+    /// <summary>Uzun tarih ("6 Kasım 2026 Cuma").</summary>
     [ObservableProperty]
     private string _fullDate = "";
 
@@ -65,6 +73,10 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _temperatureText = "";
 
+    /// <summary>Durum satırı için kısa sıcaklık ("14°"); veri yoksa "--°".</summary>
+    [ObservableProperty]
+    private string _temperatureShort = "--°";
+
     [ObservableProperty]
     private string _weatherDescription = "";
 
@@ -72,7 +84,14 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
     private string _weatherIconKind = "Cloud";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PlaceName))]
     private string _city = "";
+
+    /// <summary>
+    /// Sıcaklığın üstünde küçük yazılan yer adı: seçilen şehir; cihaz konumunda şehir adı çözülmediği için
+    /// "Konumum" (uydurma ad yazılmaz).
+    /// </summary>
+    public string PlaceName => City.Length > 0 ? City : Strings.Get("WeatherPlaceDevice");
 
     // --- Ağ ---
     [ObservableProperty]
@@ -202,6 +221,14 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
         CurrentDate = now.ToString("d MMMM dddd", culture);
         ShortDate = now.ToString("d MMM ddd", culture);
         FullDate = now.ToString("d MMMM yyyy dddd", culture);
+        DayDate = now.ToString("dddd, d MMMM", culture);
+        Greeting = Strings.Get(Koy.Core.Notch.Greeting.ForHour(now.Hour) switch
+        {
+            Koy.Core.Notch.DayPart.Morning => "GreetMorning",
+            Koy.Core.Notch.DayPart.Afternoon => "GreetAfternoon",
+            Koy.Core.Notch.DayPart.Evening => "GreetEvening",
+            _ => "GreetNight"
+        });
     }
 
     private void OnPowerChanged(object? sender, PowerChangedEventArgs e)
@@ -270,6 +297,7 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
         {
             HasWeather = false;
             TemperatureText = "--°C";
+            TemperatureShort = "--°";
             WeatherDescription = Strings.Loading;
             WeatherIconKind = "Cloud";
             return;
@@ -277,6 +305,7 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
 
         HasWeather = true;
         TemperatureText = $"{Math.Round(weather.Temperature)}°C";
+        TemperatureShort = $"{Math.Round(weather.Temperature)}°";
         WeatherDescription = weather.Description;
         WeatherIconKind = weather.IconKind;
     }

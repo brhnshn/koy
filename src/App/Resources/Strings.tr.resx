@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -1088,5 +1088,125 @@
   </data>
   <data name="RecentEmpty" xml:space="preserve">
     <value>Son kullanılan dosya yok</value>
+  </data>
+  <data name="TabHome" xml:space="preserve">
+    <value>Ana</value>
+  </data>
+  <data name="TabFocus" xml:space="preserve">
+    <value>Odak</value>
+  </data>
+  <data name="GreetMorning" xml:space="preserve">
+    <value>Günaydın</value>
+  </data>
+  <data name="GreetAfternoon" xml:space="preserve">
+    <value>İyi günler</value>
+  </data>
+  <data name="GreetEvening" xml:space="preserve">
+    <value>İyi akşamlar</value>
+  </data>
+  <data name="GreetNight" xml:space="preserve">
+    <value>İyi geceler</value>
+  </data>
+  <data name="WeatherPlaceDevice" xml:space="preserve">
+    <value>Konumum</value>
+  </data>
+  <data name="WeatherNoLocation" xml:space="preserve">
+    <value>Hava durumu için konum seçilmedi</value>
+  </data>
+  <data name="WeatherPickLocation" xml:space="preserve">
+    <value>Konum seç</value>
+  </data>
+  <data name="PanelFocusTitle" xml:space="preserve">
+    <value>Odak</value>
+  </data>
+  <data name="FocusTabFocus" xml:space="preserve">
+    <value>Odak</value>
+  </data>
+  <data name="FocusTabBreak" xml:space="preserve">
+    <value>Mola</value>
+  </data>
+  <data name="FocusTabTimer" xml:space="preserve">
+    <value>Sayaç</value>
+  </data>
+  <data name="FocusTabStopwatch" xml:space="preserve">
+    <value>Kronometre</value>
+  </data>
+  <data name="FocusRound" xml:space="preserve">
+    <value>{0} / {1} tur</value>
+  </data>
+  <data name="FocusSessions" xml:space="preserve">
+    <value>Tamamlanan oturum</value>
+  </data>
+  <data name="FocusPause" xml:space="preserve">
+    <value>Duraklat</value>
+  </data>
+  <data name="FocusSkip" xml:space="preserve">
+    <value>Sonraki aşamaya geç</value>
+  </data>
+  <data name="FocusLap" xml:space="preserve">
+    <value>Tur</value>
+  </data>
+  <data name="FocusLapsEmpty" xml:space="preserve">
+    <value>Tur eklemek için kronometreyi başlat</value>
+  </data>
+  <data name="FocusDurations" xml:space="preserve">
+    <value>Odak {0} dk · Mola {1} dk · Uzun mola {2} dk</value>
+  </data>
+  <data name="FocusShorter" xml:space="preserve">
+    <value>Süreyi kısalt</value>
+  </data>
+  <data name="FocusLonger" xml:space="preserve">
+    <value>Süreyi uzat</value>
+  </data>
+  <data name="FocusElapsed" xml:space="preserve">
+    <value>Geçen süre</value>
+  </data>
+  <data name="FocusCountdown" xml:space="preserve">
+    <value>Geri sayım</value>
+  </data>
+  <data name="FocusTimeUp" xml:space="preserve">
+    <value>Süre doldu</value>
+  </data>
+  <data name="HomeMinutes" xml:space="preserve">
+    <value>{0} dk</value>
+  </data>
+  <data name="HomeUnderMinute" xml:space="preserve">
+    <value>1 dk&apos;dan az</value>
+  </data>
+  <data name="HomeLeft" xml:space="preserve">
+    <value>{0} · {1} kaldı</value>
+  </data>
+  <data name="HomeElapsed" xml:space="preserve">
+    <value>{0} · {1} geçti</value>
+  </data>
+  <data name="NotchNotifications" xml:space="preserve">
+    <value>Bildirim Merkezi&apos;ni aç</value>
+  </data>
+  <data name="NotchPin" xml:space="preserve">
+    <value>Çentiği açık tut</value>
+  </data>
+  <data name="ShelfCount" xml:space="preserve">
+    <value>{0} öğe</value>
+  </data>
+  <data name="ShelfDropHere" xml:space="preserve">
+    <value>Buraya bırak</value>
+  </data>
+  <data name="ShelfClear" xml:space="preserve">
+    <value>Temizle</value>
+  </data>
+  <data name="ControlVolume" xml:space="preserve">
+    <value>Ses</value>
+  </data>
+  <data name="ControlBrightness" xml:space="preserve">
+    <value>Parlaklık</value>
+  </data>
+  <data name="MusicPrevious" xml:space="preserve">
+    <value>Önceki</value>
+  </data>
+  <data name="MusicNext" xml:space="preserve">
+    <value>Sonraki</value>
+  </data>
+  <data name="MusicPlayPause" xml:space="preserve">
+    <value>Oynat / Duraklat</value>
   </data>
 </root>

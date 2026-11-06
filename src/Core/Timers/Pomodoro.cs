@@ -73,11 +73,50 @@ public sealed class Pomodoro : IDisposable
         State = PomodoroState.Running;
         StateChanged?.Invoke(this, State);
 
-        _timer ??= _timeProvider.CreateTimer(
-            _ => OnTimerTick(),
-            null,
-            TimeSpan.FromSeconds(1),
-            TimeSpan.FromSeconds(1));
+        // Duraklat / Sıfırla zamanlayıcıyı sonsuza çeker; yeniden başlatırken tekrar kurulmazsa süre bir daha akmaz.
+        if (_timer is null)
+        {
+            _timer = _timeProvider.CreateTimer(
+                _ => OnTimerTick(),
+                null,
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(1));
+        }
+        else
+        {
+            _timer.Change(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+        }
+    }
+
+    /// <summary>
+    /// Çalışma / mola arasında elle geçiş (Odak sekmesindeki "Odak" ve "Mola"). Çalışıyorsa önce duraklatır;
+    /// süre yeni modun tam süresine döner. Aynı moda geçiş bir şey yapmaz.
+    /// </summary>
+    public void SetMode(PomodoroMode mode)
+    {
+        if (Mode == mode)
+            return;
+
+        Pause();
+        Mode = mode;
+        Remaining = GetDurationForMode(mode);
+        ModeChanged?.Invoke(this, Mode);
+        Ticked?.Invoke(this, Remaining);
+    }
+
+    /// <summary>
+    /// Döngüdeki tur (1 tabanlı, <see cref="PomodoroConfig.SessionsBeforeLongBreak"/> üzerinden): çalışırken
+    /// şu anki tur, molada az önce biten tur. Tasarımdaki "2 / 4 tur".
+    /// </summary>
+    public int CurrentRound
+    {
+        get
+        {
+            var n = Math.Max(1, Config.SessionsBeforeLongBreak);
+            return Mode == PomodoroMode.Work
+                ? CompletedWorkSessions % n + 1
+                : Math.Max(1, (CompletedWorkSessions - 1) % n + 1);
+        }
     }
 
     public void Pause()

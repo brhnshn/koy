@@ -231,6 +231,24 @@ Servisler Core'da sözleşme + Platform'da uygulama; arayüz bağlanmadı. `Shar
 - [ ] Bellek ve CPU ölçümü (AGENTS #1): bu iş ölçülmedi, yalnız tasarım gereği hesaplandı (uygulama çalıştırılmadı). Arayüz bağlanınca `scripts/measure-memory.ps1` ile çentik kapalı/açık karşılaştır.
 - [ ] Arayüz bağlama: servislerin App'te kullanımı (çentik sayfaları, Ayarlar'da pano geçmişi anahtarı); Gün · Hafta · Ay görünümü `ITaskService.GetRange`'e bağlanacak.
 
+## Çentik H arayüzü
+Kaynak tasarım: `docs/design/source/CentikH.dc.html`. Pano, Sistem, görev listesi ve hızlı başlat servisleri ayrı yazılıyor; bu bölüm onlar olmadan H iskeletini ve mevcut paneller içindeki yerlerini kapsar.
+- [x] H iskeleti: açık çentik 620×352 (tuval 640×364, AGENTS #13 güncellendi), üstte durum satırı (saat · gün tarih, hava, pil, Bildirim Merkezi, açık tut), altta ikonlu sekme çubuğu; seçili sekme sayfa rengini alır. Sekmeler `NotchTabs` listesinden üretilir.
+- [x] Ana: müzik kartı / selamlama + saat, hava durumu kartı (yer adı sıcaklığın üstünde), çalışan zamanlayıcı satırı.
+- [x] Odak: Odak · Mola · Sayaç · Kronometre alt sekmeleri, ilerleme halkası, tur bilgisi; sayaç hazır süreleri, kronometre turları.
+- [x] Raf ve Kontrol H içine yerleştirildi; Kontrol döşeme sürükleyerek sıralama özelliği ve kayıtlı sıra korundu.
+- [x] Kapalı çentikte zamanlayıcı çalışırken pil / Wi-Fi / Bluetooth yerine kalan süre (saniyede bir, yalnız çalışırken).
+- [x] Zamanlayıcı sekme değişince durmuyor: sayaç durumu görünümden bağımsız `Core/Timers/FocusTimers` içinde, NotchFeature tek örnek kurar (birden çok monitörde ve pencere yeniden kurulunca da aynı süre). Bulunan gerçek hata: Pomodoro duraklat ya da sıfırla sonrası yeniden başlatılınca süre bir daha akmıyordu (zamanlayıcı sonsuza çekilip yeniden kurulmuyordu); düzeltildi, testli.
+- [x] Görsel kanıt: `dotnet run --project tools/Koy.UiSnapshots -- --out <klasör> --prefix h --scene centik --theme dark` (Ana, Odak, Raf, Kontrol, kapalı çentik).
+- [ ] Elle sına (uygulama çalıştırılarak): sekme geçişinde kayma ve solma; tekerlekle sekme değişimi; "çentiği açık tut"; Bildirim Merkezi düğmesi (Win+N); çalışan zamanlayıcıyla çentik kapanıp açılınca süre; kapalı çentikte süre ve bitişte Peek + titreme; Raf'a dosya sürükleyince Raf'ın açılması; iki monitörde aynı zamanlayıcı; karışık DPI'da 640×364 tuvalin yerleşimi.
+- [ ] Bellek ve CPU ölçümü: tuval 500×260'dan 640×364'e çıktı; `scripts/measure-memory.ps1` uygulamayı başlattığı (görev çubuğunu gizleyebildiği) için bu çalışmada ölçülmedi. Önce ve sonra ölçüp `docs/MEMORY.md` dosyasına yaz; açık çentik açılış / kapanışında fps ve CPU'ya bak.
+- [ ] Pano sekmesi: pano geçmişi servisi bağlanınca `NotchPanel.Clipboard`, `NotchTabs` satırı, sayfa ve DataTemplate (simge ve renk hazır).
+- [ ] Sistem sekmesi: sistem verisi servisi (CPU, RAM, ağ hızı, Koy belleği) bağlanınca aynı yolla.
+- [ ] Odak görev listesi: servis bağlanınca Odak / Mola sekmelerinin sağ kartının yerini alır (görev ekleme alanı için NotchWindow zaten TextBox tıklamasında pencereyi etkinleştiriyor).
+- [ ] Ana: hızlı başlat, CPU / RAM kartları, ağ adı ve hız kartı, kulaklık kartı sağ sütunun ızgarasına bağlanır; Kontrol: "Bağlı cihazlar" listesi.
+- [ ] Karar gerekli: eski çentik takvimi (ay / hafta / gün görünümü ve yerel etkinlikler) H tasarımında yok; `Features/Calendar` ve `Core/Calendar` duruyor ama çentikte gösterilmiyor ve etkinlik eklemenin yolu kalmadı. Ya H'ye bir yer verilir ya da silinir.
+- [ ] Karar gerekli: hava durumu kartındaki yer adı yalnız şehir seçilmişse gerçek ad; cihaz konumunda ad çözülmediği için "Konumum" yazılıyor (ters konumlama servisi yok).
+
 ## Sonraya kalanlar
 - Bildirimleri çentikte gösterme: Windows bildirimleri gelince çentik kısa süre gösterir (Claude Code gibi ajanların "iş bitti" bildirimleri de bu yoldan gelir). `UserNotificationListener` paket kimliği ister; Velopack kurulumu için seyrek (sparse) paket ve imza gerekir. Ara çözüm: Claude Code kancasının çağırdığı yerel komutla doğrudan bildirim.
 - Kullanıcının düzenleyebildiği çentik arayüzü: sayfaların ve kartların sırası, hangilerinin görüneceği kullanıcı tarafından seçilir.

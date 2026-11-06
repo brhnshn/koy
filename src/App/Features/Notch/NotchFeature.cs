@@ -1,8 +1,8 @@
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
-using Koy.App.Features.Calendar;
 using Koy.App.Features.ControlCenter;
+using Koy.App.Features.Focus;
 using Koy.App.Features.Music;
 using Koy.App.Features.Shelf;
 using Koy.App.Features.Status;
@@ -10,6 +10,7 @@ using Koy.Core.Diagnostics;
 using Koy.Core.Display;
 using Koy.Core.Notch;
 using Koy.Core.Settings;
+using Koy.Core.Timers;
 using Koy.Core.Shell;
 using Koy.Core.Visibility;
 using Koy.Core.Weather;
@@ -52,8 +53,9 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     // süreç başına tek deneme yapılır.
     private static bool _deviceLocationAttempted;
 
-    // Bütün monitörlerdeki takvimler aynı yerel etkinlik defterini paylaşır.
-    private readonly SharedEvents _sharedEvents = new();
+    // Pomodoro, sayaç ve kronometre tek örnekte yaşar: sekme değişse, pencere yeniden kurulsa ya da birden çok
+    // monitör olsa da süre aynı yerden akar (görünüme bağlı değil).
+    private FocusTimers? _focusTimers;
     private readonly ShellActionService _shellActions = new();
 
     private MediaService? _mediaService;
@@ -80,6 +82,9 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
         // Platform servisleri başlatılır (paylaşılan tekil servisler)
         _mediaService = services.AcquireMediaService();
+
+        _focusTimers = new FocusTimers(PomodoroConfig.FromMinutes(
+            settings.PomodoroWorkMinutes, settings.PomodoroShortBreakMinutes, settings.PomodoroLongBreakMinutes));
 
         _powerService = new PowerService();
         _networkService = services.AcquireNetworkService();
@@ -168,7 +173,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     private void CreateNotchWindow(DisplayMonitor monitor)
     {
         var controller = new NotchController();
-        controller.SetEnabledPanels(ParseEnabledPanels(settings.EnabledPanels));
+        controller.SetEnabledPanels(NotchPanels.ParseEnabled(settings.EnabledPanels));
         controller.OpenOnHover = settings.NotchOpenBehavior == 0;
 
         var visibilityController = new VisibilityController(settings.NotchVisibility)
@@ -185,7 +190,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             _focusAssistService!,
             settings);
         var statusVm = new StatusViewModel(_powerService!, _weatherService!, settings, networkService: _networkService);
-        var calendarVm = new CalendarViewModel(settings, _sharedEvents);
+        var focusVm = new FocusViewModel(_focusTimers!, settings);
         var shelfVm = new ShelfViewModel(_shelfService!);
 
         var viewModel = new NotchViewModel(
@@ -194,7 +199,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             musicVm,
             controlCenterVm,
             statusVm,
-            calendarVm,
+            focusVm,
             shelfVm,
             visibilityController,
             shellActions: _shellActions);
@@ -327,7 +332,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
         var dpiY = source?.CompositionTarget?.TransformToDevice.M22 ?? monitor.DpiScaleY;
 
         var monitorBounds = monitor.Bounds;
-        var notchWidth = 420 * dpiX;
+        var notchWidth = NotchLayout.ExpandedWidth * dpiX;
         var notchHeight = 140 * dpiY;
         var monitorWidth = monitorBounds.Right - monitorBounds.Left;
         var left = (int)(monitorBounds.Left + (monitorWidth - notchWidth) / 2);
@@ -528,24 +533,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
         _shelfService?.Dispose();
         _shelfService = null;
-    }
 
-    public static List<NotchPanel> ParseEnabledPanels(IEnumerable<string>? names)
-    {
-        var list = new List<NotchPanel>();
-        if (names is not null)
-        {
-            foreach (var name in names)
-            {
-                if (string.Equals(name, "music", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.Music);
-                else if (string.Equals(name, "controlcenter", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.ControlCenter);
-                else if (string.Equals(name, "status", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.Status);
-                else if (string.Equals(name, "calendar", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.Calendar);
-                else if (string.Equals(name, "shelf", StringComparison.OrdinalIgnoreCase)) list.Add(NotchPanel.Shelf);
-            }
-        }
-        if (list.Count == 0)
-            list.Add(NotchPanel.Music);
-        return list;
+        _focusTimers?.Dispose();
+        _focusTimers = null;
     }
 }

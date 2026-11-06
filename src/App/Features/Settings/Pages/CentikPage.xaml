@@ -125,19 +125,9 @@
         <Border Style="{StaticResource SettingRowStyle}">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [PanelMusicTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
+                    <TextBlock Text="{Binding [PanelFocusTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
-                <CheckBox AutomationProperties.Name="{Binding [PanelMusicTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelMusic}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
-            </Grid>
-        </Border>
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [PanelCalendarTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                </StackPanel>
-                <CheckBox AutomationProperties.Name="{Binding [PanelCalendarTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelCalendar}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                <CheckBox AutomationProperties.Name="{Binding [PanelFocusTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelFocus}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>
@@ -158,16 +148,6 @@
                     <TextBlock Text="{Binding [PanelControlCenterTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
                 </StackPanel>
                 <CheckBox AutomationProperties.Name="{Binding [PanelControlCenterTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelControlCenter}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                          Style="{StaticResource ToggleSwitchStyle}" />
-            </Grid>
-        </Border>
-
-        <Border Style="{StaticResource SettingRowStyle}">
-            <Grid>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding [PanelStatusTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
-                </StackPanel>
-                <CheckBox AutomationProperties.Name="{Binding [PanelStatusTitle], Source={x:Static res:Loc.Instance}}" IsChecked="{Binding PanelStatus}" HorizontalAlignment="Right" VerticalAlignment="Center"
                           Style="{StaticResource ToggleSwitchStyle}" />
             </Grid>
         </Border>

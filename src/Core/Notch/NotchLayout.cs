@@ -8,23 +8,22 @@ namespace Koy.Core.Notch;
 /// </summary>
 public static class NotchLayout
 {
-    /// <summary>Sabit pencere tuvalinin yüksekliği (kural #13); hiçbir panel bundan yüksek olamaz.</summary>
-    public const double CanvasHeight = 260;
-
-    /// <summary>Açık çentiğin genişliği (500 DIP'lik tuvalin içinde).</summary>
-    public const double ExpandedWidth = 420;
+    /// <summary>Sabit pencere tuvalinin genişliği (kural #13). Açık çentik (620) ve kenar payı sığar.</summary>
+    public const double CanvasWidth = 640;
 
     /// <summary>
-    /// Açık çentiğin yüksekliği: üstteki 30 DIP'lik sekme satırı dahil. Takvim gün/hafta listesi ve araçlar için
-    /// daha yüksektir. Hepsi tuvalin içinde kalır.
+    /// Sabit pencere tuvalinin yüksekliği (kural #13). Açık çentik 352 DIP; üstüne titreme (shake) payı kalır.
     /// </summary>
-    public static double ExpandedHeight(NotchPanel panel) => panel switch
-    {
-        NotchPanel.Music => 142,
-        NotchPanel.Calendar => 214,
-        _ => 170
-    };
+    public const double CanvasHeight = 364;
 
+    /// <summary>Açık çentiğin genişliği (H tasarımı; kenar boşlukları dahil).</summary>
+    public const double ExpandedWidth = 620;
+
+    /// <summary>
+    /// Açık çentiğin yüksekliği, her sekmede aynı (sabit gövde): üst boşluk 10 + durum satırı 26 + 12 + gövde 236 + 12 +
+    /// sekme çubuğu 44 + alt boşluk 12. Gövde sabit olduğu için sekme değişince çentik boyut değiştirmez.
+    /// </summary>
+    public const double ExpandedHeight = 352;
     /// <summary>Boşta yerleşimi (saat, pil, durum simgeleri ya da müzik çalıyorsa kapak) çizilsin mi.</summary>
     public static bool ShowCollapsedLayout(NotchState state, bool hasTrack) =>
         state == NotchState.Collapsed || (state == NotchState.Peek && !hasTrack);

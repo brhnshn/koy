@@ -8,7 +8,7 @@
              xmlns:radio="clr-namespace:Koy.Core.Radio;assembly=Koy.Core"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:ControlCenterViewModel}"
-             Foreground="{StaticResource NotchForeground}"
+             Foreground="{DynamicResource KoyNotchText}"
              FontSize="12">
 
   <UserControl.Resources>
@@ -16,9 +16,8 @@
 
     <!-- Döşeme Düğmesi Stili (Tile Button) -->
     <Style x:Key="TileButtonStyle" TargetType="Button">
-      <Setter Property="Background" Value="#1AFFFFFF" />
-      <Setter Property="BorderBrush" Value="#25FFFFFF" />
-      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource KoyNotchControlTile}" />
+      <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="FocusVisualStyle" Value="{x:Null}" />
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -28,24 +27,27 @@
           <ControlTemplate TargetType="Button">
             <Border x:Name="TileBorder"
                     Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="10"
-                    Padding="8,6">
-              <ContentPresenter />
+                    CornerRadius="18"
+                    Padding="12,0">
+              <ContentPresenter VerticalAlignment="Center" />
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="TileBorder" Property="Background" Value="#2EFFFFFF" />
-                <Setter TargetName="TileBorder" Property="BorderBrush" Value="#45FFFFFF" />
+                <Setter TargetName="TileBorder" Property="Opacity" Value="0.88" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="TileBorder" Property="Background" Value="#40FFFFFF" />
+                <Setter TargetName="TileBorder" Property="Opacity" Value="0.75" />
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
+      <Style.Triggers>
+        <!-- Açık radyo döşemesi sayfa renginde (mavi) dolar; Content bir RadioTileViewModel iken geçerli -->
+        <DataTrigger Binding="{Binding Content.IsOn, RelativeSource={RelativeSource Self}}" Value="True">
+          <Setter Property="Background" Value="{DynamicResource KoyNotchAccentControl}" />
+        </DataTrigger>
+      </Style.Triggers>
     </Style>
 
     <!-- Döşemenin sağındaki ok: Windows'taki ağ / cihaz sayfasını açar -->
@@ -72,25 +74,24 @@
 
     <!-- Wi-Fi / Bluetooth döşemesinin içeriği: simge, ad ve durum (Açık, Kapalı, Bulunamadı, İzin yok...) -->
     <DataTemplate x:Key="RadioTileTemplate" DataType="{x:Type local:RadioTileViewModel}">
-      <Grid Margin="0,0,14,0">
+      <Grid Margin="0,0,16,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto" />
           <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border x:Name="IconBorder" Width="26" Height="26" CornerRadius="13" VerticalAlignment="Center" Background="#20FFFFFF">
+        <Border x:Name="IconBorder" Width="30" Height="30" CornerRadius="10" VerticalAlignment="Center" Background="#20FFFFFF">
           <Path x:Name="Icon" Width="13" Height="13" Stretch="Uniform"
                 Stroke="#FFFFFFFF" StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                 HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Border>
         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
-          <TextBlock x:Name="Title" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
-          <TextBlock x:Name="Status" Text="{Binding StatusText}" FontSize="9" Foreground="#99FFFFFF" TextTrimming="CharacterEllipsis" />
+          <TextBlock x:Name="Title" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource KoyNotchText}" TextTrimming="CharacterEllipsis" />
+          <TextBlock x:Name="Status" Text="{Binding StatusText}" FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" TextTrimming="CharacterEllipsis" />
         </StackPanel>
       </Grid>
       <DataTemplate.Triggers>
         <DataTrigger Binding="{Binding Kind}" Value="{x:Static radio:RadioKind.WiFi}">
           <Setter TargetName="Title" Property="Text" Value="{x:Static res:Strings.WiFi}" />
-          <Setter TargetName="Icon" Property="Fill" Value="#FFFFFFFF" />
           <Setter TargetName="Icon" Property="Data" Value="M 12,18 A 1.5,1.5 0 1 1 12,15 A 1.5,1.5 0 0 1 12,18 M 7.05,12.05 A 7,7 0 0 1 16.95,12.05 M 3.5,8.5 A 12,12 0 0 1 20.5,8.5" />
         </DataTrigger>
         <DataTrigger Binding="{Binding Kind}" Value="{x:Static radio:RadioKind.Bluetooth}">
@@ -98,9 +99,12 @@
           <Setter TargetName="Icon" Property="Width" Value="11" />
           <Setter TargetName="Icon" Property="Data" Value="M 7,2 L 7,22 L 13,17 L 2,8 L 13,7 L 7,2 Z M 7,7 L 10,9.5 L 7,12 Z M 7,12 L 10,14.5 L 7,17 Z" />
         </DataTrigger>
+        <!-- Açık: mavi zeminde koyu yazı (tasarımdaki gibi) -->
         <DataTrigger Binding="{Binding IsOn}" Value="True">
-          <Setter TargetName="IconBorder" Property="Background" Value="{DynamicResource KoyAccent}" />
-          <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource KoyAccentText}" />
+          <Setter TargetName="IconBorder" Property="Background" Value="#26000000" />
+          <Setter TargetName="Icon" Property="Stroke" Value="{DynamicResource KoyNotchSurface}" />
+          <Setter TargetName="Title" Property="Foreground" Value="{DynamicResource KoyNotchSurface}" />
+          <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource KoyNotchSurface}" />
         </DataTrigger>
         <!-- Değiştirilemeyen radyo soluk görünür; durum satırı nedenini sarıyla yazar -->
         <DataTrigger Binding="{Binding IsUnavailable}" Value="True">
@@ -123,7 +127,7 @@
                   <RepeatButton Command="{x:Static Slider.DecreaseLarge}">
                     <RepeatButton.Template>
                       <ControlTemplate TargetType="RepeatButton">
-                        <Border Background="#45FFFFFF" CornerRadius="5,0,0,5" Height="8" />
+                        <Border Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Slider}}" CornerRadius="4,0,0,4" Height="8" />
                       </ControlTemplate>
                     </RepeatButton.Template>
                   </RepeatButton>
@@ -132,7 +136,7 @@
                   <RepeatButton Command="{x:Static Slider.IncreaseLarge}">
                     <RepeatButton.Template>
                       <ControlTemplate TargetType="RepeatButton">
-                        <Border Background="#1AFFFFFF" CornerRadius="0,5,5,0" Height="8" />
+                        <Border Background="{DynamicResource KoyNotchControlTrack}" CornerRadius="0,4,4,0" Height="8" />
                       </ControlTemplate>
                     </RepeatButton.Template>
                   </RepeatButton>
@@ -141,7 +145,7 @@
                   <Thumb>
                     <Thumb.Template>
                       <ControlTemplate TargetType="Thumb">
-                        <Ellipse Width="14" Height="14" Fill="#FFFFFFFF" Stroke="#33000000" StrokeThickness="1" />
+                        <Ellipse Width="16" Height="16" Fill="{DynamicResource KoyNotchText}" Stroke="#33000000" StrokeThickness="1" />
                       </ControlTemplate>
                     </Thumb.Template>
                   </Thumb>
@@ -154,167 +158,152 @@
     </Style>
   </UserControl.Resources>
 
-  <Grid Margin="16,8,16,10">
+  <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
+      <RowDefinition Height="62" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
 
-    <!-- Üst Satır: 3 Döşeme (Wi-Fi, Bluetooth, Rahatsız Etme) -->
-    <!-- Döşemeler sürüklenerek yeniden sıralanır (sıra ControlCenterLayout'a yazılır); konumları kod arkasında yayla kayar. -->
-    <Grid Grid.Row="0" x:Name="TilesHost" Height="46" Background="Transparent"
+    <!-- Üst satır: Wi-Fi, Bluetooth, Rahatsız Etme. Döşemeler sürüklenerek yeniden sıralanır (sıra ControlCenterLayout'a
+         yazılır); konumları kod arkasında yayla kayar. -->
+    <Grid Grid.Row="0" x:Name="TilesHost" Height="62" Background="Transparent"
           SizeChanged="TilesHost_SizeChanged"
           PreviewMouseLeftButtonDown="TilesHost_PreviewMouseLeftButtonDown"
           PreviewMouseMove="TilesHost_PreviewMouseMove"
           PreviewMouseLeftButtonUp="TilesHost_PreviewMouseLeftButtonUp"
           LostMouseCapture="TilesHost_LostMouseCapture">
 
-      <!-- 1. Wi-Fi Döşemesi: tıklayınca açar/kapatır; ok, Windows'taki ağ listesini açar -->
+      <!-- Wi-Fi: tıklayınca açar/kapatır; ok, Windows'taki ağ listesini açar -->
       <Grid x:Name="TileWifi" Tag="wifi" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Button Style="{StaticResource TileButtonStyle}" Height="46"
+        <Button Style="{StaticResource TileButtonStyle}" Height="62"
                 CommandParameter="{x:Static radio:RadioKind.WiFi}"
                 Command="{Binding ActivateRadioCommand}"
                 ToolTip="{Binding WiFi.ToolTip}"
                 Content="{Binding WiFi}"
                 ContentTemplate="{StaticResource RadioTileTemplate}" />
-        <Button Style="{StaticResource TileChevronStyle}" HorizontalAlignment="Right" Margin="0,0,3,0"
+        <Button Style="{StaticResource TileChevronStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"
                 CommandParameter="{x:Static radio:RadioKind.WiFi}"
                 Command="{Binding OpenRadioSettingsCommand}"
                 ToolTip="{x:Static res:Strings.OpenInSettings}" />
       </Grid>
 
-      <!-- 2. Bluetooth Döşemesi: tıklayınca açar/kapatır; ok, Windows'taki cihaz listesini açar -->
+      <!-- Bluetooth: tıklayınca açar/kapatır; ok, Windows'taki cihaz listesini açar -->
       <Grid x:Name="TileBluetooth" Tag="bluetooth" HorizontalAlignment="Left" VerticalAlignment="Top">
-        <Button Style="{StaticResource TileButtonStyle}" Height="46"
+        <Button Style="{StaticResource TileButtonStyle}" Height="62"
                 CommandParameter="{x:Static radio:RadioKind.Bluetooth}"
                 Command="{Binding ActivateRadioCommand}"
                 ToolTip="{Binding Bluetooth.ToolTip}"
                 Content="{Binding Bluetooth}"
                 ContentTemplate="{StaticResource RadioTileTemplate}" />
-        <Button Style="{StaticResource TileChevronStyle}" HorizontalAlignment="Right" Margin="0,0,3,0"
+        <Button Style="{StaticResource TileChevronStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"
                 CommandParameter="{x:Static radio:RadioKind.Bluetooth}"
                 Command="{Binding OpenRadioSettingsCommand}"
                 ToolTip="{x:Static res:Strings.OpenInSettings}" />
       </Grid>
 
-      <!-- 3. Rahatsız Etme: resmi açma/kapama ya da güvenilir okuma API'si yok; uydurma durum yerine
+      <!-- Rahatsız Etme: resmi açma/kapama ya da güvenilir okuma API'si yok; uydurma durum yerine
            Windows'taki ayarı açan kısayol olarak gösterilir. -->
       <Button x:Name="TileDoNotDisturb" Tag="donotdisturb" HorizontalAlignment="Left" VerticalAlignment="Top"
-              Style="{StaticResource TileButtonStyle}" Height="46"
+              Style="{StaticResource TileButtonStyle}" Height="62"
               Command="{Binding OpenDoNotDisturbSettingsCommand}"
               ToolTip="{x:Static res:Strings.OpenInSettings}">
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
-          <!-- Hilal Ay İkonu -->
-          <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Center" Background="#20FFFFFF">
-            <Path Width="12" Height="12" Stretch="Uniform" Fill="#FFFFFFFF"
+          <Border Width="30" Height="30" CornerRadius="10" VerticalAlignment="Center" Background="#20FFFFFF">
+            <Path Width="13" Height="13" Stretch="Uniform" Fill="{DynamicResource KoyNotchText}"
                   Data="M 12 3 A 9 9 0 1 0 21 12 A 7 7 0 0 1 12 3 Z"
                   HorizontalAlignment="Center" VerticalAlignment="Center" />
           </Border>
-
           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,0,0">
-            <TextBlock Text="{x:Static res:Strings.DoNotDisturb}" FontSize="10.5" FontWeight="SemiBold" Foreground="{StaticResource NotchForeground}" TextTrimming="CharacterEllipsis" />
-            <TextBlock Text="{x:Static res:Strings.OpenInSettings}" FontSize="9" Foreground="#99FFFFFF" TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{x:Static res:Strings.DoNotDisturb}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource KoyNotchText}" TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{x:Static res:Strings.OpenInSettings}" FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" TextTrimming="CharacterEllipsis" />
           </StackPanel>
-
-          <Path Grid.Column="2" Width="5" Height="9" Stretch="Uniform" Data="M 0,0 L 4,4 L 0,8" Margin="4,0,2,0"
-                Stroke="#99FFFFFF" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
-                VerticalAlignment="Center" />
         </Grid>
       </Button>
     </Grid>
 
-    <!-- Alt Satır: Kaydırıcılar (Ses Seviyesi + Ekran Parlaklığı) -->
-    <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,8,0,0">
-      <!-- Ses Kaydırıcısı -->
-      <Grid Height="26">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="26" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="34" />
-        </Grid.ColumnDefinitions>
+    <!-- Ses ve parlaklık -->
+    <Border Grid.Row="1" Margin="0,8,0,0" CornerRadius="18" Background="{DynamicResource KoyNotchControlCard}" Padding="14,12">
+      <StackPanel VerticalAlignment="Center">
+        <!-- Ses: etikete tıklamak sessize alır / açar -->
+        <Grid Height="30">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="92" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="40" />
+          </Grid.ColumnDefinitions>
+          <Button Command="{Binding ToggleMuteCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalAlignment="Left"
+                  FocusVisualStyle="{x:Null}" ToolTip="{Binding [ControlVolume], Source={x:Static res:Loc.Instance}}" AutomationProperties.Name="{Binding [ControlVolume], Source={x:Static res:Loc.Instance}}">
+            <Button.Template>
+              <ControlTemplate TargetType="Button">
+                <StackPanel Orientation="Horizontal" Background="Transparent">
+                  <Grid Width="14" Height="14" Margin="0,0,8,0">
+                    <Path Stretch="Uniform" Fill="{DynamicResource KoyNotchControlSoft}"
+                          Data="M 3,6 L 6,6 L 11,2 L 11,16 L 6,12 L 3,12 Z M 13,5 A 5,5 0 0 1 13,13 M 15,3 A 8,8 0 0 1 15,15">
+                      <Path.Style>
+                        <Style TargetType="Path">
+                          <Setter Property="Visibility" Value="Visible" />
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMuted}" Value="True">
+                              <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </Path.Style>
+                    </Path>
+                    <Path Stretch="Uniform" Fill="#EF4444" Stroke="#EF4444" StrokeThickness="1.2"
+                          Data="M 3,6 L 6,6 L 11,2 L 11,16 L 6,12 L 3,12 Z M 14,7 L 18,11 M 18,7 L 14,11">
+                      <Path.Style>
+                        <Style TargetType="Path">
+                          <Setter Property="Visibility" Value="Collapsed" />
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMuted}" Value="True">
+                              <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </Path.Style>
+                    </Path>
+                  </Grid>
+                  <TextBlock Text="{Binding [ControlVolume], Source={x:Static res:Loc.Instance}}" Foreground="{DynamicResource KoyNotchControlSoft}" VerticalAlignment="Center" />
+                </StackPanel>
+              </ControlTemplate>
+            </Button.Template>
+          </Button>
+          <Slider x:Name="VolumeSlider" Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
+                  Foreground="{DynamicResource KoyNotchText}"
+                  Minimum="0" Maximum="100"
+                  Value="{Binding VolumePercent, Mode=OneWay}"
+                  ValueChanged="VolumeSlider_ValueChanged"
+                  Margin="6,0" />
+          <TextBlock Grid.Column="2" Text="{Binding VolumePercent, StringFormat='%{0}'}"
+                     FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        </Grid>
 
-        <!-- Ses / Sessiz Butonu -->
-        <Button Grid.Column="0" Command="{Binding ToggleMuteCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="2">
-          <Grid>
-            <!-- Normal Hoparlör -->
-            <Path Width="14" Height="14" Stretch="Uniform" Fill="#DDFFFFFF"
-                  Data="M 3,6 L 6,6 L 11,2 L 11,16 L 6,12 L 3,12 Z M 13,5 A 5,5 0 0 1 13,13 M 15,3 A 8,8 0 0 1 15,15">
-              <Path.Style>
-                <Style TargetType="Path">
-                  <Setter Property="Visibility" Value="Visible" />
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsMuted}" Value="True">
-                      <Setter Property="Visibility" Value="Collapsed" />
-                    </DataTrigger>
-                  </Style.Triggers>
-                </Style>
-              </Path.Style>
-            </Path>
-
-            <!-- Sessiz (Mute) İkonu -->
-            <Path Width="14" Height="14" Stretch="Uniform" Fill="#EF4444"
-                  Data="M 3,6 L 6,6 L 11,2 L 11,16 L 6,12 L 3,12 Z M 14,7 L 18,11 M 18,7 L 14,11"
-                  Stroke="#EF4444" StrokeThickness="1.2">
-              <Path.Style>
-                <Style TargetType="Path">
-                  <Setter Property="Visibility" Value="Collapsed" />
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsMuted}" Value="True">
-                      <Setter Property="Visibility" Value="Visible" />
-                    </DataTrigger>
-                  </Style.Triggers>
-                </Style>
-              </Path.Style>
-            </Path>
-          </Grid>
-        </Button>
-
-        <!-- Ses Slider -->
-        <Slider x:Name="VolumeSlider"
-                Grid.Column="1"
-                Style="{StaticResource ModernSliderStyle}"
-                Minimum="0" Maximum="100"
-                Value="{Binding VolumePercent, Mode=OneWay}"
-                ValueChanged="VolumeSlider_ValueChanged"
-                Margin="6,0" />
-
-        <!-- Yüzde Metni -->
-        <TextBlock Grid.Column="2" Text="{Binding VolumePercent, StringFormat='%{0}'}"
-                   FontSize="10" Foreground="#99FFFFFF" VerticalAlignment="Center" HorizontalAlignment="Right" />
-      </Grid>
-
-      <!-- Parlaklık Kaydırıcısı (Yalnız destekleniyorsa görünür) -->
-      <Grid Height="26" Visibility="{Binding IsBrightnessSupported, Converter={StaticResource BoolToVis}}" Margin="0,2,0,0">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="26" />
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="34" />
-        </Grid.ColumnDefinitions>
-
-        <!-- Güneş İkonu -->
-        <Path Grid.Column="0" Width="14" Height="14" Stretch="Uniform" Fill="#F59E0B"
-              Data="M 12,7 A 5,5 0 1 1 7,12 A 5,5 0 0 1 12,7 M 12,1 L 12,4 M 12,20 L 12,23 M 4.22,4.22 L 6.34,6.34 M 17.66,17.66 L 19.78,19.78 M 1,12 L 4,12 M 20,12 L 23,12 M 4.22,19.78 L 6.34,17.66 M 17.66,6.34 L 19.78,4.22"
-              Stroke="#F59E0B" StrokeThickness="1.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-              HorizontalAlignment="Center" VerticalAlignment="Center" />
-
-        <!-- Parlaklık Slider -->
-        <Slider x:Name="BrightnessSlider"
-                Grid.Column="1"
-                Style="{StaticResource ModernSliderStyle}"
-                Minimum="0" Maximum="100"
-                Value="{Binding Brightness, Mode=OneWay}"
-                ValueChanged="BrightnessSlider_ValueChanged"
-                Margin="6,0" />
-
-        <!-- Yüzde Metni -->
-        <TextBlock Grid.Column="2" Text="{Binding Brightness, StringFormat='%{0}'}"
-                   FontSize="10" Foreground="#99FFFFFF" VerticalAlignment="Center" HorizontalAlignment="Right" />
-      </Grid>
-    </StackPanel>
+        <!-- Parlaklık (yalnız destekleniyorsa görünür) -->
+        <Grid Height="30" Margin="0,10,0,0" Visibility="{Binding IsBrightnessSupported, Converter={StaticResource BoolToVis}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="92" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="40" />
+          </Grid.ColumnDefinitions>
+          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <res:KoyIcon Data="{DynamicResource IconSun}" Size="14" Foreground="{DynamicResource KoyNotchBrightness}" Margin="0,0,8,0" />
+            <TextBlock Text="{Binding [ControlBrightness], Source={x:Static res:Loc.Instance}}" Foreground="{DynamicResource KoyNotchControlSoft}" VerticalAlignment="Center" />
+          </StackPanel>
+          <Slider x:Name="BrightnessSlider" Grid.Column="1" Style="{StaticResource ModernSliderStyle}"
+                  Foreground="{DynamicResource KoyNotchBrightness}"
+                  Minimum="0" Maximum="100"
+                  Value="{Binding Brightness, Mode=OneWay}"
+                  ValueChanged="BrightnessSlider_ValueChanged"
+                  Margin="6,0" />
+          <TextBlock Grid.Column="2" Text="{Binding Brightness, StringFormat='%{0}'}"
+                     FontSize="11" Foreground="{DynamicResource KoyNotchMuted}" VerticalAlignment="Center" HorizontalAlignment="Right" />
+        </Grid>
+      </StackPanel>
+    </Border>
   </Grid>
 </UserControl>

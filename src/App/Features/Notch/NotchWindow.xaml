@@ -5,17 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Koy.App.Features.Notch"
         xmlns:osd="clr-namespace:Koy.App.Features.Notch.OSD"
-        xmlns:music="clr-namespace:Koy.App.Features.Music"
+        xmlns:home="clr-namespace:Koy.App.Features.Home"
+        xmlns:focus="clr-namespace:Koy.App.Features.Focus"
         xmlns:cc="clr-namespace:Koy.App.Features.ControlCenter"
         xmlns:status="clr-namespace:Koy.App.Features.Status"
-        xmlns:cal="clr-namespace:Koy.App.Features.Calendar"
         xmlns:shelf="clr-namespace:Koy.App.Features.Shelf"
         xmlns:res="clr-namespace:Koy.App.Resources"
         xmlns:core="clr-namespace:Koy.Core.Notch;assembly=Koy.Core"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:NotchViewModel}"
         Title="Koy"
-        Width="500" Height="260"
+        Width="640" Height="364"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" Topmost="True" ShowInTaskbar="False" ShowActivated="False"
         AllowDrop="True"
@@ -25,6 +25,27 @@
 
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    <!-- Durum satırındaki yuvarlak simge düğmeleri (Bildirim Merkezi, çentiği açık tut) -->
+    <Style x:Key="NotchStatusButtonStyle" TargetType="Button">
+      <Setter Property="Width" Value="26" />
+      <Setter Property="Height" Value="26" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bg" CornerRadius="13" Background="Transparent">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource KoyNotchHover}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
   </Window.Resources>
 
   <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
@@ -196,6 +217,12 @@
                        FontWeight="SemiBold"
                        VerticalAlignment="Center" />
 
+            <!-- Sağ: zamanlayıcı çalışırken kalan süre (pil, Wi-Fi ve Bluetooth yerine). Saniyede bir yalnız sayaç çalışırken değişir, animasyon yok. -->
+            <TextBlock Grid.Column="2" Text="{Binding IdleTimerText}"
+                       Foreground="{DynamicResource KoyNotchAccentFocus}"
+                       FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"
+                       Visibility="{Binding ShowIdleTimer, Converter={StaticResource BoolToVis}}" />
+
             <!-- Sağ: Pil Göstergesi (22x11 px dış gövde #F4F4F5, seviye #4ADE80, terminal uç 2x5).
                  Masaüstü kasada pil yok; boş bir pil çizmek yanıltıcı olur (ShowIdleBattery HasBattery'yi de hesaba katar). -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
@@ -326,8 +353,9 @@
           </Canvas>
         </Grid>
 
-        <!-- 3. Expanded Durumu -->
-        <Grid x:Name="ExpandedView" Margin="12,0,12,0">
+        <!-- 3. Açık çentik (H tasarımı): üstte durum satırı, ortada sabit yükseklikli sayfa, altta ikonlu sekmeler.
+             Kenar payı 24 = kulak yarıçapı (12) + tasarımın iç boşluğu (12). Yükseklik: 10 + 26 + 12 + 236 + 12 + 44 + 12 = 352. -->
+        <Grid x:Name="ExpandedView" Margin="24,10,24,12">
           <Grid.Style>
             <Style TargetType="Grid">
               <Setter Property="Visibility" Value="Collapsed" />
@@ -344,38 +372,115 @@
           </Grid.Style>
 
           <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="26" />
+            <RowDefinition Height="260" />
+            <RowDefinition Height="44" />
           </Grid.RowDefinitions>
 
-          <!-- Sekmeler (tasarımdaki gibi): panellere tekerlek dışında görünür bir yoldan gidilir -->
-          <ItemsControl Grid.Row="0" ItemsSource="{Binding Tabs}" HorizontalAlignment="Center" Margin="0,6,0,2" Focusable="False">
+          <!-- Durum satırı: saat · gün tarih, hava sıcaklığı, pil, Bildirim Merkezi, açık tut -->
+          <Grid Grid.Row="0" Margin="4,0,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis">
+              <Run Text="{Binding Status.CurrentTime, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource KoyNotchText}" />
+              <Run Text="{Binding Status.DayDate, Mode=OneWay, StringFormat=' · {0}'}" Foreground="{DynamicResource KoyNotchMuted}" />
+            </TextBlock>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+              <!-- Hava: yalnız konum seçilmişse -->
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0"
+                          Visibility="{Binding Status.HasWeatherLocation, Converter={StaticResource BoolToVis}}">
+                <Viewbox Width="15" Height="15" Margin="0,0,5,0" VerticalAlignment="Center">
+                  <status:WeatherGlyph DataContext="{Binding Status}" />
+                </Viewbox>
+                <TextBlock Text="{Binding Status.TemperatureShort}" FontSize="12" Foreground="{DynamicResource KoyNotchText}" VerticalAlignment="Center" />
+              </StackPanel>
+
+              <!-- Pil: yalnız pil varsa -->
+              <TextBlock Text="{Binding BatteryPercent, StringFormat='%{0}'}" FontSize="12" FontWeight="SemiBold"
+                         Foreground="{DynamicResource KoyNotchOk}" VerticalAlignment="Center" Margin="0,0,8,0"
+                         Visibility="{Binding HasBattery, Converter={StaticResource BoolToVis}}" />
+
+              <Button Style="{StaticResource NotchStatusButtonStyle}" Command="{Binding Home.OpenNotificationCenterCommand}"
+                      ToolTip="{Binding [NotchNotifications], Source={x:Static res:Loc.Instance}}"
+                      AutomationProperties.Name="{Binding [NotchNotifications], Source={x:Static res:Loc.Instance}}">
+                <res:KoyIcon Data="{DynamicResource IconBell}" Size="15" Foreground="{DynamicResource KoyNotchTextSecondary}" />
+              </Button>
+              <Button Style="{StaticResource NotchStatusButtonStyle}" Command="{Binding TogglePinnedCommand}"
+                      ToolTip="{Binding [NotchPin], Source={x:Static res:Loc.Instance}}"
+                      AutomationProperties.Name="{Binding [NotchPin], Source={x:Static res:Loc.Instance}}">
+                <res:KoyIcon Data="{DynamicResource IconPin}" Size="15">
+                  <res:KoyIcon.Style>
+                    <Style TargetType="res:KoyIcon">
+                      <Setter Property="Foreground" Value="{DynamicResource KoyNotchTextSecondary}" />
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                          <Setter Property="Foreground" Value="{DynamicResource KoyNotchAccentFocus}" />
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </res:KoyIcon.Style>
+                </res:KoyIcon>
+              </Button>
+            </StackPanel>
+          </Grid>
+
+          <!-- Sayfa: sekme değişiminde yatay kayma ve solma yalnız burada (durum satırı ve sekmeler yerinde kalır) -->
+          <ContentControl x:Name="BodyHost" Grid.Row="1" Margin="0,12,0,12" Foreground="{DynamicResource KoyNotchText}" Content="{Binding CurrentPanelContent}" ClipToBounds="False">
+            <ContentControl.RenderTransform>
+              <TranslateTransform x:Name="PanelTranslate" X="0" />
+            </ContentControl.RenderTransform>
+            <ContentControl.Resources>
+              <DataTemplate DataType="{x:Type home:HomeViewModel}">
+                <home:HomePanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type focus:FocusViewModel}">
+                <focus:FocusPanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type shelf:ShelfViewModel}">
+                <shelf:ShelfPanel />
+              </DataTemplate>
+              <DataTemplate DataType="{x:Type cc:ControlCenterViewModel}">
+                <cc:ControlCenterPanel />
+              </DataTemplate>
+            </ContentControl.Resources>
+          </ContentControl>
+
+          <!-- Sekme çubuğu: sekmeler listeden üretilir (NotchTabs); seçili sekme kendi sayfa rengini alır -->
+          <ItemsControl Grid.Row="2" ItemsSource="{Binding Tabs}" Focusable="False">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
-                <StackPanel Orientation="Horizontal" />
+                <UniformGrid Rows="1" />
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="{x:Type local:NotchTabViewModel}">
-                <Button Margin="2,0"
-                        Cursor="Hand"
+                <Button Margin="2,0" Height="44" Cursor="Hand"
                         FocusVisualStyle="{x:Null}"
                         Command="{Binding DataContext.SelectTabCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                         CommandParameter="{Binding Panel}"
                         AutomationProperties.Name="{Binding Label}">
                   <Button.Template>
                     <ControlTemplate TargetType="Button">
-                      <Border x:Name="Pill" Height="22" Padding="10,0" CornerRadius="11" Background="Transparent">
-                        <TextBlock x:Name="Label" Text="{Binding Label}" FontSize="11" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource KoyNotchTextSecondary}" VerticalAlignment="Center" />
+                      <Border x:Name="Pill" CornerRadius="14" Background="Transparent">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                          <res:KoyIcon x:Name="Glyph" Data="{Binding Icon}" Size="17" HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource KoyNotchDim}" />
+                          <TextBlock x:Name="Label" Text="{Binding Label}" FontSize="11" FontWeight="SemiBold" Margin="0,3,0,0"
+                                     HorizontalAlignment="Center" Foreground="{DynamicResource KoyNotchMuted}" />
+                        </StackPanel>
                       </Border>
                       <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                           <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchHover}" />
                         </Trigger>
                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                          <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchText}" />
-                          <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource KoyNotchTextOnLight}" />
+                          <Setter TargetName="Pill" Property="Background" Value="{DynamicResource KoyNotchChip}" />
+                          <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource KoyNotchText}" />
+                          <Setter TargetName="Glyph" Property="Foreground" Value="{Binding Accent}" />
                         </DataTrigger>
                       </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -384,30 +489,6 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-
-          <!-- Panel Seçici / İçerik: Music, ControlCenter, Status, Calendar, Shelf -->
-          <ContentControl Grid.Row="1" Content="{Binding CurrentPanelContent}">
-            <ContentControl.RenderTransform>
-              <TranslateTransform x:Name="PanelTranslate" X="0" />
-            </ContentControl.RenderTransform>
-            <ContentControl.Resources>
-              <DataTemplate DataType="{x:Type music:MusicViewModel}">
-                <music:MusicPanel />
-              </DataTemplate>
-              <DataTemplate DataType="{x:Type cc:ControlCenterViewModel}">
-                <cc:ControlCenterPanel />
-              </DataTemplate>
-              <DataTemplate DataType="{x:Type status:StatusViewModel}">
-                <status:StatusPanel />
-              </DataTemplate>
-              <DataTemplate DataType="{x:Type cal:CalendarViewModel}">
-                <cal:CalendarPanel />
-              </DataTemplate>
-              <DataTemplate DataType="{x:Type shelf:ShelfViewModel}">
-                <shelf:ShelfPanel />
-              </DataTemplate>
-            </ContentControl.Resources>
-          </ContentControl>
         </Grid>
       </Grid>
     </local:NotchShape>

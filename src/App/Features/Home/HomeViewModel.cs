@@ -1,8 +1,9 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Koy.App.Features.Calendar;
+using Koy.App.Features.Focus;
 using Koy.App.Features.Music;
+using Koy.App.Features.Settings;
 using Koy.App.Features.Status;
 using Koy.Core.Diagnostics;
 using Koy.Core.Shell;
@@ -10,32 +11,39 @@ using Koy.Core.Shell;
 namespace Koy.App.Features.Home;
 
 /// <summary>
-/// Ana görünümün (müzik + durum sütunu) veri kaynağı: saat, tarih, sıradaki etkinlik ve zamanlayıcı özeti,
-/// ağ, pil, hava durumu ve Bildirim Merkezi komutu. Yalnız mevcut ViewModel'leri birleştirir; görsel düzen
-/// (XAML) tasarım onayından sonra bağlanır, o zamana kadar çentik düzeni değişmez.
+/// Ana sayfanın veri kaynağı: müzik (çalıyorsa kart, değilse selamlama + saat), hava durumu, çalışan zamanlayıcının
+/// satırı ve Bildirim Merkezi komutu. Yalnız mevcut ViewModel'leri birleştirir.
 /// </summary>
 public sealed partial class HomeViewModel : ObservableObject, IDisposable
 {
     private readonly IShellActionService? _shell;
+    private readonly Action? _openFocus;
     private bool _disposed;
 
     public MusicViewModel Music { get; }
     public StatusViewModel Status { get; }
-    public CalendarViewModel Calendar { get; }
+    public FocusViewModel Focus { get; }
 
-    /// <summary>Sol sütunda müzik gösterilir (parça var).</summary>
+    /// <summary>Sol kartta müzik gösterilir (parça var).</summary>
     public bool ShowMusic => Music.HasTrack;
 
-    /// <summary>Sol sütunda büyük saat, tam tarih ve sıradaki etkinlik gösterilir (parça yok).</summary>
+    /// <summary>Sol kartta selamlama ve büyük saat gösterilir (parça yok).</summary>
     public bool ShowIdle => !Music.HasTrack;
 
-    public HomeViewModel(MusicViewModel music, StatusViewModel status, CalendarViewModel calendar, IShellActionService? shell = null)
+    /// <summary>Hava durumu kartı konum seçilmişse hava gösterir, seçilmemişse konum seçmeye yönlendirir.</summary>
+    public bool ShowWeather => Status.HasWeatherLocation;
+
+    public bool ShowNoLocation => !Status.HasWeatherLocation;
+
+    public HomeViewModel(MusicViewModel music, StatusViewModel status, FocusViewModel focus, IShellActionService? shell = null, Action? openFocus = null)
     {
         Music = music;
         Status = status;
-        Calendar = calendar;
+        Focus = focus;
         _shell = shell;
+        _openFocus = openFocus;
         Music.PropertyChanged += OnMusicPropertyChanged;
+        Status.PropertyChanged += OnStatusPropertyChanged;
     }
 
     private void OnMusicPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -44,6 +52,15 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
         {
             OnPropertyChanged(nameof(ShowMusic));
             OnPropertyChanged(nameof(ShowIdle));
+        }
+    }
+
+    private void OnStatusPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(StatusViewModel.HasWeatherLocation))
+        {
+            OnPropertyChanged(nameof(ShowWeather));
+            OnPropertyChanged(nameof(ShowNoLocation));
         }
     }
 
@@ -61,6 +78,14 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
         }
     }
 
+    /// <summary>"Odak · 18 dk kaldı" satırına tıklanınca Odak sayfası açılır.</summary>
+    [RelayCommand]
+    private void OpenFocus() => _openFocus?.Invoke();
+
+    /// <summary>Konum seçilmemişse Koy penceresinin Çentik sayfası açılır (hava konumu orada seçilir).</summary>
+    [RelayCommand]
+    private void ChooseWeatherLocation() => KoyWindow.ShowInstance(1);
+
     public void Dispose()
     {
         if (_disposed)
@@ -68,5 +93,6 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
 
         _disposed = true;
         Music.PropertyChanged -= OnMusicPropertyChanged;
+        Status.PropertyChanged -= OnStatusPropertyChanged;
     }
 }

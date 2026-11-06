@@ -39,19 +39,13 @@ public class NotchLayoutTests
         Assert.Equal(expected, IdleDisplay.ShowPeekDetails(mode));
     }
 
-    [Theory]
-    [InlineData(NotchPanel.Music)]
-    [InlineData(NotchPanel.ControlCenter)]
-    [InlineData(NotchPanel.Status)]
-    [InlineData(NotchPanel.Calendar)]
-    [InlineData(NotchPanel.Shelf)]
-    public void Every_panel_fits_the_fixed_canvas(NotchPanel panel)
+    [Fact]
+    public void Expanded_notch_fits_the_fixed_canvas()
     {
-        // Kural #13: pencere 500x260 sabit; panel yüksekliği ve genişliği tuvali aşamaz.
-        Assert.InRange(NotchLayout.ExpandedHeight(panel), 100, NotchLayout.CanvasHeight);
-        Assert.InRange(NotchLayout.ExpandedWidth, 100, 500);
+        // Kural #13: pencere sabit tuvalde durur; açık çentik tuvali aşamaz, titreme payı kalır.
+        Assert.InRange(NotchLayout.ExpandedWidth, 100, NotchLayout.CanvasWidth);
+        Assert.InRange(NotchLayout.ExpandedHeight, 100, NotchLayout.CanvasHeight - 8);
     }
-
     [Fact]
     public void Hover_in_click_mode_without_track_keeps_idle_layout()
     {
