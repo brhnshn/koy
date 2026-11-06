@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Çentik H prototipi</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1100px; height: 720px; box-sizing: border-box; padding: 0 40px 40px; background: #1F2A36; font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif; color: #F4F4F5; display: flex; flex-direction: column; align-items: center; gap: 28px;">
+
+  <!-- Çentik -->
+  <div style="width: 620px; background: #0A0A0B; border-radius: 0 0 34px 34px; padding: 10px 16px 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px;">
+
+    <!-- Durum satırı -->
+    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; height: 26px; padding: 0 4px;">
+      <span><span style="font-weight: 600;">14:36</span><span style="color: #A1A1AA;"> · Perşembe, 6 Kasım</span></span>
+      <span style="display: flex; align-items: center; gap: 12px;">
+        <span style="display: flex; align-items: center; gap: 5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>14°</span>
+        <span style="color: #34D399; font-weight: 600;">%100</span>
+        <button style="width: 26px; height: 26px; border: none; border-radius: 13px; background: transparent; display: flex; align-items: center; justify-content: center;" aria-label="Bildirim Merkezi'ni aç"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4D4D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"></path></svg></button>
+        <button style="width: 26px; height: 26px; border: none; border-radius: 13px; background: transparent; display: flex; align-items: center; justify-content: center;" aria-label="Çentiği açık tut"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D4D4D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"></path><path d="M9 3h6l-1 6 3 4H7l3-4z"></path></svg></button>
+      </span>
+    </div>
+
+    <!-- Gövde: sabit yükseklik -->
+    <div style="height: 236px; display: flex; flex-direction: column;">
+
+      <!-- ANA -->
+      <sc-if value="{{tAna}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; gap: 10px; height: 236px;">
+          <div style="width: 270px; flex-shrink: 0; border-radius: 22px; background: {{musicBg}}; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+            <sc-if value="{{playing}}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <span style="width: 68px; height: 68px; border-radius: 16px; background: #22C55E; flex-shrink: 0;"></span>
+                <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0;"><span style="font-size: 16px; font-weight: 600;">[Şarkı adı]</span><span style="font-size: 13px; color: #BBF7D0;">[Sanatçı]</span></div>
+              </div>
+              <div style="display: flex; align-items: flex-end; justify-content: center; gap: 3px; height: 26px;">
+                <sc-for list="{{bars}}" as="b" hint-placeholder-count="24"><span style="width: 4px; height: {{b}}px; border-radius: 2px; background: rgba(187,247,208,0.75);"></span></sc-for>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 10px; color: #D4D4D8;">1:24<span style="flex-grow: 1; height: 4px; border-radius: 2px; background: rgba(244,244,245,0.22);"><span style="display: block; width: 38%; height: 4px; border-radius: 2px; background: #F4F4F5;"></span></span>3:41</div>
+              <div style="display: flex; justify-content: center; align-items: center; gap: 26px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#F4F4F5" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"></path></svg>
+                <span style="width: 42px; height: 42px; border-radius: 21px; background: #F4F4F5; display: flex; align-items: center; justify-content: center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#0A0A0B" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"></path></svg></span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#F4F4F5" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"></path></svg>
+              </div>
+            </sc-if>
+            <sc-if value="{{idle}}" hint-placeholder-val="{{ false }}">
+              <span style="font-size: 13px; color: #FB7185; font-weight: 600;">Günaydın</span>
+              <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 58px; font-weight: 600; line-height: 1;">14:36</span><span style="font-size: 13px; color: #A1A1AA;">Perşembe, 6 Kasım</span></div>
+              <div style="background: #1C1416; border-radius: 14px; padding: 10px 12px; font-size: 12px; display: flex; align-items: center; gap: 8px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #FB7185;"></span>Odak · 18 dk kaldı</div>
+            </sc-if>
+          </div>
+          <div style="flex-grow: 1; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 8px;">
+            <div style="grid-column: 1 / 3; border-radius: 18px; background: #121A2B; display: flex; align-items: center; gap: 10px; padding: 0 14px; font-size: 12px;">
+              <span style="width: 30px; height: 30px; border-radius: 10px; background: rgba(59,130,246,0.22); display: flex; align-items: center; justify-content: center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-2a9 9 0 0 1 18 0v2"></path><rect x="3" y="14" width="4" height="7" rx="1.5"></rect><rect x="17" y="14" width="4" height="7" rx="1.5"></rect></svg></span>
+              <span style="flex-grow: 1; font-weight: 600;">[Kulaklık adı]</span>
+              <span style="color: #BFDBFE;">%86</span>
+            </div>
+            <div style="border-radius: 18px; background: #0F1F19; padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; gap: 4px; font-size: 11px; color: #A7F3D0;">
+              <span style="display: flex; justify-content: space-between;"><span>CPU</span><b style="color: #F4F4F5;">%23</b></span>
+              <span style="height: 4px; border-radius: 2px; background: #1E3A2F;"><span style="display: block; width: 23%; height: 4px; border-radius: 2px; background: #34D399;"></span></span>
+              <span style="display: flex; justify-content: space-between;"><span>RAM</span><b style="color: #F4F4F5;">%58</b></span>
+              <span style="height: 4px; border-radius: 2px; background: #1E3A2F;"><span style="display: block; width: 58%; height: 4px; border-radius: 2px; background: #34D399;"></span></span>
+            </div>
+            <div style="border-radius: 18px; background: #18132B; padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; gap: 3px; font-size: 11px; color: #C4B5FD;">
+              <span style="font-weight: 600; color: #F4F4F5;">[Ağ adı]</span>
+              <span>↓ 2,5 MB/sn</span>
+              <span>↑ 360 KB/sn</span>
+            </div>
+            <div style="grid-column: 1 / 3; border-radius: 18px; background: #141416; display: flex; align-items: center; justify-content: space-between; padding: 0 10px 0 14px; font-size: 11px; color: #A1A1AA;">
+              <span>Hızlı başlat</span>
+              <span style="display: flex; gap: 6px;">
+                <sc-for list="{{apps}}" as="a" hint-placeholder-count="5"><span style="width: 32px; height: 32px; border-radius: 11px; background: {{a.c}}; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #0A0A0B;">{{a.l}}</span></sc-for>
+                <span style="width: 32px; height: 32px; border-radius: 11px; border: 1.5px dashed #3F3F46; box-sizing: border-box; display: flex; align-items: center; justify-content: center; color: #A1A1AA; font-size: 16px;">+</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ODAK -->
+      <sc-if value="{{tOdak}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; gap: 10px; height: 236px;">
+          <div style="width: 270px; flex-shrink: 0; border-radius: 22px; background: #1C1416; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div style="display: flex; gap: 2px; background: #0A0A0B; border-radius: 14px; padding: 3px; font-size: 11px;">
+              <span style="padding: 5px 10px; border-radius: 11px; background: #FB7185; color: #0A0A0B; font-weight: 600;">Odak</span>
+              <span style="padding: 5px 10px; border-radius: 11px; color: #D4D4D8;">Mola</span>
+              <span style="padding: 5px 10px; border-radius: 11px; color: #D4D4D8;">Sayaç</span>
+              <span style="padding: 5px 10px; border-radius: 11px; color: #D4D4D8;">Kronometre</span>
+            </div>
+            <div style="width: 124px; height: 124px; border-radius: 50%; border: 8px solid #3A1F25; border-top-color: #FB7185; border-right-color: #FB7185; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <span style="font-size: 28px; font-weight: 600; line-height: 1;">18:24</span>
+              <span style="font-size: 10px; color: #FDA4AF;">2 / 4 tur</span>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <button style="width: 38px; height: 38px; border: none; border-radius: 19px; background: #2A1D20; display: flex; align-items: center; justify-content: center;" aria-label="Sıfırla"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F4F4F5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg></button>
+              <button style="width: 38px; height: 38px; border: none; border-radius: 19px; background: #FB7185; display: flex; align-items: center; justify-content: center;" aria-label="Duraklat"><svg width="16" height="16" viewBox="0 0 24 24" fill="#0A0A0B" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"></path></svg></button>
+            </div>
+          </div>
+          <div style="flex-grow: 1; min-width: 0; border-radius: 22px; background: #141416; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: 600; font-size: 13px;">Bugün</span><span style="color: #A1A1AA; font-size: 11px;">Gün · Hafta · Ay</span></div>
+            <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 16px; height: 16px; border-radius: 5px; background: #FB7185; display: flex; align-items: center; justify-content: center;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0A0A0B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><span style="color: #71717A; text-decoration: line-through;">[Tamamlanan görev]</span></div>
+            <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid #52525B; box-sizing: border-box;"></span><span>[Sıradaki görev]</span><span style="margin-left: auto; color: #FDA4AF; font-size: 11px;">şimdi</span></div>
+            <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid #52525B; box-sizing: border-box;"></span><span>[Görev]</span><span style="margin-left: auto; color: #A1A1AA; font-size: 11px;">16:00</span></div>
+            <div style="margin-top: auto; display: flex; gap: 6px;">
+              <label style="flex-grow: 1; display: flex;"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Görev ekle</span><input placeholder="Görev ekle" style="flex-grow: 1; height: 32px; border: none; border-radius: 16px; background: #1F1F23; color: #F4F4F5; padding: 0 12px; font-family: inherit; font-size: 12px;"></label>
+              <button style="width: 32px; height: 32px; border: none; border-radius: 16px; background: #F4F4F5; color: #0A0A0B; font-size: 16px; font-weight: 600;" aria-label="Görevi ekle">+</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- RAF -->
+      <sc-if value="{{tRaf}}" hint-placeholder-val="{{ false }}">
+        <div style="height: 236px; border-radius: 22px; background: #1A160C; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px;"><span style="font-weight: 600; font-size: 13px;">Raf <span style="color: #FCD34D; font-weight: 400;">· 3 öğe</span></span><span style="display: flex; gap: 6px;"><button style="height: 28px; padding: 0 12px; border: none; border-radius: 14px; background: #2A2312; color: #FDE68A; font-family: inherit; font-size: 11px;">Hepsini kopyala</button><button style="height: 28px; padding: 0 12px; border: none; border-radius: 14px; background: #2A2312; color: #FDE68A; font-family: inherit; font-size: 11px;">Temizle</button></span></div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; flex-grow: 1;">
+            <sc-for list="{{files}}" as="f" hint-placeholder-count="3">
+              <div style="border-radius: 16px; background: #0A0A0B; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px;">
+                <span style="width: 42px; height: 52px; border-radius: 8px; background: {{f.c}}; color: #0A0A0B; font-size: 10px; font-weight: 700; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; box-sizing: border-box;">{{f.e}}</span>
+                <span style="font-size: 11px; text-align: center;">{{f.n}}</span>
+                <span style="font-size: 10px; color: #A1A1AA;">{{f.s}}</span>
+              </div>
+            </sc-for>
+            <div style="border-radius: 16px; border: 1.5px dashed #6B5A24; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: #FCD34D; text-align: center; padding: 8px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"></path><path d="M4 19h16"></path></svg>Buraya bırak</div>
+          </div>
+          <span style="font-size: 10px; color: #A1A1AA;">Üzerine gelince: aç · klasörde göster · kopyala · kaldır</span>
+        </div>
+      </sc-if>
+
+      <!-- PANO -->
+      <sc-if value="{{tPano}}" hint-placeholder-val="{{ false }}">
+        <div style="height: 236px; border-radius: 22px; background: #18132B; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <label style="flex-grow: 1; display: flex;"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden;">Panoda ara</span><input placeholder="Panoda ara" style="flex-grow: 1; height: 30px; border: none; border-radius: 15px; background: #0A0A0B; color: #F4F4F5; padding: 0 12px; font-family: inherit; font-size: 12px;"></label>
+            <span style="display: flex; gap: 4px; font-size: 11px;">
+              <span style="padding: 6px 10px; border-radius: 13px; background: #A78BFA; color: #0A0A0B; font-weight: 600;">Tümü</span>
+              <span style="padding: 6px 10px; border-radius: 13px; background: #241D3D; color: #DDD6FE;">Sabit</span>
+              <span style="padding: 6px 10px; border-radius: 13px; background: #241D3D; color: #DDD6FE;">Bağlantı</span>
+              <span style="padding: 6px 10px; border-radius: 13px; background: #241D3D; color: #DDD6FE;">Renk</span>
+              <span style="padding: 6px 10px; border-radius: 13px; background: #241D3D; color: #DDD6FE;">Kod</span>
+            </span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex-grow: 1;">
+            <div style="border-radius: 14px; background: #0A0A0B; padding: 10px; display: flex; flex-direction: column; gap: 6px; font-size: 11px;"><span style="color: #C4B5FD;">Bağlantı · sabit</span><span style="text-decoration: underline; word-break: break-all;">[örnek.com/sayfa]</span><span style="margin-top: auto; color: #DDD6FE;">İzleyiciyi temizle</span></div>
+            <div style="border-radius: 14px; background: #0A0A0B; padding: 10px; display: flex; flex-direction: column; gap: 6px; font-size: 11px;"><span style="color: #C4B5FD;">Renk · 2 dk</span><span style="display: flex; align-items: center; gap: 8px;"><span style="width: 26px; height: 26px; border-radius: 8px; background: #3B82F6;"></span>#3B82F6</span><span style="margin-top: auto; color: #DDD6FE;">RGB olarak kopyala</span></div>
+            <div style="border-radius: 14px; background: #0A0A0B; padding: 10px; display: flex; flex-direction: column; gap: 6px; font-size: 11px;"><span style="color: #C4B5FD;">Metin · şimdi</span><span>[Kopyalanan metnin ilk satırları]</span><span style="margin-top: auto; color: #DDD6FE;">Sabitle</span></div>
+          </div>
+          <span style="font-size: 10px; color: #A1A1AA;">Yalnız metin, bağlantı, renk ve kod; son 50 öğe; sabitlenenler kalır.</span>
+        </div>
+      </sc-if>
+
+      <!-- SİSTEM -->
+      <sc-if value="{{tSistem}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; gap: 10px; height: 236px;">
+          <div style="flex: 1 1 0; border-radius: 22px; background: #0F1F19; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+            <span style="width: 108px; height: 108px; border-radius: 50%; border: 9px solid #1E3A2F; border-top-color: #34D399; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center;"><b style="font-size: 24px;">%23</b><span style="font-size: 10px; color: #A7F3D0;">işlemci</span></span>
+            <span style="font-size: 11px; color: #A7F3D0;">En çok: [uygulama adı]</span>
+          </div>
+          <div style="flex: 1 1 0; border-radius: 22px; background: #0F1F19; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+            <span style="width: 108px; height: 108px; border-radius: 50%; border: 9px solid #1E3A2F; border-top-color: #34D399; border-right-color: #34D399; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center;"><b style="font-size: 24px;">%58</b><span style="font-size: 10px; color: #A7F3D0;">bellek</span></span>
+            <span style="font-size: 11px; color: #A7F3D0;">9,2 / 16 GB</span>
+          </div>
+          <div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 8px;">
+            <div style="flex-grow: 1; border-radius: 18px; background: #18132B; padding: 12px; display: flex; flex-direction: column; justify-content: center; gap: 4px; font-size: 12px; color: #C4B5FD;"><b style="color: #F4F4F5;">[Ağ adı]</b><span>↓ 2,5 MB/sn</span><span>↑ 360 KB/sn</span></div>
+            <div style="border-radius: 18px; background: #141416; padding: 12px; display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: #A1A1AA;"><span>Koy'un kendisi</span><b style="color: #F4F4F5; font-size: 14px;">64 MB</b></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- KONTROL -->
+      <sc-if value="{{tKontrol}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; gap: 10px; height: 236px;">
+          <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+              <span style="height: 62px; border-radius: 18px; background: #3B82F6; padding: 10px 12px; box-sizing: border-box; font-size: 12px; font-weight: 600; color: #0A0A0B;">Wi-Fi<br><span style="font-weight: 400;">[Ağ adı]</span></span>
+              <span style="height: 62px; border-radius: 18px; background: #3B82F6; padding: 10px 12px; box-sizing: border-box; font-size: 12px; font-weight: 600; color: #0A0A0B;">Bluetooth<br><span style="font-weight: 400;">1 cihaz</span></span>
+              <span style="height: 62px; border-radius: 18px; background: #1F1F23; padding: 10px 12px; box-sizing: border-box; font-size: 12px; font-weight: 600;">Rahatsız<br><span style="font-weight: 400; color: #A1A1AA;">etme</span></span>
+            </div>
+            <div style="border-radius: 18px; background: #121A2B; padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; font-size: 12px; flex-grow: 1; justify-content: center;">
+              <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 66px; color: #BFDBFE;">Ses</span><span style="flex-grow: 1; height: 8px; border-radius: 4px; background: #1E2A44;"><span style="display: block; width: 42%; height: 8px; border-radius: 4px; background: #F4F4F5;"></span></span><span style="width: 120px; color: #A1A1AA; font-size: 11px;">[Çıkış aygıtı] ▾</span></div>
+              <div style="display: flex; align-items: center; gap: 10px;"><span style="width: 66px; color: #BFDBFE;">Parlaklık</span><span style="flex-grow: 1; height: 8px; border-radius: 4px; background: #1E2A44;"><span style="display: block; width: 64%; height: 8px; border-radius: 4px; background: #FACC15;"></span></span><span style="width: 120px;"></span></div>
+            </div>
+          </div>
+          <div style="width: 178px; flex-shrink: 0; border-radius: 18px; background: #141416; padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+            <span style="color: #A1A1AA; font-size: 11px;">Bağlı cihazlar</span>
+            <span style="display: flex; justify-content: space-between;"><span>[Kulaklık]</span><span style="color: #93C5FD;">%86</span></span>
+            <span style="display: flex; justify-content: space-between;"><span>[Fare]</span><span style="color: #93C5FD;">%40</span></span>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- Alt sekme çubuğu -->
+    <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px;">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="6">
+        <button style="height: 44px; border: none; border-radius: 14px; background: {{t.bg}}; color: {{t.fg}}; font-family: inherit; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;" onClick="{{t.pick}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="{{t.dot}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.d}}"></path></svg>{{t.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- Önizleme denetimi -->
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <button style="height: 36px; padding: 0 16px; border: none; border-radius: 18px; background: {{playBg}}; color: {{playFg}}; font-family: inherit; font-size: 13px; font-weight: 600;" onClick="{{setPlaying}}">Müzik çalıyor</button>
+    <button style="height: 36px; padding: 0 16px; border: none; border-radius: 18px; background: {{idleBg}}; color: {{idleFg}}; font-family: inherit; font-size: 13px; font-weight: 600;" onClick="{{setIdle}}">Müzik yok</button>
+    <span style="font-size: 12px; color: #A1A1AA;">Alttaki sekmelere tıkla. Gerçek boyut: çentik 620 px.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":720}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'ana', playing: true }; }
+  renderVals() {
+    const t = this.state.tab, p = this.state.playing;
+    const defs = [
+      ['ana', 'Ana', '#F4F4F5', 'M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z'],
+      ['odak', 'Odak', '#FB7185', 'M12 8v5l3 2M9 2h6M12 22a9 9 0 1 0 0-18 9 9 0 0 0 0 18z'],
+      ['raf', 'Raf', '#FBBF24', 'M21 8l-9-5-9 5 9 5zM3 8v8l9 5 9-5V8'],
+      ['pano', 'Pano', '#A78BFA', 'M9 3h6v4H9zM16 5h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2M8 12h8M8 16h5'],
+      ['sistem', 'Sistem', '#34D399', 'M3 12h4l3-8 4 16 3-8h4'],
+      ['kontrol', 'Kontrol', '#3B82F6', 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M16 4v4M8 10v4M18 16v4']
+    ];
+    const tabs = defs.map(([id, label, c, d]) => ({
+      label,
+      d,
+      dot: t === id ? c : '#71717A',
+      bg: t === id ? '#1F1F23' : 'transparent',
+      fg: t === id ? '#F4F4F5' : '#A1A1AA',
+      pick: () => this.setState({ tab: id })
+    }));
+    return {
+      tabs,
+      tAna: t === 'ana', tOdak: t === 'odak', tRaf: t === 'raf', tPano: t === 'pano', tSistem: t === 'sistem', tKontrol: t === 'kontrol',
+      playing: p, idle: !p,
+      musicBg: p ? '#0E2A18' : '#1C1416',
+      bars: [8, 14, 20, 12, 24, 18, 10, 16, 22, 26, 14, 8, 12, 20, 24, 16, 10, 18, 22, 12, 8, 14, 18, 10],
+      apps: [
+        { l: 'Ge', c: '#FCD34D' }, { l: 'Ta', c: '#93C5FD' }, { l: 'Ko', c: '#A78BFA' }, { l: 'Te', c: '#34D399' }, { l: 'Ay', c: '#D4D4D8' }
+      ],
+      files: [
+        { n: '[sunum].pdf', e: 'PDF', c: '#FCA5A5', s: '2,1 MB' },
+        { n: '[ekran].png', e: 'PNG', c: '#93C5FD', s: '840 KB' },
+        { n: '[notlar].md', e: 'MD', c: '#D4D4D8', s: '23 KB' }
+      ],
+      playBg: p ? '#F4F4F5' : '#27272A', playFg: p ? '#0A0A0B' : '#D4D4D8',
+      idleBg: p ? '#27272A' : '#F4F4F5', idleFg: p ? '#D4D4D8' : '#0A0A0B',
+      setPlaying: () => this.setState({ playing: true }),
+      setIdle: () => this.setState({ playing: false })
+    };
+  }
+}
+</script>
+</body>
+</html>
