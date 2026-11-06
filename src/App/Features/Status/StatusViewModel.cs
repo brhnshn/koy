@@ -19,6 +19,7 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
     private readonly IPowerService _powerService;
     private readonly IWeatherService _weatherService;
     private readonly INetworkService? _networkService;
+    private readonly IPlaceNameService? _placeNameService;
     private readonly AppSettings _settings;
     private readonly Dispatcher _dispatcher;
     private DispatcherTimer? _clockTimer;
@@ -88,8 +89,8 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
     private string _city = "";
 
     /// <summary>
-    /// Sıcaklığın üstünde küçük yazılan yer adı: seçilen şehir; cihaz konumunda şehir adı çözülmediği için
-    /// "Konumum" (uydurma ad yazılmaz).
+    /// Sıcaklığın üstünde küçük yazılan yer adı: seçilen şehir ya da cihaz konumundan çözülen şehir adı;
+    /// ad çözülemediyse (ağ yok, servis yanıt vermedi) "Konumum" (uydurma ad yazılmaz).
     /// </summary>
     public string PlaceName => City.Length > 0 ? City : Strings.Get("WeatherPlaceDevice");
 
@@ -113,11 +114,13 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
         IWeatherService weatherService,
         AppSettings settings,
         Dispatcher? dispatcher = null,
-        INetworkService? networkService = null)
+        INetworkService? networkService = null,
+        IPlaceNameService? placeNameService = null)
     {
         _powerService = powerService;
         _weatherService = weatherService;
         _networkService = networkService;
+        _placeNameService = placeNameService;
         _settings = settings;
         _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
 
@@ -176,7 +179,48 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
     private void UpdateLocationState()
     {
         HasWeatherLocation = WeatherLocationPolicy.HasLocation(_settings);
-        City = _settings.WeatherLocationSource == WeatherLocationSource.City ? CityShortName(_settings.WeatherCity) : "";
+        City = _settings.WeatherLocationSource switch
+        {
+            WeatherLocationSource.City => CityShortName(_settings.WeatherCity),
+            WeatherLocationSource.Device when _devicePlace is not null &&
+                _devicePlaceFor == PlaceNameParser.Round(_settings.WeatherLatitude, _settings.WeatherLongitude) => _devicePlace,
+            _ => ""
+        };
+    }
+
+    // Cihaz konumunun çözülen yer adı ve hangi koordinat için çözüldüğü (koordinat değişince eski ad gösterilmez).
+    private string? _devicePlace;
+    private (double Lat, double Lon) _devicePlaceFor;
+
+    /// <summary>Cihaz konumu kullanılıyorsa yer adını çözer (servis aynı koordinat için tek istek atar).</summary>
+    private async void RequestDevicePlaceName()
+    {
+        if (_placeNameService is null || _settings.WeatherLocationSource != WeatherLocationSource.Device)
+            return;
+
+        var coordinate = PlaceNameParser.Round(_settings.WeatherLatitude, _settings.WeatherLongitude);
+        if (_devicePlace is not null && _devicePlaceFor == coordinate)
+            return;
+
+        string? name;
+        try
+        {
+            name = await _placeNameService.GetPlaceNameAsync(_settings.WeatherLatitude, _settings.WeatherLongitude, _settings.Language);
+        }
+        catch
+        {
+            return;
+        }
+
+        // await sonrası arayüz iş parçacığındayız (SetActive/OnLocationChanged oradan çağrılır).
+        if (_disposed || string.IsNullOrEmpty(name) ||
+            _settings.WeatherLocationSource != WeatherLocationSource.Device ||
+            PlaceNameParser.Round(_settings.WeatherLatitude, _settings.WeatherLongitude) != coordinate)
+            return;
+
+        _devicePlace = name;
+        _devicePlaceFor = coordinate;
+        UpdateLocationState();
     }
 
     // "Ankara, Türkiye" -> "Ankara": dar sütunda yalnız şehir adı.
@@ -192,6 +236,7 @@ public sealed partial class StatusViewModel : ObservableObject, IDisposable
             return;
 
         _ = _weatherService.GetCurrentWeatherAsync(_settings.WeatherLatitude, _settings.WeatherLongitude);
+        RequestDevicePlaceName();
     }
 
     // Saat yalnız HH:mm gösterir: bir sonraki dakika başına kurulan tek atımlık zamanlayıcı, saniyelik tik gerekmez.

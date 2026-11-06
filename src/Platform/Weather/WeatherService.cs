@@ -50,8 +50,8 @@ public sealed class WeatherService : IWeatherService
 
         try
         {
-            var latStr = latitude.ToString("F4", CultureInfo.InvariantCulture);
-            var lonStr = longitude.ToString("F4", CultureInfo.InvariantCulture);
+            var latStr = latitude.ToString("F2", CultureInfo.InvariantCulture); // ~1 km: tahmin ızgarası zaten km ölçeğinde, tam konum gitmez
+            var lonStr = longitude.ToString("F2", CultureInfo.InvariantCulture);
             var url = $"https://api.open-meteo.com/v1/forecast?latitude={latStr}&longitude={lonStr}&current=temperature_2m,weather_code";
 
             using var response = await _httpClient.GetAsync(url, cancellationToken);
