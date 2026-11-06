@@ -5,9 +5,7 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 
 ---
 
-## [Unreleased]
-
-<!-- release-please sürüm girdisini kendisi üretir. Bu bölüm elle yazılmış ayrıntılı özettir: sürüm PR'ında bu bölümün içeriği yeni sürüm başlığının altına taşınır ve [Unreleased] başlığı silinir (bkz. CONTRIBUTING.md, "Sürüm Nasıl Çıkar"). -->
+## [0.1.1](https://github.com/brhnshn/koy/compare/v0.1.0...v0.1.1) (2026-11-06)
 
 0.1.0'dan sonraki ilk büyük sürüm. Öne çıkanlar:
 - Yeni çentik tasarımı: 7 sekme (Ana, Odak, Takvim, Raf, Pano, Sistem, Kontrol).
@@ -124,7 +122,7 @@ Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## [0.1.0] - 2026-11-04
 
-> **Not (sonradan eklendi):** Aşağıdaki listede bu sürümde bile eksik ya da bağlı olmayan şeyler vardı: ekran seçimi arayüzü olmadığı için çoklu ekran kullanıcıya açık değildi, OSD HUD çentiğe bağlı değildi, kısayollar ve ayarların çoğu davranışa bağlı değildi, "Aşağı yapış" seçilemiyordu, "1 saat duraklat" duraklatmıyordu, takvimde kronometre ve serbest zamanlayıcı hiç yoktu (sonradan eklendi). Düzeltmeler için [Unreleased](#unreleased) bölümüne bakın.
+> **Not (sonradan eklendi):** Aşağıdaki listede bu sürümde bile eksik ya da bağlı olmayan şeyler vardı: ekran seçimi arayüzü olmadığı için çoklu ekran kullanıcıya açık değildi, OSD HUD çentiğe bağlı değildi, kısayollar ve ayarların çoğu davranışa bağlı değildi, "Aşağı yapış" seçilemiyordu, "1 saat duraklat" duraklatmıyordu, takvimde kronometre ve serbest zamanlayıcı hiç yoktu (sonradan eklendi). Düzeltmeler için [0.1.1](#011-2026-11-06) bölümüne bakın.
 
 **Koy**'un ilk halka açık sürümü! Windows 11 için sıfır tarayıcı (WebView2/Electron içermeyen), tek süreçte çalışan, yay fiziği animasyonlu **Notch (Çentik)** ve Seelen UI modelinde **Dock**.
 
@@ -155,5 +153,5 @@ Ayrıntı: [`docs/ROADMAP.md`](docs/ROADMAP.md).
   - **Marka Kimliği:** Konsept C "Koy Rozeti" (Windows 11 Fluent Squircle + Oyulmuş Çentik + K Monogramı) vektör logosu ve çok katmanlı `.ico` varlık kiti.
   - **Dağıtım & CI/CD:** Velopack kurulum paketi (`Koy-win-Setup.exe`), taşınabilir paket (`Koy-win-Portable.zip`), `SHA256SUMS.txt` doğrulaması ve GitHub Actions otomatik derleme/yayın iş akışları.
 
-[Unreleased]: https://github.com/brhnshn/koy/compare/v0.1.0...HEAD
+[0.1.1]: https://github.com/brhnshn/koy/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/brhnshn/koy/releases/tag/v0.1.0
