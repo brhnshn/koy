@@ -301,7 +301,6 @@ public sealed class SharedServices : IDisposable
         _systemStats = null;
         _clipboardUsers = 0;
         _systemStatsUsers = 0;
-        _trayHostUsers = 0;
         _windowTrackerUsers = 0;
         _mediaServiceUsers = 0;
         _radioServiceUsers = 0;
