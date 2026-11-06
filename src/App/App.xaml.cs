@@ -35,8 +35,15 @@ public static class Program
             .OnAfterUpdateFastCallback(_ => App.SafeRestoreTaskbar())
             .Run();
 
+        // Başka bir Koy çalışıyorsa onun Koy penceresi açılır, bu süreç hiçbir şeye dokunmadan çıkar.
+        using var instance = SingleInstance.TryAcquire();
+        if (instance is null)
+            return;
+
         var app = new App();
         app.InitializeComponent();
+        instance.ListenForActivation(() =>
+            app.Dispatcher.BeginInvoke(() => KoyWindow.ShowInstance()));
         app.Run();
     }
 }

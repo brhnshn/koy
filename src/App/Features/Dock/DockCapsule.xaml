@@ -40,13 +40,8 @@
                         <Border x:Name="border"
                                 Background="Transparent"
                                 CornerRadius="10">
-                            <!-- 4 Karo Windows 11 Logosu -->
-                            <Canvas Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Rectangle Canvas.Left="2" Canvas.Top="2" Width="6.8" Height="6.8" RadiusX="1.2" RadiusY="1.2" Fill="#60A5FA"/>
-                                <Rectangle Canvas.Left="11.2" Canvas.Top="2" Width="6.8" Height="6.8" RadiusX="1.2" RadiusY="1.2" Fill="#60A5FA"/>
-                                <Rectangle Canvas.Left="2" Canvas.Top="11.2" Width="6.8" Height="6.8" RadiusX="1.2" RadiusY="1.2" Fill="#60A5FA"/>
-                                <Rectangle Canvas.Left="11.2" Canvas.Top="11.2" Width="6.8" Height="6.8" RadiusX="1.2" RadiusY="1.2" Fill="#60A5FA"/>
-                            </Canvas>
+                            <Image Source="{StaticResource WindowsLogoImage}" Width="18" Height="18"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -249,7 +244,7 @@
                        Margin="4,0"
                        Visibility="{Binding ShowRightSection, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}"/>
 
-            <!-- 4. Klasörler ve Küçültülmüş Pencereler Bölümü -->
+            <!-- 4. Klasörler Bölümü -->
             <StackPanel Orientation="Horizontal"
                         Visibility="{Binding ShowFolders, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}">
                 <!-- İndirilenler Klasörü Düğmesi -->
@@ -284,38 +279,6 @@
                     </Button.Template>
                 </Button>
 
-                <!-- Küçültülmüş Pencere Kartı (Varsa) -->
-                <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                        ToolTip="Küçültülmüş Pencere"
-                        Width="{Binding ItemSize}"
-                        Height="{Binding ItemSize}"
-                        Margin="1,0"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Visibility="{Binding ShowMinimized, Converter={x:Static local:DockConverters.BoolToVisibilityConverter}}">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border"
-                                    Background="Transparent"
-                                    CornerRadius="10">
-                                <Border Width="28"
-                                        Height="20"
-                                        CornerRadius="4"
-                                        Background="#F4F4F5"
-                                        BorderBrush="#52525B"
-                                        BorderThickness="1.5"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="#1AFFFFFF"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
             </StackPanel>
 
             <!-- 4b. Sistem Tepsisi: Windows görev çubuğu gizli olduğu için arka plan uygulamalarının simgeleri burada -->

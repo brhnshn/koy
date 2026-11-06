@@ -150,9 +150,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private bool _dockShowFolders = true;
 
     [ObservableProperty]
-    private bool _dockShowMinimized = true;
-
-    [ObservableProperty]
     private bool _dockShowRecents = true;
 
     [ObservableProperty]
@@ -301,7 +298,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockHoverMagnify = s.DockHoverMagnify;
             DockShowStartButton = s.DockShowStartButton;
             DockShowFolders = s.DockShowFolders;
-            DockShowMinimized = s.DockShowMinimized;
             DockShowRecents = s.DockShowRecents;
             DockShowTray = s.DockShowTray;
             DockShowBadges = s.DockShowBadges;
@@ -357,8 +353,10 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     {
         try
         {
-            var proc = Process.GetCurrentProcess();
-            var memMb = proc.PrivateMemorySize64 / (1024.0 * 1024.0);
+            // Görev Yöneticisi'yle aynı sayı (özel çalışma kümesi); okunamazsa ayrılmış özel bellek.
+            var bytes = Koy.Platform.Diagnostics.ProcessMemory.GetPrivateWorkingSetBytes()
+                        ?? Process.GetCurrentProcess().PrivateMemorySize64;
+            var memMb = bytes / (1024.0 * 1024.0);
             MemoryUsageMb = Math.Round(memMb, 1);
             MemoryUsageText = $"{MemoryUsageMb:N1} MB / {MemoryTargetMb:N0} MB";
             MemoryPct = Math.Clamp((MemoryUsageMb / MemoryTargetMb) * 100.0, 0, 100);
@@ -487,7 +485,6 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             DockHoverMagnify = DockHoverMagnify,
             DockShowStartButton = DockShowStartButton,
             DockShowFolders = DockShowFolders,
-            DockShowMinimized = DockShowMinimized,
             DockShowRecents = DockShowRecents,
             DockShowTray = DockShowTray,
             DockShowBadges = DockShowBadges,

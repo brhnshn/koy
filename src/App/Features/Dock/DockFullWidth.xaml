@@ -37,12 +37,8 @@
                             <Border x:Name="border"
                                     Background="Transparent"
                                     CornerRadius="8">
-                                <Canvas Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Rectangle Canvas.Left="1.5" Canvas.Top="1.5" Width="6.5" Height="6.5" RadiusX="1.2" RadiusY="1.2" Fill="#60A5FA"/>
-                                    <Rectangle Canvas.Left="10" Canvas.Top="1.5" Width="6.5" Height="6.5" RadiusX="1.2" RadiusY="1.2" Fill="#60A5FA"/>
-                                    <Rectangle Canvas.Left="1.5" Canvas.Top="10" Width="6.5" Height="6.5" RadiusX="1.2" RadiusY="1.2" Fill="#60A5FA"/>
-                                    <Rectangle Canvas.Left="10" Canvas.Top="10" Width="6.5" Height="6.5" RadiusX="1.2" RadiusY="1.2" Fill="#60A5FA"/>
-                                </Canvas>
+                                <Image Source="{StaticResource WindowsLogoImage}" Width="16" Height="16"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">

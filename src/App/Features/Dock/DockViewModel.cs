@@ -54,6 +54,8 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
     private bool _isMouseAtBottomEdge;
     private bool _isMouseOverDock;
     private bool _isMouseOverPopup;
+    // Başlat / Arama / bildirim merkezi bu ekranda açık: dock, Windows görev çubuğu gibi görünür kalır.
+    private bool _isShellFlyoutOpen;
     private double _lastContentWidth = 520.0;
 
     private readonly DispatcherTimer _thumbnailHoverTimer;
@@ -100,9 +102,6 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private bool _showFolders = true;
-
-    [ObservableProperty]
-    private bool _showMinimized = true;
 
     [ObservableProperty]
     private bool _showBadges = true;
@@ -256,7 +255,6 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         _isFullWidthMode = settings.DockStyle == DockStyleMode.FullWidth;
         _showStartButton = settings.DockShowStartButton;
         _showFolders = settings.DockShowFolders;
-        _showMinimized = settings.DockShowMinimized;
         _showBadges = settings.DockShowBadges;
 
         _translateSpring = new Spring(0) { Stiffness = 280, Damping = 25 };
@@ -580,6 +578,15 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         }
     }
 
+    public void SetShellFlyoutOpen(bool open)
+    {
+        if (_isShellFlyoutOpen == open)
+            return;
+
+        _isShellFlyoutOpen = open;
+        EvaluatePosition(_lastContentWidth);
+    }
+
     public void SetMouseOverDock(bool mouseOver)
     {
         _isMouseOverDock = mouseOver;
@@ -597,7 +604,7 @@ public sealed partial class DockViewModel : ObservableObject, IDisposable
         if (contentWidth > 0)
             _lastContentWidth = contentWidth;
 
-        var effectiveMouseOver = _isMouseOverDock || _isMouseOverPopup || IsPreviewPopupOpen || IsTrayPopupOpen || IsRecentsOpen || DockContextMenuManager.HasActiveMenu;
+        var effectiveMouseOver = _isMouseOverDock || _isMouseOverPopup || _isShellFlyoutOpen || IsPreviewPopupOpen || IsTrayPopupOpen || IsRecentsOpen || DockContextMenuManager.HasActiveMenu;
 
         var resolved = DockPositionResolver.Resolve(
             _currentMonitor,

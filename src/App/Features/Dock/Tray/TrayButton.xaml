@@ -115,10 +115,14 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
+                                    <!-- Uygulamalar tepsi simgesini sistemin küçük simge boyutunda verir (%100'de 16 px).
+                                         Windows tepsisi gibi 16 DIP gösterilir: büyütülmez, piksel ızgarasına oturur, bulanıklaşmaz. -->
                                     <Image Source="{Binding Icon}"
-                                           Width="20"
-                                           Height="20"
+                                           Width="16"
+                                           Height="16"
                                            Stretch="Uniform"
+                                           UseLayoutRounding="True"
+                                           SnapsToDevicePixels="True"
                                            RenderOptions.BitmapScalingMode="HighQuality"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
