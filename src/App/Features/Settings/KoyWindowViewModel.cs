@@ -354,8 +354,9 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         try
         {
             // Görev Yöneticisi'yle aynı sayı (özel çalışma kümesi); okunamazsa ayrılmış özel bellek.
-            var bytes = Koy.Platform.Diagnostics.ProcessMemory.GetPrivateWorkingSetBytes()
-                        ?? Process.GetCurrentProcess().PrivateMemorySize64;
+            var bytes = Koy.Platform.Diagnostics.ProcessMemory.GetPrivateWorkingSetBytes();
+            if (bytes <= 0)
+                bytes = Process.GetCurrentProcess().PrivateMemorySize64;
             var memMb = bytes / (1024.0 * 1024.0);
             MemoryUsageMb = Math.Round(memMb, 1);
             MemoryUsageText = $"{MemoryUsageMb:N1} MB / {MemoryTargetMb:N0} MB";
