@@ -58,7 +58,9 @@ src/Platform/   Core'daki sözleşmelerin Windows 11 uygulamaları (WinRT / CsWi
 src/App/        WPF. Yalnız görseller ve ince ViewModel'ler, özellik klasörleriyle:
                 Features/IFeature.cs           özellik giriş noktası (Start / Stop)
                 Features/Notch/                NotchFeature, NotchWindow, NotchShape, NotchViewModel
-                Features/Music/, ControlCenter/, Status/, Calendar/, Shelf/   notch panelleri
+                Features/Home/, Focus/, Shelf/, ControlCenter/   çentik sayfaları (Ana, Odak, Raf, Kontrol); Music/ ve Status/
+                                               Ana'nın ve durum satırının veri kaynağı (kendi paneli yok); Calendar/ H'de sekmesi
+                                               olmayan eski takvim paneli (çentikte gösterilmez)
                 Features/Dock/                 DockFeature, DockWindow… (kapalıyken hiç yüklenmez)
                 Features/Settings/             KoyWindow (ayarlar), sayfaları, AppUninstaller (kaldırma)
                 Features/Shortcuts/            ShortcutController: genel kısayolların kaydı ve dağıtımı
@@ -94,7 +96,7 @@ Bağımlılık yönü: `App → Platform → Core` ve `App → Core`. Core hiçb
 10. **Ayarlar** `%AppData%\Koy\settings.json`. Yeni alan → `AppSettings` içine varsayılan değerle eklenir; kaynak üreticili `SettingsJsonContext` kullanılır, yansımalı `JsonSerializer` çağrısı yazılmaz.
 11. **Sözleşmeler Core'da.** Her platform servisinin arayüzü ve veri modeli `src/Core/<Alan>/` içinde, uygulaması `src/Platform/<Alan>/` içinde. Core arayüzlerinde **WinRT / Win32 tipi görünmez** (`IRandomAccessStreamReference`, `HWND` yok): kapak `byte[]`, pencere kimliği `nint`. Durum ve karar mantığı (ne zaman gizlen, hangi panel, Pomodoro) Core'da yazılır ve test edilir; ViewModel yalnız bağlar.
 12. **Özellik yükleme.** Her özelliğin tek giriş noktası `IFeature` (`Start` / `Stop`). `App.xaml.cs` ayarlara bakıp yalnız açık özellikleri başlatır. Kapalı özelliğin penceresi oluşturulmaz, servisi ve hook'u kurulmaz. **Dock kapalıyken (`DockEnabled = false`) Windows görev çubuğuna hiç dokunulmaz** (açılıştaki güvenlik `Restore()` çağrısı hariç).
-13. **Sabit tuval.** Notch penceresi en büyük panel boyutunda (şu an 500×260 DIP) sabit durur; animasyon yalnız içindeki şeklin boyutunu değiştirir. `Window.Width/Height` animasyon sırasında değiştirilmez (saydam pencere titrer). Yazılımla çizimde maliyet pencere boyutuyla orantılıdır (her karede bütün pencere gönderilir), bu yüzden pencereyi gereğinden büyük yapma. M1'de panel açılışında fps ve CPU ölçülür; takılırsa çözüm, pencereyi yalnız durum değişiminde (açılmadan önce / kapandıktan sonra) bir kez boyutlandırmaktır.
+13. **Sabit tuval.** Notch penceresi açık çentiğin boyutunda (H tasarımı: tuval 640×364 DIP, açık çentik 620×352; sabitler `Core/Notch/NotchLayout`) sabit durur; animasyon yalnız içindeki şeklin boyutunu değiştirir. `Window.Width/Height` animasyon sırasında değiştirilmez (saydam pencere titrer). Yazılımla çizimde maliyet pencere boyutuyla orantılıdır (her karede bütün pencere gönderilir), bu yüzden pencereyi gereğinden büyük yapma. H tuvali eski 500×260'ın yaklaşık 2,3 katı alan: yazılımla çizimde karede gönderilen piksel ve tuval belleği o oranda artar, bu yüzden tuval bundan büyütülmez. Panel açılışında fps ve CPU ölçülür; takılırsa çözüm, pencereyi yalnız durum değişiminde (açılmadan önce / kapandıktan sonra) bir kez boyutlandırmaktır. Zamanlayıcılar (Pomodoro, sayaç, kronometre) görünümden bağımsız tek örnekte (`Core/Timers/FocusTimers`, NotchFeature kurar) yaşar; çentik gizli ya da sekme değişik olsa da süre akar, yalnız ekran metninin tazelenmesi görünürlüğe bağlıdır.
 
 ## Kod biçimi
 - Dosya kapsamlı namespace, `Nullable` açık, `var` serbest.
