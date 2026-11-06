@@ -328,7 +328,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             Shortcuts.Load(s);
             Weather.Load(s);
 
-            var panels = NotchPanels.ParseEnabled(s.EnabledPanels ?? ["home", "focus", "shelf", "controlcenter"]);
+            var panels = NotchPanels.ParseEnabled(s.EnabledPanels ?? ["home", "focus", "shelf", "clipboard", "system", "controlcenter"]);
             PanelFocus = panels.Contains(NotchPanel.Focus);
             PanelShelf = panels.Contains(NotchPanel.Shelf);
             PanelControlCenter = panels.Contains(NotchPanel.ControlCenter);
