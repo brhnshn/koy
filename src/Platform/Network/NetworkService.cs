@@ -40,15 +40,15 @@ public sealed class NetworkService : INetworkService
 
             var hasInternet = profile.GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess;
             var bars = profile.GetSignalBars() ?? 0;
+            var name = string.IsNullOrWhiteSpace(profile.ProfileName) ? null : profile.ProfileName;
 
-            // ProfileName kablosuz ağın adıdır (SSID); konum izni gerektirmez.
             if (profile.IsWlanConnectionProfile)
-                return new NetworkStatus(NetworkKind.WiFi, hasInternet, bars, profile.ProfileName);
+                return new NetworkStatus(NetworkKind.WiFi, hasInternet, bars, name);
 
             if (profile.IsWwanConnectionProfile)
-                return new NetworkStatus(NetworkKind.Cellular, hasInternet, bars);
+                return new NetworkStatus(NetworkKind.Cellular, hasInternet, bars, name);
 
-            return new NetworkStatus(NetworkKind.Ethernet, hasInternet, 0);
+            return new NetworkStatus(NetworkKind.Ethernet, hasInternet, 0, name);
         }
         catch
         {

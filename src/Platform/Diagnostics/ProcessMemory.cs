@@ -1,46 +1,27 @@
 using System.Runtime.InteropServices;
+using Windows.Win32;
+using Windows.Win32.System.ProcessStatus;
 
 namespace Koy.Platform.Diagnostics;
 
-/// <summary>
-/// Görev Yöneticisi'nin "Bellek" sütunuyla aynı ölçü: süreç başına özel çalışma kümesi (private working set).
-/// <c>Process.PrivateMemorySize64</c> ayrılmış özel belleği (commit) verir; RAM'de olmayan sayfaları da saydığı için
-/// Görev Yöneticisi'nden belirgin yüksek görünür (Koy içinde ~125, Görev Yöneticisi'nde ~90 MB).
-/// </summary>
-public static partial class ProcessMemory
+/// <summary>Süreç bellek ölçümü.</summary>
+public static class ProcessMemory
 {
-    /// <summary>Bu sürecin özel çalışma kümesi (bayt); okunamazsa null.</summary>
-    public static long? GetPrivateWorkingSetBytes()
+    /// <summary>
+    /// Koy'un özel çalışma kümesi (private working set), bayt. Görev Yöneticisi'nin "Bellek" sütunuyla aynı ölçü
+    /// (Process.PrivateMemorySize64 ayrılmış/commit belleği verir, bu değil). Tek ucuz çağrı, süreç taraması yok.
+    /// Ölçülemezse 0.
+    /// </summary>
+    public static long GetPrivateWorkingSetBytes()
     {
-        var counters = new ProcessMemoryCountersEx2 { cb = (uint)Marshal.SizeOf<ProcessMemoryCountersEx2>() };
-        if (!K32GetProcessMemoryInfo(GetCurrentProcess(), ref counters, counters.cb))
-            return null;
+        var counters = new PROCESS_MEMORY_COUNTERS_EX2 { cb = (uint)Marshal.SizeOf<PROCESS_MEMORY_COUNTERS_EX2>() };
+        unsafe
+        {
+            // Sahte tanıtıcı (-1): kapatmaya gerek yok.
+            if (!PInvoke.K32GetProcessMemoryInfo(PInvoke.GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&counters, counters.cb))
+                return 0;
+        }
 
         return (long)counters.PrivateWorkingSetSize;
     }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct ProcessMemoryCountersEx2
-    {
-        public uint cb;
-        public uint PageFaultCount;
-        public nuint PeakWorkingSetSize;
-        public nuint WorkingSetSize;
-        public nuint QuotaPeakPagedPoolUsage;
-        public nuint QuotaPagedPoolUsage;
-        public nuint QuotaPeakNonPagedPoolUsage;
-        public nuint QuotaNonPagedPoolUsage;
-        public nuint PagefileUsage;
-        public nuint PeakPagefileUsage;
-        public nuint PrivateUsage;
-        public nuint PrivateWorkingSetSize;
-        public ulong SharedCommitUsage;
-    }
-
-    [LibraryImport("kernel32.dll")]
-    private static partial nint GetCurrentProcess();
-
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool K32GetProcessMemoryInfo(nint process, ref ProcessMemoryCountersEx2 counters, uint size);
 }

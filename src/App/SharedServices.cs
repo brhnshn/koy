@@ -1,8 +1,16 @@
 using Koy.Core.Tray;
+using Koy.Core.Clipboard;
+using Koy.Core.Network;
+using Koy.Core.QuickLaunch;
+using Koy.Core.Settings;
+using Koy.Core.SystemStats;
+using Koy.Core.Tasks;
+using Koy.Platform.Clipboard;
 using Koy.Platform.Media;
 using Koy.Platform.Network;
 using Koy.Platform.Radio;
 using Koy.Platform.Shell;
+using Koy.Platform.SystemStats;
 
 namespace Koy.App;
 
@@ -23,6 +31,12 @@ public sealed class SharedServices : IDisposable
     private int _networkServiceUsers;
     private TrayHostService? _trayHost;
     private readonly TrayHostLease _trayHostLease = new();
+    private ClipboardHistoryService? _clipboard;
+    private int _clipboardUsers;
+    private SystemStatsService? _systemStats;
+    private int _systemStatsUsers;
+    private TaskService? _tasks;
+    private QuickLaunchService? _quickLaunch;
     private bool _disposed;
 
     public WindowTracker AcquireWindowTracker()
@@ -160,6 +174,104 @@ public sealed class SharedServices : IDisposable
     }
 
     /// <summary>
+    /// Pano geçmişi. Çağıran önce <c>AppSettings.ClipboardHistoryEnabled</c>'a bakmalı: kapalıysa bu metot
+    /// hiç çağrılmaz (dinleyici kurulmaz). Servis Start edilmiş döner; son kullanan bırakınca Stop+Dispose olur.
+    /// <see cref="IClipboardHistoryService.Changed"/> arka plan iş parçacığından gelir: Dispatcher'a geçirin.
+    /// </summary>
+    public IClipboardHistoryService AcquireClipboardHistory()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _clipboardUsers++;
+        if (_clipboard is null)
+        {
+            _clipboard = new ClipboardHistoryService();
+            _clipboard.Start();
+        }
+
+        return _clipboard;
+    }
+
+    public void ReleaseClipboardHistory()
+    {
+        if (_clipboardUsers == 0)
+            return;
+
+        if (--_clipboardUsers == 0)
+        {
+            _clipboard?.Dispose();
+            _clipboard = null;
+        }
+    }
+
+    /// <summary>
+    /// Sistem verisi örnekleyicisi (CPU, RAM, ağ, Koy belleği), Start edilmiş döner: çağıran yalnız çentik
+    /// AÇILIRKEN almalı, KAPANIRKEN <see cref="ReleaseSystemStats"/> ile bırakmalı (son bırakan zamanlayıcıyı söker).
+    /// <paramref name="network"/> ağ adı içindir (INetworkService.Current.Name); ilk alan verir.
+    /// <see cref="ISystemStatsService.Updated"/> arka plan iş parçacığından gelir: Dispatcher'a geçirin.
+    /// </summary>
+    public ISystemStatsService AcquireSystemStats(INetworkService? network = null)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        _systemStatsUsers++;
+        if (_systemStats is null)
+        {
+            _systemStats = new SystemStatsService(network is null ? null : () => network.Current.Name);
+            _systemStats.Start();
+        }
+
+        return _systemStats;
+    }
+
+    public void ReleaseSystemStats()
+    {
+        if (_systemStatsUsers == 0)
+            return;
+
+        if (--_systemStatsUsers == 0)
+        {
+            _systemStats?.Dispose();
+            _systemStats = null;
+        }
+    }
+
+    /// <summary>Odak görev listesi: tek örnek (tasks.json), ilk istendiğinde diskten okunur. UI iş parçacığından kullanın.</summary>
+    public ITaskService Tasks
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            return _tasks ??= new TaskService();
+        }
+    }
+
+    /// <summary>
+    /// Hızlı başlat listesi: tek örnek. Değişiklikler settings.json'a (QuickLaunchItems) yazılır
+    /// (uygulamadaki yükle-değiştir-kaydet deseniyle). Başlatma ShellActionService üzerinden.
+    /// </summary>
+    public IQuickLaunchService QuickLaunch
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            if (_quickLaunch is null)
+            {
+                var store = new SettingsStore(SettingsStore.DefaultPath);
+                _quickLaunch = new QuickLaunchService(
+                    store.Load().QuickLaunchItems,
+                    items =>
+                    {
+                        var settings = store.Load();
+                        settings.QuickLaunchItems = items.ToList();
+                        store.Save(settings);
+                    },
+                    new ShellActionService());
+            }
+
+            return _quickLaunch;
+        }
+    }
+
+    /// <summary>
     /// Tepsi penceresini beklemeden kapatma isteği (çökme işleyicileri): Windows tepsisi hemen eski haline döner.
     /// Örnek sonra normal yoldan (Release/Dispose) bırakılır.
     /// </summary>
@@ -183,6 +295,12 @@ public sealed class SharedServices : IDisposable
         _trayHost?.Dispose();
         _trayHost = null;
         _trayHostLease.Reset();
+        _clipboard?.Dispose();
+        _clipboard = null;
+        _systemStats?.Dispose();
+        _systemStats = null;
+        _clipboardUsers = 0;
+        _systemStatsUsers = 0;
         _windowTrackerUsers = 0;
         _mediaServiceUsers = 0;
         _radioServiceUsers = 0;

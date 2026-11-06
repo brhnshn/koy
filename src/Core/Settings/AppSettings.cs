@@ -143,6 +143,12 @@ public sealed record AppSettings
     /// <summary>Koordinatın son güncellendiği an (Unix saniyesi, UTC); günde en fazla bir yenileme için.</summary>
     public long WeatherLocationUpdatedUnix { get; set; }
 
+    /// <summary>Pano geçmişi (yalnız metin). Kapalıyken pano dinleyicisi hiç kurulmaz.</summary>
+    public bool ClipboardHistoryEnabled { get; set; } = true;
+
+    /// <summary>Hızlı başlat: uygulama / dosya / klasör yolları, sıralı, en çok 8 (bkz. QuickLaunchService).</summary>
+    public List<string> QuickLaunchItems { get; set; } = [];
+
     public bool Equals(AppSettings? other)
     {
         if (ReferenceEquals(null, other)) return false;
@@ -206,6 +212,8 @@ public sealed record AppSettings
                WeatherLocationSource == other.WeatherLocationSource &&
                WeatherUseLocation == other.WeatherUseLocation &&
                WeatherLocationUpdatedUnix == other.WeatherLocationUpdatedUnix &&
+               ClipboardHistoryEnabled == other.ClipboardHistoryEnabled &&
+               (QuickLaunchItems == other.QuickLaunchItems || (QuickLaunchItems is not null && other.QuickLaunchItems is not null && QuickLaunchItems.SequenceEqual(other.QuickLaunchItems))) &&
                (ControlCenterLayout == other.ControlCenterLayout || (ControlCenterLayout is not null && other.ControlCenterLayout is not null && ControlCenterLayout.SequenceEqual(other.ControlCenterLayout))) &&
                (EnabledPanels == other.EnabledPanels || (EnabledPanels is not null && other.EnabledPanels is not null && EnabledPanels.SequenceEqual(other.EnabledPanels))) &&
                ListsEqual(DockPinnedOrder, other.DockPinnedOrder);
@@ -273,6 +281,12 @@ public sealed record AppSettings
         hash.Add(WeatherLocationSource);
         hash.Add(WeatherUseLocation);
         hash.Add(WeatherLocationUpdatedUnix);
+        hash.Add(ClipboardHistoryEnabled);
+        if (QuickLaunchItems is not null)
+        {
+            foreach (var item in QuickLaunchItems)
+                hash.Add(item);
+        }
         if (ControlCenterLayout is not null)
         {
             foreach (var item in ControlCenterLayout)
