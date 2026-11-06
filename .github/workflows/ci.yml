@@ -46,3 +46,54 @@ jobs:
           name: test-results
           path: "**/TestResults/*.trx"
           retention-days: 14
+
+  # Yayin is akisinin paketleme adimlarini (gozcu Native AOT, vpk pack) hicbir sey yuklemeden dener.
+  # Bu adimlar yalniz surum aninda kosuyordu; orada bozulurlarsa etiket ve surum sayfasi dosyasiz kalir.
+  package-dry-run:
+    name: Package dry run (Native AOT watchdog + Velopack)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          global-json-file: global.json
+
+      - name: Publish App (win-x64)
+        run: dotnet publish src/App/Koy.App.csproj -c Release -r win-x64 --self-contained false -o publish/win-x64
+
+      - name: Publish Watchdog (win-x64, Native AOT)
+        shell: pwsh
+        run: |
+          dotnet publish src/Watchdog/Koy.Watchdog.csproj -c Release -r win-x64 -o publish/watchdog
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Copy-Item publish/watchdog/Koy.Watchdog.exe publish/win-x64/ -Force
+
+      - name: Install Velopack CLI (matches the Velopack package version)
+        shell: pwsh
+        run: |
+          $vpkVersion = & ./scripts/get-velopack-version.ps1
+          dotnet tool install -g vpk --version $vpkVersion
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Velopack pack (not uploaded)
+        shell: pwsh
+        run: |
+          vpk pack --packId Koy `
+                   --packVersion 0.0.0-ci `
+                   --packDir publish/win-x64 `
+                   --mainExe Koy.exe `
+                   --packTitle "Koy" `
+                   --packAuthors "Burhan Şahin" `
+                   --icon src/App/Resources/app.ico `
+                   --runtime win-x64 `
+                   --outputDir dist
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($f in 'Koy-win-Setup.exe', 'releases.win.json', 'publish/win-x64/Koy.Watchdog.exe') {
+            $path = if ($f.StartsWith('publish/')) { $f } else { "dist/$f" }
+            if (-not (Test-Path $path)) { throw "Beklenen dosya yok: $path" }
+          }
+          Get-ChildItem dist | Format-Table Name, Length
