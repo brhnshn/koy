@@ -131,7 +131,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
     private DockStyleMode _dockStyle = DockStyleMode.FloatingCapsule;
 
     [ObservableProperty]
-    private DockProximityMode _dockProximity = DockProximityMode.DockDown;
+    private DockProximityMode _dockProximity = DockProximityMode.ReserveSpace;
 
     [ObservableProperty]
     private bool _dockHideInFullscreen = true;

@@ -388,7 +388,7 @@
     <value>Full-width glass</value>
   </data>
   <data name="DockProximityTitle" xml:space="preserve">
-    <value>When window approaches</value>
+    <value>When a window nears the dock</value>
   </data>
   <data name="ProxDockDown" xml:space="preserve">
     <value>Dock down</value>
@@ -401,6 +401,18 @@
   </data>
   <data name="ProxAlwaysHidden" xml:space="preserve">
     <value>Always hidden</value>
+  </data>
+  <data name="ProxReserveDesc" xml:space="preserve">
+    <value>The dock is always visible; windows end above it, like the Windows taskbar.</value>
+  </data>
+  <data name="ProxDockDownDesc" xml:space="preserve">
+    <value>The dock floats; when a window gets close it snaps to the screen bottom and thins out.</value>
+  </data>
+  <data name="ProxDodgeDesc" xml:space="preserve">
+    <value>The dock hides when a window gets close; it returns when the mouse reaches the bottom edge.</value>
+  </data>
+  <data name="ProxAlwaysHiddenDesc" xml:space="preserve">
+    <value>The dock only shows when the mouse reaches the bottom edge.</value>
   </data>
   <data name="DockSizeHeader" xml:space="preserve">
     <value>Dimensions</value>
@@ -1199,6 +1211,9 @@
   </data>
   <data name="ControlBrightness" xml:space="preserve">
     <value>Brightness</value>
+  </data>
+  <data name="BrightnessUnavailable" xml:space="preserve">
+    <value>Brightness can't be set on this screen.</value>
   </data>
   <data name="MusicPrevious" xml:space="preserve">
     <value>Previous</value>

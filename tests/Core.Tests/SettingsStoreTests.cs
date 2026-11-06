@@ -160,10 +160,20 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
-    public void Default_dock_proximity_is_DockDown()
+    public void Default_dock_proximity_is_ReserveSpace()
     {
-        Assert.Equal(Koy.Core.Dock.DockProximityMode.DockDown, new AppSettings().DockProximity);
-        Assert.Equal(Koy.Core.Dock.DockProximityMode.DockDown, NewStore().Load().DockProximity);
+        Assert.Equal(Koy.Core.Dock.DockProximityMode.ReserveSpace, new AppSettings().DockProximity);
+        Assert.Equal(Koy.Core.Dock.DockProximityMode.ReserveSpace, NewStore().Load().DockProximity);
+    }
+
+    [Fact]
+    public void Dock_proximity_missing_in_existing_file_gets_new_default()
+    {
+        var store = NewStore();
+        Directory.CreateDirectory(_dir);
+        File.WriteAllText(store.Path, """{ "DockEnabled": true }""");
+
+        Assert.Equal(Koy.Core.Dock.DockProximityMode.ReserveSpace, store.Load().DockProximity);
     }
 
     [Fact]
