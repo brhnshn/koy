@@ -41,12 +41,18 @@ src/Core/       Saf C# (net10.0). WPF ve Windows API YOK.
                 Uninstall/  kaldırma kararları ve temizlik listesi (UninstallPlan, UninstallCleaner)
                 Tray/       dock sistem tepsisi: SHELLTRAYDATA çözümleyici, simge deposu (üst sınırlı), tıklama geri
                             çağrısı, TrayHostPolicy (ne zaman barındırılır, Koy-süreç filtresi), ITrayService
+                Clipboard/  pano geçmişi: sınıflandırıcı (ClipboardClassifier), bellek mantığı (ClipboardHistory), sabit öğe dosyası
+                SystemStats/ CPU/RAM/ağ örnekleme hesapları, süreç seçici, Türkçe biçimlendirme (SystemFormat)
+                QuickLaunch/ hızlı başlat listesi (en çok 8, kalıcı: AppSettings.QuickLaunchItems)
+                Tasks/      odak görevleri (TaskService, tasks.json); Settings/JsonListFile ayar klasöründeki küçük JSON listeleri okur/yazar
 src/Platform/   Core'daki sözleşmelerin Windows 11 uygulamaları (WinRT / CsWin32). Aynı klasör adları:
                 Shell/TrayHostService.cs : Core.Tray.ITrayService. Koy'un gizli Shell_TrayWnd penceresi (kendi iş
                 parçacığında); her kaydı Windows'a da iletir. SharedServices.AcquireTrayHost ile sayaçlı paylaşılır;
                 yalnız görev çubuğu gizliyken kurulur (DockFeature.ApplyTrayPolicy). Görev çubuğunu gizleyen kod
                 ShellTrayLocator.FindExplorerTray kullanır; FindWindow("Shell_TrayWnd") yalnız TrayHostService.EnsureFirst'te
                 (z-sırası denetimi) bilinçli kalır.
+                Clipboard/ClipboardHistoryService.cs : pano dinleyicisi (kendi iş parçacığında gizli mesaj penceresi), SystemStats/SystemStatsService.cs :
+                1 sn zamanlayıcı (yalnız Start ile), Diagnostics/ProcessMemory.cs : özel çalışma kümesi. SharedServices.AcquireClipboardHistory/AcquireSystemStats sayaçlı.
                 Media/MediaService.cs : Core.Media.IMediaService. Win32 çağrısı için adını NativeMethods.txt'ye
                 ekle, CsWin32 üretir; elle DllImport yazma.
 src/App/        WPF. Yalnız görseller ve ince ViewModel'ler, özellik klasörleriyle:
