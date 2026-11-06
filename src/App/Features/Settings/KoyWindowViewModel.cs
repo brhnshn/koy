@@ -61,6 +61,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             {
                 UpdateCheckResult.Failed => Strings.Get("UpdateCheckFailed"),
                 UpdateCheckResult.NotInstalled => Strings.Get("UpdateNotInstalled"),
+                UpdateCheckResult.UpdateReady => Strings.Get("UpdateReadyOnExit"),
                 _ when UpdateStatus.LastCheck is { } t => string.Format(Strings.Get("UpdateLastCheck"), FormatCheckTime(t, DateTime.Now)),
                 _ => Strings.Get("UpdateNeverChecked")
             };
@@ -266,6 +267,7 @@ public sealed partial class KoyWindowViewModel : ObservableObject
             var state = IsCheckingUpdates ? Strings.Get("UpdateChecking") : UpdateStatus.LastResult switch
             {
                 UpdateCheckResult.UpToDate => Strings.Get("UpdateStateUpToDate"),
+                UpdateCheckResult.UpdateReady => Strings.Get("UpdateStateReady"),
                 UpdateCheckResult.Failed => Strings.Get("UpdateStateFailed"),
                 _ => Strings.Get("UpdateStateUnknown")
             };

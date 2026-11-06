@@ -1527,4 +1527,10 @@
   <data name="AboutPlaceLink" xml:space="preserve">
     <value>OpenStreetMap</value>
   </data>
+  <data name="UpdateReadyOnExit" xml:space="preserve">
+    <value>Yeni sürüm indirildi; Koy kapanınca kurulacak. Hemen kurmak için Şimdi denetle.</value>
+  </data>
+  <data name="UpdateStateReady" xml:space="preserve">
+    <value>yeni sürüm hazır</value>
+  </data>
 </root>

@@ -1527,4 +1527,10 @@
   <data name="AboutPlaceLink" xml:space="preserve">
     <value>OpenStreetMap</value>
   </data>
+  <data name="UpdateReadyOnExit" xml:space="preserve">
+    <value>A new version was downloaded and will install when Koy closes. Check now to install it immediately.</value>
+  </data>
+  <data name="UpdateStateReady" xml:space="preserve">
+    <value>update ready</value>
+  </data>
 </root>
