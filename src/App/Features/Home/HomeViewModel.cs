@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Koy.App.Features.ControlCenter;
 using Koy.App.Features.Focus;
 using Koy.App.Features.SystemInfo;
 using Koy.App.Features.Music;
@@ -28,6 +29,9 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
     /// <summary>CPU / RAM ve ağ kartlarının verisi (servis yalnız Ana ya da Sistem görünürken alınır).</summary>
     public SystemStatsViewModel Stats { get; }
 
+    /// <summary>Kulaklık kartının kaynağı (bağlı ses cihazı varsa kart görünür). Sahibi Kontrol ViewModel'idir.</summary>
+    public BluetoothDevicesViewModel? Bluetooth { get; }
+
     /// <summary>Hızlı başlat şeridi.</summary>
     public QuickLaunchViewModel QuickLaunch { get; }
 
@@ -43,8 +47,9 @@ public sealed partial class HomeViewModel : ObservableObject, IDisposable
     public bool ShowNoLocation => !Status.HasWeatherLocation;
 
     public HomeViewModel(MusicViewModel music, StatusViewModel status, FocusViewModel focus, SystemStatsViewModel stats, QuickLaunchViewModel quickLaunch,
-        IShellActionService? shell = null, Action? openFocus = null)
+        IShellActionService? shell = null, Action? openFocus = null, BluetoothDevicesViewModel? bluetooth = null)
     {
+        Bluetooth = bluetooth;
         Stats = stats;
         QuickLaunch = quickLaunch;
         Music = music;

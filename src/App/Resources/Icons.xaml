@@ -45,7 +45,8 @@
     <Geometry x:Key="IconLifeBuoy">M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0zM 4.93 4.93 l 4.24 4.24M 14.83 9.17 l 4.24 -4.24M 14.83 14.83 l 4.24 4.24M 9.17 14.83 l -4.24 4.24M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0z</Geometry>
     <Geometry x:Key="IconGithub">M 18 16 l 4 -4 l -4 -4M 6 8 l -4 4 l 4 4M 14.5 4 l -5 16</Geometry>
     <Geometry x:Key="IconWifi">M 12 20 h 0.01M 2 8.82 a 15 15 0 0 1 20 0M 5 12.859 a 10 10 0 0 1 14 0M 8.5 16.429 a 5 5 0 0 1 7 0</Geometry>
-    <Geometry x:Key="IconBluetooth">M 7 7 l 10 10 l -5 5 V 2 l 5 5 L 7 17</Geometry>
+    <!-- Bluetooth rune: 24 birimlik tuvalde dik gövde (x=12), iki üçgen ucu 78° açıyla; 14-16 px'te kalın çizgiyle bile tıkanmaz -->
+    <Geometry x:Key="IconBluetooth">M 5.5 7.5 L 18 16.5 L 12 22 L 12 2 L 18 7.5 L 5.5 16.5</Geometry>
     <Geometry x:Key="IconBell">M10.268 21 a2 2 0 0 0 3.464 0 M3.262 15.326 A1 1 0 0 0 4 17 h16 a1 1 0 0 0 .74 -1.673 C19.41 13.956 18 12.499 18 8 A6 6 0 0 0 6 8 c0 4.499 -1.411 5.956 -2.738 7.326</Geometry>
     <Geometry x:Key="IconMapPin">M20 10 c0 4.993 -5.539 10.193 -7.399 11.799 a1 1 0 0 1 -1.202 0 C9.539 20.193 4 14.993 4 10 a8 8 0 0 1 16 0 M15 10 a3 3 0 1 1 -6 0 a3 3 0 1 1 6 0 z</Geometry>
     <Geometry x:Key="IconPlus">M5 12 h14 M12 5 v14</Geometry>
@@ -66,4 +67,10 @@
     <Geometry x:Key="IconCalendar">M8 2 v4 M16 2 v4 M5 4 h14 a2 2 0 0 1 2 2 v14 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 V6 a2 2 0 0 1 2 -2 z M3 10 h18</Geometry>
     <Geometry x:Key="IconChevronLeft">M15 18 l-6 -6 l6 -6</Geometry>
     <Geometry x:Key="IconChevronRight">M9 18 l6 -6 l-6 -6</Geometry>
+    <Geometry x:Key="IconHeadphones">M3 14 h3 a2 2 0 0 1 2 2 v3 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 v-7 a9 9 0 0 1 18 0 v7 a2 2 0 0 1 -2 2 h-1 a2 2 0 0 1 -2 -2 v-3 a2 2 0 0 1 2 -2 h3</Geometry>
+    <Geometry x:Key="IconSpeaker">M6 2 h12 a2 2 0 0 1 2 2 v16 a2 2 0 0 1 -2 2 H6 a2 2 0 0 1 -2 -2 V4 a2 2 0 0 1 2 -2 z M12 6 h.01 M16 14 a4 4 0 1 1 -8 0 a4 4 0 0 1 8 0 z</Geometry>
+    <Geometry x:Key="IconMouse">M12 2 a7 7 0 0 1 7 7 v6 a7 7 0 0 1 -14 0 V9 a7 7 0 0 1 7 -7 z M12 6 v4</Geometry>
+    <Geometry x:Key="IconSmartphone">M7 2 h10 a2 2 0 0 1 2 2 v16 a2 2 0 0 1 -2 2 H7 a2 2 0 0 1 -2 -2 V4 a2 2 0 0 1 2 -2 z M12 18 h.01</Geometry>
+    <Geometry x:Key="IconTablet">M6 2 h12 a2 2 0 0 1 2 2 v16 a2 2 0 0 1 -2 2 H6 a2 2 0 0 1 -2 -2 V4 a2 2 0 0 1 2 -2 z M12 18 h.01</Geometry>
+    <Geometry x:Key="IconLock">M5 11 h14 a2 2 0 0 1 2 2 v7 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 v-7 a2 2 0 0 1 2 -2 z M7 11 V7 a5 5 0 0 1 10 0 v4</Geometry>
 </ResourceDictionary>

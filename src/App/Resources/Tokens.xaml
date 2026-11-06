@@ -116,6 +116,11 @@
     <SolidColorBrush x:Key="KoyNotchControlSoft" Color="#BFDBFE" />
     <SolidColorBrush x:Key="KoyNotchControlTile" Color="#1F1F23" />
     <SolidColorBrush x:Key="KoyNotchBrightness" Color="#FACC15" />
+    <!-- Kontrol listeleri, kulaklık kartı ve "Bağlı cihazlar": pil yüzdesi, simge zemini, bağlı satır, hover -->
+    <SolidColorBrush x:Key="KoyNotchControlBattery" Color="#93C5FD" />
+    <SolidColorBrush x:Key="KoyNotchControlIconBg" Color="#383B82F6" />
+    <SolidColorBrush x:Key="KoyNotchRowHover" Color="#2A2A30" />
+    <SolidColorBrush x:Key="KoyNotchRowError" Color="#F87171" />
     <!-- Takvim -->
     <SolidColorBrush x:Key="KoyNotchAccentCalendar" Color="#38BDF8" />
     <SolidColorBrush x:Key="KoyNotchCalendarCard" Color="#0E1A24" />

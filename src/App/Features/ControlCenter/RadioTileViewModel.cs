@@ -36,6 +36,9 @@ public sealed partial class RadioTileViewModel : ObservableObject
         Apply(State);
     }
 
+    /// <summary>Tek yönlü bağlı anahtarı gerçek duruma döndürür (açma/kapama reddedilince).</summary>
+    public void NotifyToggle() => OnPropertyChanged(nameof(IsOn));
+
     public void Apply(RadioTileState state)
     {
         State = state;

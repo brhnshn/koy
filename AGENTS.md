@@ -51,6 +51,10 @@ src/Platform/   Core'daki sözleşmelerin Windows 11 uygulamaları (WinRT / CsWi
                 yalnız görev çubuğu gizliyken kurulur (DockFeature.ApplyTrayPolicy). Görev çubuğunu gizleyen kod
                 ShellTrayLocator.FindExplorerTray kullanır; FindWindow("Shell_TrayWnd") yalnız TrayHostService.EnsureFirst'te
                 (z-sırası denetimi) bilinçli kalır.
+                Wireless/WifiService.cs (WiFiAdapter + WlanProfiles) : Core.Wireless.IWifiService, Bluetooth/BluetoothService.cs
+                (DeviceWatcher) + BluetoothAudioKs.cs (KS bağlan/kes) : Core.Bluetooth.IBluetoothService. SharedServices.AcquireWifiService /
+                AcquireBluetoothService sayaçlı; Wi-Fi yalnız liste sayfası açıkken (10 sn tarama), Bluetooth yalnız Ana/Kontrol görünürken.
+                Core/Wireless ve Core/Bluetooth: liste mantığı (WifiList, BluetoothList) saf ve testli.
                 Clipboard/ClipboardHistoryService.cs : pano dinleyicisi (kendi iş parçacığında gizli mesaj penceresi), SystemStats/SystemStatsService.cs :
                 1 sn zamanlayıcı (yalnız Start ile), Diagnostics/ProcessMemory.cs : özel çalışma kümesi. SharedServices.AcquireClipboardHistory/AcquireSystemStats sayaçlı.
                 Media/MediaService.cs : Core.Media.IMediaService. Win32 çağrısı için adını NativeMethods.txt'ye

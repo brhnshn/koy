@@ -200,7 +200,10 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             services.ReleaseRadioService,
             () => new BrightnessService(),
             _focusAssistService!,
-            settings);
+            settings,
+            wifiFactory: () => services.AcquireWifiService(),
+            wifiRelease: services.ReleaseWifiService,
+            bluetoothDevices: new BluetoothDevicesViewModel(() => services.AcquireBluetoothService(), services.ReleaseBluetoothService));
         var statusVm = new StatusViewModel(_powerService!, _weatherService!, settings, networkService: _networkService);
         var tasksVm = new TasksViewModel(services.Tasks);
         var focusVm = new FocusViewModel(_focusTimers!, settings, tasks: tasksVm);

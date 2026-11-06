@@ -141,7 +141,8 @@ public static class Program
         Koy.App.Features.Notch.NotchViewModel Vm,
         Koy.Core.Timers.FocusTimers Timers);
 
-    private static NotchSet MakeNotch(bool music, IReadOnlyList<Koy.Core.Shelf.ShelfItem>? shelf = null, List<string>? tileOrder = null)
+    private static NotchSet MakeNotch(bool music, IReadOnlyList<Koy.Core.Shelf.ShelfItem>? shelf = null, List<string>? tileOrder = null,
+        bool locationBlocked = false, bool audioConnected = true)
     {
         var settings = new AppSettings
         {
@@ -163,7 +164,9 @@ public static class Program
             controller,
             new Koy.App.Features.Music.MusicViewModel(new FakeMedia(info)),
             new Koy.App.Features.ControlCenter.ControlCenterViewModel(
-                () => new FakeAudio(), () => new FakeRadio(), null, () => new FakeBrightness(), new FakeFocusAssist(), settings),
+                () => new FakeAudio(), () => new FakeRadio(), null, () => new FakeBrightness(), new FakeFocusAssist(), settings,
+                wifiFactory: () => new FakeWifi(locationBlocked),
+                bluetoothDevices: new Koy.App.Features.ControlCenter.BluetoothDevicesViewModel(() => new FakeBluetooth(audioConnected), null)),
             new Koy.App.Features.Status.StatusViewModel(new FakePower(), new FakeWeather(), settings),
             new Koy.App.Features.Focus.FocusViewModel(timers, settings, tasks: MakeTasks()),
             new Koy.App.Features.Shelf.ShelfViewModel(new FakeShelf(shelf ?? [])),
@@ -341,6 +344,101 @@ public static class Program
         Flush();
         ShotNotch(set, name("kontrol-ozel-sira"), expanded: true);
         set.Vm.Dispose();
+
+        RenderWirelessScenes(name);
+    }
+
+    // Bölünmüş döşeme (ok üstüne gelinmiş / basılmış), Wi-Fi ve Bluetooth listeleri, Ana kulaklık kartı.
+    private static void RenderWirelessScenes(Func<string, string> name)
+    {
+        var set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.ControlCenter);
+        Flush();
+        ShotNotch(set, name("kontrol-bolunmus"), expanded: true);
+        var wifiChevron =FindAll<System.Windows.Controls.Button>((System.Windows.DependencyObject)set.Window.Content)
+            .First(b => System.Windows.Automation.AutomationProperties.GetName(b) == Koy.App.Resources.Strings.ControlOpenWifiList);
+        ForceState(wifiChevron, "IsMouseOverPropertyKey", typeof(System.Windows.UIElement), true);
+        ShotNotch(set, name("kontrol-ok-hover"), expanded: true);
+        ForceState(wifiChevron, "IsPressedPropertyKey", typeof(System.Windows.Controls.Primitives.ButtonBase), true);
+        ShotNotch(set, name("kontrol-ok-basili"), expanded: true);
+        ForceState(wifiChevron, "IsPressedPropertyKey", typeof(System.Windows.Controls.Primitives.ButtonBase), false);
+        ForceState(wifiChevron, "IsMouseOverPropertyKey", typeof(System.Windows.UIElement), false);
+        set.Vm.Dispose();
+
+        // Wi-Fi listesi: bağlı ağ üstte, kayıtlı / açık / güvenli ağlar, gizli ağ.
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.ControlCenter);
+        set.Vm.ControlCenter.OpenPageCommand.Execute(Koy.Core.Radio.RadioKind.WiFi);
+        Flush();
+        ShotNotch(set, name("wifi-liste"), expanded: true);
+
+        // Güvenli ve kayıtsız ağa tıklanınca satırın içinde şifre kutusu; bağlanıyor ve hata satırları.
+        var rows = set.Vm.ControlCenter.Wifi.Rows;
+        var secured = rows.First(r => r.Ssid == "Komşu_5G");
+        set.Vm.ControlCenter.Wifi.ActivateCommand.Execute(secured);
+        Flush();
+        Settle();
+        var box = FindAll<System.Windows.Controls.PasswordBox>((System.Windows.DependencyObject)set.Window.Content).FirstOrDefault(p => p.DataContext is Koy.App.Features.ControlCenter.WifiRowViewModel { IsPasswordOpen: true });
+        if (box is not null)
+            box.Password = "12345678";
+        ShotNotch(set, name("wifi-sifre"), expanded: true);
+        secured.IsPasswordOpen = false;
+        rows.First(r => r.Ssid == "Komşu_5G").IsBusy = true;
+        rows.First(r => r.Ssid == "Kafe Misafir").ErrorText = Koy.App.Resources.Strings.Get("WifiErrTimeout");
+        ShotNotch(set, name("wifi-baglaniyor-hata"), expanded: true);
+        set.Vm.Dispose();
+
+        // Konum izni yok: ağ adları gizli, açık mesaj ve konum ayarları bağlantısı.
+        set = MakeNotch(music: false, locationBlocked: true);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.ControlCenter);
+        set.Vm.ControlCenter.OpenPageCommand.Execute(Koy.Core.Radio.RadioKind.WiFi);
+        Flush();
+        ShotNotch(set, name("wifi-izin-yok"), expanded: true);
+        set.Vm.Dispose();
+
+        // Bluetooth listesi
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.ControlCenter);
+        set.Vm.ControlCenter.OpenPageCommand.Execute(Koy.Core.Radio.RadioKind.Bluetooth);
+        Flush();
+        ShotNotch(set, name("bluetooth-liste"), expanded: true);
+        set.Vm.Dispose();
+
+        // Ana: kulaklık kartı (bağlı ses cihazı varken) ve kart yokken bugünkü düzen
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Home);
+        Flush();
+        ShotNotch(set, name("ana-kulaklik"), expanded: true);
+        set.Vm.Dispose();
+
+        set = MakeNotch(music: true, audioConnected: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Home);
+        Flush();
+        ShotNotch(set, name("ana-kulaklik-yok"), expanded: true);
+        set.Vm.Dispose();
+    }
+
+    private static IEnumerable<T> FindAll<T>(System.Windows.DependencyObject root) where T : System.Windows.DependencyObject
+    {
+        var count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(root);
+        for (var i = 0; i < count; i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(root, i);
+            if (child is T match)
+                yield return match;
+            foreach (var nested in FindAll<T>(child))
+                yield return nested;
+        }
+    }
+
+    // Çevrimdışı çizimde fare yok: hover / basılı hâli, salt okunur özelliğin anahtarıyla (yansıma) zorlanır.
+    private static void ForceState(System.Windows.UIElement element, string keyName, Type owner, bool value)
+    {
+        var field = owner.GetField(keyName, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        if (field?.GetValue(null) is System.Windows.DependencyPropertyKey key)
+            element.SetValue(key, value);
+        else
+            Console.WriteLine($"uyarı: {keyName} bulunamadı, hover görüntüsü alınamaz");
     }
     /// <summary>Hakkında sayfası (kaldırma düğmesi kapalı ve açık) ve onay görünümü (ayarlar saklanır / silinir).</summary>
     private static void RenderUninstall(string outDir, string prefix, string theme)
