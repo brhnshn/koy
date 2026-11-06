@@ -108,7 +108,15 @@ Dürüst durum: aşağıdakiler henüz yok ya da doğrulanmadı.
    Get-FileHash .\Koy-win-Setup.exe -Algorithm SHA256
    ```
 
-> **Windows SmartScreen Notu:** Koy açık kaynaklıdır ve henüz ücretli bir EV sertifikasıyla imzalanmamıştır. İlk çalıştırmada Windows SmartScreen uyarısı görürseniz **"Ek bilgi" (More info) → "Yine de çalıştır" (Run anyway)** seçeneğine tıklayabilirsiniz.
+### İmza, SmartScreen ve güncellemeler
+
+Koy'un kurulum dosyası ve güncellemeleri henüz **kod imzalı değil**. Bu yüzden:
+
+- **SmartScreen uyarısı:** İlk çalıştırmada Windows "Windows bilgisayarınızı korudu" diyebilir. Dosyayı yalnız [GitHub Releases](https://github.com/brhnshn/koy/releases) sayfasından indirdiyseniz **"Ek bilgi" → "Yine de çalıştır"** ile devam edebilirsiniz. Başka bir siteden, aynadan ya da paylaşılan bir bağlantıdan gelen Koy dosyasını çalıştırmayın.
+- **`SHA256SUMS.txt` neyi kanıtlar:** İndirmenin bozulmadan, eksiksiz geldiğini. Dosyayla aynı sürüm sayfasında durduğu için dosyayı kimin yayınladığını kanıtlamaz; o güvence GitHub deposunun kendisinden gelir.
+- **Otomatik güncellemeler:** Kurulu Koy yalnız bu deponun GitHub Releases sayfasındaki sürümleri HTTPS ile indirir. Velopack her paketi sürüm listesindeki SHA özetiyle karşılaştırır; uymayan paket kurulmaz. Güncelleme Koy kapanınca uygulanır. İstemezseniz Ayarlar → Genel'den otomatik denetimi kapatabilirsiniz.
+- **Yayın hattı:** Sürümler yalnız GitHub Actions'ta, testler geçtikten sonra üretilir. Kullanılan eylemler commit özetine sabitlidir; `main` dalına zorla push ve dal silme, yayınlanmış `v*` etiketlerinin taşınması ve silinmesi depo kurallarıyla engellidir.
+- **Plan:** Açık kaynak projeler için ücretsiz kod imzalama (SignPath Foundation) değerlendirilecek. İmza gelince SmartScreen uyarısı zamanla kalkar ve güncellemeler imzayla da doğrulanır.
 
 ### Kaynak Koddan Derleme
 
@@ -199,6 +207,7 @@ koy/
 - **Multi-Monitor Support:** A Displays page lets you choose a notch and dock per monitor, with per-monitor DPI and per-monitor fullscreen isolation (not yet verified on real mixed-DPI hardware).
 - **Customizable global shortcuts, dark/light theme, and an in-app uninstall flow** (settings are kept by default).
 - **Bilingual UI:** Instant runtime switching between **English** and **Turkish**.
+- **Not code-signed yet:** Windows SmartScreen may warn on first run. Only download Koy from [GitHub Releases](https://github.com/brhnshn/koy/releases), then choose **More info → Run anyway**. `SHA256SUMS.txt` proves the download is intact, not who published it. Auto-updates come only from this repository's releases over HTTPS and each package is checked against the release feed's SHA hash. Free code signing for open source (SignPath Foundation) is planned.
 
 ---
 
