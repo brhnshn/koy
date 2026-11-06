@@ -21,7 +21,7 @@ public partial class KoyWindow : Window
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
     }
 
-    /// <summary>Sayfa değişince yeni sayfa kısa solma ve kayma ile girer; hareket kapalıysa anında geçer.</summary>
+    /// <summary>Sayfa değişince yeni sayfa kısa bir solmayla girer; hareket kapalıysa anında geçer.</summary>
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(KoyWindowViewModel.Material))
@@ -41,12 +41,10 @@ public partial class KoyWindow : Window
         if (e.PropertyName != nameof(KoyWindowViewModel.SelectedPageIndex) || !IsVisible)
             return;
 
+        // Hemen başlatılır: Loaded önceliğine ertelenince yeni sayfa bir kare tam opak çizilip sonra sönüyordu (titreme).
         var index = ViewModel.SelectedPageIndex;
-        Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
-        {
-            if (index >= 0 && index < PagesHost.Children.Count && PagesHost.Children[index] is FrameworkElement page)
-                Motion.PageEnter(page);
-        });
+        if (index >= 0 && index < PagesHost.Children.Count && PagesHost.Children[index] is FrameworkElement page)
+            Motion.PageEnter(page);
     }
 
     public static void ShowInstance(int pageIndex = 0)

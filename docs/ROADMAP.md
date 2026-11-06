@@ -209,6 +209,17 @@ Kod incelemesinden çıkan işler paketlere bölündü.
 - [ ] **Elle sınama** (proje sahibi): Görev Yöneticisi'nden Koy'u öldür → görev çubuğu birkaç sn içinde kendiliğinden gelmeli; Koy'dan çık / dock'u kapat → gözcü kalmamalı (Görev Yöneticisi'nde `Koy.Watchdog.exe`); simge sürükleyerek sırala, yeniden başlatınca sıra korunmalı; büyütülmüş pencerede alt kenara git (tuş basılı değilken ~300 ms sonra çıkar), oyun / F11 / tam ekran videoda çıkmasın; tepsi simgesine sağ tık → pencere açık kalsın, menüden seçince / dışarı tıklayınca kapansın; dock açıkken bildirim alanında Koy simgesi olmasın, dock kapanınca gelsin; son kullanılanlar yığını; ikinci ekran takınca çentik ve dock açılsın.
 - [ ] Gözcü AOT paketinin gerçek CI/`pack.ps1` çıktısından boyut ve bellek ölçümü; paket sonrası Koy belleğinin yeniden ölçümü (`docs/MEMORY.md`).
 
+## Üçüncü test düzeltmeleri (2026-11-07)
+- [x] **Küçültülmüş pencere düğmesi kaldırıldı:** komuta bağlı değildi; `DockShowMinimized` ayarı da silindi (eski ayar dosyasındaki alan yok sayılır).
+- [x] **Tepsi simgeleri net:** Windows tepsisi gibi 16 DIP, kendi piksel boyutunda (önce 16 px simge 20 DIP'e büyütülüyordu); HICON verisi düz alfa sayılır (`IconHelper`).
+- [x] **Başlat düğmesinde gerçek Windows 11 logosu** (`WindowsLogoImage`, Styles.xaml; kapsül ve tam genişlik aynı kaynak).
+- [x] **Win tuşu / Başlat açıkken dock görünür:** kabuk açılır pencereleri (`Core/Shell/ShellFlyouts`: Başlat, Arama, bildirim merkezi) dock'u çektirmez, açıldığı ekranda dock'u gösterir. Testli.
+- [x] **Koy düğmesi dock'u gizliyordu:** pencere gösterilince (`OnWindowsChanged`) Koy'un kendi menüsü dış pencere sayılıp açıldığı ekranın dock'unu çektiriyordu; Koy süreci denetimi `RecheckForegroundState` içine taşındı.
+- [x] **Koy penceresi sayfa geçişi:** satır satır gecikmeli giriş ve kayma kaldırıldı (gecikmede satırlar önce görünüp sonra sönüyordu); tek 200 ms solma %50 → %100 (Corvus gibi), hemen başlar.
+- [x] **Bellek göstergesi Görev Yöneticisi'yle aynı:** özel çalışma kümesi (`Platform/Diagnostics/ProcessMemory`); ayrılmış özel bellek (private bytes) yalnız okunamazsa.
+- [x] **Tek örnek:** ikinci Koy açılışı ilk sürecin Koy penceresini açar ve çıkar (`App/SingleInstance.cs`, oturum başına adlı mutex). 2026-11-07 çökmesi: Başlat menüsündeki kısayol kurulu eski v0.1.0'ı (`%LOCALAPPDATA%\Koy`) açtı, geliştirme derlemesiyle birlikte çalıştı; v0.1.0'daki kenar zamanlayıcısı iş parçacığı havuzundan dock'a dokunup çöktü (yeni kodda `DispatcherTimer`), gözcü olmadığı için görev çubuğu gelmedi.
+- [ ] **Elle sınama** (proje sahibi): tepsi simgeleri; Win tuşu tek ve iki ekranda (büyütülmüş pencere varken de); Koy düğmesi iki ekranda; sayfa geçişi; Koy'daki bellek sayısı Görev Yöneticisi'yle aynı mı.
+
 ## Sonraya kalanlar
 - Bildirimleri çentikte gösterme: Windows bildirimleri gelince çentik kısa süre gösterir (Claude Code gibi ajanların "iş bitti" bildirimleri de bu yoldan gelir). `UserNotificationListener` paket kimliği ister; Velopack kurulumu için seyrek (sparse) paket ve imza gerekir. Ara çözüm: Claude Code kancasının çağırdığı yerel komutla doğrudan bildirim.
 - Kullanıcının düzenleyebildiği çentik arayüzü: sayfaların ve kartların sırası, hangilerinin görüneceği kullanıcı tarafından seçilir.

@@ -96,61 +96,19 @@ public static class Motion
         AnimateTransform(tt, TranslateTransform.XProperty, to, 260, Spring, animate: (el as FrameworkElement)?.IsLoaded == true);
     }
 
-    // ---- Ekli özellik: liste öğesi kademeli girişi ----
-
-    public static readonly DependencyProperty StaggerProperty = DependencyProperty.RegisterAttached(
-        "Stagger", typeof(bool), typeof(Motion), new PropertyMetadata(false));
-
-    public static bool GetStagger(DependencyObject o) => (bool)o.GetValue(StaggerProperty);
-    public static void SetStagger(DependencyObject o, bool v) => o.SetValue(StaggerProperty, v);
-
     // ---- Sayfa geçişi ----
 
-    /// <summary>Sayfa görününce: kısa solma + 8 DIP yukarı kayma, ardından satırlar kademeli girer.</summary>
+    /// <summary>
+    /// Sayfa görününce tek, kısa bir solma: %50'den tam opaklığa 200 ms (Corvus'taki sayfa geçişi gibi).
+    /// Kayma ve satır satır kademeli giriş yok: gecikmeli satırlar önce tam görünüp sonra sıfırdan solduğu için
+    /// geçiş kesik kesik görünüyordu. Hareket kapalıysa sayfa anında gelir.
+    /// </summary>
     public static void PageEnter(FrameworkElement page)
     {
         if (!Enabled)
             return;
 
-        page.Opacity = 1;
-        AnimateDouble(page, UIElement.OpacityProperty, 1, 170, EaseOut, from: 0);
-        if (page.RenderTransform is not TranslateTransform tt || tt.IsFrozen)
-        {
-            tt = new TranslateTransform();
-            page.RenderTransform = tt;
-        }
-
-        AnimateTransform(tt, TranslateTransform.YProperty, 0, 200, EaseOut, from: 8);
-
-        var index = 0;
-        foreach (var item in FindStaggerItems(page))
-        {
-            if (index >= 12)
-                break;
-            var delay = TimeSpan.FromMilliseconds(MotionPolicy.ScaledMilliseconds(30 + index * 22, Scale));
-            AnimateDouble(item, UIElement.OpacityProperty, 1, 200, EaseOut, from: 0, delay: delay);
-            if (item.RenderTransform is not TranslateTransform it || it.IsFrozen)
-            {
-                it = new TranslateTransform();
-                item.RenderTransform = it;
-            }
-
-            AnimateTransform(it, TranslateTransform.YProperty, 0, 220, EaseOut, from: 6, delay: delay);
-            index++;
-        }
-    }
-
-    private static IEnumerable<FrameworkElement> FindStaggerItems(DependencyObject root)
-    {
-        var count = VisualTreeHelper.GetChildrenCount(root);
-        for (var i = 0; i < count; i++)
-        {
-            var child = VisualTreeHelper.GetChild(root, i);
-            if (child is FrameworkElement fe && GetStagger(fe) && fe.IsVisible)
-                yield return fe;
-            foreach (var nested in FindStaggerItems(child))
-                yield return nested;
-        }
+        AnimateDouble(page, UIElement.OpacityProperty, 1, 200, EaseOut, from: 0.5);
     }
 
     // ---- Yardımcılar ----

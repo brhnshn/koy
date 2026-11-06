@@ -58,7 +58,8 @@ public static class IconHelper
                 return null;
 
             var mask = iconInfo.hbmMask.IsNull ? null : ReadBgra(iconInfo.hbmMask, width, height);
-            return PngEncoder.Encode(ToStraightRgba(color, mask), width, height);
+            // Simge (HICON) renk bit eşlemi düz alfadır; önceden çarpılmış sanıp bölmek koyu simgelerin kenarını parlatıyordu.
+            return PngEncoder.Encode(ToStraightRgba(color, mask, mayBePremultiplied: false), width, height);
         }
         finally
         {
@@ -151,7 +152,7 @@ public static class IconHelper
         try
         {
             // SHGFI_LARGEICON 32 px döner.
-            return iconInfo.hbmColor.IsNull ? null : ConvertHBitmapToPng(iconInfo.hbmColor, 32);
+            return iconInfo.hbmColor.IsNull ? null : ConvertHBitmapToPng(iconInfo.hbmColor, 32, mayBePremultiplied: false);
         }
         finally
         {
@@ -162,10 +163,10 @@ public static class IconHelper
         }
     }
 
-    private static byte[]? ConvertHBitmapToPng(HBITMAP hBitmap, int size)
+    private static byte[]? ConvertHBitmapToPng(HBITMAP hBitmap, int size, bool mayBePremultiplied = true)
     {
         var bgra = ReadBgra(hBitmap, size, size);
-        return bgra is null ? null : PngEncoder.Encode(ToStraightRgba(bgra), size, size);
+        return bgra is null ? null : PngEncoder.Encode(ToStraightRgba(bgra, mayBePremultiplied: mayBePremultiplied), size, size);
     }
 
     /// <summary>Bit eşlemi 32 bit, yukarıdan aşağı BGRA olarak okur.</summary>
@@ -213,10 +214,14 @@ public static class IconHelper
     /// BMP ile WPF'e verildiğinde alfa kayboluyor ve simge siyah kare üstünde görünüyordu.
     /// </summary>
     /// <param name="maskBgra">Simgenin AND maskesi (32 bite açılmış): beyaz piksel saydamdır. Yalnız alfa yoksa kullanılır.</param>
-    private static byte[] ToStraightRgba(byte[] bgra, byte[]? maskBgra = null)
+    /// <summary>
+    /// BGRA'yı düz alfalı RGBA'ya çevirir. <paramref name="mayBePremultiplied"/>: kabuk resim fabrikası önceden çarpılmış
+    /// bit eşlem verir (sezgisel denetim yapılır); simge (HICON) verisi her zaman düzdür, orada false geçilir.
+    /// </summary>
+    private static byte[] ToStraightRgba(byte[] bgra, byte[]? maskBgra = null, bool mayBePremultiplied = true)
     {
         var hasAlpha = false;
-        var premultiplied = true;
+        var premultiplied = mayBePremultiplied;
         for (var i = 0; i < bgra.Length; i += 4)
         {
             var a = bgra[i + 3];

@@ -48,6 +48,8 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
     private WindowTracker? _windowTracker;
     private ShellActionService? _shellActionService;
     private FullscreenDetector? _fullscreenDetector;
+    private uint _lastFlyoutCheckPid;
+    private bool _lastFlyoutCheckResult;
     private AppBarService? _appBarService;
     private MonitorService? _monitorService;
     private DisplayEvents? _displayEvents;
@@ -531,21 +533,41 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         // Gezgin kendi görev çubuğunu öne alırsa yeni tepsi kayıtları Koy'a gelmez; olay anında yoklanır, zamanlayıcı yok.
         _trayService?.EnsureFirst();
 
-        // Koy'un kendi pencereleri (ayarlar, dock vb.) ön plana geldiğinde
-        // mevcut tam ekran / maksimize durumunu sıfırlayıp dock'u zıplatma
-        if (pid == (uint)Environment.ProcessId)
-            return;
-
         RecheckForegroundState(info);
     }
 
     private void RecheckForegroundState(WindowInfo info)
     {
-        if (_fullscreenDetector is null || info.Handle == 0)
+        if (_fullscreenDetector is null)
             return;
 
-        var isMaximized = WindowStyles.IsWindowMaximized(info.Handle);
+        if (info.Handle == 0)
+        {
+            SetShellFlyoutOpen(0);
+            return;
+        }
+
+        // Koy'un kendi pencereleri (sağ alt menü, Koy penceresi, dock) ön plana gelince dock çekilmez ve son dış
+        // pencerenin durumu korunur. Bu denetim burada durur: pencere gösterilince (OnWindowsChanged) de buraya gelinir;
+        // önceden yalnız ön plan olayında vardı ve Koy menüsü, açıldığı ekranın dock'unu "üstüne binen pencere" sanıp gizletiyordu.
+        var pid = WindowStyles.GetWindowProcessId(info.Handle);
+        if (pid == (uint)Environment.ProcessId)
+            return;
+
         var fgMon = WindowStyles.GetWindowMonitor(info.Handle);
+
+        // Başlat / Arama / bildirim merkezi: Windows görev çubuğu gibi dock o ekranda görünür (açılır pencere dock
+        // bölgesine taşsa da çekilmez). Öteki ekranlar ve son dış pencere durumu olduğu gibi kalır.
+        if (IsShellFlyout(pid))
+        {
+            SetShellFlyoutOpen(fgMon);
+            UpdateEdgeTimer();
+            return;
+        }
+
+        SetShellFlyoutOpen(0);
+
+        var isMaximized = WindowStyles.IsWindowMaximized(info.Handle);
 
         foreach (var (_, state) in _windowStates)
         {
@@ -580,6 +602,37 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         }
 
         UpdateEdgeTimer();
+    }
+
+    /// <summary>Kabuk açılır penceresi yalnız verilen monitörde açık sayılır; 0 = hiçbirinde.</summary>
+    private void SetShellFlyoutOpen(nint monitorHandle)
+    {
+        foreach (var (_, state) in _windowStates)
+            state.ViewModel.SetShellFlyoutOpen(monitorHandle != 0 && state.Monitor.Handle == monitorHandle);
+    }
+
+    /// <summary>Ön plan süreci kabuk açılır penceresi mi; süreç adı ön plan değişiminde bir kez okunur, son sonuç saklanır.</summary>
+    private bool IsShellFlyout(uint pid)
+    {
+        if (pid == 0)
+            return false;
+        if (pid == _lastFlyoutCheckPid)
+            return _lastFlyoutCheckResult;
+
+        bool result;
+        try
+        {
+            using var process = System.Diagnostics.Process.GetProcessById((int)pid);
+            result = ShellFlyouts.IsFlyoutProcess(process.ProcessName);
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            result = false;
+        }
+
+        _lastFlyoutCheckPid = pid;
+        _lastFlyoutCheckResult = result;
+        return result;
     }
 
     private void UpdateEdgeTimer()

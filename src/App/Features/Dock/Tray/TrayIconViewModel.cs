@@ -53,8 +53,7 @@ public sealed partial class TrayIconViewModel : ObservableObject
             using var stream = new MemoryStream(png);
             var image = new BitmapImage();
             image.BeginInit();
-            // Simge 20 DIP gösterilir; %200 ölçekte de net kalsın diye 40 px'e kadar.
-            image.DecodePixelWidth = 40;
+            // Kendi piksel boyutunda çözülür: 16 px simgeyi çözerken büyütmek (DecodePixelWidth) onu bulanıklaştırıyordu.
             image.StreamSource = stream;
             image.CacheOption = BitmapCacheOption.OnLoad;
             image.EndInit();
