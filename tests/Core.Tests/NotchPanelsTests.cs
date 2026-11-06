@@ -30,9 +30,9 @@ public sealed class NotchPanelsTests
     [Fact]
     public void ParseEnabled_MigratesOldKeys()
     {
-        // Eski varsayılan: music, controlcenter, status, calendar, shelf.
+        // Eski varsayılan: music, controlcenter, status, calendar, shelf. H öncesinde olmayan Pano ve Sistem açık gelir.
         Assert.Equal(
-            [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar, NotchPanel.Shelf, NotchPanel.ControlCenter],
+            [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar, NotchPanel.Shelf, NotchPanel.Clipboard, NotchPanel.System, NotchPanel.ControlCenter],
             NotchPanels.ParseEnabled(["music", "controlcenter", "status", "calendar", "shelf"]));
     }
 
@@ -42,14 +42,15 @@ public sealed class NotchPanelsTests
         // H dosyası: "calendar" yalnız Takvim sekmesini açar, Odak kendiliğinden gelmez.
         Assert.Equal([NotchPanel.Home, NotchPanel.Calendar], NotchPanels.ParseEnabled(["home", "calendar"]));
         // H öncesi dosya ("music"/"status" var): eski takvim paneli Pomodoro da taşıdığı için Odak da açılır.
-        Assert.Equal([NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar], NotchPanels.ParseEnabled(["music", "calendar"]));
-        Assert.Equal([NotchPanel.Home], NotchPanels.ParseEnabled(["music", "status"]));
+        Assert.Equal([NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar, NotchPanel.Clipboard, NotchPanel.System],
+            NotchPanels.ParseEnabled(["music", "calendar"]));
+        Assert.Equal([NotchPanel.Home, NotchPanel.Clipboard, NotchPanel.System], NotchPanels.ParseEnabled(["music", "status"]));
     }
 
     [Fact]
-    public void ParseEnabled_OldSettingsFiles_DoNotGetNewTabs()
+    public void ParseEnabled_HFilesWithoutNewKeys_DoNotGetNewTabs()
     {
-        // H öncesi varsayılan: Pano ve Sistem anahtarı yok, sekmeler kendiliğinden açılmaz.
+        // H anahtarlarıyla yazılmış dosyada Pano / Sistem yoksa kullanıcı kapatmıştır, açılmaz.
         var panels = NotchPanels.ParseEnabled(["home", "focus", "shelf", "controlcenter"]);
         Assert.DoesNotContain(NotchPanel.Clipboard, panels);
         Assert.DoesNotContain(NotchPanel.System, panels);
@@ -108,11 +109,19 @@ public sealed class NotchPanelsTests
     }
 
     [Fact]
+    public void ParseEnabled_LegacyFile_NewTabsRespectClipboardSetting()
+    {
+        // H öncesi dosyada Pano açık gelir ama pano geçmişi kapalıysa yine gizlenir.
+        Assert.DoesNotContain(NotchPanel.Clipboard, NotchPanels.ParseEnabled(["music", "status"], clipboardHistoryEnabled: false));
+        Assert.Contains(NotchPanel.System, NotchPanels.ParseEnabled(["music", "status"], clipboardHistoryEnabled: false));
+    }
+
+    [Fact]
     public void ParseEnabled_SkipsUnknownKeysAndIgnoresCase()
     {
         Assert.Equal(
             [NotchPanel.Home, NotchPanel.ControlCenter],
-            NotchPanels.ParseEnabled(["status", "pano", "", "ControlCenter"]));
+            NotchPanels.ParseEnabled(["home", "pano", "", "ControlCenter"]));
     }
 
     [Fact]

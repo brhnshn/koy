@@ -2,6 +2,8 @@ using Koy.Core.Diagnostics;
 
 namespace Koy.Core.Tests;
 
+// CrashLog.LogPath global: onu değiştiren test sınıfları aynı koleksiyonda sırayla koşar (paralelde birbirinin yolunu eziyordu).
+[Collection("CrashLog.LogPath")]
 public class CrashLogTests
 {
     [Fact]

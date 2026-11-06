@@ -3,6 +3,7 @@ using Koy.Core.Shell;
 
 namespace Koy.Core.Tests;
 
+[Collection("CrashLog.LogPath")]
 public class QuickLaunchTests
 {
     private sealed class FakeShell : IShellActionService

@@ -52,6 +52,14 @@ public static class NotchPanels
                 || string.Equals(k?.Trim(), "status", StringComparison.OrdinalIgnoreCase));
             if (legacy && enabled.Contains(NotchPanel.Calendar))
                 enabled.Add(NotchPanel.Focus);
+
+            // Pano ve Sistem H'den önce yoktu: H öncesi dosyada kullanıcı onları kapatmış olamaz, açık gelirler
+            // (Pano yine de pano geçmişi ayarına bağlı, aşağıda).
+            if (legacy)
+            {
+                enabled.Add(NotchPanel.Clipboard);
+                enabled.Add(NotchPanel.System);
+            }
         }
 
         if (!clipboardHistoryEnabled)
