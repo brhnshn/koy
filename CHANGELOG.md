@@ -15,7 +15,7 @@ Biçim [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) standardına day
 - Çoklu ekran, kısayollar, Koyu/Açık tema, kaldırma ekranı.
 - 0.1.0'da yalnız görüntü olan ayarların gerçekten çalışması.
 
-> **v0.1.0'dan geçenler için:** v0.1.0'da otomatik güncelleme denetimi yoktu. Bu sürümü Ayarlar › Hakkında › "Şimdi denetle" ile ya da yeni kurulum dosyasıyla kurun; sonraki sürümler otomatik gelir. v0.1.0 ile başka bir Koy kopyasını aynı anda çalıştırmayın: eski sürüm ikinci ekranda çökebiliyor ve görev çubuğu geri gelmiyordu (bu sürümde düzeltildi).
+> **v0.1.0'dan geçenler için:** v0.1.0'da otomatik güncelleme denetimi yoktu. Bu sürümü Ayarlar › Genel › "Şimdi denetle" ile ya da yeni kurulum dosyasıyla kurun; sonraki sürümler otomatik gelir. v0.1.0 ile başka bir Koy kopyasını aynı anda çalıştırmayın: eski sürüm ikinci ekranda çökebiliyor ve görev çubuğu geri gelmiyordu (bu sürümde düzeltildi).
 
 ### Düzeltmeler (Fixed)
 - **Aynı anda iki Koy çalışmıyor:** ikinci açılış yeni bir kopya başlatmak yerine çalışan Koy'un penceresini öne getirir. İki kopya birlikte çalışınca eski sürüm ikinci ekranda çöküyor ve görev çubuğu geri gelmiyordu.
