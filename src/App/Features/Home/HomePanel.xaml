@@ -51,7 +51,11 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <ContentPresenter />
+            <!-- Saydam zemin: içerik boşluklarına (ör. "+" çerçevesinin ortası) tıklama da düğmeye gider; yoksa tıklama
+                 arkadaki karta düşer ve çentik boşluğa tıklandı sanıp kapanır. -->
+            <Border Background="Transparent">
+              <ContentPresenter />
+            </Border>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
