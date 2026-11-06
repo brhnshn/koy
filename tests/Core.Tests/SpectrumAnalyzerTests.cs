@@ -113,6 +113,16 @@ public class SpectrumAnalyzerTests
     }
 
     [Fact]
+    public void Tiz_bantlar_egimle_yukseltilir()
+    {
+        var tilt = SpectrumAnalyzer.BandTilt(SpectrumAnalyzer.BandEdges(24, Rate), Rate);
+        for (var i = 1; i < tilt.Length; i++)
+            Assert.True(tilt[i] >= tilt[i - 1]);
+        Assert.True(tilt[0] < 0);
+        Assert.True(tilt[^1] > 10);
+    }
+
+    [Fact]
     public void Gecersiz_bant_sayisi_reddedilir() =>
         Assert.Throws<ArgumentOutOfRangeException>(() => new SpectrumAnalyzer(0));
 }

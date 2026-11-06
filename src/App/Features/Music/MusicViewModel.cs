@@ -294,9 +294,14 @@ public sealed partial class MusicViewModel : ObservableObject, IDisposable
 
         try
         {
+            // Büyük müzik kartında kapak 172 DIP; %150 ölçekte ~260 piksel gerekir. Kaynak daha büyükse
+            // MaxCoverPixels'e indirilir (bellek ~400 KB), küçükse olduğu gibi çözülür: büyütmek netlik katmaz,
+            // ölçeklemeyi ekranda yüksek kaliteli süzgeç yapar.
+            var width = ReadPixelWidth(bytes);
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.DecodePixelWidth = 96;
+            if (width > MaxCoverPixels)
+                bitmap.DecodePixelWidth = MaxCoverPixels;
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.StreamSource = new MemoryStream(bytes);
             bitmap.EndInit();
@@ -306,6 +311,23 @@ public sealed partial class MusicViewModel : ObservableObject, IDisposable
         catch
         {
             return null;
+        }
+    }
+
+    private const int MaxCoverPixels = 320;
+
+    // Yalnız başlık okunur (OnDemand + DelayCreation): piksel çözülmez.
+    private static int ReadPixelWidth(byte[] bytes)
+    {
+        try
+        {
+            using var stream = new MemoryStream(bytes);
+            var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None);
+            return decoder.Frames.Count > 0 ? decoder.Frames[0].PixelWidth : 0;
+        }
+        catch
+        {
+            return 0;
         }
     }
 
