@@ -86,6 +86,9 @@ public sealed class ModelContractTests
         Assert.Equal(NotchPanel.Focus, controller.CurrentPanel);
 
         controller.NextPanel();
+        Assert.Equal(NotchPanel.Calendar, controller.CurrentPanel);
+
+        controller.NextPanel();
         Assert.Equal(NotchPanel.Shelf, controller.CurrentPanel);
 
         controller.NextPanel();

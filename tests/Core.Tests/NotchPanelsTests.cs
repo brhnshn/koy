@@ -32,8 +32,18 @@ public sealed class NotchPanelsTests
     {
         // Eski varsayılan: music, controlcenter, status, calendar, shelf.
         Assert.Equal(
-            [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Shelf, NotchPanel.ControlCenter],
+            [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar, NotchPanel.Shelf, NotchPanel.ControlCenter],
             NotchPanels.ParseEnabled(["music", "controlcenter", "status", "calendar", "shelf"]));
+    }
+
+    [Fact]
+    public void ParseEnabled_CalendarKey_GoesToCalendar_AndOnlyLegacyFilesAlsoGetFocus()
+    {
+        // H dosyası: "calendar" yalnız Takvim sekmesini açar, Odak kendiliğinden gelmez.
+        Assert.Equal([NotchPanel.Home, NotchPanel.Calendar], NotchPanels.ParseEnabled(["home", "calendar"]));
+        // H öncesi dosya ("music"/"status" var): eski takvim paneli Pomodoro da taşıdığı için Odak da açılır.
+        Assert.Equal([NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar], NotchPanels.ParseEnabled(["music", "calendar"]));
+        Assert.Equal([NotchPanel.Home], NotchPanels.ParseEnabled(["music", "status"]));
     }
 
     [Fact]

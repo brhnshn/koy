@@ -10,6 +10,8 @@ public enum NotchPanel
     Home,
     /// <summary>Odak: Pomodoro, mola, sayaç ve kronometre; görev listesi.</summary>
     Focus,
+    /// <summary>Takvim: ay, hafta ve gün görünümü, yerel etkinlikler.</summary>
+    Calendar,
     Shelf,
     /// <summary>Pano geçmişi (yalnız <c>ClipboardHistoryEnabled</c> açıkken).</summary>
     Clipboard,
@@ -23,11 +25,11 @@ public static class NotchPanels
 {
     /// <summary>Sekme çubuğundaki sıra. Ayarlar yalnız hangilerinin açık olduğunu söyler, sırayı değiştirmez.</summary>
     public static IReadOnlyList<NotchPanel> Order { get; } =
-        [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Shelf, NotchPanel.Clipboard, NotchPanel.System, NotchPanel.ControlCenter];
+        [NotchPanel.Home, NotchPanel.Focus, NotchPanel.Calendar, NotchPanel.Shelf, NotchPanel.Clipboard, NotchPanel.System, NotchPanel.ControlCenter];
 
     /// <summary>
     /// <see cref="Settings.AppSettings.EnabledPanels"/> anahtarlarından açık paneller, sekme sırasıyla.
-    /// Ana her zaman açıktır. Eski anahtarlar taşınır: "music" Ana, "calendar" Odak olur; "status" artık ayrı
+    /// Ana her zaman açıktır. Eski anahtarlar taşınır: "music" Ana, "calendar" Takvim olur (H öncesi dosyalarda Odak da açılır); "status" artık ayrı
     /// bir panel değil (saat, hava ve pil üstteki durum satırında), yok sayılır. Eski ayar dosyalarında "clipboard"
     /// ve "system" yoktur: bu sekmeler Koy penceresinden açılana kadar kapalı kalır (dosya bozulmaz).
     /// <paramref name="clipboardHistoryEnabled"/> kapalıysa Pano, anahtar listede olsa bile elenir.
@@ -37,11 +39,19 @@ public static class NotchPanels
         var enabled = new HashSet<NotchPanel> { NotchPanel.Home };
         if (keys is not null)
         {
-            foreach (var key in keys)
+            var list = keys.ToList();
+            foreach (var key in list)
             {
                 if (TryParse(key, out var panel))
                     enabled.Add(panel);
             }
+
+            // H öncesi dosyalarda (yalnız onlarda "music"/"status" anahtarı vardır) "calendar" paneli Pomodoro ve
+            // zamanlayıcıları da taşırdı; Odak o zamandan beri ayrı sekme, bu yüzden kaybolmasın.
+            var legacy = list.Any(k => string.Equals(k?.Trim(), "music", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(k?.Trim(), "status", StringComparison.OrdinalIgnoreCase));
+            if (legacy && enabled.Contains(NotchPanel.Calendar))
+                enabled.Add(NotchPanel.Focus);
         }
 
         if (!clipboardHistoryEnabled)
@@ -67,6 +77,7 @@ public static class NotchPanels
     {
         NotchPanel.Home => "home",
         NotchPanel.Focus => "focus",
+        NotchPanel.Calendar => "calendar",
         NotchPanel.Shelf => "shelf",
         NotchPanel.Clipboard => "clipboard",
         NotchPanel.System => "system",
@@ -81,8 +92,11 @@ public static class NotchPanels
             case "home" or "music":
                 panel = NotchPanel.Home;
                 return true;
-            case "focus" or "calendar":
+            case "focus":
                 panel = NotchPanel.Focus;
+                return true;
+            case "calendar":
+                panel = NotchPanel.Calendar;
                 return true;
             case "shelf":
                 panel = NotchPanel.Shelf;
