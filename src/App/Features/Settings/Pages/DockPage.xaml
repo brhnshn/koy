@@ -47,6 +47,7 @@
         <TextBlock Text="{Binding [DockProximityTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SectionHeaderStyle}" />
 
         <Border Style="{StaticResource SettingRowStyle}">
+            <StackPanel>
             <Grid>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding [DockProximityTitle], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingTitleStyle}" />
@@ -68,6 +69,29 @@
                     </StackPanel>
                 </Border>
             </Grid>
+            <Grid>
+                <TextBlock Text="{Binding [ProxReserveDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" Margin="0,8,0,0">
+                    <TextBlock.Visibility>
+                        <Binding Path="DockProximity" Converter="{x:Static local:ComparisonToVisibilityConverter.Instance}" ConverterParameter="ReserveSpace" />
+                    </TextBlock.Visibility>
+                </TextBlock>
+                <TextBlock Text="{Binding [ProxDockDownDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" Margin="0,8,0,0">
+                    <TextBlock.Visibility>
+                        <Binding Path="DockProximity" Converter="{x:Static local:ComparisonToVisibilityConverter.Instance}" ConverterParameter="DockDown" />
+                    </TextBlock.Visibility>
+                </TextBlock>
+                <TextBlock Text="{Binding [ProxDodgeDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" Margin="0,8,0,0">
+                    <TextBlock.Visibility>
+                        <Binding Path="DockProximity" Converter="{x:Static local:ComparisonToVisibilityConverter.Instance}" ConverterParameter="Dodge" />
+                    </TextBlock.Visibility>
+                </TextBlock>
+                <TextBlock Text="{Binding [ProxAlwaysHiddenDesc], Source={x:Static res:Loc.Instance}}" Style="{StaticResource SettingDescStyle}" Margin="0,8,0,0">
+                    <TextBlock.Visibility>
+                        <Binding Path="DockProximity" Converter="{x:Static local:ComparisonToVisibilityConverter.Instance}" ConverterParameter="AlwaysHidden" />
+                    </TextBlock.Visibility>
+                </TextBlock>
+            </Grid>
+            </StackPanel>
         </Border>
 
         <Border Style="{StaticResource SettingRowStyle}">

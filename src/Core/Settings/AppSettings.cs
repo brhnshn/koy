@@ -31,8 +31,8 @@ public sealed record AppSettings
     /// <summary>Dock yerleşim stili: Yüzen kapsül (FloatingCapsule) veya Tam Genişlik (FullWidth).</summary>
     public DockStyleMode DockStyle { get; set; } = DockStyleMode.FloatingCapsule;
 
-    /// <summary>Pencere yaklaşınca dock davranışı: DockDown (Aşağı yapış - varsayılan), Dodge (Çekil), ReserveSpace (Yer ayır), AlwaysHidden (Hep gizli).</summary>
-    public DockProximityMode DockProximity { get; set; } = DockProximityMode.DockDown;
+    /// <summary>Pencere yaklaşınca dock davranışı: ReserveSpace (Yer ayır - varsayılan), DockDown (Aşağı yapış), Dodge (Çekil), AlwaysHidden (Hep gizli).</summary>
+    public DockProximityMode DockProximity { get; set; } = DockProximityMode.ReserveSpace;
 
     /// <summary>Tam ekran bir uygulama veya oyun devredeyken dock'u otomatik gizle.</summary>
     public bool DockHideInFullscreen { get; set; } = true;

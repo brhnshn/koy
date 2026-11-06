@@ -24,6 +24,7 @@ namespace Koy.Platform.SystemStats;
 public sealed class SystemStatsService : ISystemStatsService
 {
     private const int IntervalMs = 1000;
+    private const int FirstTickMs = 400;
     private const int ProcessScanEveryTicks = 3;
     private const uint IfTypeLoopback = 24;
     private const uint IfTypeTunnel = 131;
@@ -75,7 +76,10 @@ public sealed class SystemStatsService : ISystemStatsService
             _prevScanTicks = _prevTicks;
             _topName = null;
             _topPercent = 0;
-            _timer = new Timer(_ => OnTick(), null, IntervalMs, IntervalMs);
+            // Anlık değerler (RAM, Koy belleği, ağ adı) hemen okunur; CPU ve hızlar iki örnek ister ve RatesReady=false kalır.
+            _current = InstantSnapshot();
+            // İlk gerçek örnek bir saniye beklemesin: CPU/ağ farkı gerçek süre üzerinden hesaplanır, 400 ms yeter.
+            _timer = new Timer(_ => OnTick(), null, FirstTickMs, IntervalMs);
         }
     }
 
@@ -136,6 +140,25 @@ public sealed class SystemStatsService : ISystemStatsService
         }
     }
 
+    private SystemSnapshot InstantSnapshot()
+    {
+        var (used, total, ramPercent) = ReadMemory();
+        return new SystemSnapshot(
+            0, null, 0, used, total, ramPercent, 0, 0,
+            SafeNetworkName(), ProcessMemory.GetPrivateWorkingSetBytes(), RatesReady: false);
+    }
+
+    private static (long Used, long Total, double Percent) ReadMemory()
+    {
+        var mem = new MEMORYSTATUSEX { dwLength = (uint)System.Runtime.InteropServices.Marshal.SizeOf<MEMORYSTATUSEX>() };
+        if (!PInvoke.GlobalMemoryStatusEx(ref mem))
+            return (0, 0, 0);
+
+        var total = (long)mem.ullTotalPhys;
+        var used = total - (long)mem.ullAvailPhys;
+        return (used, total, SystemStatsMath.Percent(used, total));
+    }
+
     private SystemSnapshot Sample()
     {
         var nowTicks = Stopwatch.GetTimestamp();
@@ -162,15 +185,7 @@ public sealed class SystemStatsService : ISystemStatsService
             _prevScanTicks = nowTicks;
         }
 
-        long used = 0, total = 0;
-        double ramPercent = 0;
-        var mem = new MEMORYSTATUSEX { dwLength = (uint)System.Runtime.InteropServices.Marshal.SizeOf<MEMORYSTATUSEX>() };
-        if (PInvoke.GlobalMemoryStatusEx(ref mem))
-        {
-            total = (long)mem.ullTotalPhys;
-            used = total - (long)mem.ullAvailPhys;
-            ramPercent = SystemStatsMath.Percent(used, total);
-        }
+        var (used, total, ramPercent) = ReadMemory();
 
         return new SystemSnapshot(
             cpu, _topName, _topPercent, used, total, ramPercent, down, up,

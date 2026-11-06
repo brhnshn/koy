@@ -197,11 +197,13 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
 
         // Müzik kartı çubukları: ses yakalama yalnız kart görünür ve müzik çalarken (MusicViewModel.UpdateSpectrum).
         var musicVm = new MusicViewModel(_mediaService!, spectrumAcquire: () => services.AcquireSpectrumService(), spectrumRelease: services.ReleaseSpectrumService);
+        // Parlaklık, çentiğin o anki ekranına bağlanır; ekran düzeni değişince state.Monitor güncellenir.
+        NotchWindowState? stateRef = null;
         var controlCenterVm = new ControlCenterViewModel(
             () => new AudioService(),
             () => services.AcquireRadioService(),
             services.ReleaseRadioService,
-            () => new BrightnessService(),
+            () => new BrightnessService(monitorProvider: () => stateRef?.Monitor ?? monitor),
             _focusAssistService!,
             settings,
             wifiFactory: () => services.AcquireWifiService(),
@@ -243,6 +245,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             VisibilityController = visibilityController,
             Controller = controller
         };
+
+        stateRef = state;
 
         window.SourceInitialized += (s, e) =>
         {
@@ -342,6 +346,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             {
                 existingState.Monitor = monitor;
                 existingState.Window.SetTargetMonitor(monitor);
+                // Ekran eklendi/çıkarıldı: parlaklık kaynağı (dahili/harici) yeniden belirlenir.
+                existingState.ViewModel.ControlCenter.RefreshBrightness();
                 UpdateNotchBounds(existingState.Window, existingState.VisibilityController, monitor);
             }
             else

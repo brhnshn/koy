@@ -31,7 +31,6 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     private readonly ShelfViewModel _shelf;
     private readonly CalendarViewModel _calendar;
     private readonly ClipboardViewModel? _clipboard;
-    private bool _pinnedByPicker;
     private readonly VisibilityController _visibility;
     private readonly Dispatcher _dispatcher;
     private DispatcherTimer? _clockTimer;
@@ -448,21 +447,13 @@ public sealed partial class NotchViewModel : ObservableObject, IDisposable
     }
 
     // Dosya seçici açıkken fare çentikten ayrılır; çentik kapanıp seçiciyi yetim bırakmasın diye geçici olarak açık tutulur.
+    // Kullanıcının iğnesinden (IsPinned) ayrı sayaçlı tutma: iğne simgesi yanmaz, seçici kapanınca normal davranış döner.
     private void HoldOpenForPicker(bool hold)
     {
         if (hold)
-        {
-            if (!_controller.IsPinned)
-            {
-                _controller.SetPinned(true);
-                _pinnedByPicker = true;
-            }
-        }
-        else if (_pinnedByPicker)
-        {
-            _pinnedByPicker = false;
-            _controller.SetPinned(false);
-        }
+            _controller.HoldOpen();
+        else
+            _controller.ReleaseHold();
     }
 
     public void ShowVolume(float volume, bool isMuted) => Osd.ShowVolume(volume, isMuted);

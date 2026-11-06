@@ -388,7 +388,7 @@
     <value>Tam genişlik glass</value>
   </data>
   <data name="DockProximityTitle" xml:space="preserve">
-    <value>Pencere yaklaşınca</value>
+    <value>Pencere dock'a yaklaşınca</value>
   </data>
   <data name="ProxDockDown" xml:space="preserve">
     <value>Aşağı yapış</value>
@@ -401,6 +401,18 @@
   </data>
   <data name="ProxAlwaysHidden" xml:space="preserve">
     <value>Hep gizli</value>
+  </data>
+  <data name="ProxReserveDesc" xml:space="preserve">
+    <value>Dock hep görünür; pencereler onun üstünde biter, Windows görev çubuğu gibi.</value>
+  </data>
+  <data name="ProxDockDownDesc" xml:space="preserve">
+    <value>Dock yüzer; bir pencere yaklaşınca ekranın altına yapışır ve incelir.</value>
+  </data>
+  <data name="ProxDodgeDesc" xml:space="preserve">
+    <value>Bir pencere yaklaşınca dock gizlenir; fare alt kenara gelince geri çıkar.</value>
+  </data>
+  <data name="ProxAlwaysHiddenDesc" xml:space="preserve">
+    <value>Dock yalnız fare alt kenara gelince görünür.</value>
   </data>
   <data name="DockSizeHeader" xml:space="preserve">
     <value>Boyutlar</value>
@@ -1199,6 +1211,9 @@
   </data>
   <data name="ControlBrightness" xml:space="preserve">
     <value>Parlaklık</value>
+  </data>
+  <data name="BrightnessUnavailable" xml:space="preserve">
+    <value>Bu ekranın parlaklığı ayarlanamıyor.</value>
   </data>
   <data name="MusicPrevious" xml:space="preserve">
     <value>Önceki</value>

@@ -6,14 +6,14 @@ namespace Koy.Core.Dock;
 public enum DockProximityMode
 {
     /// <summary>
-    /// Aşağı yapış (Varsayılan): Normal bir pencere dock alanına yaklaştığında dock ekranın en altına iner,
+    /// Aşağı yapış: Normal bir pencere dock alanına yaklaştığında dock ekranın en altına iner,
     /// yüksekliği 60 px'den 46 px'e düşer ve yalnızca üst köşeleri yuvarlatılır (14,14,0,0).
     /// Pencere uzaklaşınca eski yüzen haline (60 px, alttan 10 px, 18 px yarıçap) geri döner.
     /// </summary>
     DockDown,
 
     /// <summary>
-    /// Yer ayır: Dock çalışma alanından (AppBar / SHAppBarMessage) 46 px ayırır.
+    /// Yer ayır (Varsayılan): Dock çalışma alanından (AppBar / SHAppBarMessage) 46 px ayırır.
     /// Büyütülmüş pencereler tam olarak dock'un üstünde biter, arada boşluk kalmaz.
     /// </summary>
     ReserveSpace,

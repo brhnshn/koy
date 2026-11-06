@@ -119,6 +119,21 @@ public class QuickLaunchTests
         }
     }
 
+    [Fact]
+    public void Add_picked_shortcut_is_saved_and_raises_changed_once()
+    {
+        // Dosya seçiciden gelen yol: .lnk çözülmeden (DereferenceLinks=false) olduğu gibi eklenir ve kaydedilir.
+        var (s, saves, _) = New(@"C:\a.exe");
+        var changed = 0;
+        s.Changed += (_, _) => changed++;
+
+        Assert.True(s.Add(@"C:\Users\x\Masaüstü\Uygulama.lnk"));
+
+        Assert.Equal([@"C:\a.exe", @"C:\Users\x\Masaüstü\Uygulama.lnk"], s.Items);
+        Assert.Equal(s.Items, saves[^1]);
+        Assert.Equal(1, changed);
+    }
+
     [Theory]
     [InlineData(@"C:\Program Files\App\App.exe", "App")]
     [InlineData(@"C:\Users\x\Belgeler\", "Belgeler")]

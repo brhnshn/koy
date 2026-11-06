@@ -123,6 +123,7 @@ public partial class NotchWindow : Window
             oldVm.TargetVisibilityChanged -= AnimateVisibility;
             oldVm.PanelTransitionTriggered -= AnimatePanelTransition;
             oldVm.ShakeRequested -= OnShakeRequested;
+            oldVm.Home.QuickLaunch.ResolveDialogOwner = null;
         }
 
         if (e.NewValue is NotchViewModel newVm)
@@ -131,6 +132,7 @@ public partial class NotchWindow : Window
             newVm.TargetVisibilityChanged += AnimateVisibility;
             newVm.PanelTransitionTriggered += AnimatePanelTransition;
             newVm.ShakeRequested += OnShakeRequested;
+            newVm.Home.QuickLaunch.ResolveDialogOwner = PrepareDialogOwner;
             AnimateTo(newVm.TargetWidth, newVm.TargetHeight);
             if (!newVm.IsNotchVisible)
             {
@@ -157,6 +159,19 @@ public partial class NotchWindow : Window
 
         WindowStyles.SetNoActivate(_hwnd, false);
         Activate();
+    }
+
+    // Dosya seçici gibi diyaloglara sahip olabilmek için çentik geçici etkinleştirilir (kullanıcı az önce tıkladı,
+    // Windows ön plana almaya izin verir); sahipli diyalog çentiğin üstünde açılır. Diyalog kapanıp pencere
+    // etkinliğini kaybedince OnDeactivated odak çalmamayı geri getirir.
+    private Window? PrepareDialogOwner()
+    {
+        if (_hwnd == 0)
+            return null;
+
+        WindowStyles.SetNoActivate(_hwnd, false);
+        Activate();
+        return this;
     }
 
     protected override void OnDeactivated(EventArgs e)

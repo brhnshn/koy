@@ -59,8 +59,8 @@ Koy penceresi, sihirbaz ve sağ alt menü renk, ölçü ve hareketi koda gömmez
   - Solda çalan müzik, ortada uygulamalar, sağda (varsa tepsi düğmesi ve) Koy simgesi durur.
   - Aktif uygulama, adıyla birlikte hap biçiminde gösterilir.
 - **Pencere yaklaşınca** (Koy › Dock):
-  - **Yer ayır:** dock alt kenara oturur ve koyu bir şerit olur. Çalışma alanından 46 px ayrılır. Büyütülmüş pencere tam dock'un üstünde biter, arada boşluk kalmaz.
-  - **Aşağı yapış (varsayılan):** normal boy bir pencere dock'a yaklaşınca dock alt kenara iner, 60 px'ten 46 px'e incelir, yalnız üst köşeleri yuvarlak kalır. Pencere uzaklaşınca dock yeniden yüzer.
+  - **Yer ayır (varsayılan):** dock alt kenara oturur ve koyu bir şerit olur. Çalışma alanından 46 px ayrılır. Büyütülmüş pencere tam dock'un üstünde biter, arada boşluk kalmaz.
+  - **Aşağı yapış:** normal boy bir pencere dock'a yaklaşınca dock alt kenara iner, 60 px'ten 46 px'e incelir, yalnız üst köşeleri yuvarlak kalır. Pencere uzaklaşınca dock yeniden yüzer.
   - **Çekil:** büyütülmüş pencere varken dock gizlenir ve altta 120×4 px'lik bir tutamak kalır. Fare alt kenara inince dock 150 ms sonra geri gelir.
   - **Hep gizli.**
   - **Gerçek tam ekran** (oyun, F11 tarayıcı, tam ekran video) her modda gizlidir ve kenardan da ASLA açılmaz. Tam ekran üç işaretin birleşimidir: Windows'un tam ekran bildirimi (`SHQueryUserNotificationState`: meşgul / özel kip D3D / sunum), başlık çubuğunun olmayışı, monitörü tamamen kaplama. Büyütülmüş (IsZoomed) pencere tam ekran sayılmaz; yalnız monitöre tam oturan başlıksız büyütülmüş pencere (F11) sayılır. Karar monitör başınadır.
@@ -119,5 +119,5 @@ Koy penceresi, sihirbaz ve sağ alt menü renk, ölçü ve hareketi koda gömmez
 
 ## Açık sorular
 - Dock'taki ayırıcı ve klasörler kesin değil. Ayardan kapatılabilir olacak.
-- Varsayılan "pencere yaklaşınca" davranışı Aşağı yapış seçildi, gerekirse değiştirilecek.
+- Varsayılan "pencere yaklaşınca" davranışı Yer ayır (Windows görev çubuğu gibi dock hep görünür); Burhan'ın elle testinde istendi, ayardan değişir. Kayıtlı ayar göçle değiştirilmez.
 - Kısayol varsayılanları (`Ctrl+Alt+harf`) Windows'un `Win+harf` kısayollarıyla çakışmaz; yine de başka bir uygulama aynı kombinasyonu tutuyorsa kullanıcı değiştirir.

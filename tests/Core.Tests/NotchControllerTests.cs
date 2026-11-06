@@ -305,6 +305,86 @@ public class NotchControllerTests
     }
 
     [Fact]
+    public void Hold_KeepsExpandedWhenMouseLeavesAndTimeoutFires()
+    {
+        using var controller = new NotchController();
+        controller.Expand();
+        controller.OnMouseEnter();
+        controller.HoldOpen();
+
+        controller.OnMouseLeave();
+        controller.OnMouseLeaveTimeout();
+
+        Assert.Equal(NotchState.Expanded, controller.State);
+        Assert.True(controller.IsHeld);
+        Assert.False(controller.IsPinned);
+    }
+
+    [Fact]
+    public void Hold_IgnoresClickSoPickerIsNotOrphaned()
+    {
+        using var controller = new NotchController();
+        controller.Expand();
+        controller.HoldOpen();
+
+        controller.OnClick();
+
+        Assert.Equal(NotchState.Expanded, controller.State);
+    }
+
+    [Fact]
+    public void Release_WithMouseOutside_ClosesAfterNormalDelay()
+    {
+        var clock = new FakeClock();
+        using var controller = new NotchController(clock);
+        controller.Expand();
+        controller.OnMouseEnter();
+        controller.HoldOpen();
+        controller.OnMouseLeave();
+        clock.Advance(TimeSpan.FromSeconds(2));
+        Assert.Equal(NotchState.Expanded, controller.State);
+
+        controller.ReleaseHold();
+        Assert.Equal(NotchState.Expanded, controller.State);
+        clock.Advance(TimeSpan.FromMilliseconds(500));
+
+        Assert.False(controller.IsHeld);
+        Assert.Equal(NotchState.Collapsed, controller.State);
+    }
+
+    [Fact]
+    public void Release_WithMouseInside_StaysOpen()
+    {
+        var clock = new FakeClock();
+        using var controller = new NotchController(clock);
+        controller.Expand();
+        controller.OnMouseEnter();
+        controller.HoldOpen();
+        controller.ReleaseHold();
+        clock.Advance(TimeSpan.FromSeconds(2));
+
+        Assert.Equal(NotchState.Expanded, controller.State);
+    }
+
+    [Fact]
+    public void Hold_IsCounted_NestedHoldsKeepItHeld()
+    {
+        using var controller = new NotchController();
+        controller.Expand();
+        controller.HoldOpen();
+        controller.HoldOpen();
+        controller.ReleaseHold();
+        Assert.True(controller.IsHeld);
+
+        controller.ReleaseHold();
+        controller.ReleaseHold(); // fazladan bırakma sayacı eksiye düşürmez
+        Assert.False(controller.IsHeld);
+
+        controller.OnClick();
+        Assert.Equal(NotchState.Collapsed, controller.State);
+    }
+
+    [Fact]
     public void Expand_ToEnabledPanel_DoesNotRaiseEnabledPanelsChanged()
     {
         using var controller = new NotchController();

@@ -45,6 +45,7 @@ public sealed partial class QuickLaunchViewModel : ObservableObject, IDisposable
     {
         _service = service;
         _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
+        PickPath = DefaultPick;
     }
 
     public ObservableCollection<QuickLaunchItemViewModel> Items { get; } = [];
@@ -54,10 +55,17 @@ public sealed partial class QuickLaunchViewModel : ObservableObject, IDisposable
     private bool _canAdd = true;
 
     /// <summary>Dosya seçici (kabuk iletişim kutusu); iptalde null. Testte ve araçta değiştirilebilir.</summary>
-    public Func<string?> PickPath { get; set; } = DefaultPick;
+    public Func<string?> PickPath { get; set; }
 
     /// <summary>Seçici açılırken true, kapanınca false: çentik fare ayrılınca kapanmasın diye.</summary>
     public Action<bool>? HoldOpen { get; set; }
+
+    /// <summary>
+    /// Seçicinin sahibi olacak pencere (çentik penceresi). Sahipsiz diyalog Koy ön planda değilken arkada
+    /// kalabilir (görev çubuğu gizli, kimse görmez); sahipli diyalog çentiğin üstünde açılır.
+    /// Çağrı pencereyi diyalog için etkinleştirebilir. Null dönerse sahipsiz açılır.
+    /// </summary>
+    public Func<System.Windows.Window?>? ResolveDialogOwner { get; set; }
 
     public void SetActive(bool active)
     {
@@ -189,7 +197,7 @@ public sealed partial class QuickLaunchViewModel : ObservableObject, IDisposable
         }
     }
 
-    private static string? DefaultPick()
+    private string? DefaultPick()
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
@@ -198,7 +206,10 @@ public sealed partial class QuickLaunchViewModel : ObservableObject, IDisposable
             CheckFileExists = true,
             DereferenceLinks = false
         };
-        return dialog.ShowDialog() == true ? dialog.FileName : null;
+
+        var owner = ResolveDialogOwner?.Invoke();
+        var accepted = owner is not null ? dialog.ShowDialog(owner) : dialog.ShowDialog();
+        return accepted == true ? dialog.FileName : null;
     }
 
     public void Dispose()

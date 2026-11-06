@@ -10,11 +10,17 @@ internal sealed class FakeSystemStats : ISystemStatsService
 {
     public bool IsRunning => true;
 
-    public SystemSnapshot Current { get; } = new(
-        CpuPercent: 23, TopProcessName: "Chrome", TopProcessCpuPercent: 11,
-        RamUsedBytes: (long)(9.2 * 1024 * 1024 * 1024), RamTotalBytes: 16L * 1024 * 1024 * 1024, RamPercent: 58,
-        NetDownBytesPerSec: (long)(2.5 * 1024 * 1024), NetUpBytesPerSec: 360 * 1024, NetworkName: "Ev Ağı",
-        KoyMemoryBytes: 64L * 1024 * 1024);
+    /// <summary>instantOnly: servis yeni kurulmuş gibi yalnız anlık değerler (RAM...) var, CPU / hız henüz yok.</summary>
+    public FakeSystemStats(bool instantOnly = false)
+    {
+        Current = new SystemSnapshot(
+            CpuPercent: instantOnly ? 0 : 23, TopProcessName: instantOnly ? null : "Chrome", TopProcessCpuPercent: instantOnly ? 0 : 11,
+            RamUsedBytes: (long)(9.2 * 1024 * 1024 * 1024), RamTotalBytes: 16L * 1024 * 1024 * 1024, RamPercent: 58,
+            NetDownBytesPerSec: instantOnly ? 0 : (long)(2.5 * 1024 * 1024), NetUpBytesPerSec: instantOnly ? 0 : 360 * 1024, NetworkName: "Ev Ağı",
+            KoyMemoryBytes: 64L * 1024 * 1024, RatesReady: !instantOnly);
+    }
+
+    public SystemSnapshot Current { get; }
 
     public event EventHandler<SystemSnapshot>? Updated { add { } remove { } }
     public void Start() { }

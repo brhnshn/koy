@@ -138,7 +138,7 @@ public sealed class NotchController : IDisposable
             _autoPeekTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             SetState(NotchStateTransitions.Transition(State, NotchTrigger.MouseLeave));
         }
-        else if (State == NotchState.Expanded && !IsPinned)
+        else if (State == NotchState.Expanded && !IsPinned && !IsHeld)
         {
             StartMouseLeaveTimer();
         }
@@ -152,6 +152,30 @@ public sealed class NotchController : IDisposable
             null,
             TimeSpan.FromMilliseconds(400),
             Timeout.InfiniteTimeSpan);
+    }
+
+    // Geçici tutma: dosya seçici gibi çentiğin dışında açılan pencereler için. Kullanıcının iğnesinden (IsPinned)
+    // ayrıdır: iğne simgesi yanmaz, kullanıcı seçimi bozulmaz. Sayaçlı: iç içe tutmalar birbirini açmaz.
+    private int _holds;
+
+    /// <summary>Bir pencere (ör. dosya seçici) açık olduğu için çentik kapanmaz: fare ayrılsa da, çentiğe tıklansa da.</summary>
+    public bool IsHeld => _holds > 0;
+
+    /// <summary>Tutmayı başlatır; her çağrı bir <see cref="ReleaseHold"/> ile eşlenmelidir.</summary>
+    public void HoldOpen()
+    {
+        _mouseLeaveTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        _holds++;
+    }
+
+    /// <summary>Tutmayı bırakır. Sonuncusu bırakılınca fare dışarıdaysa her zamanki gecikmeyle kapanma başlar.</summary>
+    public void ReleaseHold()
+    {
+        if (_holds == 0)
+            return;
+
+        if (--_holds == 0 && State == NotchState.Expanded && !IsMouseOver && !IsPinned)
+            StartMouseLeaveTimer();
     }
 
     /// <summary>"Çentiği açık tut": açıkken fare çıkınca kapanmaz. Çentik kapanınca (tıklamayla) kendiliğinden kalkar.</summary>
@@ -178,6 +202,10 @@ public sealed class NotchController : IDisposable
 
     public void OnClick()
     {
+        // Seçici açıkken çentiğe tıklamak onu kapatıp seçiciyi yetim bırakmasın.
+        if (State == NotchState.Expanded && IsHeld)
+            return;
+
         _autoPeekTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         _mouseLeaveTimer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         SetState(NotchStateTransitions.Transition(State, NotchTrigger.Click));
@@ -214,7 +242,7 @@ public sealed class NotchController : IDisposable
 
     public void OnMouseLeaveTimeout()
     {
-        if (State == NotchState.Expanded && !IsMouseOver && !IsPinned)
+        if (State == NotchState.Expanded && !IsMouseOver && !IsPinned && !IsHeld)
             SetState(NotchStateTransitions.Transition(State, NotchTrigger.MouseLeaveDelayTimeout));
     }
 

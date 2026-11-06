@@ -21,6 +21,10 @@ public sealed partial class SystemStatsViewModel : ObservableObject, IDisposable
     private ISystemStatsService? _service;
     private bool _disposed;
 
+    // Servis her görünüşte yeniden kurulur ve ilk örneğe kadar boştur; son tam örnek burada kalır ki
+    // sekmeye dönünce "–" yerine hemen son değerler görünsün (yalnız bir sayı, bellek maliyeti yok).
+    private SystemSnapshot? _lastKnown;
+
     /// <param name="acquire">Servisi alır (SharedServices.AcquireSystemStats); çağrı sayılır.</param>
     /// <param name="release">Aldığı servisi bırakır (SharedServices.ReleaseSystemStats).</param>
     public SystemStatsViewModel(Func<ISystemStatsService> acquire, Action release, Dispatcher? dispatcher = null)
@@ -68,8 +72,8 @@ public sealed partial class SystemStatsViewModel : ObservableObject, IDisposable
     private string _koyMemoryText = NoValue;
 
     /// <summary>
-    /// Görünürlüğe göre servisi alır ya da bırakır (idempotent). Alırken son örnek hemen gösterilir;
-    /// ilk saniyelik örneğe kadar çizgiler boştur.
+    /// Görünürlüğe göre servisi alır ya da bırakır (idempotent). Alırken anlık değerler (RAM...) hemen okunur,
+    /// CPU / ağ hızı gibi iki örnek isteyenler ilk yeni örneğe kadar son bilinen değerle gösterilir.
     /// </summary>
     public void SetActive(bool active)
     {
@@ -109,12 +113,18 @@ public sealed partial class SystemStatsViewModel : ObservableObject, IDisposable
         });
     }
 
-    private void Apply(SystemSnapshot s)
+    private void Apply(SystemSnapshot raw)
     {
-        var hasData = s.RamTotalBytes > 0;
+        var s = SystemSnapshotMerge.Merge(raw, _lastKnown);
+        if (raw.RatesReady)
+            _lastKnown = raw;
+
+        // "–" yalnız hiç değer yokken: anlık veri (RAM) ya da oran (CPU, ağ hızı) henüz bir kez bile gelmediyse.
+        var hasData = SystemSnapshotMerge.HasInstantData(s);
+        var hasRates = hasData && s.RatesReady;
 
         CpuProgress = Math.Clamp(s.CpuPercent, 0, 100) / 100;
-        CpuText = hasData ? SystemFormat.Percent(s.CpuPercent) : NoValue;
+        CpuText = hasRates ? SystemFormat.Percent(s.CpuPercent) : NoValue;
         TopProcessText = string.IsNullOrWhiteSpace(s.TopProcessName)
             ? ""
             : string.Format(Strings.Get("SystemTopProcess"), s.TopProcessName);
@@ -124,8 +134,8 @@ public sealed partial class SystemStatsViewModel : ObservableObject, IDisposable
         MemoryDetailText = hasData ? SystemFormat.Memory(s.RamUsedBytes, s.RamTotalBytes) : "";
 
         NetworkName = string.IsNullOrWhiteSpace(s.NetworkName) ? Strings.Get("SystemNoNetwork") : s.NetworkName;
-        DownloadText = "↓ " + SystemFormat.Speed(s.NetDownBytesPerSec);
-        UploadText = "↑ " + SystemFormat.Speed(s.NetUpBytesPerSec);
+        DownloadText = "↓ " + (hasRates ? SystemFormat.Speed(s.NetDownBytesPerSec) : NoValue);
+        UploadText = "↑ " + (hasRates ? SystemFormat.Speed(s.NetUpBytesPerSec) : NoValue);
 
         KoyMemoryText = s.KoyMemoryBytes > 0 ? SystemFormat.Size(s.KoyMemoryBytes) : NoValue;
     }

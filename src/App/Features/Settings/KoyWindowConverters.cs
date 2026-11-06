@@ -38,6 +38,21 @@ public sealed class PageIndexToVisibilityConverter : IValueConverter
         throw new NotSupportedException();
 }
 
+/// <summary>Değer parametreyle eşleşirse görünür, değilse Collapsed (seçime göre açıklama satırı için).</summary>
+public sealed class ComparisonToVisibilityConverter : IValueConverter
+{
+    public static readonly ComparisonToVisibilityConverter Instance = new();
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is not null && parameter is not null &&
+           string.Equals(value.ToString(), parameter.ToString(), StringComparison.OrdinalIgnoreCase)
+            ? System.Windows.Visibility.Visible
+            : System.Windows.Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => System.Windows.Data.Binding.DoNothing;
+}
+
 public sealed class ComparisonToBoolConverter : IValueConverter
 {
     public static readonly ComparisonToBoolConverter Instance = new();
