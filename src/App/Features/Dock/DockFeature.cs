@@ -572,23 +572,28 @@ public sealed class DockFeature(AppSettings settings, SharedServices services) :
         foreach (var (_, state) in _windowStates)
         {
             // Pencere bu monitörde değilse bu monitör için büyütülmüş sayılmaz (M6.2: Yan ekrandaki durum burayı etkilemez)
-            var monitorMaximized = isMaximized && (fgMon == 0 || fgMon == state.Monitor.Handle);
+            var onThisMonitor = DockForegroundFilter.AppliesToDock(fgMon, state.Monitor.Handle);
+            var monitorMaximized = isMaximized && onThisMonitor;
+
+            // Pencere yalnız kendi ekranının dock'unu etkiler; yan ekrandaki büyütülmüş pencerenin kenar taşması
+            // bu dock'u yapışık moda geçirmesin (DockForegroundFilter).
+            var bounds = DockForegroundFilter.BoundsForDock(info.Bounds, fgMon, state.Monitor.Handle);
 
             // Her monitörün kendi tam ekran durumu sorgulanır:
             // Yan ekranda tam ekran uygulama olması bu monitördeki Koy'u gizlemez!
             var isFullscreen = _fullscreenDetector.IsFullscreen(state.Monitor.Handle);
             state.VisibilityController.SetFullscreen(isFullscreen);
-            state.VisibilityController.UpdateForegroundWindow(info.Handle, info.Bounds);
+            state.VisibilityController.UpdateForegroundWindow(onThisMonitor ? info.Handle : 0, bounds);
 
-            var leftDip = info.Bounds.Left / state.Monitor.DpiScaleX;
-            var topDip = info.Bounds.Top / state.Monitor.DpiScaleY;
-            var rightDip = info.Bounds.Right / state.Monitor.DpiScaleX;
-            var bottomDip = info.Bounds.Bottom / state.Monitor.DpiScaleY;
+            var boundsDip = bounds.IsEmpty
+                ? WindowRect.Empty
+                : new WindowRect(
+                    (int)(bounds.Left / state.Monitor.DpiScaleX),
+                    (int)(bounds.Top / state.Monitor.DpiScaleY),
+                    (int)(bounds.Right / state.Monitor.DpiScaleX),
+                    (int)(bounds.Bottom / state.Monitor.DpiScaleY));
 
-            state.ViewModel.UpdateForegroundWindow(
-                new WindowRect((int)leftDip, (int)topDip, (int)rightDip, (int)bottomDip),
-                monitorMaximized,
-                isFullscreen);
+            state.ViewModel.UpdateForegroundWindow(boundsDip, monitorMaximized, isFullscreen);
 
             if (!isFullscreen && !monitorMaximized && state.Hwnd != 0 && info.Handle != state.Hwnd)
             {
