@@ -91,8 +91,9 @@ public static class Program
     }
 
     /// <summary>
-    /// Çentik panelleri (takvim: ay / hafta / gün / zamanlayıcı / kronometre) ve ayarlardaki hava durumu bölümü.
-    /// Etkinlikler geçici dosyada, ağ ve konum servisleri sahte; gerçek veriye dokunulmaz.
+    /// Çentik H arayüzü (Ana, Odak, Raf, Kontrol ve kapalı çentik) ve ayarlardaki hava durumu bölümü.
+    /// Çentik gerçek NotchWindow ve NotchViewModel ile kurulur ama gösterilmez; medya, pil, hava, ses ve radyo
+    /// servisleri sahte (CentikFakes.cs), zamanlayıcılar gerçek. Gerçek veriye ve görev çubuğuna dokunulmaz.
     /// </summary>
     private static void RenderCentik(string outDir, string prefix, string theme)
     {
@@ -103,74 +104,8 @@ public static class Program
 
         try
         {
-            var shared = new Koy.App.Features.Calendar.SharedEvents(new Koy.Core.Calendar.EventStore(Path.Combine(tempDir, "events.json")));
-            var today = DateOnly.FromDateTime(DateTime.Today);
-            shared.Book.Add("Diş randevusu", today, new TimeOnly(10, 30), 45);
-            shared.Book.Add("Takım toplantısı", today, new TimeOnly(15, 0), 60);
-            shared.Book.Add("Spor", today, new TimeOnly(19, 30), 60);
-            shared.Book.Add("Rapor teslimi", today.AddDays(2), new TimeOnly(9, 0), 0);
-            shared.Book.Add("Yürüyüş", today.AddDays(-1), new TimeOnly(8, 0), 30);
-
-            var vm = new Koy.App.Features.Calendar.CalendarViewModel(new AppSettings(), shared);
-            vm.SetVisible(true, false);
-
             string Name(string n) => Path.Combine(outDir, $"{prefix}-{theme}-{n}.png");
-            void Flush() => System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
-
-            FrameworkElement Host() => new System.Windows.Controls.Border
-            {
-                Width = 420,
-                Height = NotchHeight(),
-                Background = new SolidColorBrush(Color.FromRgb(0x0A, 0x0A, 0x0B)),
-                CornerRadius = new CornerRadius(0, 0, 28, 28),
-                Child = new Koy.App.Features.Calendar.CalendarPanel { DataContext = vm }
-            };
-
-            static double NotchHeight() => Koy.Core.Notch.NotchLayout.ExpandedHeight(Koy.Core.Notch.NotchPanel.Calendar) - 30;
-
-            RenderElement(Host(), 420, 0, Name("takvim-ay"));
-            vm.SetViewCommand.Execute(Koy.Core.Calendar.CalendarViewMode.Week);
-            RenderElement(Host(), 420, 0, Name("takvim-hafta"));
-            vm.SetViewCommand.Execute(Koy.Core.Calendar.CalendarViewMode.Day);
-            RenderElement(Host(), 420, 0, Name("takvim-gun"));
-
-            vm.NextToolCommand.Execute(null);
-            Flush();
-            RenderElement(Host(), 420, 0, Name("takvim-zamanlayici"));
-            vm.ToggleCountdownCommand.Execute(null);
-            Flush();
-            RenderElement(Host(), 420, 0, Name("takvim-zamanlayici-calisiyor"));
-            vm.ToggleCountdownCommand.Execute(null);
-
-            vm.NextToolCommand.Execute(null);
-            vm.ToggleStopwatchCommand.Execute(null);
-            Thread.Sleep(1300);
-            vm.LapStopwatchCommand.Execute(null);
-            Thread.Sleep(700);
-            vm.LapStopwatchCommand.Execute(null);
-            Flush();
-            RenderElement(Host(), 420, 0, Name("takvim-kronometre"));
-            vm.ToggleStopwatchCommand.Execute(null);
-            vm.Dispose();
-
-            // Kontrol merkezi: varsayılan sıra ve kayıtlı özel sıra (servisler kurulmaz, yalnız döşeme düzeni çizilir)
-            foreach (var (label, layout) in new[] { ("varsayilan", new List<string>()), ("ozel-sira", new List<string> { "donotdisturb", "wifi", "bluetooth" }) })
-            {
-                var ccVm = new Koy.App.Features.ControlCenter.ControlCenterViewModel(
-                    () => throw new NotSupportedException(), () => throw new NotSupportedException(), null,
-                    () => throw new NotSupportedException(), new Koy.Platform.Shell.FocusAssistService(),
-                    new AppSettings { ControlCenterLayout = layout }, store: store);
-                var ccHost = new System.Windows.Controls.Border
-                {
-                    Width = 420,
-                    Height = 140,
-                    Background = new SolidColorBrush(Color.FromRgb(0x0A, 0x0A, 0x0B)),
-                    CornerRadius = new CornerRadius(0, 0, 28, 28),
-                    Child = new Koy.App.Features.ControlCenter.ControlCenterPanel { DataContext = ccVm }
-                };
-                RenderElement(ccHost, 420, 0, Name("kontrol-" + label));
-            }
-
+            RenderNotchScenes(Name);
             // Ayarlar › Çentik › Hava durumu (örnek arama sonuçlarıyla)
             var kvm = new KoyWindowViewModel(store);
             var win = new KoyWindow(kvm);
@@ -198,6 +133,142 @@ public static class Program
         }
     }
 
+    private static void Flush() =>
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.ContextIdle);
+
+    private sealed record NotchSet(
+        Koy.App.Features.Notch.NotchWindow Window,
+        Koy.App.Features.Notch.NotchViewModel Vm,
+        Koy.Core.Timers.FocusTimers Timers);
+
+    private static NotchSet MakeNotch(bool music, IReadOnlyList<Koy.Core.Shelf.ShelfItem>? shelf = null, List<string>? tileOrder = null)
+    {
+        var settings = new AppSettings
+        {
+            FirstRunCompleted = true,
+            WeatherLocationSource = Koy.Core.Weather.WeatherLocationSource.City,
+            WeatherCity = "İstanbul, Türkiye",
+            WeatherLatitude = 41.01,
+            WeatherLongitude = 28.97,
+            ControlCenterLayout = tileOrder ?? new AppSettings().ControlCenterLayout
+        };
+
+        var controller = new Koy.Core.Notch.NotchController();
+        controller.SetEnabledPanels(Koy.Core.Notch.NotchPanels.Order);
+        var timers = new Koy.Core.Timers.FocusTimers(Koy.Core.Timers.PomodoroConfig.Default);
+        var info = music ? new Koy.Core.Media.MediaInfo("Gece Yolculuğu", "Mor ve Ötesi", "Spotify.exe", true, null) : null;
+
+        var vm = new Koy.App.Features.Notch.NotchViewModel(
+            settings,
+            controller,
+            new Koy.App.Features.Music.MusicViewModel(new FakeMedia(info)),
+            new Koy.App.Features.ControlCenter.ControlCenterViewModel(
+                () => new FakeAudio(), () => new FakeRadio(), null, () => new FakeBrightness(), new FakeFocusAssist(), settings),
+            new Koy.App.Features.Status.StatusViewModel(new FakePower(), new FakeWeather(), settings),
+            new Koy.App.Features.Focus.FocusViewModel(timers, settings),
+            new Koy.App.Features.Shelf.ShelfViewModel(new FakeShelf(shelf ?? [])));
+
+        var window = new Koy.App.Features.Notch.NotchWindow { DataContext = vm };
+        return new NotchSet(window, vm, timers);
+    }
+
+    private static void ShotNotch(NotchSet set, string path, bool expanded)
+    {
+        var shape = (Koy.App.Features.Notch.NotchShape)set.Window.FindName("Notch");
+        if (expanded)
+        {
+            shape.Width = Koy.Core.Notch.NotchLayout.ExpandedWidth;
+            shape.Height = Koy.Core.Notch.NotchLayout.ExpandedHeight;
+            shape.CornerRadius = 34;
+        }
+        else
+        {
+            shape.Width = set.Vm.IsMusicPlaying ? 280 : 236;
+            shape.Height = 34;
+            shape.CornerRadius = 18;
+        }
+
+        Flush();
+        RenderElement((FrameworkElement)set.Window.Content, Koy.Core.Notch.NotchLayout.CanvasWidth, Koy.Core.Notch.NotchLayout.CanvasHeight, path);
+    }
+
+    private static void RenderNotchScenes(Func<string, string> name)
+    {
+        var shelfItems = new[]
+        {
+            new Koy.Core.Shelf.ShelfItem("1", "sunum.pdf", @"C:\Belgeler\sunum.pdf", Koy.Core.Shelf.ShelfItemKind.File, DateTimeOffset.Now),
+            new Koy.Core.Shelf.ShelfItem("2", "ekran.png", @"C:\Belgeler\ekran.png", Koy.Core.Shelf.ShelfItemKind.File, DateTimeOffset.Now),
+            new Koy.Core.Shelf.ShelfItem("3", "notlar", @"C:\Belgeler\notlar", Koy.Core.Shelf.ShelfItemKind.Directory, DateTimeOffset.Now),
+            new Koy.Core.Shelf.ShelfItem("4", "Kopyalanan metin", "Kopyalanan metin", Koy.Core.Shelf.ShelfItemKind.Text, DateTimeOffset.Now)
+        };
+
+        // Kapalı çentik: boşta, müzik çalarken, zamanlayıcı çalışırken.
+        var set = MakeNotch(music: false);
+        ShotNotch(set, name("kapali"), expanded: false);
+        set.Timers.Toggle(Koy.Core.Timers.FocusKind.Focus);
+        Flush();
+        ShotNotch(set, name("kapali-zamanlayici"), expanded: false);
+        set.Vm.Dispose();
+
+        set = MakeNotch(music: true);
+        ShotNotch(set, name("kapali-muzik"), expanded: false);
+        set.Vm.Dispose();
+
+        // Ana: müzik çalıyor / çalmıyor + çalışan zamanlayıcı satırı.
+        set = MakeNotch(music: true);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Home);
+        ShotNotch(set, name("ana-muzik"), expanded: true);
+        set.Vm.Dispose();
+
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Home);
+        ShotNotch(set, name("ana-bos"), expanded: true);
+        set.Timers.Toggle(Koy.Core.Timers.FocusKind.Focus);
+        Thread.Sleep(1100);
+        Flush();
+        ShotNotch(set, name("ana-bos-zamanlayici"), expanded: true);
+
+        // Odak: Odak (çalışıyor), Mola, Sayaç, Kronometre (turlarla).
+        set.Vm.Controller.GoToPanel(Koy.Core.Notch.NotchPanel.Focus);
+        ShotNotch(set, name("odak"), expanded: true);
+        set.Vm.Focus.SelectTabCommand.Execute(Koy.Core.Timers.FocusKind.Break);
+        ShotNotch(set, name("odak-mola"), expanded: true);
+        set.Vm.Focus.SelectTabCommand.Execute(Koy.Core.Timers.FocusKind.Countdown);
+        ShotNotch(set, name("odak-sayac"), expanded: true);
+        set.Vm.Focus.SelectTabCommand.Execute(Koy.Core.Timers.FocusKind.Stopwatch);
+        set.Vm.Focus.ToggleCommand.Execute(null);
+        Thread.Sleep(1300);
+        set.Vm.Focus.LapCommand.Execute(null);
+        Thread.Sleep(700);
+        set.Vm.Focus.LapCommand.Execute(null);
+        Flush();
+        ShotNotch(set, name("odak-kronometre"), expanded: true);
+        set.Vm.Dispose();
+
+        // Raf: dolu ve boş. Kontrol: varsayılan sıra ve kayıtlı özel sıra.
+        set = MakeNotch(music: false, shelfItems);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Shelf);
+        ShotNotch(set, name("raf"), expanded: true);
+        set.Vm.Dispose();
+
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Shelf);
+        ShotNotch(set, name("raf-bos"), expanded: true);
+        set.Vm.Dispose();
+
+        set = MakeNotch(music: false);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.ControlCenter);
+        Flush();
+        ShotNotch(set, name("kontrol"), expanded: true);
+        set.Vm.Dispose();
+
+        // Kayıtlı özel döşeme sırası korunuyor mu
+        set = MakeNotch(music: false, tileOrder: ["donotdisturb", "wifi", "bluetooth"]);
+        set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.ControlCenter);
+        Flush();
+        ShotNotch(set, name("kontrol-ozel-sira"), expanded: true);
+        set.Vm.Dispose();
+    }
     /// <summary>Hakkında sayfası (kaldırma düğmesi kapalı ve açık) ve onay görünümü (ayarlar saklanır / silinir).</summary>
     private static void RenderUninstall(string outDir, string prefix, string theme)
     {
