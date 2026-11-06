@@ -276,6 +276,9 @@ public static class Program
         set.Vm.Music.Spectrum.Push([0.3f, 0.55f, 0.8f, 0.45f, 0.9f, 0.7f, 0.35f, 0.6f, 0.85f, 1f, 0.5f, 0.3f, 0.45f, 0.75f, 0.9f, 0.6f, 0.35f, 0.7f, 0.85f, 0.45f, 0.3f, 0.5f, 0.7f, 0.35f]);
         System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Background);
         ShotNotch(set, name("ana-muzik"), expanded: true);
+        // Müzik kartına tıklanınca: büyük kart Ana gövdesini kaplar.
+        set.Vm.Home.ToggleMusicExpandedCommand.Execute(null);
+        ShotNotch(set, name("ana-muzik-buyuk"), expanded: true);
         set.Vm.Dispose();
 
         set = MakeNotch(music: false);
