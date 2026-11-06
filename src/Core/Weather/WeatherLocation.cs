@@ -51,6 +51,12 @@ public interface ILocationService
     Task<LocationResult> GetLocationAsync(CancellationToken cancellationToken = default);
 }
 
+/// <summary>Koordinattan yer adı (ters konumlama). Ağ hatasında null döner, istisna fırlatmaz.</summary>
+public interface IPlaceNameService
+{
+    Task<string?> GetPlaceNameAsync(double latitude, double longitude, string language, CancellationToken cancellationToken = default);
+}
+
 /// <summary>Şehir arama sözleşmesi (Open-Meteo geocoding).</summary>
 public interface IGeocodingService
 {

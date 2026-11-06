@@ -162,7 +162,8 @@ public static class Program
         var vm = new Koy.App.Features.Notch.NotchViewModel(
             settings,
             controller,
-            new Koy.App.Features.Music.MusicViewModel(new FakeMedia(info)),
+            // Yakalama başlatılmayan servis: çubuklar aşağıda sahte düzeylerle doldurulur, gerçek ses okunmaz.
+            new Koy.App.Features.Music.MusicViewModel(new FakeMedia(info), spectrumAcquire: () => new Koy.Platform.Audio.SpectrumCaptureService()),
             new Koy.App.Features.ControlCenter.ControlCenterViewModel(
                 () => new FakeAudio(), () => new FakeRadio(), null, () => new FakeBrightness(), new FakeFocusAssist(), settings,
                 wifiFactory: () => new FakeWifi(locationBlocked),
@@ -270,6 +271,9 @@ public static class Program
         // Ana: müzik çalıyor / çalmıyor + çalışan zamanlayıcı satırı.
         set = MakeNotch(music: true);
         set.Vm.Controller.Expand(Koy.Core.Notch.NotchPanel.Home);
+        set.Vm.Music.SetSpectrumAllowed(true);
+        set.Vm.Music.Spectrum.Push([0.3f, 0.55f, 0.8f, 0.45f, 0.9f, 0.7f, 0.35f, 0.6f, 0.85f, 1f, 0.5f, 0.3f, 0.45f, 0.75f, 0.9f, 0.6f, 0.35f, 0.7f, 0.85f, 0.45f, 0.3f, 0.5f, 0.7f, 0.35f]);
+        System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Background);
         ShotNotch(set, name("ana-muzik"), expanded: true);
         set.Vm.Dispose();
 

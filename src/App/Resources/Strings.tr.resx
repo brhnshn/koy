@@ -880,7 +880,7 @@
     <value>Hava durumu için konumunu kullanalım mı?</value>
   </data>
   <data name="WizLocationBody" xml:space="preserve">
-    <value>Çentik hava durumunu gösterebilir. Konumun Koy açılırken bir kez (günde en fazla) okunur ve bu bilgisayarda kalır; tahmin için Open-Meteo'ya yalnız koordinat gönderilir. Bunu sonra Ayarlar'dan değiştirebilirsin.</value>
+    <value>Çentik hava durumunu gösterebilir. Konumun Koy açılırken bir kez (günde en fazla) okunur ve bu bilgisayarda kalır; tahmin için Open-Meteo'ya, şehir adı için OpenStreetMap'e yalnız yuvarlanmış koordinat gönderilir. Bunu sonra Ayarlar'dan değiştirebilirsin.</value>
   </data>
   <data name="WizLocationYes" xml:space="preserve">
     <value>Evet, konumumu kullan</value>
@@ -1502,5 +1502,14 @@
   </data>
   <data name="ControlOpenBluetoothList" xml:space="preserve">
     <value>Bluetooth cihazlarını göster</value>
+  </data>
+  <data name="AboutPlaceTitle" xml:space="preserve">
+    <value>Konum adı</value>
+  </data>
+  <data name="AboutPlaceLicense" xml:space="preserve">
+    <value>Cihaz konumunun şehir adı, © OpenStreetMap katkıcıları (ODbL)</value>
+  </data>
+  <data name="AboutPlaceLink" xml:space="preserve">
+    <value>OpenStreetMap</value>
   </data>
 </root>

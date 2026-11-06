@@ -880,7 +880,7 @@
     <value>Use your location for weather?</value>
   </data>
   <data name="WizLocationBody" xml:space="preserve">
-    <value>The notch can show the weather. Your location is read once when Koy starts (at most once a day) and stays on this computer; only the coordinates are sent to Open-Meteo to get the forecast. You can change this later in Settings.</value>
+    <value>The notch can show the weather. Your location is read once when Koy starts (at most once a day) and stays on this computer; only rounded coordinates are sent to Open-Meteo for the forecast and to OpenStreetMap for the city name. You can change this later in Settings.</value>
   </data>
   <data name="WizLocationYes" xml:space="preserve">
     <value>Yes, use my location</value>
@@ -1502,5 +1502,14 @@
   </data>
   <data name="ControlOpenBluetoothList" xml:space="preserve">
     <value>Show Bluetooth devices</value>
+  </data>
+  <data name="AboutPlaceTitle" xml:space="preserve">
+    <value>Place name</value>
+  </data>
+  <data name="AboutPlaceLicense" xml:space="preserve">
+    <value>City name for your device location, © OpenStreetMap contributors (ODbL)</value>
+  </data>
+  <data name="AboutPlaceLink" xml:space="preserve">
+    <value>OpenStreetMap</value>
   </data>
 </root>

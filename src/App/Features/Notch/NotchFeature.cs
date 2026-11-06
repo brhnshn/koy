@@ -72,6 +72,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
     private PowerService? _powerService;
     private NetworkService? _networkService;
     private WeatherService? _weatherService;
+    // Cihaz konumunun yer adı: bütün ekranların çentikleri tek servisi paylaşır (koordinat başına tek istek).
+    private readonly PlaceNameService _placeNameService = new();
     private FocusAssistService? _focusAssistService;
     private ShelfService? _shelfService;
     private WindowTracker? _windowTracker;
@@ -193,7 +195,8 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             HideInFullscreen = settings.NotchHideInFullscreen
         };
 
-        var musicVm = new MusicViewModel(_mediaService!);
+        // Müzik kartı çubukları: ses yakalama yalnız kart görünür ve müzik çalarken (MusicViewModel.UpdateSpectrum).
+        var musicVm = new MusicViewModel(_mediaService!, spectrumAcquire: () => services.AcquireSpectrumService(), spectrumRelease: services.ReleaseSpectrumService);
         var controlCenterVm = new ControlCenterViewModel(
             () => new AudioService(),
             () => services.AcquireRadioService(),
@@ -204,7 +207,7 @@ public sealed class NotchFeature(AppSettings settings, SharedServices services) 
             wifiFactory: () => services.AcquireWifiService(),
             wifiRelease: services.ReleaseWifiService,
             bluetoothDevices: new BluetoothDevicesViewModel(() => services.AcquireBluetoothService(), services.ReleaseBluetoothService));
-        var statusVm = new StatusViewModel(_powerService!, _weatherService!, settings, networkService: _networkService);
+        var statusVm = new StatusViewModel(_powerService!, _weatherService!, settings, networkService: _networkService, placeNameService: _placeNameService);
         var tasksVm = new TasksViewModel(services.Tasks);
         var focusVm = new FocusViewModel(_focusTimers!, settings, tasks: tasksVm);
         var shelfVm = new ShelfViewModel(_shelfService!);

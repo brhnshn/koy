@@ -48,7 +48,7 @@ Kutuları iş bittikçe işaretle. Dosya yolları önerilir; daha iyi bir ad var
 - [x] Birden fazla oturum: `GetSessions()` listesi, panelde küçük uygulama simgeleri arasında geçiş.
 - [x] `App/Features/Music/MusicPanel.xaml` + `MusicViewModel.cs`: kapak, başlık, sanatçı, önceki / oynat-duraklat / sonraki, ilerleme çubuğu (`TimelineProperties`; saniyede bir güncelleme yalnız panel açıkken).
 - [x] Collapsed durumda müzik çalıyorsa hapın iki yanında küçük kapak + basit dalga simgesi (gerçek ses analizi değil; M1'de animasyonlu çubuk yeter).
-- [ ] Ses görselleştirici (isteğe bağlı, bütçe izin verirse): WASAPI loopback, yalnız Expanded + Music panelinde açık. Bellek ölç; 5 MB'tan fazla eklerse ertele.
+- [x] Ses görselleştirici: Ana müzik kartında 24 çubuk (tasarım H). WASAPI loopback (`SpectrumCaptureService`, ayrı iş parçacığı, ~30 kare/sn) + `SpectrumAnalyzer` (1024 FFT, log bantlar, testli). Yalnız çentik açık, Ana görünür ve müzik çalarken; "kapak ve dalga" ayarına bağlı, pil tasarrufunda kapalı. Ses inince olay kesilir (çizim yok). Deneme programında ölçüm: +1 MB özel bellek, çalarken 3 sn'de 16 ms CPU. Gerçek müzikle Koy içinde elle sınanmadı; varsayılan çıkış aygıtı değişince yakalama eski aygıtta kalır (kart yeniden açılınca düzelir).
 
 ### 1.4 Görünürlük modları
 - [x] `Core/Shell/IWindowTracker.cs` + `IFullscreenDetector.cs` (sözleşmeler, pencere kimliği `nint`).
@@ -254,7 +254,7 @@ Kaynak tasarım: `docs/design/source/CentikH.dc.html`. Pano, Sistem, görev list
 - [ ] Elle sına (Ana): hızlı başlat simgeleri, tıklayınca başlatma; "+" dosya seçicisi açılırken çentik kapanmıyor mu (seçici süresince açık tutulur); sağ tık menüsü çentiği kapatmıyor mu; 8 öğede "+" gizlenmesi; durum satırındaki hava (tıklayınca yenilenme) ve "Konum seç".
 - [x] Takvim sekmesi (proje sahibi kararı: H içinde yeniden kullanılır): yedinci sekme, `NotchPanel.Calendar` (sıra Ana, Odak, Takvim, Raf, Pano, Sistem, Kontrol), sayfa rengi `#38BDF8`. Ay / hafta / gün görünümü ve yerel etkinlik ekleme-silme (`Core/Calendar` aynen); eski panelin zamanlayıcı araçları kaldırıldı (Odak'ta). Ayarlarda aç / kapat; eski ayar dosyalarındaki `calendar` anahtarı artık Takvim'e gider, H öncesi dosyalarda (`music` / `status` anahtarı olanlar) eskiden Pomodoro da taşıdığı için Odak de açılır (testli).
 - [ ] Elle sına (Takvim): etkinlik ekle / sil, uygulamayı yeniden aç; iki monitörde aynı liste; ay / hafta / gün gezinmesi; gece yarısını geçince bugünün güncellenmesi.
-- [ ] Karar gerekli: hava durumu kartındaki yer adı yalnız şehir seçilmişse gerçek ad; cihaz konumunda ad çözülmediği için "Konumum" yazılıyor (ters konumlama servisi yok).
+- [x] Cihaz konumunda yer adı: OpenStreetMap Nominatim ters konumlama (`PlaceNameParser`, `PlaceNameService`). Koordinat iki ondalığa (~1 km) yuvarlanır, yalnız çentik açılınca ve koordinat başına oturumda bir kez sorulur; ad çözülemezse "Konumum". Hava isteği de iki ondalığa indi. Hakkında sayfasına OSM (ODbL) atfı, sihirbaz gizlilik metnine OSM eklendi.
 
 ## Wi-Fi ve Bluetooth listeleri
 Kontrol'deki Wi-Fi / Bluetooth döşemeleri Windows 11 hızlı ayarları gibi bölünmüş: sol bölüm aç/kapa, sağda dar ok (hover'da parlar, basınca vurgulanır); ok çentik içinde (sekme çubuğu kalır) liste sayfasını açar. Döşeme sırası özelliği aynen çalışır.

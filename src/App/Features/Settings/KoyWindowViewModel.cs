@@ -706,6 +706,23 @@ public sealed partial class KoyWindowViewModel : ObservableObject
         }
     }
 
+    /// <summary>Cihaz konumunun yer adı kaynağı (OpenStreetMap Nominatim, ODbL atfı).</summary>
+    [RelayCommand]
+    public void OpenOpenStreetMap()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://www.openstreetmap.org/copyright",
+                UseShellExecute = true
+            });
+        }
+        catch
+        {
+        }
+    }
+
     [RelayCommand]
     public void ExitApp()
     {
